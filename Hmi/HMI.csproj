@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{74E50360-7D22-4DF9-AD34-A04456EC13CC}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>Hmi</RootNamespace>
+    <AssemblyName>SF1_Hmi</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Cpnteck_Icon_32x32.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Dapper, Version=1.50.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Dapper.1.50.2\lib\net451\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\..\DRY-END-COCELPA\packages\LiveCharts.Core.0.9.8\lib\net40\LiveCharts.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.WinForms, Version=0.9.7.1, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.WinForms.0.9.7.1\lib\net45\LiveCharts.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="LiveCharts.Wpf, Version=0.9.7.0, Culture=neutral, PublicKeyToken=0bc1f845d1ebb8df, processorArchitecture=MSIL">
+      <HintPath>..\packages\LiveCharts.Wpf.0.9.7\lib\net45\LiveCharts.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="TextBoxWKeyBoard">
+      <HintPath>..\TextBoxWKeyBoard\bin\Debug\TextBoxWKeyBoard.dll</HintPath>
+    </Reference>
+    <Reference Include="TwinCAT.Ads, Version=4.3.0.0, Culture=neutral, PublicKeyToken=180016cd49e5e8c3, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\TwinCAT\AdsApi\.NET\v4.0.30319\TwinCAT.Ads.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\ClientsList.cs" />
+    <Compile Include="Data\HourToHourProduction.cs" />
+    <Compile Include="Data\MachineSpeedRecord.cs" />
+    <Compile Include="Data\MachineNotRunningTimePerHour.cs" />
+    <Compile Include="Data\EntityState.cs" />
+    <Compile Include="Data\Order\order_TypeStruct.cs" />
+    <Compile Include="Data\Order\PlcOrderMapper.cs" />
+    <Compile Include="Data\Order\ProductionListPlc.cs" />
+    <Compile Include="Data\Public Enum\boxType.cs" />
+    <Compile Include="Data\PaperCompositionList.cs" />
+    <Compile Include="Data\PaperList.cs" />
+    <Compile Include="Data\ProductionList.cs" />
+    <Compile Include="Data\ProductList.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="SubForms\Production Metrics\frmMachineSpeedGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForms\Production Metrics\frmMachineSpeedGraph.Designer.cs">
+      <DependentUpon>frmMachineSpeedGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForms\frmHome.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForms\frmHome.Designer.cs">
+      <DependentUpon>frmHome.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MainForm\frmMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MainForm\frmMain.Designer.cs">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForms\frmHist.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForms\frmHist.Designer.cs">
+      <DependentUpon>frmHist.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForms\frmOrders.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForms\frmOrders.Designer.cs">
+      <DependentUpon>frmOrders.cs</DependentUpon>
+    </Compile>
+    <Compile Include="SubForms\frmProductionGraph.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SubForms\frmProductionGraph.Designer.cs">
+      <DependentUpon>frmProductionGraph.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="SubForms\Production Metrics\frmMachineSpeedGraph.resx">
+      <DependentUpon>frmMachineSpeedGraph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForms\frmHome.resx">
+      <DependentUpon>frmHome.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MainForm\frmMain.resx">
+      <DependentUpon>frmMain.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForms\frmHist.resx">
+      <DependentUpon>frmHist.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForms\frmOrders.resx">
+      <DependentUpon>frmOrders.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SubForms\frmProductionGraph.resx">
+      <DependentUpon>frmProductionGraph.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\DataSources\Hmi.Data.ClientsList.datasource" />
+    <None Include="Properties\DataSources\Hmi.Data.ProductionList.datasource" />
+    <None Include="Properties\DataSources\Hmi.Data.ProductionListPlc.datasource" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings1.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Agk1100_Overview1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Agk1100_Overview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Agk1100_Flow.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Flow2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Agk1100_Overview2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_AuxMotor_FLT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_AuxMotor_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_AuxMotor_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Img_FlowChart.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Heater_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Heater_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_MainMotor_FLT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_MainMotor_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_MainMotor_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Pump_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Pump_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_TranspMotor_FLT.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_TranspMotor_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_TranspMotor_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Valve_H_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Valve_H_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Valve_V_OFF.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\img_Valve_V_ON.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 e x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="stdole">
+      <Guid>{00020430-0000-0000-C000-000000000046}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>primary</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="TCEVENTLOGGERLib">
+      <Guid>{8754F6D1-6134-11D2-9E29-00E01890498A}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+    <COMReference Include="TcEventLogProxyLib">
+      <Guid>{09CD3A52-913D-402D-9126-4550373439D6}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Cpnteck_Icon_32x32.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="PopUp\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

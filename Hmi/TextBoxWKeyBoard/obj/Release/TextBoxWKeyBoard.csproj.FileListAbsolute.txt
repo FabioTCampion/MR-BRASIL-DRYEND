@@ -1,0 +1,9 @@
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\bin\Release\TextBoxWKeyBoard.dll
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\bin\Release\TextBoxWKeyBoard.pdb
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.csproj.AssemblyReference.cache
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.HoverKeyboard.resources
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.HoverNumPad.resources
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.csproj.GenerateResource.cache
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.csproj.CoreCompileInputs.cache
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.dll
+C:\Users\Admin\source\repos\VTN-SF1-HMI\TextBoxWKeyBoard\obj\Release\TextBoxWKeyBoard.pdb
