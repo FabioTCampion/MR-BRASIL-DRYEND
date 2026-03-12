@@ -61,6 +61,8 @@
             this.tmrUpdateInterface = new System.Windows.Forms.Timer(this.components);
             this.nextOrderBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.currentOrderBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.tmr_UpdateCurrentOrder = new System.Windows.Forms.Timer(this.components);
+            this.tmr_CheckConnection = new System.Windows.Forms.Timer(this.components);
             this.pContainer.SuspendLayout();
             this.pBottonMenu.SuspendLayout();
             this.pInformation.SuspendLayout();
@@ -414,6 +416,18 @@
             // 
             this.currentOrderBindingSource.DataSource = typeof(Hmi.Data.ProductionList);
             // 
+            // tmr_UpdateCurrentOrder
+            // 
+            this.tmr_UpdateCurrentOrder.Enabled = true;
+            this.tmr_UpdateCurrentOrder.Interval = 30000;
+            this.tmr_UpdateCurrentOrder.Tick += new System.EventHandler(this.tmr_UpdateCurrentOrder_Tick);
+            // 
+            // tmr_CheckConnection
+            // 
+            this.tmr_CheckConnection.Enabled = true;
+            this.tmr_CheckConnection.Interval = 1000;
+            this.tmr_CheckConnection.Tick += new System.EventHandler(this.tmr_CheckConnection_Tick);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -475,6 +489,8 @@
         private System.Windows.Forms.Timer tmrLogMachineSpeed;
         private System.Windows.Forms.Button btnPage6;
         private System.Windows.Forms.Timer tmrUpdateInterface;
+        private System.Windows.Forms.Timer tmr_UpdateCurrentOrder;
+        private System.Windows.Forms.Timer tmr_CheckConnection;
     }
 }
 

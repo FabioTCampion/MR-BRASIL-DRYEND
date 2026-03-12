@@ -18,6 +18,8 @@ namespace Hmi.Data
         public bool changeOrderRequest { get; set; }
         public bool saveSQLFinished { get; set; }
         public bool saveSQLTimeOut { get; set; }
+        public bool plcWatchDog { get; set; }
+
 
         // BOARD SPECIFICATIONS
         public string paperComposition { get; set; } = string.Empty;

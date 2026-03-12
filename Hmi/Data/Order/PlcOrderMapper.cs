@@ -17,6 +17,8 @@ namespace Hmi
             dst.changeOrderRequest = SafeGet(() => (bool)src.changeOrderRequest, false);
             dst.saveSQLFinished = SafeGet(() => (bool)src.saveSQLFinished, false);
             dst.saveSQLTimeOut = SafeGet(() => (bool)src.saveSQLTimeOut, false);
+            dst.plcWatchDog = SafeGet(() => (bool)src.plcWatchDog, false);
+
 
             dst.paperComposition = SafeGet(() => (string)src.paperComposition, string.Empty);
             dst.fluteType = SafeGet(() => (string)src.fluteType, string.Empty);
