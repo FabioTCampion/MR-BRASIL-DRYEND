@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4024.67" ClassName="CCanNodeDef" SubType="5003">
+	<Box Id="11" BoxType="5003">
+		<Name>__FILENAME__</Name>
+		<ImageId>41</ImageId>
+		<Vars VarGrpType="1">
+			<Name>Inputs</Name>
+			<Var BoxStateVariable="true">
+				<Name>NodeState</Name>
+				<Comment><![CDATA[Master- and Slave-Mode:
+   0 = No error
+
+Master-Mode:
+   1 = Node deactivated
+   2 = Node not found
+   4 = SDO syntax error at StartUp
+   5 = SDO data mismatch at StartUp
+   8 = Node StartUp in progress
+  11 = CAN-Controller is Bus-OFF
+  12 = Pre-Operational
+  13 = Server bus fault
+  14 = Guarding: toggle error
+  20 = TxPDO too short
+  22 = Expected TxPDO is missing
+  23 = Node is Operational but not all TxPDOs were received
+  31 = only for EtherCAT gateways: WC-State of cyclic EtherCAT frame is 1
+  +64 = startup of slave is finished 
+
+Slave-Mode:
+ 128 = Node is Operational but not all RxPDOs were received
+ 129 = Node is Pre-Operational
+ 130 = Node is Stopped
+]]></Comment>
+				<Type>USINT</Type>
+				<BitOffs>88</BitOffs>
+			</Var>
+			<Var BoxStateVariable="true">
+				<Name>DiagFlag</Name>
+				<Comment><![CDATA[0 = Diagnosis Data unchanged
+1 = Diagnosis Data changed, use ADS-Read to get the data]]></Comment>
+				<Type>BIT</Type>
+				<BitOffs>137</BitOffs>
+			</Var>
+		</Vars>
+		<Vars VarGrpType="2">
+			<Name>Outputs</Name>
+		</Vars>
+		<CanOpen NodeId="1" BaudSupport="511" FixedSdos="12" GenerateFixedSdos="true" DvFlag_Active="true" AddTypeInfo="2" DevProfNum="402" CobIDEmcy="129" CobIDGuard="1793" GuardTime="100" LifeTime="3" VendorId="953" ProductCode="852231">
+			<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
+			<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
+			<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
+			<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
+			<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5122" SubIndex="1" Length="4" Value="1025"/>
+			<Sdo Index="5122" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5123" SubIndex="1" Length="4" Value="1281"/>
+			<Sdo Index="5123" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="6144" SubIndex="1" Length="4" Value="-2147483263"/>
+			<Sdo Index="6656" Length="1"/>
+			<Sdo Index="6656" SubIndex="1" Length="4" Value="1614872592"/>
+			<Sdo Index="6656" SubIndex="2" Length="4" Value="1616969736"/>
+			<Sdo Index="6656" Length="1" Value="2"/>
+			<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
+			<Sdo Index="6145" SubIndex="1" Length="4" Value="-2147483007"/>
+			<Sdo Index="6657" Length="1"/>
+			<Sdo Index="6657" SubIndex="1" Length="4" Value="1617166368"/>
+			<Sdo Index="6657" SubIndex="2" Length="4" Value="1617690656"/>
+			<Sdo Index="6657" Length="1" Value="2"/>
+			<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
+			<Sdo Index="5120" SubIndex="1" Length="4" Value="-2147483135"/>
+			<Sdo Index="5632" Length="1"/>
+			<Sdo Index="5632" SubIndex="1" Length="4" Value="1614807056"/>
+			<Sdo Index="5632" SubIndex="2" Length="4" Value="1616904200"/>
+			<Sdo Index="5632" Length="1" Value="2"/>
+			<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
+			<Sdo Index="5121" SubIndex="1" Length="4" Value="-2147482879"/>
+			<Sdo Index="5633" Length="1"/>
+			<Sdo Index="5633" SubIndex="1" Length="4" Value="1618608160"/>
+			<Sdo Index="5633" SubIndex="2" Length="4" Value="1619066912"/>
+			<Sdo Index="5633" Length="1" Value="2"/>
+			<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
+			<Sdo Index="5122" SubIndex="1" Length="4" Value="-2147482623"/>
+			<Sdo Index="5634" Length="1"/>
+			<Sdo Index="5634" SubIndex="1" Length="4" Value="1619197984"/>
+			<Sdo Index="5634" SubIndex="2" Length="4" Value="1619263520"/>
+			<Sdo Index="5634" Length="1" Value="2"/>
+			<Sdo Index="5122" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5122" SubIndex="1" Length="4" Value="1025"/>
+			<Sdo Index="5123" SubIndex="1" Length="4" Value="-2147482367"/>
+			<Sdo Index="5635" Length="1"/>
+			<Sdo Index="5635" SubIndex="1" Length="4" Value="1627324448"/>
+			<Sdo Index="5635" Length="1" Value="1"/>
+			<Sdo Index="5123" SubIndex="2" Length="1" Value="255"/>
+			<Sdo Index="5123" SubIndex="1" Length="4" Value="1281"/>
+			<Sdo Index="6146" SubIndex="1" Length="4" Value="-2147482751"/>
+			<Sdo Index="6147" SubIndex="1" Length="4" Value="-2147482495"/>
+			<TxPdo TX="true" CobId="385" TransType="255" Flags="3">
+				<Name>TxPDO 1 - Status</Name>
+				<ImageId>82</ImageId>
+				<Vars VarGrpType="1" InsertType="2">
+					<Name>Inputs</Name>
+					<Var>
+						<Name>StatusWord_6041</Name>
+						<Type>UINT</Type>
+					</Var>
+					<Var>
+						<Name>ModeDisplay_6061</Name>
+						<Type>SINT</Type>
+						<BitOffs>16</BitOffs>
+					</Var>
+				</Vars>
+			</TxPdo>
+			<TxPdo TX="true" CobId="641" TransType="255" Flags="3" PdoStartAddress="3">
+				<Name>TxPDO 2 - Feedback</Name>
+				<ImageId>82</ImageId>
+				<Vars VarGrpType="1" InsertType="2">
+					<Name>Inputs</Name>
+					<Var>
+						<Name>ActualPosition_6064</Name>
+						<Type>DINT</Type>
+						<BitOffs>24</BitOffs>
+					</Var>
+					<Var>
+						<Name>ActualVelocity_606C</Name>
+						<Type>DINT</Type>
+						<BitOffs>56</BitOffs>
+					</Var>
+				</Vars>
+			</TxPdo>
+			<RxPdo CobId="513" TransType="255" Flags="3">
+				<Name>RxPDO 1 - Control</Name>
+				<ImageId>42</ImageId>
+				<Vars VarGrpType="2" InsertType="2">
+					<Name>Outputs</Name>
+					<Var>
+						<Name>ControlWord_6040</Name>
+						<Type>UINT</Type>
+					</Var>
+					<Var>
+						<Name>ModeCommand_6060</Name>
+						<Type>SINT</Type>
+						<BitOffs>16</BitOffs>
+					</Var>
+				</Vars>
+			</RxPdo>
+			<RxPdo CobId="769" TransType="255" Flags="3" PdoStartAddress="3">
+				<Name>RxPDO 2 - Position profile</Name>
+				<ImageId>42</ImageId>
+				<Vars VarGrpType="2" InsertType="2">
+					<Name>Outputs</Name>
+					<Var>
+						<Name>TargetPosition_607A</Name>
+						<Type>DINT</Type>
+						<BitOffs>24</BitOffs>
+					</Var>
+					<Var>
+						<Name>ProfileVelocity_6081</Name>
+						<Type>UDINT</Type>
+						<BitOffs>56</BitOffs>
+					</Var>
+				</Vars>
+			</RxPdo>
+			<RxPdo CobId="1025" TransType="255" Flags="3" PdoStartAddress="11">
+				<Name>RxPDO 3 - Acceleration and deceleration</Name>
+				<ImageId>42</ImageId>
+				<Vars VarGrpType="2" InsertType="2">
+					<Name>Outputs</Name>
+					<Var>
+						<Name>ProfileAcceleration_6083</Name>
+						<Type>UDINT</Type>
+						<BitOffs>88</BitOffs>
+					</Var>
+					<Var>
+						<Name>ProfileDeceleration_6084</Name>
+						<Type>UDINT</Type>
+						<BitOffs>120</BitOffs>
+					</Var>
+				</Vars>
+			</RxPdo>
+			<RxPdo CobId="1281" TransType="255" Flags="3" PdoStartAddress="19">
+				<Name>RxPDO 4 - Velocity reference</Name>
+				<ImageId>42</ImageId>
+				<Vars VarGrpType="2" InsertType="2">
+					<Name>Outputs</Name>
+					<Var>
+						<Name>TargetVelocity_60FF</Name>
+						<Type>DINT</Type>
+						<BitOffs>152</BitOffs>
+					</Var>
+				</Vars>
+			</RxPdo>
+		</CanOpen>
+	</Box>
+</TcSmItem>

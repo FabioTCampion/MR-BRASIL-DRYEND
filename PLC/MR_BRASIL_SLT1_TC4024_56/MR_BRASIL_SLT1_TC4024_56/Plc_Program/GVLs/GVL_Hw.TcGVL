@@ -62,6 +62,9 @@ VAR_GLOBAL
 	STKL_100_B01 : _FB_DT35_B15251; //Ch 2 - IO-Link Pile height sensor	
 	
 	
+	STKL_P2_100_UG8 : FB_IS620P_CO; //Backstop servo drive
+	STKL_P2_100_UG9 : FB_IS620P_CO; //Lift servo drive
+
 	statusWord AT %I* : UINT;
 	
 END_VAR

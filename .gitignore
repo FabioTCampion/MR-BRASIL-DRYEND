@@ -32,6 +32,7 @@ _CompileInfo/
 *.bak
 *.tmp
 *.temp
+*.project.~u
 ~$*
 Thumbs.db
 Desktop.ini

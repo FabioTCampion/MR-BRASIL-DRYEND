@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="IS620P_CO_PLCTOHW_PDOS" Id="{9db47e71-2ec6-44e9-aadc-2e3704225267}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE IS620P_CO_PLCTOHW_PDOS :
+STRUCT
+    // EN: CiA 402 control word sent to object 6040h.
+    // PT: Palavra de controle CiA 402 enviada ao objeto 6040h.
+    controlWord          : UINT;
+
+    // EN: Requested operation mode sent to object 6060h.
+    // PT: Modo de operação solicitado enviado ao objeto 6060h.
+    modeCommand          : SINT;
+
+    // EN: Position target mapped at object 607Ah and reserved for other modes.
+    // PT: Alvo de posição mapeado no objeto 607Ah e reservado para outros modos.
+    targetPosition       : DINT;
+
+    // EN: Profile velocity mapped at object 6081h and reserved for other modes.
+    // PT: Velocidade de perfil mapeada no objeto 6081h e reservada para outros modos.
+    profileVelocity      : UDINT;
+
+    // EN: Drive acceleration limit sent to object 6083h.
+    // PT: Limite de aceleração do drive enviado ao objeto 6083h.
+    profileAcceleration  : UDINT;
+
+    // EN: Drive deceleration limit sent to object 6084h.
+    // PT: Limite de desaceleração do drive enviado ao objeto 6084h.
+    profileDeceleration  : UDINT;
+
+    // EN: Signed velocity reference sent to object 60FFh.
+    // PT: Referência de velocidade com sinal enviada ao objeto 60FFh.
+    targetVelocity       : DINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

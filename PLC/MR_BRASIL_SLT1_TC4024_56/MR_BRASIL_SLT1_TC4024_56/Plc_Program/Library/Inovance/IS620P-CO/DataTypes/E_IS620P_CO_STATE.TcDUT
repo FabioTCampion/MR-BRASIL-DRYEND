@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="E_IS620P_CO_STATE" Id="{a9b16b22-0be6-4c19-83e7-d4a2e18248b9}">
+    <Declaration><![CDATA[TYPE E_IS620P_CO_STATE :
+(
+    // EN: Function block execution is disabled.
+    // PT: A execução do function block está desabilitada.
+    Disabled,
+
+    // EN: CANopen node or PDO feedback is not available.
+    // PT: O nó CANopen ou a realimentação dos PDOs não está disponível.
+    CommunicationFault,
+
+    // EN: CiA 402 state: drive is not ready to switch on.
+    // PT: Estado CiA 402: drive não está pronto para habilitação.
+    NotReadyToSwitchOn,
+
+    // EN: CiA 402 state: switch-on is disabled.
+    // PT: Estado CiA 402: habilitação está desativada.
+    SwitchOnDisabled,
+
+    // EN: CiA 402 state: drive is ready to switch on.
+    // PT: Estado CiA 402: drive está pronto para habilitação.
+    ReadyToSwitchOn,
+
+    // EN: CiA 402 state: drive is switched on.
+    // PT: Estado CiA 402: drive está habilitado sem operação ativa.
+    SwitchedOn,
+
+    // EN: CiA 402 state: operation is enabled.
+    // PT: Estado CiA 402: operação está habilitada.
+    OperationEnabled,
+
+    // EN: CiA 402 state: quick stop is active.
+    // PT: Estado CiA 402: quick stop está ativo.
+    QuickStopActive,
+
+    // EN: CiA 402 state: fault reaction is active.
+    // PT: Estado CiA 402: reação à falha está ativa.
+    FaultReactionActive,
+
+    // EN: CiA 402 state: drive has an active fault.
+    // PT: Estado CiA 402: drive possui uma falha ativa.
+    Fault
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

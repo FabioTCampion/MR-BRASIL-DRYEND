@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="IS620P_CO_DEV_CONFIG" Id="{f3137373-5342-4da4-961a-063c66f3a124}">
+    <Declaration><![CDATA[TYPE IS620P_CO_DEV_CONFIG :
+STRUCT
+    // EN: Number of raw position units that represent one millimeter.
+    // PT: Quantidade de unidades brutas de posição que representam um milímetro.
+    positionUnitsPerMm       : LREAL := 1.0;
+
+    // EN: Number of raw velocity units that represent one millimeter per second.
+    // PT: Quantidade de unidades brutas de velocidade que representam um milímetro por segundo.
+    velocityUnitsPerMmps     : LREAL := 1.0;
+
+    // EN: Persistent offset applied to the converted position feedback.
+    // PT: Offset persistente aplicado à realimentação de posição convertida.
+    positionOffsetMm         : LREAL := 0.0;
+
+    // EN: Indicates that a valid position calibration has been captured.
+    // PT: Indica que uma calibração válida de posição foi capturada.
+    calibrationValid         : BOOL := FALSE;
+
+    // EN: Absolute equipment velocity limit applied before raw conversion.
+    // PT: Limite absoluto de velocidade do equipamento aplicado antes da conversão bruta.
+    maximumVelocityMmps      : LREAL := 100.0;
+
+    // EN: Raw acceleration limit written to object 6083h.
+    // PT: Limite bruto de aceleração escrito no objeto 6083h.
+    profileAccelerationRaw   : UDINT := 100;
+
+    // EN: Raw deceleration limit written to object 6084h.
+    // PT: Limite bruto de desaceleração escrito no objeto 6084h.
+    profileDecelerationRaw   : UDINT := 100;
+
+    // EN: Reverses command and feedback signs when the mechanical direction is inverted.
+    // PT: Inverte os sinais de comando e realimentação quando o sentido mecânico está invertido.
+    directionInverted        : BOOL := FALSE;
+
+    // EN: Maximum feedback velocity allowed when capturing a position calibration.
+    // PT: Velocidade máxima de realimentação permitida ao capturar uma calibração de posição.
+    positionSetMaxVelocityMmps : LREAL := 0.5;
+
+    // EN: Maximum time allowed for drive enable sequencing.
+    // PT: Tempo máximo permitido para a sequência de habilitação do drive.
+    enableTimeout            : TIME := T#5S;
+
+    // EN: Maximum time allowed to confirm Profile Velocity mode.
+    // PT: Tempo máximo permitido para confirmar o modo Profile Velocity.
+    modeSelectionTimeout     : TIME := T#5S;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

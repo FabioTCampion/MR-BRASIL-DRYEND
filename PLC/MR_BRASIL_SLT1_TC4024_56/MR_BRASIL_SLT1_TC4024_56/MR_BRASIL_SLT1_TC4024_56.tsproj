@@ -1689,6 +1689,64 @@ External Setpoint Generation:
 			</SubItem>
 		</DataType>
 		<DataType>
+			<Name GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}" AutoDeleteType="true">IS620P_CO_HWTOPLC_PDOS</Name>
+			<BitSize>192</BitSize>
+			<SubItem>
+				<Name>statusWord</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<Comment><![CDATA[ EN: CiA 402 status word received from object 6041h.
+ PT: Palavra de estado CiA 402 recebida do objeto 6041h.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>modeDisplay</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000003}">SINT</Type>
+				<Comment><![CDATA[ EN: Active operation mode received from object 6061h.
+ PT: Modo de operação ativo recebido do objeto 6061h.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>actualPosition</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<Comment><![CDATA[ EN: Raw position feedback received from object 6064h.
+ PT: Realimentação bruta de posição recebida do objeto 6064h.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>24</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>actualVelocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<Comment><![CDATA[ EN: Raw velocity feedback received from object 606Ch.
+ PT: Realimentação bruta de velocidade recebida do objeto 606Ch.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>56</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>nodeState</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000002}">USINT</Type>
+				<Comment><![CDATA[ EN: CANopen node state supplied by the TwinCAT CANopen master at byte 11.
+ PT: Estado do nó CANopen fornecido pelo mestre CANopen do TwinCAT no byte 11.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>diagFlag</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000010}">BIT</Type>
+				<Comment><![CDATA[ EN: CANopen diagnostic-change flag supplied by the TwinCAT master at bit 137.
+ PT: Indicador de alteração de diagnóstico CANopen fornecido pelo mestre TwinCAT no bit 137.]]></Comment>
+				<BitSize>1</BitSize>
+				<BitOffs>137</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>pack_mode</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
+		</DataType>
+		<DataType>
 			<Name GUID="{7AC94A94-F196-480A-26D6-4089222913FB}" AutoDeleteType="true">EL5152_CONTROL</Name>
 			<BitSize>16</BitSize>
 			<SubItem>
@@ -1762,6 +1820,72 @@ External Setpoint Generation:
 				<BitSize>8</BitSize>
 				<BitOffs>8</BitOffs>
 			</SubItem>
+		</DataType>
+		<DataType>
+			<Name GUID="{2A85FD46-E807-283A-E808-6B8E6CDB79FD}" AutoDeleteType="true">IS620P_CO_PLCTOHW_PDOS</Name>
+			<BitSize>184</BitSize>
+			<SubItem>
+				<Name>controlWord</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000005}">UINT</Type>
+				<Comment><![CDATA[ EN: CiA 402 control word sent to object 6040h.
+ PT: Palavra de controle CiA 402 enviada ao objeto 6040h.]]></Comment>
+				<BitSize>16</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>modeCommand</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000003}">SINT</Type>
+				<Comment><![CDATA[ EN: Requested operation mode sent to object 6060h.
+ PT: Modo de operação solicitado enviado ao objeto 6060h.]]></Comment>
+				<BitSize>8</BitSize>
+				<BitOffs>16</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>targetPosition</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<Comment><![CDATA[ EN: Position target mapped at object 607Ah and reserved for other modes.
+ PT: Alvo de posição mapeado no objeto 607Ah e reservado para outros modos.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>24</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>profileVelocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[ EN: Profile velocity mapped at object 6081h and reserved for other modes.
+ PT: Velocidade de perfil mapeada no objeto 6081h e reservada para outros modos.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>56</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>profileAcceleration</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[ EN: Drive acceleration limit sent to object 6083h.
+ PT: Limite de aceleração do drive enviado ao objeto 6083h.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>88</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>profileDeceleration</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000008}">UDINT</Type>
+				<Comment><![CDATA[ EN: Drive deceleration limit sent to object 6084h.
+ PT: Limite de desaceleração do drive enviado ao objeto 6084h.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>120</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>targetVelocity</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000009}">DINT</Type>
+				<Comment><![CDATA[ EN: Signed velocity reference sent to object 60FFh.
+ PT: Referência de velocidade com sinal enviada ao objeto 60FFh.]]></Comment>
+				<BitSize>32</BitSize>
+				<BitOffs>152</BitOffs>
+			</SubItem>
+			<Properties>
+				<Property>
+					<Name>pack_mode</Name>
+					<Value>1</Value>
+				</Property>
+			</Properties>
 		</DataType>
 		<DataType>
 			<Name GUID="{18071995-0000-0000-0000-002000000001}" IecBaseType="true" BitType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..0] OF BIT</Name>
@@ -1885,8 +2009,8 @@ External Setpoint Generation:
 					<ManualSelect>{BF78CFC7-2E63-42C3-8C07-BB6C346BFB8B}</ManualSelect>
 					<ManualSelect>{66689887-CCBD-452C-AC9A-039D997C6E66}</ManualSelect>
 					<ManualSelect>{6952449D-F68C-49A2-ADE4-8639D85B33A4}</ManualSelect>
-					<ManualSelect>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</ManualSelect>
 					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
+					<ManualSelect>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</ManualSelect>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -3819,7 +3943,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{CBDB8CCC-0F43-46E7-8C82-C97A3A06A577}" Name="Plc_Program" PrjFilePath="Plc_Program\Plc_Program.plcproj" TmcFilePath="Plc_Program\Plc_Program.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{1EC72EB6-B270-513B-0C40-E3FFBF4FDBD1}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{E8D9DC72-931E-F444-F608-E78DFD727FB0}">
 					<Name>Plc_Program Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -4831,6 +4955,10 @@ External Setpoint Generation:
 					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
 						<Name>PlcTask Inputs</Name>
 						<Var>
+							<Name>.statusWord</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
 							<Name>.SLT1_P1_100_UG1.NcToPlc</Name>
 							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
 						</Var>
@@ -5037,8 +5165,16 @@ External Setpoint Generation:
 							<Type GUID="{4412057D-BBE6-C77D-63D7-9839284A7A28}">_DT35B15251_HWTOPLC_PDOS</Type>
 						</Var>
 						<Var>
-							<Name>.statusWord</Name>
-							<Type>UINT</Type>
+							<Name>.STKL_P2_100_UG8.HwToPlc</Name>
+							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
+ PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
+							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_P2_100_UG9.HwToPlc</Name>
+							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
+ PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
+							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
@@ -5303,6 +5439,18 @@ External Setpoint Generation:
 						<Var>
 							<Name>.STKL_050_DIO2.PlcToHw</Name>
 							<Type GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}">_00BH11_PLCTOHW_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_P2_100_UG8.PlcToHw</Name>
+							<Comment><![CDATA[ EN: Hardware outputs written cyclically from the PLC to the servo drive.
+ PT: Saídas de hardware escritas ciclicamente do PLC para o servo drive.]]></Comment>
+							<Type GUID="{2A85FD46-E807-283A-E808-6B8E6CDB79FD}">IS620P_CO_PLCTOHW_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_P2_100_UG9.PlcToHw</Name>
+							<Comment><![CDATA[ EN: Hardware outputs written cyclically from the PLC to the servo drive.
+ PT: Saídas de hardware escritas ciclicamente do PLC para o servo drive.]]></Comment>
+							<Type GUID="{2A85FD46-E807-283A-E808-6B8E6CDB79FD}">IS620P_CO_PLCTOHW_PDOS</Type>
 						</Var>
 					</Vars>
 					<Contexts>
@@ -9870,7 +10018,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
 							<BootStrapData>0010140200181402</BootStrapData>
 							<SuName>Term 46 (EL6751)</SuName>
-							<Pdo Name="Box 1 (IS620P/SV520P CANopen PP+PV - Node 1)_IN" Index="#x1a00" Flags="#x0011" SyncMan="3">
+							<Pdo Name="STK+P2=100-UG8 - Backstop Servo Drive_IN" Index="#x1a00" Flags="#x0011" SyncMan="3">
 								<Entry Name="TxPDO_1" Index="#x6000" Sub="#x01" Flags="#x00000100">
 									<Type GUID="{18071995-0000-0000-0000-002000000018}">ARRAY [0..2] OF BYTE</Type>
 								</Entry>
@@ -9878,7 +10026,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 									<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
 								</Entry>
 							</Pdo>
-							<Pdo Name="Box 1 (IS620P/SV520P CANopen PP+PV - Node 1)_OUT" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="2">
+							<Pdo Name="STK+P2=100-UG8 - Backstop Servo Drive_OUT" Index="#x1600" InOut="1" Flags="#x0011" SyncMan="2">
 								<Entry Name="RxPDO_1" Index="#x7000" Sub="#x01" Flags="#x00000100">
 									<Type GUID="{18071995-0000-0000-0000-002000000018}">ARRAY [0..2] OF BYTE</Type>
 								</Entry>
@@ -9893,7 +10041,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 								</Entry>
 							</Pdo>
 							<Pdo Name="CANopen" Index="#x1a80" Flags="#x0011" SyncMan="3">
-								<Entry Name="Box 1 (IS620P/SV520P CANopen PP+PV - Node 1)_NodeState" Index="#xa000" Sub="#x01" Flags="#x00000100">
+								<Entry Name="STK+P2=100-UG8 - Backstop Servo Drive_NodeState" Index="#xa000" Sub="#x01" Flags="#x00000100">
 									<DefaultDataMask>1f1f</DefaultDataMask>
 									<Type>USINT</Type>
 								</Entry>
@@ -9912,7 +10060,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 								<Entry Name="CANopen_DiagFlag" Index="#xf100" Sub="#x02" Flags="#x00000100">
 									<Type>BIT</Type>
 								</Entry>
-								<Entry Name="Box 1 (IS620P/SV520P CANopen PP+PV - Node 1)_DiagFlag" Index="#xa000" Sub="#x02" Flags="#x00000100">
+								<Entry Name="STK+P2=100-UG8 - Backstop Servo Drive_DiagFlag" Index="#xa000" Sub="#x02" Flags="#x00000100">
 									<Type>BIT</Type>
 								</Entry>
 								<Entry>
@@ -10555,8 +10703,9 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				<Image Id="7" AddrType="4" ImageType="3">
 					<Name>Image</Name>
 				</Image>
-				<Box Id="34" Disabled="true" BoxType="5003">
-					<Name>Box 1 (IS620P/SV520P CANopen PP - Node 1)</Name>
+				<Box File="STK+P2=100-UG8 - Backstop Servo Drive.xti" Id="11"/>
+				<Box Id="12" Disabled="true" BoxType="5003">
+					<Name>STK+P2=100-UG9 - Lift Servo Driver</Name>
 					<ImageId>41</ImageId>
 					<Vars VarGrpType="1">
 						<Name>Inputs</Name>
@@ -10587,165 +10736,20 @@ Slave-Mode:
  130 = Node is Stopped
 ]]></Comment>
 							<Type>USINT</Type>
-							<BitOffs>176</BitOffs>
+							<BitOffs>184</BitOffs>
 						</Var>
 						<Var BoxStateVariable="true">
 							<Name>DiagFlag</Name>
 							<Comment><![CDATA[0 = Diagnosis Data unchanged
 1 = Diagnosis Data changed, use ADS-Read to get the data]]></Comment>
 							<Type>BIT</Type>
-							<BitOffs>233</BitOffs>
+							<BitOffs>234</BitOffs>
 						</Var>
 					</Vars>
 					<Vars VarGrpType="2">
 						<Name>Outputs</Name>
 					</Vars>
-					<CanOpen NodeId="1" BaudSupport="511" FixedSdos="8" GenerateFixedSdos="true" DvFlag_Active="true" AddTypeInfo="2" DevProfNum="402" CobIDEmcy="129" CobIDGuard="1793" GuardTime="100" LifeTime="3" VendorId="953" ProductCode="852231">
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
-						<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
-						<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
-						<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
-						<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="-2147483263"/>
-						<Sdo Index="6656" Length="1"/>
-						<Sdo Index="6656" SubIndex="1" Length="4" Value="1614872592"/>
-						<Sdo Index="6656" SubIndex="2" Length="4" Value="1616969736"/>
-						<Sdo Index="6656" Length="1" Value="2"/>
-						<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="-2147483007"/>
-						<Sdo Index="6657" Length="1"/>
-						<Sdo Index="6657" SubIndex="1" Length="4" Value="1617166368"/>
-						<Sdo Index="6657" SubIndex="2" Length="4" Value="1617690656"/>
-						<Sdo Index="6657" Length="1" Value="2"/>
-						<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="-2147483135"/>
-						<Sdo Index="5632" Length="1"/>
-						<Sdo Index="5632" SubIndex="1" Length="4" Value="1614807056"/>
-						<Sdo Index="5632" SubIndex="2" Length="4" Value="1616904200"/>
-						<Sdo Index="5632" Length="1" Value="2"/>
-						<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="-2147482879"/>
-						<Sdo Index="5633" Length="1"/>
-						<Sdo Index="5633" SubIndex="1" Length="4" Value="1618608160"/>
-						<Sdo Index="5633" SubIndex="2" Length="4" Value="1619066912"/>
-						<Sdo Index="5633" Length="1" Value="2"/>
-						<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
-						<TxPdo TX="true" CobId="385" TransType="255" Flags="3">
-							<Name>TxPDO 1 - Status</Name>
-							<ImageId>82</ImageId>
-							<Vars VarGrpType="1" InsertType="2">
-								<Name>Inputs</Name>
-								<Var>
-									<Name>StatusWord_6041</Name>
-									<Type>UINT</Type>
-								</Var>
-								<Var>
-									<Name>ModeDisplay_6061</Name>
-									<Type>SINT</Type>
-									<BitOffs>16</BitOffs>
-								</Var>
-							</Vars>
-						</TxPdo>
-						<TxPdo TX="true" CobId="641" TransType="255" Flags="3" PdoStartAddress="3">
-							<Name>TxPDO 2 - Feedback</Name>
-							<ImageId>82</ImageId>
-							<Vars VarGrpType="1" InsertType="2">
-								<Name>Inputs</Name>
-								<Var>
-									<Name>ActualPosition_6064</Name>
-									<Type>DINT</Type>
-									<BitOffs>24</BitOffs>
-								</Var>
-								<Var>
-									<Name>ActualVelocity_606C</Name>
-									<Type>DINT</Type>
-									<BitOffs>56</BitOffs>
-								</Var>
-							</Vars>
-						</TxPdo>
-						<RxPdo CobId="513" TransType="255" Flags="3">
-							<Name>RxPDO 1 - Control</Name>
-							<ImageId>42</ImageId>
-							<Vars VarGrpType="2" InsertType="2">
-								<Name>Outputs</Name>
-								<Var>
-									<Name>ControlWord_6040</Name>
-									<Type>UINT</Type>
-								</Var>
-								<Var>
-									<Name>ModeCommand_6060</Name>
-									<Type>SINT</Type>
-									<BitOffs>16</BitOffs>
-								</Var>
-							</Vars>
-						</RxPdo>
-						<RxPdo CobId="769" TransType="255" Flags="3" PdoStartAddress="3">
-							<Name>RxPDO 2 - Position profile</Name>
-							<ImageId>42</ImageId>
-							<Vars VarGrpType="2" InsertType="2">
-								<Name>Outputs</Name>
-								<Var>
-									<Name>TargetPosition_607A</Name>
-									<Type>DINT</Type>
-									<BitOffs>24</BitOffs>
-								</Var>
-								<Var>
-									<Name>ProfileVelocity_6081</Name>
-									<Type>UDINT</Type>
-									<BitOffs>56</BitOffs>
-								</Var>
-							</Vars>
-						</RxPdo>
-					</CanOpen>
-				</Box>
-				<Box Id="11" BoxType="5003">
-					<Name>Box 1 (IS620P/SV520P CANopen PP+PV - Node 1)</Name>
-					<ImageId>41</ImageId>
-					<Vars VarGrpType="1">
-						<Name>Inputs</Name>
-						<Var BoxStateVariable="true">
-							<Name>NodeState</Name>
-							<Comment><![CDATA[Master- and Slave-Mode:
-   0 = No error
-
-Master-Mode:
-   1 = Node deactivated
-   2 = Node not found
-   4 = SDO syntax error at StartUp
-   5 = SDO data mismatch at StartUp
-   8 = Node StartUp in progress
-  11 = CAN-Controller is Bus-OFF
-  12 = Pre-Operational
-  13 = Server bus fault
-  14 = Guarding: toggle error
-  20 = TxPDO too short
-  22 = Expected TxPDO is missing
-  23 = Node is Operational but not all TxPDOs were received
-  31 = only for EtherCAT gateways: WC-State of cyclic EtherCAT frame is 1
-  +64 = startup of slave is finished
-]]></Comment>
-							<Type>USINT</Type>
-							<BitOffs>88</BitOffs>
-						</Var>
-						<Var BoxStateVariable="true">
-							<Name>DiagFlag</Name>
-							<Comment><![CDATA[0 = Diagnosis Data unchanged
-1 = Diagnosis Data changed, use ADS-Read to get the data]]></Comment>
-							<Type>BIT</Type>
-							<BitOffs>137</BitOffs>
-						</Var>
-					</Vars>
-					<Vars VarGrpType="2">
-						<Name>Outputs</Name>
-					</Vars>
-					<CanOpen NodeId="1" BaudSupport="511" FixedSdos="12" GenerateFixedSdos="true" DvFlag_Active="true" AddTypeInfo="2" DevProfNum="402" CobIDEmcy="129" CobIDGuard="1793" GuardTime="100" LifeTime="3" VendorId="953" ProductCode="852231">
+					<CanOpen NodeId="2" BaudSupport="511" FixedSdos="12" GenerateFixedSdos="true" DvFlag_Active="true" AddTypeInfo="2" DevProfNum="402" CobIDEmcy="130" CobIDGuard="1794" GuardTime="100" LifeTime="3" VendorId="953" ProductCode="852231">
 						<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
 						<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
 						<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
@@ -10801,7 +10805,7 @@ Master-Mode:
 						<Sdo Index="5123" SubIndex="1" Length="4" Value="1281"/>
 						<Sdo Index="6146" SubIndex="1" Length="4" Value="-2147482751"/>
 						<Sdo Index="6147" SubIndex="1" Length="4" Value="-2147482495"/>
-						<TxPdo TX="true" CobId="385" TransType="255" Flags="3">
+						<TxPdo TX="true" CobId="385" TransType="255" Flags="3" PdoStartAddress="11">
 							<Name>TxPDO 1 - Status</Name>
 							<ImageId>82</ImageId>
 							<Vars VarGrpType="1" InsertType="2">
@@ -10809,15 +10813,16 @@ Master-Mode:
 								<Var>
 									<Name>StatusWord_6041</Name>
 									<Type>UINT</Type>
+									<BitOffs>88</BitOffs>
 								</Var>
 								<Var>
 									<Name>ModeDisplay_6061</Name>
 									<Type>SINT</Type>
-									<BitOffs>16</BitOffs>
+									<BitOffs>104</BitOffs>
 								</Var>
 							</Vars>
 						</TxPdo>
-						<TxPdo TX="true" CobId="641" TransType="255" Flags="3" PdoStartAddress="3">
+						<TxPdo TX="true" CobId="641" TransType="255" Flags="3" PdoStartAddress="14">
 							<Name>TxPDO 2 - Feedback</Name>
 							<ImageId>82</ImageId>
 							<Vars VarGrpType="1" InsertType="2">
@@ -10825,16 +10830,16 @@ Master-Mode:
 								<Var>
 									<Name>ActualPosition_6064</Name>
 									<Type>DINT</Type>
-									<BitOffs>24</BitOffs>
+									<BitOffs>112</BitOffs>
 								</Var>
 								<Var>
 									<Name>ActualVelocity_606C</Name>
 									<Type>DINT</Type>
-									<BitOffs>56</BitOffs>
+									<BitOffs>144</BitOffs>
 								</Var>
 							</Vars>
 						</TxPdo>
-						<RxPdo CobId="513" TransType="255" Flags="3">
+						<RxPdo CobId="513" TransType="255" Flags="3" PdoStartAddress="23">
 							<Name>RxPDO 1 - Control</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10842,15 +10847,16 @@ Master-Mode:
 								<Var>
 									<Name>ControlWord_6040</Name>
 									<Type>UINT</Type>
+									<BitOffs>184</BitOffs>
 								</Var>
 								<Var>
 									<Name>ModeCommand_6060</Name>
 									<Type>SINT</Type>
-									<BitOffs>16</BitOffs>
+									<BitOffs>200</BitOffs>
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="769" TransType="255" Flags="3" PdoStartAddress="3">
+						<RxPdo CobId="769" TransType="255" Flags="3" PdoStartAddress="26">
 							<Name>RxPDO 2 - Position profile</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10858,16 +10864,16 @@ Master-Mode:
 								<Var>
 									<Name>TargetPosition_607A</Name>
 									<Type>DINT</Type>
-									<BitOffs>24</BitOffs>
+									<BitOffs>208</BitOffs>
 								</Var>
 								<Var>
 									<Name>ProfileVelocity_6081</Name>
 									<Type>UDINT</Type>
-									<BitOffs>56</BitOffs>
+									<BitOffs>240</BitOffs>
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="1025" TransType="255" Flags="3" PdoStartAddress="11">
+						<RxPdo CobId="1025" TransType="255" Flags="3" PdoStartAddress="34">
 							<Name>RxPDO 3 - Acceleration and deceleration</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10875,16 +10881,16 @@ Master-Mode:
 								<Var>
 									<Name>ProfileAcceleration_6083</Name>
 									<Type>UDINT</Type>
-									<BitOffs>88</BitOffs>
+									<BitOffs>272</BitOffs>
 								</Var>
 								<Var>
 									<Name>ProfileDeceleration_6084</Name>
 									<Type>UDINT</Type>
-									<BitOffs>120</BitOffs>
+									<BitOffs>304</BitOffs>
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="1281" TransType="255" Flags="3" PdoStartAddress="19">
+						<RxPdo CobId="1281" TransType="255" Flags="3" PdoStartAddress="42">
 							<Name>RxPDO 4 - Velocity reference</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10892,7 +10898,7 @@ Master-Mode:
 								<Var>
 									<Name>TargetVelocity_60FF</Name>
 									<Type>DINT</Type>
-									<BitOffs>152</BitOffs>
+									<BitOffs>336</BitOffs>
 								</Var>
 							</Vars>
 						</RxPdo>
@@ -10908,15 +10914,10 @@ Master-Mode:
 				</CanOpen>
 			</Device>
 		</Io>
-		<SymbolWatch>
-			<Variable>TIID^CANopen^Box 1 (IS620P/SV520P CANopen PP - Node 1)^TxPDO 2 - Feedback^Inputs^ActualVelocity_606C</Variable>
-			<Variable>TIID^CANopen^Box 1 (IS620P/SV520P CANopen PP - Node 1)^TxPDO 2 - Feedback^Inputs^ActualPosition_6064</Variable>
-			<Variable>TIID^CANopen^Box 1 (IS620P/SV520P CANopen PP - Node 1)^TxPDO 1 - Status^Inputs^StatusWord_6041</Variable>
-			<Variable>TIID^CANopen^Box 1 (IS620P/SV520P CANopen PP - Node 1)^RxPDO 2 - Position profile^Outputs^TargetPosition_607A</Variable>
-		</SymbolWatch>
 	</Project>
 	<Mappings>
 		<MappingInfo Identifier="{00000000-2001-0850-0120-500862000403}" Id="#x02030030"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0120-500870000403}" Id="#x02030060"/>
 		<MappingInfo Identifier="{00000000-2002-0850-0020-500820000403}" Id="#x02030010"/>
 		<MappingInfo Identifier="{00000000-0030-0304-1000-040333000403}" Id="#x02030050"/>
 		<MappingInfo Identifier="{00000000-0040-0304-1000-040341000403}" Id="#x02030020"/>
@@ -11156,6 +11157,36 @@ Master-Mode:
 			</OwnerB>
 		</OwnerA>
 		<OwnerA Name="TIPC^Plc_Program^Plc_Program Instance">
+			<OwnerB Name="TIID^CANopen^STK+P2=100-UG8 - Backstop Servo Drive">
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^actualPosition" VarB="TxPDO 2 - Feedback^Inputs^ActualPosition_6064"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^actualVelocity" VarB="TxPDO 2 - Feedback^Inputs^ActualVelocity_606C"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^diagFlag" VarB="Inputs^DiagFlag"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^modeDisplay" VarB="TxPDO 1 - Status^Inputs^ModeDisplay_6061"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^nodeState" VarB="Inputs^NodeState"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG8.HwToPlc^statusWord" VarB="TxPDO 1 - Status^Inputs^StatusWord_6041"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^controlWord" VarB="RxPDO 1 - Control^Outputs^ControlWord_6040"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^modeCommand" VarB="RxPDO 1 - Control^Outputs^ModeCommand_6060"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^profileAcceleration" VarB="RxPDO 3 - Acceleration and deceleration^Outputs^ProfileAcceleration_6083"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^profileDeceleration" VarB="RxPDO 3 - Acceleration and deceleration^Outputs^ProfileDeceleration_6084"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^profileVelocity" VarB="RxPDO 2 - Position profile^Outputs^ProfileVelocity_6081"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^targetPosition" VarB="RxPDO 2 - Position profile^Outputs^TargetPosition_607A"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^targetVelocity" VarB="RxPDO 4 - Velocity reference^Outputs^TargetVelocity_60FF"/>
+			</OwnerB>
+			<OwnerB Name="TIID^CANopen^STK+P2=100-UG9 - Lift Servo Driver">
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^actualPosition" VarB="TxPDO 2 - Feedback^Inputs^ActualPosition_6064"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^actualVelocity" VarB="TxPDO 2 - Feedback^Inputs^ActualVelocity_606C"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^diagFlag" VarB="Inputs^DiagFlag"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^modeDisplay" VarB="TxPDO 1 - Status^Inputs^ModeDisplay_6061"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^nodeState" VarB="Inputs^NodeState"/>
+				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^statusWord" VarB="TxPDO 1 - Status^Inputs^StatusWord_6041"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^controlWord" VarB="RxPDO 1 - Control^Outputs^ControlWord_6040"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^modeCommand" VarB="RxPDO 1 - Control^Outputs^ModeCommand_6060"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^profileAcceleration" VarB="RxPDO 3 - Acceleration and deceleration^Outputs^ProfileAcceleration_6083"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^profileDeceleration" VarB="RxPDO 3 - Acceleration and deceleration^Outputs^ProfileDeceleration_6084"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^profileVelocity" VarB="RxPDO 2 - Position profile^Outputs^ProfileVelocity_6081"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^targetPosition" VarB="RxPDO 2 - Position profile^Outputs^TargetPosition_607A"/>
+				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^targetVelocity" VarB="RxPDO 4 - Velocity reference^Outputs^TargetVelocity_60FF"/>
+			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-AI1">
 				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Error" VarB="AI Standard Channel 1^Status^Error"/>
 				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Overrange" VarB="AI Standard Channel 1^Status^Overrange"/>

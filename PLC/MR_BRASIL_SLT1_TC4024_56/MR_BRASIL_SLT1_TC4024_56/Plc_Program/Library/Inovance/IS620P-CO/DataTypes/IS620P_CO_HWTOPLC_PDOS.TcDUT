@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="IS620P_CO_HWTOPLC_PDOS" Id="{bc620cfa-1f94-4b64-91d4-4ea99d7dd5e2}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE IS620P_CO_HWTOPLC_PDOS :
+STRUCT
+	
+    // EN: CiA 402 status word received from object 6041h.
+    // PT: Palavra de estado CiA 402 recebida do objeto 6041h.
+    statusWord      : UINT;
+
+    // EN: Active operation mode received from object 6061h.
+    // PT: Modo de operação ativo recebido do objeto 6061h.
+    modeDisplay     : SINT;
+
+    // EN: Raw position feedback received from object 6064h.
+    // PT: Realimentação bruta de posição recebida do objeto 6064h.
+    actualPosition  : DINT;
+
+    // EN: Raw velocity feedback received from object 606Ch.
+    // PT: Realimentação bruta de velocidade recebida do objeto 606Ch.
+    actualVelocity  : DINT;
+
+    // EN: CANopen node state supplied by the TwinCAT CANopen master at byte 11.
+    // PT: Estado do nó CANopen fornecido pelo mestre CANopen do TwinCAT no byte 11.
+    nodeState : USINT;
+
+    // EN: Reserved hardware input bytes between NodeState and DiagFlag.
+    // PT: Bytes reservados de entrada de hardware entre NodeState e DiagFlag.
+    {attribute 'hide'}
+    _reservedDiagnosticBytes : ARRAY [0..4] OF BYTE;
+
+    // EN: Reserved hardware input bit immediately before DiagFlag.
+    // PT: Bit reservado de entrada de hardware imediatamente antes de DiagFlag.
+    {attribute 'hide'}
+    _reservedDiagnosticBit : BIT;
+
+    // EN: CANopen diagnostic-change flag supplied by the TwinCAT master at bit 137.
+    // PT: Indicador de alteração de diagnóstico CANopen fornecido pelo mestre TwinCAT no bit 137.
+    diagFlag : BIT;
+
+    // EN: Remaining reserved bits in the CANopen diagnostic byte.
+    // PT: Bits reservados restantes no byte de diagnóstico CANopen.
+    {attribute 'hide'}
+    _reservedDiagnosticBits : ARRAY [2..7] OF BOOL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

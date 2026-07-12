@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="IS620P_CO_STATUS" Id="{744d0ae8-fc62-4df0-8702-60ae7014e0db}">
+    <Declaration><![CDATA[TYPE IS620P_CO_STATUS :
+STRUCT
+    // EN: CANopen node and cyclic feedback are available.
+    // PT: O nó CANopen e a realimentação cíclica estão disponíveis.
+    communicationOk        : BOOL;
+
+    // EN: Drive is ready to accept a velocity reference.
+    // PT: O drive está pronto para aceitar uma referência de velocidade.
+    ready                  : BOOL;
+
+    // EN: CiA 402 Operation Enabled state is active.
+    // PT: O estado CiA 402 Operation Enabled está ativo.
+    driveEnabled           : BOOL;
+
+    // EN: CiA 402 quick-stop state is active.
+    // PT: O estado de quick stop CiA 402 está ativo.
+    quickStopActive        : BOOL;
+
+    // EN: Position feedback has a valid application offset.
+    // PT: A realimentação de posição possui um offset válido da aplicação.
+    calibrated             : BOOL;
+
+    // EN: Drive reports a warning condition.
+    // PT: O drive informa uma condição de advertência.
+    warning                : BOOL;
+
+    // EN: Drive reports a fault condition.
+    // PT: O drive informa uma condição de falha.
+    fault                  : BOOL;
+
+    // EN: Device scaling parameters are valid.
+    // PT: Os parâmetros de escala do equipamento são válidos.
+    configurationValid     : BOOL;
+
+    // EN: Drive enable sequence exceeded its configured timeout.
+    // PT: A sequência de habilitação do drive excedeu o timeout configurado.
+    enableTimeout          : BOOL;
+
+    // EN: Profile Velocity mode confirmation exceeded its configured timeout.
+    // PT: A confirmação do modo Profile Velocity excedeu o timeout configurado.
+    modeSelectionTimeout   : BOOL;
+
+    // EN: Raw CANopen node state supplied by the TwinCAT master.
+    // PT: Estado bruto do nó CANopen fornecido pelo mestre TwinCAT.
+    nodeState              : USINT;
+
+    // EN: Indicates that CANopen diagnostic data changed.
+    // PT: Indica que os dados de diagnóstico CANopen foram alterados.
+    diagnosticFlag         : BOOL;
+
+    // EN: Raw CiA 402 status word for diagnostics.
+    // PT: Palavra de estado CiA 402 bruta para diagnóstico.
+    statusWord             : UINT;
+
+    // EN: Active operation mode reported by the drive.
+    // PT: Modo de operação ativo informado pelo drive.
+    activeMode             : SINT;
+
+    // EN: Decoded generic device state.
+    // PT: Estado genérico decodificado do equipamento.
+    deviceState            : E_IS620P_CO_STATE;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

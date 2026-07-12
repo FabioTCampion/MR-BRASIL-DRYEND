@@ -129,7 +129,10 @@ STK_050_BC2();
 STKL_050_DIO1();	//Ch 0 - IO-Link IP67 Input/Output module
 STKL_050_DIO2(); //Ch 1 - IO-Link DIN Rail Input/Output module
 STKL_100_B01(); //Ch 2 - IO-Link Pile height sensor	
-	
+
+//CANOpen slave	
+STKL_P2_100_UG8(); //Backstop servo drive
+STKL_P2_100_UG9(); //Lift servo drive
 ]]></ST>
       </Implementation>
     </Method>
@@ -21740,7 +21743,10 @@ Sliiter 1 control - Function Block
       <LineId Id="372" Count="15" />
       <LineId Id="454" Count="11" />
       <LineId Id="473" Count="0" />
-      <LineId Id="467" Count="5" />
+      <LineId Id="467" Count="4" />
+      <LineId Id="499" Count="0" />
+      <LineId Id="472" Count="0" />
+      <LineId Id="497" Count="1" />
       <LineId Id="42" Count="0" />
     </LineIds>
   </POU>

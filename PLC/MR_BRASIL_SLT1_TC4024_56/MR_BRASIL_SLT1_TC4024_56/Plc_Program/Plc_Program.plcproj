@@ -437,6 +437,24 @@
     <Compile Include="Library\Sick\DT35-B15251 - Laser Sensor\_FB_DT35_B15251.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\DataTypes\E_IS620P_CO_STATE.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\DataTypes\IS620P_CO_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\DataTypes\IS620P_CO_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\DataTypes\IS620P_CO_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\DataTypes\IS620P_CO_STATUS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Inovance\IS620P-CO\FB\FB_IS620P_CO.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PlcFastTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
@@ -483,6 +501,10 @@
     <Folder Include="Library\FAS\IO-Link\00BW12 - 16 Solenoid Island\DataTypes" />
     <Folder Include="Library\FAS\IO-Link\0AC001 - Analog Input" />
     <Folder Include="Library\FAS\IO-Link\0AC001 - Analog Input\DataTypes" />
+    <Folder Include="Library\Inovance" />
+    <Folder Include="Library\Inovance\IS620P-CO" />
+    <Folder Include="Library\Inovance\IS620P-CO\DataTypes" />
+    <Folder Include="Library\Inovance\IS620P-CO\FB" />
     <Folder Include="Library\Machine" />
     <Folder Include="Library\Machine\DryEnd" />
     <Folder Include="Library\Machine\DryEnd\Alarm Control" />
@@ -549,6 +571,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <SubObject Include="FB_IS620P_CO._ControlDriveState" />
+    <SubObject Include="FB_IS620P_CO._ControlVelocity" />
+    <SubObject Include="FB_IS620P_CO._ConvertRawPositionToMm" />
+    <SubObject Include="FB_IS620P_CO._ConvertRawVelocityToMmps" />
+    <SubObject Include="FB_IS620P_CO._ConvertVelocityToRaw" />
+    <SubObject Include="FB_IS620P_CO._DecodeDriveState" />
+    <SubObject Include="FB_IS620P_CO._ProcessPositionCommands" />
+    <SubObject Include="FB_IS620P_CO._ReadHardwareInputs" />
+    <SubObject Include="FB_IS620P_CO._UpdateStatus" />
     <SubObject Include="FB_SimpleSheetStackerControl_1._AlarmControl" />
     <SubObject Include="FB_SimpleSheetStackerControl_1._BackstopControl" />
     <SubObject Include="FB_SimpleSheetStackerControl_1._ConveyorLevelerControl" />
