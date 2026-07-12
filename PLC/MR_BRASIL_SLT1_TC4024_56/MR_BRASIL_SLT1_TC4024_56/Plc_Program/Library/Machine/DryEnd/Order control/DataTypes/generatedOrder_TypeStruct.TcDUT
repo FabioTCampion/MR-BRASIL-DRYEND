@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="generatedOrder_TypeStruct" Id="{a69efc9d-249a-0a60-3c46-51bfa8e9fe31}">
+    <Declaration><![CDATA[TYPE generatedOrder_TypeStruct :
+	STRUCT
+		// ========================================================================
+		// TOOLING SUMMARY
+		// ========================================================================
+		numberOfKnifes          : INT;              ///< Total count of active knives in this order
+		numberOfScorers         : INT;              ///< Total count of active scorers in this order
+		numberOfSheets          : INT;              ///< Total number of sheets in the current production list
+		
+		// ========================================================================
+		// WEB GEOMETRY & CALCULATED WIDTHS [mm]
+		// ========================================================================
+		order1Width           : REAL;             ///< Calculated width of the Upper level order [mm]
+		order2Width        	  : REAL;             ///< Calculated width of the Lower level order [mm]
+		orderTotalWidth	      : REAL;             ///< Combined web width (Top + Bottom + Trim) [mm]
+		firstKnifePosition      : REAL;             ///< Absolute position of the outermost left knife [mm]
+		lastKnifePosition       : REAL;             ///< Absolute position of the outermost right knife [mm]
+		
+		// ========================================================================
+		// KNIFE STATION DATA (Top/Rotary)
+		// ========================================================================
+		knifeEnabledArr         : ARRAY [1..10] OF BOOL; ///< Tool Enable: TRUE if knife index [x] is required
+		knifePositionReferenceArr : ARRAY [1..10] OF REAL; ///< Target position for each knife [mm]
+		
+		// ========================================================================
+		// SCORER STATION DATA (Creasing)
+		// ========================================================================
+		scorerEnabledArr        : ARRAY [1..20] OF BOOL; ///< Tool Enable: TRUE if scorer index [x] is required
+		scorerPositionReferenceArr : ARRAY [1..20] OF REAL; ///< Target position for each scorer [mm]
+		// ========================================================================
+		// MACHINE STATUS
+		// ========================================================================
+		statusWord              : generatedOrderStatusWord_TypeStruct; ///< Structured status bits for order validity and errors
+				
+
+	END_STRUCT
+END_TYPE
+		// ========================================================================
+		// MACHINE STATUS
+		// ========================================================================
+//		statusWord              : generatedOrderStatusWord_TypeStruct; ///< Structured status bits for order validity and errors
+		]]></Declaration>
+  </DUT>
+</TcPlcObject>

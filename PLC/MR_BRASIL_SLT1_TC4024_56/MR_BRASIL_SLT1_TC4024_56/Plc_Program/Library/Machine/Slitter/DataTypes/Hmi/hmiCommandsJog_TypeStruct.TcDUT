@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommandsJog_TypeStruct" Id="{343b7bfb-5cb4-4457-8791-48f3d2005ef9}">
+    <Declaration><![CDATA[TYPE hmiCommandsJog_TypeStruct :
+STRUCT
+		
+	jogFw	 :BOOL;
+	jogRev	: BOOL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

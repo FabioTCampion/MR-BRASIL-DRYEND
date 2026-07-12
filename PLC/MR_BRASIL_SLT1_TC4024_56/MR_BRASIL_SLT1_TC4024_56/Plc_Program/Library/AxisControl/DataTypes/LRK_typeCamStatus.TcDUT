@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LRK_typeCamStatus" Id="{9308c777-6fc3-4237-bbf6-45576c4db79a}">
+    <Declaration><![CDATA[TYPE
+LRK_typeCamStatus :
+STRUCT
+    cam                      : INT;
+    control                  : BOOL;
+    error                    : BOOL;
+    restartActive            : BOOL;
+    onlineStartValuesChanged : BOOL;
+    camDataChanged           : BOOL;
+    interpolated             : BOOL;
+    inInterpolation          : BOOL;
+    restartDone              : BOOL;
+    restartBusy              : BOOL;
+    restartCommandAborted    : BOOL;
+    restartError             : BOOL;
+    restartErrorId           : WORD;
+    interpolateCamDone       : BOOL;
+    interpolateCamBusy       : BOOL;
+    interpolateCamError      : BOOL;
+    interpolateCamErrorId    : WORD;
+    startLeadingValue        : LREAL;
+    endLeadingValue          : LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

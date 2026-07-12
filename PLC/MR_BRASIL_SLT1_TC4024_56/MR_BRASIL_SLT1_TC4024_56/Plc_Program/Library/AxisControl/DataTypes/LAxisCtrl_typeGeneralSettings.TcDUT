@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeGeneralSettings" Id="{b47046e5-6b99-498b-b166-53e3252fbdf7}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeGeneralSettings :
+STRUCT
+
+	stopOnError			:BOOL;
+	resetWithRestart			:BOOL;
+	abortWaitingSyncCmd		:BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

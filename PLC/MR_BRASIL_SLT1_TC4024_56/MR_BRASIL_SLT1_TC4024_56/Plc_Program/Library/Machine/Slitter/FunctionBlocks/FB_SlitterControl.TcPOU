@@ -1,0 +1,3165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SlitterControl" Id="{0d2226ac-abc3-47ea-99cf-db2ca94f7b30}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SlitterControl
+VAR_INPUT
+    // General control commands
+    enableAxis              : BOOL;  // Enable/disable positioning axis motors
+    startCuttingCmd            : BOOL;  // Start slitter cutting process\
+    stopCuttingCmd            : BOOL;  // Stop slitter cutting process\
+		
+    executePositioning      : BOOL;  // Execute positioning sequence
+    changeOrder             : BOOL;  // Execute Automatic Order Change (AOC)
+    executeHome             : BOOL;  // Execute slitter homing
+    generatePositions       : BOOL;  // Generate knife/scorer positions
+    resetCmd                : BOOL;  // Reset commands and states
+    autoManualCommand       : BOOL;  // Mode selection [FALSE = Auto / TRUE = Manual]
+	
+	startTractionMotorCmd	: BOOL;
+
+
+	lineSpeedMPM			: REAL;
+	aocSpeedMPM				: REAL;
+	aocRunning				: BOOL;
+
+
+    outfeedRoll_ManCmd      : BOOL; // Manual Mode activation command
+    
+    outfeedRoll_UpCmd       : BOOL; // Manual command to raise the roll
+    outfeedRoll_DownCmd     : BOOL; // Manual command to lower the roll
+
+	
+	safetyFeedback			: BOOL;
+	
+	paperPresenceSensor				: BOOL;
+	measuringWheelPaperPresenceSensor		: BOOL;
+	rotaryShearCutPulse					: BOOL;	
+	measuringWheelPulseSensor		: BOOL;	
+	
+	    // Knife solenoid enable outputs
+    knife1EnabledCmd           : BOOL;
+    knife2EnabledCmd           : BOOL;
+    knife3EnabledCmd           : BOOL;
+    knife4EnabledCmd           : BOOL;
+    knife5EnabledCmd           : BOOL;
+
+    // Scorer solenoid enable outputs
+    scorer1EnabledCmd          : BOOL;
+    scorer2EnabledCmd          : BOOL;
+    scorer3EnabledCmd          : BOOL;
+    scorer4EnabledCmd          : BOOL;
+    scorer5EnabledCmd          : BOOL;
+    scorer6EnabledCmd          : BOOL;
+    scorer7EnabledCmd          : BOOL;
+    scorer8EnabledCmd          : BOOL;
+
+    // Knife home sensors
+	
+    homeSensorKnife1        : BOOL;
+    homeSensorKnife2        : BOOL;
+    homeSensorKnife3        : BOOL;
+    homeSensorKnife4        : BOOL;
+    homeSensorKnife5        : BOOL;
+    
+    // Scorer home sensors
+    homeSensorScorer1       : BOOL;
+    homeSensorScorer2       : BOOL;
+    homeSensorScorer3       : BOOL;
+    homeSensorScorer4       : BOOL;
+    homeSensorScorer5       : BOOL;
+    homeSensorScorer6       : BOOL;
+    homeSensorScorer7       : BOOL;
+    homeSensorScorer8       : BOOL;
+	
+    // Knife sharpening
+	
+	knifeSharpeningAutoMan		: BOOL;	//Knife sharpening (0 = Manual / 1 = Auto)
+    knife1SharpeningCmd        : BOOL;
+    knife2SharpeningCmd        : BOOL;
+    knife3SharpeningCmd        : BOOL;
+    knife4SharpeningCmd        : BOOL;
+    knife5SharpeningCmd        : BOOL;	
+
+    knife1LubrificationCmd        : BOOL;
+    knife2LubrificationCmd        : BOOL;
+    knife3LubrificationCmd        : BOOL;
+    knife4LubrificationCmd        : BOOL;
+    knife5LubrificationCmd        : BOOL;		
+
+	startExhaustMotorCmd				: BOOL;
+	stopExhaustMotorCmd				: BOOL;
+
+	
+	scorerHeightIncCmd		: BOOL;	
+	scorerHeightDecCmd		: BOOL;	
+	
+	scorerTypeWCmd	: BOOL;
+	scorerTypeNCmd	: BOOL;	
+	scorerTypeDCmd	: BOOL;	
+	
+	scorerTypeWSensor	: BOOL;
+	scorerTypeNSensor	: BOOL;	
+	scorerTypeDSensor	: BOOL;	
+	
+
+	doubleFacerSpeedIncCmd			: BOOL;	
+	doubleFacerSpeedDecCmd			: BOOL;	
+	doubleFacerStopCmd			: BOOL;
+	
+    // Slitter movement controls
+    moveSlitterOperatorSideCmd : BOOL;
+    moveSlitterMotorSideCmd    : BOOL;
+    moveSlitterOperatorSideLimit : BOOL;
+    moveSlitterMotorSideLimit    : BOOL;	
+
+	
+	slitterCenterGuideRollCmd		: BOOL;
+	
+	rotaryKnifeInfeedUpperDamper1Cmd : BOOL;
+	rotaryKnifeInfeedUpperDamper2Cmd : BOOL;
+	
+	rotaryKnifeInfeedLowerDamper1Cmd : BOOL;
+	rotaryKnifeInfeedLowerDamper2Cmd : BOOL;
+	
+	pilotRollUpDownCmd			: BOOL;
+	
+	
+    // Paper direction flaps
+	
+	paperDirectionFlapAutoMan	: BOOL; // Paper direction flap (0=Manual / 1=Auto)
+    paperDirectionFlap01Cmd    : BOOL;
+    paperDirectionFlap02Cmd    : BOOL;
+    paperDirectionFlap03Cmd    : BOOL;
+    paperDirectionFlap04Cmd    : BOOL;
+    paperDirectionFlap05Cmd    : BOOL;
+    paperDirectionFlap06Cmd    : BOOL;
+    paperDirectionFlap07Cmd    : BOOL;
+    paperDirectionFlap08Cmd    : BOOL;
+    paperDirectionFlap09Cmd    : BOOL;
+    paperDirectionFlap10Cmd    : BOOL;
+    paperDirectionFlap11Cmd    : BOOL;
+    paperDirectionFlap12Cmd    : BOOL;
+
+	flapsManualCmdArr	: ARRAY [1..27] OF hmiCommandsFlaps_TypeStruct;
+	
+	
+	    // Paper scrap controls
+    paperTrimOperatorSideOpenCmd  : BOOL;
+    paperTrimOperatorSideCloseCmd : BOOL;
+    paperTrimMotorSideOpenCmd     : BOOL;
+    paperTrimMotorSideCloseCmd    : BOOL;
+	
+    // Limit sensors
+    limitSensorKnife3_4     : BOOL;  // Between knife 3 and knife 4
+    limitSensorScorer4_6    : BOOL;  // Between scorer 4 and scorer 6
+    limitSensorScorer3_5    : BOOL;  // Between scorer 3 and scorer 5
+	
+	
+	knifeManualSharpeningCmdArr		: ARRAY [1..20] OF BOOL;	(*This array is used to sharpen the knife manualy*)
+	knifeManualLubrificationCmdArr		: ARRAY [1..20] OF BOOL;	(*This array is used to lubrificate the knife manualy*)
+
+    // Machine configuration
+    machineConfig           : slitterConfig_TypeStruct;
+END_VAR
+
+VAR_IN_OUT
+    // Knife axes references
+    knife1_Axis             : AXIS_REF;
+    knife2_Axis             : AXIS_REF;
+    knife3_Axis             : AXIS_REF;
+    knife4_Axis             : AXIS_REF;
+    knife5_Axis             : AXIS_REF;
+
+    // Scorer axes references
+    scorer1_Axis            : AXIS_REF;
+    scorer2_Axis            : AXIS_REF;
+    scorer3_Axis            : AXIS_REF;
+    scorer4_Axis            : AXIS_REF;
+    scorer5_Axis            : AXIS_REF;
+    scorer6_Axis            : AXIS_REF;
+    scorer7_Axis            : AXIS_REF;
+    scorer8_Axis            : AXIS_REF;
+    
+    // Orders
+    currentOrder            : Order_TypeStruct;
+    nextOrder               : Order_TypeStruct;
+END_VAR
+
+VAR_OUTPUT
+    EN                      : BOOL;  // Function block enabled
+
+	safetyOK				: BOOL;
+	safetyOKLamp			: BOOL;
+	
+	startCutting            : BOOL;  // Start slitter cutting process\
+	startCuttingLamp        : BOOL;  // Start slitter cutting process\
+	
+	scoreEnabled			: BOOL;
+	scoreEnabledLamp		: BOOL;
+
+
+
+    // Knife solenoid enable outputs
+    knife1Enabled           : BOOL;
+    knife2Enabled           : BOOL;
+    knife3Enabled           : BOOL;
+    knife4Enabled           : BOOL;
+    knife5Enabled           : BOOL;
+
+    // Scorer solenoid enable outputs
+    scorer1Enabled          : BOOL;
+    scorer2Enabled          : BOOL;
+    scorer3Enabled          : BOOL;
+    scorer4Enabled          : BOOL;
+    scorer5Enabled          : BOOL;
+    scorer6Enabled          : BOOL;
+    scorer7Enabled          : BOOL;
+    scorer8Enabled          : BOOL;
+
+    // Knife enabled indicator lamps
+    knife1EnabledLamp       : BOOL;
+    knife2EnabledLamp       : BOOL;
+    knife3EnabledLamp       : BOOL;
+    knife4EnabledLamp       : BOOL;
+    knife5EnabledLamp       : BOOL;
+
+    // Scorer enabled indicator lamps
+    scorer1EnabledLamp      : BOOL;
+    scorer2EnabledLamp      : BOOL;
+    scorer3EnabledLamp      : BOOL;
+    scorer4EnabledLamp      : BOOL;
+    scorer5EnabledLamp      : BOOL;
+    scorer6EnabledLamp      : BOOL;
+    scorer7EnabledLamp      : BOOL;
+    scorer8EnabledLamp      : BOOL;
+
+    // Knife lubrication
+    knifeLubrificationPump  : BOOL;  // Main lubrication pump
+    knife1Lubrification     : BOOL;
+    knife2Lubrification     : BOOL;
+    knife3Lubrification     : BOOL;
+    knife4Lubrification     : BOOL;
+    knife5Lubrification     : BOOL;
+
+    // Knife sharpening
+    knife1Sharpening        : BOOL;
+    knife2Sharpening        : BOOL;
+    knife3Sharpening        : BOOL;
+    knife4Sharpening        : BOOL;
+    knife5Sharpening        : BOOL;
+
+    knife1SharpeningLamp        : BOOL;
+    knife2SharpeningLamp        : BOOL;
+    knife3SharpeningLamp        : BOOL;
+    knife4SharpeningLamp        : BOOL;
+    knife5SharpeningLamp        : BOOL;	
+
+	slitterCenterGuideRoll		: BOOL;
+
+	
+	rotaryKnifeInfeedUpperDamper1 : BOOL;
+	rotaryKnifeInfeedUpperDamper2 : BOOL;
+	
+	rotaryKnifeInfeedLowerDamper1 : BOOL;
+	rotaryKnifeInfeedLowerDamper2 : BOOL;
+	
+	pilotRollUpDown			: BOOL;	
+
+    outfeedRoll_Up       : BOOL; // Raise the roll
+    outfeedRoll_Down     : BOOL; // Lower the roll	
+	
+    // Paper direction flaps
+    paperDirectionFlap01    : BOOL;
+    paperDirectionFlap02    : BOOL;
+    paperDirectionFlap03    : BOOL;
+    paperDirectionFlap04    : BOOL;
+    paperDirectionFlap05    : BOOL;
+    paperDirectionFlap06    : BOOL;
+    paperDirectionFlap07    : BOOL;
+    paperDirectionFlap08    : BOOL;
+    paperDirectionFlap09    : BOOL;
+    paperDirectionFlap10    : BOOL;
+    paperDirectionFlap11    : BOOL;
+    paperDirectionFlap12    : BOOL;
+
+    // Slitter movement controls
+    moveSlitterOperatorSide : BOOL;
+    moveSlitterMotorSide    : BOOL;
+    moveSlitterOperatorSideLamp : BOOL;
+    moveSlitterMotorSideLamp    : BOOL;	
+	
+
+    // Paper scrap controls
+    paperTrimOperatorSideOpen  : BOOL;
+    paperTrimOperatorSideClose : BOOL;
+    paperTrimMotorSideOpen     : BOOL;
+    paperTrimMotorSideClose    : BOOL;
+
+	
+
+	scorerHeightInc		: BOOL;	
+	scorerHeightDec		: BOOL;	
+	scorerHeightMotorStart : BOOL;
+	scorerHeightMotorSlow : BOOL;
+	scorerHeightMotorFast : BOOL;
+	
+	
+	
+	scorerTypeWLamp		: BOOL;
+	scorerTypeNLamp		: BOOL;	
+	scorerTypeDLamp		: BOOL;		
+	
+	
+    // Motor commands
+	tractionEnabledLamp		: BOOL;
+    knifeMotorStart         : BOOL;
+    scorerMotorStart        : BOOL;
+	slitterKnifeDriveRef           : REAL;  // Knife motor start command / Partida motor facas	
+    slitterScorerDriveRef          : REAL;  // Scorer motor start command / Partida motor vincos	
+		
+	
+	startExhaustMotor				: BOOL;
+	startExhaustMotorLamp			: BOOL;
+	
+	
+	arrKnifeRunningMetersForSharpening		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	arrKnifeRunningMetersForLubfrication		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	
+	hmiStatus				: slitterStatus_TypeStruct;
+	
+	
+END_VAR
+
+VAR PERSISTENT
+	
+	inst_FB_KnifeSharpening  : ARRAY [1..5] OF FB_KnifeSharpening;
+	inst_FB_KnifeLubrification : ARRAY [1..5] OF	FB_KnifeLubrification;
+
+END_VAR
+
+
+VAR
+    // Knife axis control instances
+    instFB_AxisControlKnife1_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlKnife2_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlKnife3_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlKnife4_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlKnife5_Axis : FB_SimpleAxisControl;
+
+    // Scorer axis control instances
+    instFB_AxisControlScorer1_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer2_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer3_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer4_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer5_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer6_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer7_Axis : FB_SimpleAxisControl;
+    instFB_AxisControlScorer8_Axis : FB_SimpleAxisControl;
+    
+    // Knife axis configurations
+    knife1_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    knife2_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    knife3_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    knife4_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    knife5_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+
+    // Scorer axis configurations
+    scorer1_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer2_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer3_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer4_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer5_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer6_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer7_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    scorer8_AxisConfiguration : LAxisCtrl_typeAxisConfig;
+    
+    // Knife sharpening and lubrication instances
+    instSharpeningKnifeArr  : ARRAY [1..20] OF FB_KnifeSharpening_old;
+    instKnifeLubrificationArr : ARRAY [1..20] OF FB_KnifeLubrification;
+
+    // Timers
+    instSlitterMotoringTP   : TP;    // Slitter motoring stop timer
+    instFbCurrentOrderPositionsGeneration : FB_PositionsGeneration;
+    instFbToggleStartKnife  : TOGGLE;
+    instFbTPStopKnifeMotor  : TP;
+    instFbToggleStartScorer : TOGGLE;
+    instFbTPStopScorerMotor : TP;
+    instFbScorerHeight      : FB_ScorerHeight;
+    instTonDelay            : TON;
+    instTONExecutePositioningDelay : TON;
+    instTPHaltAxis          : TP;
+
+    // Positioning status
+    positioningRunning                  : BOOL;
+    positioningFinished                 : BOOL;
+    innerScorerPositioningRunning       : BOOL;
+    outerScorerPositioningRunning       : BOOL;
+    knifePositioningRunning             : BOOL;
+    innerScorerPositioningFinished      : BOOL;
+    outerScorerPositioningFinished      : BOOL;
+    knifePositioningFinished            : BOOL;
+
+    // Error flags
+    knifeAxisError                      : BOOL;
+    innerScorerError                    : BOOL;
+    outerScorerError                    : BOOL;
+    positioningAxisError                 : BOOL;
+
+    // Motor running flags
+    knifeMotorRun                       : BOOL;
+    scorerMotorRun                      : BOOL;
+
+    // State tracking
+    executePositioningOld               : BOOL;
+    changeOrderOld                      : BOOL;
+    executeHomeOld                      : BOOL;
+    homeRunning                         : BOOL;
+    positioningStarted                  : BOOL;
+    haltAxis                            : BOOL;
+    homeFinished                        : BOOL;
+
+    // Positioning range checks
+    knifePositionSetpointOutOfRange     : BOOL;
+    innerScorerPositionSetpointOutOfRange : BOOL;
+    outerScorerPositionSetpointOutOfRange : BOOL;
+
+    // Aux timers
+    auxiliarTP1                         : TP;
+	knife1EnabledCmdOld: BOOL;
+	knife2EnabledCmdOld: BOOL;
+	knife3EnabledCmdOld: BOOL;
+	knife4EnabledCmdOld: BOOL;
+	knife5EnabledCmdOld: BOOL;
+
+	scorer1EnabledCmdOld: BOOL;
+	scorer2EnabledCmdOld: BOOL;
+	scorer3EnabledCmdOld: BOOL;
+	scorer4EnabledCmdOld: BOOL;
+	scorer5EnabledCmdOld: BOOL;
+	scorer6EnabledCmdOld: BOOL;
+	scorer7EnabledCmdOld: BOOL;
+	scorer8EnabledCmdOld: BOOL;
+	
+	
+	inTargetPosition: BOOL;
+	
+	scorerTypeWCmdOld	: BOOL;
+	scorerTypeNCmdOld	: BOOL;	
+	scorerTypeDCmdOld	: BOOL;	
+	
+	instKnifeSharpeningCLK_PRG: CLK_PRG;
+	instKnifeLubrificationCLK_PRG: CLK_PRG;
+	instTOFScorerSensorDelay: TOF;
+	scorerHeightPositioningRunning: BOOL;
+	scorerHeightPositioningState: INT;
+	inst_GEN_PULSE_1S: GEN_PULSE;
+	clock_Pulse_1S: BOOL;
+	instFB_PaperDirectionControl : FB_PaperDirectionControl;	
+	instRTrigToolsInPosition: R_TRIG;
+
+	
+	flapsSetAutoOld: BOOL;
+	bAllKnivesInPos: BOOL;
+	displayFlapsIndex: INT;
+	displayKnifesIndex: INT;
+	knifeRunningMetersArr: INT;
+	outfeedRoll_DownCmdOld: BOOL;
+	outfeedRoll_UpCmdOld: BOOL;
+	instTONOutfeedRollDelay: TON;
+	
+	
+	generatePositionsTest: BOOL;
+	generatePositionsTestOld: BOOL;
+END_VAR
+
+VAR CONSTANT
+    AXIS_TYPE_KNIFE         : INT := 1;
+    AXIS_TYPE_INNER_SCORER  : INT := 2;
+    AXIS_TYPE_OUTER_SCORER  : INT := 3;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*Update axis status at the beginning of every cicle*)
+knife1_Axis();
+knife2_Axis();
+knife3_Axis();
+knife4_Axis();
+knife5_Axis();
+
+scorer1_Axis();
+scorer2_Axis();
+scorer3_Axis();
+scorer4_Axis();
+scorer5_Axis();
+scorer6_Axis();
+scorer7_Axis();
+scorer8_Axis();
+
+(*Update inverter status at the beginning of every cicle*)
+
+
+(*Call program subroutines*)
+
+_axisControl();
+_toolsUpDownControl();
+_slitterDisplacement();
+//_knifeSharpening_old();
+_knifeSharpening();
+
+_paperTrim();
+_safetyCircuit();
+_startStopCutting();
+_scorerHeightControl();
+_exhaustMotor();
+_startTractionMotor();
+_knifeSharpening_old();
+_knifeLubrification();
+//_paperDirectionFlaps();
+_slitterPaperDirectionControl();
+
+_slitterCenterPaperGuideRoll();
+_09_OutFeedRoll();
+
+ACT_AlarmActive();
+ACT_Alarms();
+ACT_AuxiliaryCommands();
+ACT_ProgramCurrentOrder();
+
+ACT_GeneratePositions();
+_haltTheAxis();
+_homeFinished();
+_08_HmiStatusDisplay();
+
+_toolEnabledLamp();
+
+EN := TRUE;
+
+IF generatePositionsTest AND NOT generatePositionsTestOld THEN
+	
+	
+	instFbCurrentOrderPositionsGeneration(execute := TRUE,
+		machineConfig := machineConfig,
+		currentOrder := currentOrder);
+	
+END_IF
+
+generatePositionsTestOld := generatePositionsTest;
+
+]]></ST>
+    </Implementation>
+    <Method Name="_08_HmiStatusDisplay" Id="{eadcc785-17dc-4f5c-bc20-a5e7c9aaf116}">
+      <Declaration><![CDATA[METHOD _08_HmiStatusDisplay
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+FOR displayFlapsIndex := 1 TO 27 DO
+	
+	
+	hmiStatus.flapSolenoidArr[displayFlapsIndex] :=	instFB_PaperDirectionControl.flapSolenoidArr[displayFlapsIndex];
+
+END_FOR
+
+
+FOR displayKnifesIndex := 1 TO 5 DO
+	
+	
+	hmiStatus.knifeRunningMetersArr[displayKnifesIndex] := inst_FB_KnifeSharpening[displayKnifesIndex].knifeRunningMeters;
+	hmiStatus.knifeRunningMetersTotalArr[displayKnifesIndex] := inst_FB_KnifeSharpening[displayKnifesIndex].knifeRunningMetersTotal;
+	
+	hmiStatus.lubrificationRunningMetersArr[displayKnifesIndex] := inst_FB_KnifeLubrification[displayKnifesIndex].knifeRunningMeters;
+	
+	
+END_FOR]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_09_OutFeedRoll" Id="{c2e477c8-1a46-4e37-b449-9cb462ed76d1}">
+      <Declaration><![CDATA[METHOD _09_OutFeedRoll : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ==========================================================================
+// OUTFEED ROLL CONTROL LOGIC
+// Location: Slitter Scorer Outfeed (Cardboard)
+// ==========================================================================
+
+// Update delay timer for automatic paper detection
+instTONOutfeedRollDelay(IN := paperPresenceSensor, PT := T#15S);
+
+// Logic Calculation Section
+IF outfeedRoll_ManCmd THEN
+    
+    // Manual Toggle: Raise roll on rising edge of Up command
+    IF outfeedRoll_UpCmd AND NOT outfeedRoll_UpCmdOld THEN
+        outfeedRoll_Up   := TRUE;
+        outfeedRoll_Down := FALSE;
+    END_IF
+    
+    // Manual Toggle: Lower roll on rising edge of Down command
+    IF outfeedRoll_DownCmd AND NOT outfeedRoll_DownCmdOld THEN
+        outfeedRoll_Up   := FALSE;
+        outfeedRoll_Down := TRUE;
+    END_IF	
+
+ELSE
+    // AUTOMATIC MODE
+    // Lower roll only if paper is present and the stable-presence delay has expired
+    IF paperPresenceSensor AND instTONOutfeedRollDelay.Q THEN
+        outfeedRoll_Up   := FALSE;
+        outfeedRoll_Down := TRUE;
+    ELSE
+        // Default position: Keep roll raised
+        outfeedRoll_Up   := TRUE;
+        outfeedRoll_Down := FALSE;
+    END_IF	
+
+END_IF
+
+// ==========================================================================
+// SAFETY INTERLOCK & OUTPUT MAPPING
+// ==========================================================================
+// If safety feedback is lost, force both outputs to FALSE (Disable Movement)
+IF NOT safetyFeedback THEN
+    outfeedRoll_Up   := FALSE;
+    outfeedRoll_Down := FALSE;
+END_IF
+
+// Store states for manual edge detection in next scan cycle
+outfeedRoll_UpCmdOld   := outfeedRoll_UpCmd;
+outfeedRoll_DownCmdOld := outfeedRoll_DownCmd;
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_axisControl" Id="{e1192684-5bc3-4d29-9741-90c2ec4d908a}">
+      <Declaration><![CDATA[METHOD _axisControl
+VAR_INPUT
+END_VAR
+(*
+
+	limitSensorKnife3_4					: BOOL;
+	limitSensorScorer4_6					: BOOL;
+	limitSensorScorer3_5					: BOOL;
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+Improved Knife Homing Sequence - CPNTeck Automation
+===============================================================================================================================*)
+
+(* Detect rising edge of executeHome *)
+IF executeHome AND NOT executeHomeOld THEN
+    homeRunning := TRUE;
+    instTonDelay(IN := FALSE); // Reset timer
+END_IF
+executeHomeOld := executeHome;
+
+(* Main Homing Logic *)
+IF homeRunning THEN
+    instTonDelay(IN := TRUE, PT := T#60S); // Start the 10s timer
+
+    // Start homing Knife 1 and 5 after 1ms
+    IF instTonDelay.ET > T#0S AND instTonDelay.ET <= T#10S THEN
+        instFB_AxisControlKnife1_Axis.homing := TRUE;
+        instFB_AxisControlKnife5_Axis.homing := TRUE;
+		
+		instFB_AxisControlScorer1_Axis.homing := TRUE;
+		instFB_AxisControlScorer7_Axis.homing := TRUE;
+		instFB_AxisControlScorer2_Axis.homing := TRUE;
+		instFB_AxisControlScorer8_Axis.homing := TRUE;
+		
+		
+    END_IF
+
+    // Start homing Knife 2 and 4 after 3s
+    IF instTonDelay.ET > T#10S AND instTonDelay.ET <= T#20S THEN
+        instFB_AxisControlKnife2_Axis.homing := TRUE;
+        instFB_AxisControlKnife4_Axis.homing := TRUE;
+		
+		instFB_AxisControlScorer4_Axis.homing := TRUE;
+		instFB_AxisControlScorer6_Axis.homing := TRUE;
+		instFB_AxisControlScorer3_Axis.homing := TRUE;
+		instFB_AxisControlScorer5_Axis.homing := TRUE;
+		
+    END_IF
+
+    // Start homing Knife 3 after 6s
+    IF instTonDelay.ET > T#30S THEN
+        instFB_AxisControlKnife3_Axis.homing := TRUE;
+    END_IF
+
+    // Finish sequence when timer completes
+    IF instTonDelay.Q THEN
+        homeRunning := FALSE;
+
+        (* Reset all homing commands *)
+        instFB_AxisControlKnife1_Axis.homing := FALSE;
+        instFB_AxisControlKnife2_Axis.homing := FALSE;
+        instFB_AxisControlKnife3_Axis.homing := FALSE;
+        instFB_AxisControlKnife4_Axis.homing := FALSE;
+        instFB_AxisControlKnife5_Axis.homing := FALSE;
+		
+		instFB_AxisControlScorer1_Axis.homing := FALSE;
+		instFB_AxisControlScorer2_Axis.homing := FALSE;
+		instFB_AxisControlScorer3_Axis.homing := FALSE;
+		instFB_AxisControlScorer4_Axis.homing := FALSE;
+		instFB_AxisControlScorer5_Axis.homing := FALSE;
+		instFB_AxisControlScorer6_Axis.homing := FALSE;
+		instFB_AxisControlScorer7_Axis.homing := FALSE;
+		instFB_AxisControlScorer8_Axis.homing := FALSE;
+
+        instTonDelay(IN := FALSE); // Stop the timer
+    END_IF
+
+ELSE
+(*	
+    (* Not running, ensure homing off and timer stopped *)
+    instFB_AxisControlKnife1_Axis.homing := FALSE;
+    instFB_AxisControlKnife2_Axis.homing := FALSE;
+    instFB_AxisControlKnife3_Axis.homing := FALSE;
+    instFB_AxisControlKnife4_Axis.homing := FALSE;
+    instFB_AxisControlKnife5_Axis.homing := FALSE;
+	
+	instFB_AxisControlScorer1_Axis.homing := FALSE;
+	instFB_AxisControlScorer2_Axis.homing := FALSE;
+	instFB_AxisControlScorer3_Axis.homing := FALSE;
+	instFB_AxisControlScorer4_Axis.homing := FALSE;
+	instFB_AxisControlScorer5_Axis.homing := FALSE;
+	instFB_AxisControlScorer6_Axis.homing := FALSE;
+	instFB_AxisControlScorer7_Axis.homing := FALSE;
+	instFB_AxisControlScorer8_Axis.homing := FALSE;	
+    instTonDelay(IN := FALSE);
+*)	
+END_IF
+//----------------------------------------------------------------------------------------------
+// Knife Axis parameters setup
+//----------------------------------------------------------------------------------------------
+
+//Knife 1 - Axis home parameters
+knife1_AxisConfiguration.homing.position := machineConfig.homePositionKnife[1];
+knife1_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionKnife[1];
+knife1_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+//Knife 1 - Axis positioning abosulute parameters
+knife1_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.knifePositionReferenceArr[1] + machineConfig.knifePositionCorrectionArr[1];
+knife1_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+knife1_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+knife1_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+knife1_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+
+//Knife 1 - Axis positioning relative parameters
+knife1_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.knifePosCorrectionArr[1].positionCorrection;
+knife1_AxisConfiguration.posRelative.direction := 0;
+knife1_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+knife1_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+knife1_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+knife1_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Knife 1 - Axis JOG parameters
+knife1_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+knife1_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+knife1_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+knife1_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+
+//Knife 2
+knife2_AxisConfiguration.homing.position := machineConfig.homePositionKnife[2];
+knife2_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionKnife[2];
+knife2_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+knife2_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.knifePositionReferenceArr[2] + machineConfig.knifePositionCorrectionArr[2];
+knife2_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+knife2_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+knife2_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+knife2_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+
+//Knife 2 - Axis positioning relative parameters
+knife2_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.knifePosCorrectionArr[2].positionCorrection;
+knife2_AxisConfiguration.posRelative.direction := 0;
+knife2_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+knife2_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+knife2_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+knife2_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Knife 2 - Axis JOG parameters
+knife2_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+knife2_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+knife2_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+knife2_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+
+//Knife 3
+knife3_AxisConfiguration.homing.position := machineConfig.homePositionKnife[3];
+knife3_AxisConfiguration.homing.offsetPosition :=  machineConfig.homePositionKnife[3];
+knife3_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+knife3_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.knifePositionReferenceArr[3] + machineConfig.knifePositionCorrectionArr[3];
+knife3_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+knife3_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+knife3_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+knife3_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+
+//Knife 3 - Axis positioning relative parameters
+knife3_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.knifePosCorrectionArr[3].positionCorrection;
+knife3_AxisConfiguration.posRelative.direction := 0;
+knife3_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+knife3_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+knife3_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+knife3_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Knife 3 - Axis JOG parameters
+knife3_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+knife3_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+knife3_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+knife3_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+
+//Knife 4
+knife4_AxisConfiguration.homing.position := machineConfig.homePositionKnife[4];
+knife4_AxisConfiguration.homing.offsetPosition :=  machineConfig.homePositionKnife[4];
+knife4_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+knife4_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.knifePositionReferenceArr[4] + machineConfig.knifePositionCorrectionArr[4];
+knife4_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+knife4_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+knife4_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+knife4_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+
+//Knife 4 - Axis positioning relative parameters
+knife4_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.knifePosCorrectionArr[4].positionCorrection;
+knife4_AxisConfiguration.posRelative.direction := 0;
+knife4_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+knife4_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+knife4_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+knife4_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Knife 4 - Axis JOG parameters
+knife4_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+knife4_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+knife4_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+knife4_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+//Knife 5
+knife5_AxisConfiguration.homing.position := machineConfig.homePositionKnife[5];
+knife5_AxisConfiguration.homing.offsetPosition :=  machineConfig.homePositionKnife[5];
+knife5_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+knife5_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.knifePositionReferenceArr[5] + machineConfig.knifePositionCorrectionArr[5];
+knife5_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+knife5_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+knife5_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+knife5_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Knife 5 - Axis positioning relative parameters
+knife5_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.knifePosCorrectionArr[5].positionCorrection;
+knife5_AxisConfiguration.posRelative.direction := 0;
+knife5_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+knife5_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+knife5_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+knife5_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Knife 5 - Axis JOG parameters
+knife5_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+knife5_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+knife5_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+knife5_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+//----------------------------------------------------------------------------------------------
+// Scorer Axis parameters setup
+//----------------------------------------------------------------------------------------------
+
+//Scorer 1
+scorer1_AxisConfiguration.homing.position := machineConfig.homePositionScorer[1];
+scorer1_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[1];
+scorer1_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer1_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[1] + machineConfig.scorerPositionCorrectionArr[1];
+scorer1_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer1_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer1_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer1_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 1 - Axis positioning relative parameters
+scorer1_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[1].positionCorrection;
+scorer1_AxisConfiguration.posRelative.direction := 0;
+scorer1_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer1_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer1_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer1_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 1 - Axis JOG parameters
+scorer1_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer1_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer1_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer1_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+//Scorer 2
+scorer2_AxisConfiguration.homing.position := machineConfig.homePositionScorer[2];
+scorer2_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[2];
+scorer2_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer2_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[2] + machineConfig.scorerPositionCorrectionArr[2];
+scorer2_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer2_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer2_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer2_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 2 - Axis positioning relative parameters
+scorer2_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[2].positionCorrection;
+scorer2_AxisConfiguration.posRelative.direction := 0;
+scorer2_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer2_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer2_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer2_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 2 - Axis JOG parameters
+scorer2_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer2_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer2_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer2_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 3
+scorer3_AxisConfiguration.homing.position := machineConfig.homePositionScorer[3];
+scorer3_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[3];
+scorer3_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer3_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[3] + machineConfig.scorerPositionCorrectionArr[3];
+scorer3_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer3_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer3_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer3_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 3 - Axis positioning relative parameters
+scorer3_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[3].positionCorrection;
+scorer3_AxisConfiguration.posRelative.direction := 0;
+scorer3_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer3_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer3_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer3_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 3 - Axis JOG parameters
+scorer3_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer3_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer3_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer3_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+
+//Scorer 4
+scorer4_AxisConfiguration.homing.position := machineConfig.homePositionScorer[4];
+scorer4_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[4];
+scorer4_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer4_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[4] + machineConfig.scorerPositionCorrectionArr[4];
+scorer4_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer4_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer4_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer4_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 4 - Axis positioning relative parameters
+scorer4_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[4].positionCorrection;
+scorer4_AxisConfiguration.posRelative.direction := 0;
+scorer4_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer4_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer4_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer4_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 4 - Axis JOG parameters
+scorer4_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer4_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer4_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer4_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+
+
+//Scorer 5
+//_________________________________________________________________________________________________________________________
+scorer5_AxisConfiguration.homing.position := machineConfig.homePositionScorer[5];
+scorer5_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[5];
+scorer5_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer5_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[5] + machineConfig.scorerPositionCorrectionArr[5];
+scorer5_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer5_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer5_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer5_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 5 - Axis positioning relative parameters
+scorer5_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[5].positionCorrection;
+scorer5_AxisConfiguration.posRelative.direction := 0;
+scorer5_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer5_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer5_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer5_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 5 - Axis JOG parameters
+scorer5_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer5_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer5_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer5_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 6
+//_________________________________________________________________________________________________________________________
+scorer6_AxisConfiguration.homing.position := machineConfig.homePositionScorer[6];
+scorer6_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[6];
+scorer6_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer6_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[6] + machineConfig.scorerPositionCorrectionArr[6];
+scorer6_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer6_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer6_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer6_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 6 - Axis positioning relative parameters
+scorer6_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[6].positionCorrection;
+scorer6_AxisConfiguration.posRelative.direction := 0;
+scorer6_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer6_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer6_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer6_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 6 - Axis JOG parameters
+scorer6_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer6_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer6_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer6_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 7
+//_________________________________________________________________________________________________________________________
+
+scorer7_AxisConfiguration.homing.position := machineConfig.homePositionScorer[7];
+scorer7_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[7];
+scorer7_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer7_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[7] + machineConfig.scorerPositionCorrectionArr[7];
+scorer7_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer7_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer7_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer7_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 7 - Axis positioning relative parameters
+scorer7_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[7].positionCorrection;
+scorer7_AxisConfiguration.posRelative.direction := 0;
+scorer7_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer7_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer7_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer7_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 7 - Axis JOG parameters
+scorer7_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer7_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer7_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer7_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 8
+//_________________________________________________________________________________________________________________________
+
+scorer8_AxisConfiguration.homing.position := machineConfig.homePositionScorer[8];
+scorer8_AxisConfiguration.homing.offsetPosition := machineConfig.homePositionScorer[8];
+scorer8_AxisConfiguration.homing.homeExecutionTimeLimit := T#5M;
+
+scorer8_AxisConfiguration.posAbsolute.position := currentOrder.generatedOrder.scorerPositionReferenceArr[8] + machineConfig.scorerPositionCorrectionArr[8];
+scorer8_AxisConfiguration.posAbsolute.velocity := machineConfig.toolFastPositioningVelocity;
+scorer8_AxisConfiguration.posAbsolute.acceleration := machineConfig.toolFastPositioningAccel;
+scorer8_AxisConfiguration.posAbsolute.deceleration := machineConfig.toolFastPositioningDecel;
+scorer8_AxisConfiguration.posAbsolute.jerk := machineConfig.toolFastPositioningJerk;
+
+//Scorer 8 - Axis positioning relative parameters
+scorer8_AxisConfiguration.posRelative.distance := hmiCommands.slitter1.scorerPosCorrectionArr[8].positionCorrection;
+scorer8_AxisConfiguration.posRelative.direction := 0;
+scorer8_AxisConfiguration.posRelative.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer8_AxisConfiguration.posRelative.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer8_AxisConfiguration.posRelative.deceleration := machineConfig.toolFastPositioningAccel;
+scorer8_AxisConfiguration.posRelative.jerk := machineConfig.toolSlowPositioningJerk;
+
+//Scorer 8 - Axis JOG parameters
+scorer8_AxisConfiguration.jog.velocity := machineConfig.toolSlowPositioningVelocity;
+scorer8_AxisConfiguration.jog.acceleration := machineConfig.toolSlowPositioningAccel;
+scorer8_AxisConfiguration.jog.deceleration := machineConfig.toolFastPositioningAccel;
+scorer8_AxisConfiguration.jog.jerk := machineConfig.toolSlowPositioningJerk;
+
+//----------------------------------------------------------------------------------------------
+// Knife Axis control function block calls
+//----------------------------------------------------------------------------------------------
+
+
+
+IF executePositioning AND NOT executePositioningOld AND homeFinished THEN
+//IF executePositioning AND NOT executePositioningOld THEN
+
+	instFbCurrentOrderPositionsGeneration(execute := TRUE,
+		machineConfig := machineConfig,
+		currentOrder := currentOrder);
+			
+	IF NOT currentOrder.generatedOrder.statusWord.orderNotOk THEN
+		
+		instTONExecutePositioningDelay.IN := TRUE;
+		positioningStarted	:= TRUE;
+
+	END_IF
+
+END_IF
+
+executePositioningOld := executePositioning;
+
+instTONExecutePositioningDelay(PT:=T#1S);
+
+
+
+//Knife 1 - Axis control function block call
+//__________________________________________________________________________
+instFB_AxisControlKnife1_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.knifePosCorrectionArr[1].execute,
+	jogForward := hmiCommands.slitter1.knifeJogArr[1].jogFw AND NOT homeSensorKnife2 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.knifeJogArr[1].jogRev AND NOT homeSensorKnife1 AND homeFinished,
+    homingSensor := homeSensorKnife1,
+    axis := knife1_Axis,
+    master := knife1_Axis,
+    configuration := knife1_AxisConfiguration
+);
+
+//Knife 2 - Axis control function block call
+//__________________________________________________________________________
+
+instFB_AxisControlKnife2_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.knifePosCorrectionArr[2].execute,
+	jogForward := hmiCommands.slitter1.knifeJogArr[2].jogFw AND NOT homeSensorKnife3 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.knifeJogArr[2].jogRev AND NOT homeSensorKnife2 AND homeFinished,
+    homingSensor := homeSensorKnife2,
+    axis := knife2_Axis,
+    master := knife2_Axis,
+    configuration := knife2_AxisConfiguration
+);
+
+//Knife 3 - Axis control function block call
+//__________________________________________________________________________
+
+instFB_AxisControlKnife3_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,		
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.knifePosCorrectionArr[3].execute,
+	jogForward := hmiCommands.slitter1.knifeJogArr[3].jogFw AND NOT (knife3_Axis.NcToPlc.ActPos > machineConfig.knifeMaxPostionArr[3]) AND NOT limitSensorKnife3_4 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.knifeJogArr[3].jogRev AND NOT homeSensorKnife3 AND homeFinished,
+    homingSensor := homeSensorKnife3,
+    axis := knife3_Axis,
+    master := knife3_Axis,
+    configuration := knife3_AxisConfiguration
+);
+
+//Knife 4 - Axis control function block call
+//__________________________________________________________________________
+
+instFB_AxisControlKnife4_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,		
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.knifePosCorrectionArr[4].execute,
+	jogForward := hmiCommands.slitter1.knifeJogArr[4].jogFw AND NOT homeSensorKnife4 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.knifeJogArr[4].jogRev AND NOT (knife4_Axis.NcToPlc.ActPos < machineConfig.knifeMinPostionArr[4]) AND NOT limitSensorKnife3_4 AND homeFinished,
+    homingSensor := homeSensorKnife4,
+    axis := knife4_Axis,
+    master := knife4_Axis,
+    configuration := knife4_AxisConfiguration
+);
+
+//Knife 5 - Axis control function block call
+//__________________________________________________________________________
+
+instFB_AxisControlKnife5_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,		
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.knifePosCorrectionArr[5].execute,
+	jogForward := hmiCommands.slitter1.knifeJogArr[5].jogFw AND NOT homeSensorKnife5 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.knifeJogArr[5].jogRev AND NOT homeSensorKnife4 AND homeFinished,
+    homingSensor := homeSensorKnife5,
+    axis := knife5_Axis,
+    master := knife5_Axis,
+    configuration := knife5_AxisConfiguration
+);
+
+//----------------------------------------------------------------------------------------------
+// Scorer Axis control function block calls
+//----------------------------------------------------------------------------------------------
+
+//Scorer 1
+//__________________________________________________________________________
+
+instFB_AxisControlScorer1_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,		
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[1].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[1].jogFw AND NOT homeSensorScorer3 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[1].jogRev AND NOT homeSensorScorer1 AND homeFinished,
+    homingSensor := homeSensorScorer1,
+    axis := scorer1_Axis,
+    master := scorer1_Axis,
+    configuration := scorer1_AxisConfiguration
+);
+//Scorer 2
+//__________________________________________________________________________
+
+instFB_AxisControlScorer2_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,		
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[2].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[2].jogFw AND NOT homeSensorScorer4 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[2].jogRev AND NOT homeSensorScorer2 AND homeFinished,
+    homingSensor := homeSensorScorer2,
+    axis := scorer2_Axis,
+    master := scorer2_Axis,
+    configuration := scorer2_AxisConfiguration
+);
+
+//Scorer 3
+//__________________________________________________________________________
+
+instFB_AxisControlScorer3_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[3].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[3].jogFw AND NOT (scorer3_Axis.NcToPlc.ActPos > machineConfig.scorerMaxPostionArr[3]) AND NOT limitSensorScorer3_5 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[3].jogRev AND NOT homeSensorScorer3 AND homeFinished,
+    homingSensor := homeSensorScorer3,
+    axis := scorer3_Axis,
+    master := scorer3_Axis,
+    configuration := scorer3_AxisConfiguration
+);
+
+//Scorer 4
+//__________________________________________________________________________
+
+instFB_AxisControlScorer4_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[4].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[4].jogFw AND NOT (scorer4_Axis.NcToPlc.ActPos > machineConfig.scorerMaxPostionArr[4]) AND NOT limitSensorScorer4_6 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[4].jogRev AND NOT homeSensorScorer4 AND homeFinished,
+    homingSensor := homeSensorScorer4,
+    axis := scorer4_Axis,
+    master := scorer4_Axis,
+    configuration := scorer4_AxisConfiguration
+);
+
+//Scorer 5
+//__________________________________________________________________________
+
+instFB_AxisControlScorer5_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[5].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[5].jogFw AND NOT homeSensorScorer5 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[5].jogRev AND NOT (scorer5_Axis.NcToPlc.ActPos < machineConfig.scorerMinPostionArr[5]) AND NOT limitSensorScorer3_5 AND homeFinished,
+    homingSensor := homeSensorScorer5,
+    axis := scorer5_Axis,
+    master := scorer5_Axis,
+    configuration := scorer5_AxisConfiguration
+);
+
+//Scorer 6
+//__________________________________________________________________________
+
+instFB_AxisControlScorer6_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[6].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[6].jogFw AND NOT homeSensorScorer6 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[6].jogRev AND NOT (scorer6_Axis.NcToPlc.ActPos < machineConfig.scorerMinPostionArr[6]) AND NOT limitSensorScorer4_6 AND homeFinished,
+    homingSensor := homeSensorScorer6,
+    axis := scorer6_Axis,
+    master := scorer6_Axis,
+    configuration := scorer6_AxisConfiguration
+);
+
+//Scorer 7
+//__________________________________________________________________________
+
+instFB_AxisControlScorer7_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[7].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[7].jogFw AND NOT homeSensorScorer7 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[7].jogRev AND NOT homeSensorScorer5 AND homeFinished,
+    homingSensor := homeSensorScorer7,
+    axis := scorer7_Axis,
+    master := scorer7_Axis,
+    configuration := scorer7_AxisConfiguration
+);
+
+//Scorer 8
+//__________________________________________________________________________
+
+instFB_AxisControlScorer8_Axis(
+    enable := TRUE,
+	fastStop := haltAxis,	
+	
+    enableAxis := enableAxis,
+    resetAxis := resetCmd,
+	posAbsolute := instTONExecutePositioningDelay.Q,
+	posRelative	:= hmiCommands.slitter1.scorerPosCorrectionArr[8].execute,
+	jogForward := hmiCommands.slitter1.scorerJogArr[8].jogFw AND NOT homeSensorScorer8 AND homeFinished,
+	jogBackward	:= hmiCommands.slitter1.scorerJogArr[8].jogRev AND NOT homeSensorScorer6 AND homeFinished,
+    homingSensor := homeSensorScorer8,
+    axis := scorer8_Axis,
+    master := scorer8_Axis,
+    configuration := scorer8_AxisConfiguration
+);
+
+IF instTONExecutePositioningDelay.Q THEN
+	
+	instTONExecutePositioningDelay.IN := FALSE;
+	positioningStarted	:= FALSE;
+
+
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_exhaustMotor" Id="{2ee4ddf3-8bc4-4d97-827f-7c4a6ea5da19}">
+      <Declaration><![CDATA[METHOD PRIVATE _exhaustMotor
+VAR_INPUT
+END_VAR
+(*
+	startExhaustMotorCmd				: BOOL;
+	stopExhaustMotorCmd				: BOOL;
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF startExhaustMotorCmd AND safetyOK THEN
+	
+	startExhaustMotor := TRUE;
+
+
+END_IF
+
+IF stopExhaustMotorCmd THEN
+	
+	startExhaustMotor := FALSE;
+
+END_IF
+
+
+
+startExhaustMotorLamp := startExhaustMotor;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_haltTheAxis" Id="{4895dac7-ac9a-4dc9-885c-9a23317a1dd8}">
+      <Declaration><![CDATA[METHOD PRIVATE _haltTheAxis
+VAR_INPUT
+END_VAR
+(*
+
+	homeSensorKnife1					: BOOL; // Knife 1 - Home sensor
+	homeSensorKnife2					: BOOL; // Knife 2 - Home sensor
+	homeSensorKnife3					: BOOL; // Knife 3 - Home sensor
+	homeSensorKnife4					: BOOL; // Knife 4 - Home sensor
+	homeSensorKnife5					: BOOL; // Knife 5 - Home sensor
+	
+	homeSensorScorer1					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer2					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer3					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer4					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer5					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer6					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer7					: BOOL; // Scorer 1 - Home sensor
+	homeSensorScorer8					: BOOL; // Scorer 1 - Home sensor
+*)
+
+(*
+
+	limitSensorKnife3_4					: BOOL;
+	limitSensorScorer4_6					: BOOL;
+	limitSensorScorer3_5					: BOOL;
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//-------------------------------------------------------------------------------------------------
+// Halt Axis Logic: Prevent motion if any tool is detected on home sensor during active positioning
+//-------------------------------------------------------------------------------------------------
+
+// Activate the halt trigger if positioning is in progress 
+// and any knife or scorer is detected in the home sensor
+IF positioningRunning AND (
+     homeSensorKnife1 OR
+     homeSensorKnife2 OR
+     homeSensorKnife3 OR
+     homeSensorKnife4 OR
+     homeSensorKnife5 OR
+     homeSensorScorer1 OR
+     homeSensorScorer2 OR
+     homeSensorScorer3 OR
+     homeSensorScorer4 OR
+     homeSensorScorer5 OR
+     homeSensorScorer6 OR
+     homeSensorScorer7 OR
+     homeSensorScorer8 OR
+	 limitSensorKnife3_4 OR
+	 limitSensorScorer3_5 OR
+ 	 limitSensorScorer4_6 
+	 
+) THEN
+    instTPHaltAxis.IN := TRUE;
+ELSE
+    instTPHaltAxis.IN := FALSE;
+END_IF
+
+// Timer pulse for halting signal - triggers TRUE for 1 second
+instTPHaltAxis(PT := T#1S);
+
+// Output signal to halt all axes
+haltAxis := instTPHaltAxis.Q;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_homeFinished" Id="{0c157c0f-c699-4ce0-991a-295f71967faa}">
+      <Declaration><![CDATA[METHOD _homeFinished
+VAR_INPUT
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[homeFinished := knife1_Axis.Status.Homed AND knife2_Axis.Status.Homed AND knife3_Axis.Status.Homed AND knife4_Axis.Status.Homed AND knife5_Axis.Status.Homed AND scorer1_Axis.Status.Homed AND scorer2_Axis.Status.Homed AND scorer3_Axis.Status.Homed AND scorer4_Axis.Status.Homed AND scorer5_Axis.Status.Homed AND scorer6_Axis.Status.Homed AND scorer7_Axis.Status.Homed AND scorer8_Axis.Status.Homed; ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_knifeLubrification" Id="{e0cd00dd-e166-4dc7-8025-e09509c2c9ca}">
+      <Declaration><![CDATA[METHOD PRIVATE _knifeLubrification
+VAR_INPUT
+END_VAR
+
+
+(*
+	knifeRunningMetersForSharpening		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	knifeRunningMetersForLubfrication		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+knifeLubrificationPump := startCutting;
+
+
+instKnifeLubrificationCLK_PRG(PT:= T#1S, Q=> );
+
+
+inst_FB_KnifeLubrification[1](
+	machineRunning:= startTractionMotorCmd AND startCutting,
+	manualLubrification := knife1LubrificationCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife1Enabled, 
+	lubrificationSetpoint := machineConfig.knifeLubrificationDistance, 
+	lubrificationTime:= machineConfig.knifeLubrificationTime, 
+	lubrificationSolenoid=> knife1Lubrification);
+	
+inst_FB_KnifeLubrification[2](
+	machineRunning:= startTractionMotorCmd AND startCutting,
+	manualLubrification := knife2LubrificationCmd,  
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife2Enabled, 
+	lubrificationSetpoint := machineConfig.knifeLubrificationDistance, 
+	lubrificationTime:= machineConfig.knifeLubrificationTime, 
+	lubrificationSolenoid=> knife2Lubrification);
+	
+inst_FB_KnifeLubrification[3](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualLubrification := knife3LubrificationCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife3Enabled, 
+	lubrificationSetpoint := machineConfig.knifeLubrificationDistance, 
+	lubrificationTime:= machineConfig.knifeLubrificationTime, 
+	lubrificationSolenoid=> knife3Lubrification);	
+	
+inst_FB_KnifeLubrification[4](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualLubrification := knife4LubrificationCmd, 	
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife4Enabled, 
+	lubrificationSetpoint := machineConfig.knifeLubrificationDistance, 
+	lubrificationTime:= machineConfig.knifeLubrificationTime, 
+	lubrificationSolenoid=> knife4Lubrification);		
+	
+	
+inst_FB_KnifeLubrification[5](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualLubrification := knife5LubrificationCmd,  
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife5Enabled,
+	lubrificationSetpoint := machineConfig.knifeLubrificationDistance, 
+	lubrificationTime:= machineConfig.knifeLubrificationTime, 
+	lubrificationSolenoid=> knife5Lubrification);		
+	
+arrKnifeRunningMetersForLubfrication[1] := inst_FB_KnifeLubrification[1].knifeRunningMeters;	
+arrKnifeRunningMetersForLubfrication[2] := inst_FB_KnifeLubrification[2].knifeRunningMeters;	
+arrKnifeRunningMetersForLubfrication[3] := inst_FB_KnifeLubrification[3].knifeRunningMeters;	
+arrKnifeRunningMetersForLubfrication[4] := inst_FB_KnifeLubrification[4].knifeRunningMeters;	
+arrKnifeRunningMetersForLubfrication[5] := inst_FB_KnifeLubrification[5].knifeRunningMeters;	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_knifeSharpening" Id="{933692d1-8c0c-41f2-8056-4ffb2be3772f}">
+      <Declaration><![CDATA[METHOD PRIVATE _knifeSharpening
+VAR_INPUT
+END_VAR
+(*
+	knifeRunningMetersForSharpening		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	knifeRunningMetersForLubfrication		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//=================================================================================================
+// KNIFE SHARPENING FB CALLS (1..7)
+//=================================================================================================
+
+inst_FB_KnifeSharpening[1](
+    machineRunning        := knifeMotorStart,
+    manualSharpening      := knifeManualSharpeningCmdArr[1],
+    measuringWheelSensor  := measuringWheelPulseSensor,
+    knifeEnabled          := currentOrder.generatedOrder.knifeEnabledArr[1],
+    sharpeningSetpoint    := machineConfig.knifeSharpeningDistance,
+    sharpeningTime        := machineConfig.knifeSharpeningTimeMS,
+    sharpeningSolenoid    => knife1Sharpening
+);
+
+inst_FB_KnifeSharpening[2](
+    machineRunning        := knifeMotorStart,
+    manualSharpening      := knifeManualSharpeningCmdArr[2],
+    measuringWheelSensor  := measuringWheelPulseSensor,
+    knifeEnabled          := currentOrder.generatedOrder.knifeEnabledArr[2],
+    sharpeningSetpoint    := machineConfig.knifeSharpeningDistance,
+    sharpeningTime        := machineConfig.knifeSharpeningTimeMS,
+    sharpeningSolenoid    => knife2Sharpening
+);
+
+inst_FB_KnifeSharpening[3](
+    machineRunning        := knifeMotorStart,
+    manualSharpening      := knifeManualSharpeningCmdArr[3],
+    measuringWheelSensor  := measuringWheelPulseSensor,
+    knifeEnabled          := currentOrder.generatedOrder.knifeEnabledArr[3],
+    sharpeningSetpoint    := machineConfig.knifeSharpeningDistance,
+    sharpeningTime        := machineConfig.knifeSharpeningTimeMS,
+    sharpeningSolenoid    => knife3Sharpening
+);
+
+inst_FB_KnifeSharpening[4](
+    machineRunning        := knifeMotorStart,
+    manualSharpening      := knifeManualSharpeningCmdArr[4],
+    measuringWheelSensor  := measuringWheelPulseSensor,
+    knifeEnabled          := currentOrder.generatedOrder.knifeEnabledArr[4],
+    sharpeningSetpoint    := machineConfig.knifeSharpeningDistance,
+    sharpeningTime        := machineConfig.knifeSharpeningTimeMS,
+    sharpeningSolenoid    => knife4Sharpening
+);
+
+inst_FB_KnifeSharpening[5](
+    machineRunning        := knifeMotorStart,
+    manualSharpening      := knifeManualSharpeningCmdArr[5],
+    measuringWheelSensor  := measuringWheelPulseSensor,
+    knifeEnabled          := currentOrder.generatedOrder.knifeEnabledArr[5],
+    sharpeningSetpoint    := machineConfig.knifeSharpeningDistance,
+    sharpeningTime        := machineConfig.knifeSharpeningTimeMS,
+    sharpeningSolenoid    => knife5Sharpening
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_knifeSharpening_old" Id="{1c6db233-b107-4363-b24f-e38bde61806e}">
+      <Declaration><![CDATA[METHOD PRIVATE _knifeSharpening_old
+VAR_INPUT
+END_VAR
+(*
+	knifeRunningMetersForSharpening		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	knifeRunningMetersForLubfrication		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+	
+	paperPresenceSensor				: BOOL;
+	measuringWheelPaperPresenceSensor		: BOOL;
+	rotaryShearCutPulse					: BOOL;	
+	measuringWheelPulseSensor		: BOOL;	
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF NOT knifeSharpeningAutoMan THEN
+	
+	knife1Sharpening := knife1SharpeningCmd;
+	knife2Sharpening := knife2SharpeningCmd;
+	knife3Sharpening := knife3SharpeningCmd;
+	knife4Sharpening := knife4SharpeningCmd;
+	knife5Sharpening := knife5SharpeningCmd;
+	
+	knife1SharpeningLamp := knife1Sharpening;
+	knife2SharpeningLamp := knife2Sharpening;
+	knife3SharpeningLamp := knife3Sharpening;
+	knife4SharpeningLamp := knife4Sharpening;
+	knife5SharpeningLamp := knife5Sharpening;	
+
+ELSE	
+;
+
+
+instKnifeSharpeningCLK_PRG(PT:= T#1S, Q=> );
+
+
+inst_FB_KnifeSharpening[1](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualSharpening:= knife1SharpeningCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife1Enabled, 
+	sharpeningSetpoint:= machineConfig.knifeSharpeningDistance, 
+	sharpeningTime:= machineConfig.knifeSharpeningTime, 
+	sharpeningSolenoid=> knife1Sharpening);
+
+
+inst_FB_KnifeSharpening[2](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualSharpening:= knife2SharpeningCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife2Enabled, 
+	sharpeningSetpoint:= machineConfig.knifeSharpeningDistance, 
+	sharpeningTime:= machineConfig.knifeSharpeningTime, 
+	sharpeningSolenoid=> knife2Sharpening);	
+	
+inst_FB_KnifeSharpening[3](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualSharpening:= knife3SharpeningCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife3Enabled, 
+	sharpeningSetpoint:= machineConfig.knifeSharpeningDistance, 
+	sharpeningTime:= machineConfig.knifeSharpeningTime, 
+	sharpeningSolenoid=> knife3Sharpening);	
+
+inst_FB_KnifeSharpening[4](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualSharpening:= knife4SharpeningCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife4Enabled, 
+	sharpeningSetpoint:= machineConfig.knifeSharpeningDistance, 
+	sharpeningTime:= machineConfig.knifeSharpeningTime, 
+	sharpeningSolenoid=> knife4Sharpening);	
+
+
+inst_FB_KnifeSharpening[5](
+	machineRunning:= startTractionMotorCmd AND startCutting, 
+	manualSharpening:= knife5SharpeningCmd, 
+	measuringWheelSensor:= measuringWheelPulseSensor, 
+	knifeEnabled:= knife5Enabled, 
+	sharpeningSetpoint:= machineConfig.knifeSharpeningDistance, 
+	sharpeningTime:= machineConfig.knifeSharpeningTime, 
+	sharpeningSolenoid=> knife5Sharpening);		
+
+END_IF
+
+
+arrKnifeRunningMetersForSharpening[1] := inst_FB_KnifeSharpening[1].knifeRunningMeters;
+arrKnifeRunningMetersForSharpening[2] := inst_FB_KnifeSharpening[2].knifeRunningMeters;
+arrKnifeRunningMetersForSharpening[3] := inst_FB_KnifeSharpening[3].knifeRunningMeters;
+arrKnifeRunningMetersForSharpening[4] := inst_FB_KnifeSharpening[4].knifeRunningMeters;
+arrKnifeRunningMetersForSharpening[5] := inst_FB_KnifeSharpening[5].knifeRunningMeters;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_paperDirectionFlaps" Id="{23094cc9-3692-4024-9b19-83810c07a30b}">
+      <Declaration><![CDATA[METHOD PRIVATE _paperDirectionFlaps
+VAR_INPUT
+END_VAR
+(*
+
+	paperDirectionFlapAutoMan	: BOOL; // Paper direction flap (0=Manual / 1=Auto)
+    paperDirectionFlap01Cmd    : BOOL;
+	
+	rotaryKnifeInfeedUpperDamper1Cmd : BOOL;
+	rotaryKnifeInfeedUpperDamper2Cmd : BOOL;
+	
+	rotaryKnifeInfeedLowerDamper1Cmd : BOOL;
+	rotaryKnifeInfeedLowerDamper2Cmd : BOOL;
+	
+	pilotRollUpDownCmd			: BOOL;
+	
+	
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF NOT paperDirectionFlapAutoMan THEN
+	
+	paperDirectionFlap01 := paperDirectionFlap01Cmd;
+	paperDirectionFlap02 := paperDirectionFlap02Cmd;
+	paperDirectionFlap03 := paperDirectionFlap03Cmd;
+	paperDirectionFlap04 := paperDirectionFlap04Cmd;
+	paperDirectionFlap05 := paperDirectionFlap05Cmd;
+	paperDirectionFlap06 := paperDirectionFlap06Cmd;
+	paperDirectionFlap07 := paperDirectionFlap07Cmd;
+	paperDirectionFlap08 := paperDirectionFlap08Cmd;
+	paperDirectionFlap09 := paperDirectionFlap09Cmd;
+	paperDirectionFlap10 := paperDirectionFlap10Cmd;
+	paperDirectionFlap11 := paperDirectionFlap11Cmd;
+	paperDirectionFlap12 := paperDirectionFlap12Cmd;
+	
+ELSE
+	;
+END_IF
+
+
+
+rotaryKnifeInfeedUpperDamper1 := rotaryKnifeInfeedUpperDamper1Cmd;
+rotaryKnifeInfeedUpperDamper2 := rotaryKnifeInfeedUpperDamper2Cmd;
+
+rotaryKnifeInfeedLowerDamper1 := rotaryKnifeInfeedLowerDamper1Cmd;
+rotaryKnifeInfeedLowerDamper2 := rotaryKnifeInfeedLowerDamper2Cmd;
+
+pilotRollUpDown := pilotRollUpDownCmd;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_paperTrim" Id="{1f55aa53-b94e-44fc-a83c-7cd72b2818a7}">
+      <Declaration><![CDATA[METHOD PRIVATE _paperTrim
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+	    // Paper scrap controls
+    paperTrimOperatorSideOpen  := paperTrimOperatorSideOpenCmd AND NOT paperTrimOperatorSideCloseCmd AND safetyOK;
+    paperTrimOperatorSideClose := paperTrimOperatorSideCloseCmd AND NOT paperTrimOperatorSideOpenCmd AND safetyOK;
+    paperTrimMotorSideOpen     := paperTrimMotorSideOpenCmd AND NOT paperTrimMotorSideCloseCmd AND safetyOK;
+    paperTrimMotorSideClose    := paperTrimMotorSideCloseCmd AND NOT paperTrimMotorSideOpenCmd AND safetyOK;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_safetyCircuit" Id="{a6e67707-d51c-4f9e-b592-d25f2edec5be}">
+      <Declaration><![CDATA[METHOD _safetyCircuit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[safetyOK := safetyFeedback;
+
+
+safetyOKLamp := NOT safetyOK;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_scorerHeightControl" Id="{5dd6a4a4-c896-4d2d-b771-fb233797b7c6}">
+      <Declaration><![CDATA[METHOD PRIVATE _scorerHeightControl
+
+VAR CONSTANT
+
+    STATE_MANUAL : INT := 0;
+
+    STATE_GOTO_D : INT := 1;
+    STATE_WAIT_D : INT := 2;
+
+    STATE_GOTO_W : INT := 3;
+    STATE_WAIT_W : INT := 4;
+
+    STATE_GOTO_N : INT := 5;
+    STATE_WAIT_N : INT := 6;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+{===== Rising-edge commands =====}
+IF scorerTypeDCmd AND NOT scorerTypeDCmdOld THEN
+    scorerHeightPositioningState := STATE_GOTO_D;
+END_IF;
+scorerTypeDCmdOld := scorerTypeDCmd;
+
+IF scorerTypeWCmd AND NOT scorerTypeWCmdOld THEN
+    scorerHeightPositioningState := STATE_GOTO_W;
+END_IF;
+scorerTypeWCmdOld := scorerTypeWCmd;   // <-- fixed (was assigning N old flag before)
+
+IF scorerTypeNCmd AND NOT scorerTypeNCmdOld THEN
+    scorerHeightPositioningState := STATE_GOTO_N;
+END_IF;
+scorerTypeNCmdOld := scorerTypeNCmd;
+
+
+IF NOT safetyOK THEN
+	
+	scorerHeightPositioningState := 0;
+
+END_IF
+
+
+{===== State machine =====}
+CASE scorerHeightPositioningState OF
+
+    // -------------------------------------------------------------
+    // 0) MANUAL CONTROL
+    //    Pass-through of manual jog commands to the motor.
+    // -------------------------------------------------------------
+    STATE_MANUAL:
+        scorerHeightPositioningRunning := FALSE;
+
+        // Manual jog direction
+        scorerHeightInc := scorerHeightIncCmd;
+        scorerHeightDec := scorerHeightDecCmd;
+
+        // Manual speed (both TRUE here = slow; adjust if you have a separate speed scheme)
+        scorerHeightMotorStart := (scorerHeightInc OR scorerHeightDec) AND safetyOK;
+        scorerHeightMotorSlow  := (scorerHeightInc OR scorerHeightDec) AND safetyOK;
+        scorerHeightMotorFast  := FALSE;
+
+
+
+    // -------------------------------------------------------------
+    // 1) SELECT D — START MOVE (fast up)
+    // -------------------------------------------------------------
+    STATE_GOTO_D:
+        scorerHeightPositioningRunning := TRUE;
+
+        // Lamps while moving: blink only the requested type
+        scorerTypeDLamp := FALSE;   // will blink in WAIT state
+        scorerTypeWLamp := FALSE;
+        scorerTypeNLamp := FALSE;
+
+        // Start motion
+        scorerHeightMotorStart := TRUE;
+        scorerHeightMotorFast  := TRUE;
+        scorerHeightMotorSlow  := FALSE;
+
+        // Direction to reach the D height (set per your mechanics)
+        scorerHeightInc := TRUE;
+        scorerHeightDec := FALSE;
+
+        // Start settle timer (TOF)
+        instTOFScorerSensorDelay(IN := TRUE);
+
+        // Next
+        scorerHeightPositioningState := STATE_WAIT_D;
+
+
+    // -------------------------------------------------------------
+    // 2) SELECT D — WAIT FOR SENSOR AFTER DELAY
+    // -------------------------------------------------------------
+    STATE_WAIT_D:
+        instTOFScorerSensorDelay.IN := FALSE;     // start counting off-delay
+        scorerTypeDLamp := clock_Pulse_1S;        // blink while seeking
+
+        // Accept sensor only after the off-delay has elapsed (Q = FALSE)
+        IF scorerTypeDSensor AND NOT instTOFScorerSensorDelay.Q THEN
+            // Stop motion
+            scorerHeightMotorStart := FALSE;
+            scorerHeightMotorFast  := FALSE;
+            scorerHeightMotorSlow  := FALSE;
+
+            scorerHeightInc := FALSE;
+            scorerHeightDec := FALSE;
+
+            // Solid lamp for selected type
+            scorerTypeDLamp := TRUE;
+            scorerTypeWLamp := FALSE;
+            scorerTypeNLamp := FALSE;
+
+            // Return to manual
+            scorerHeightPositioningState := STATE_MANUAL;
+        END_IF;
+
+
+    // -------------------------------------------------------------
+    // 3) SELECT W — START MOVE (fast up)
+    // -------------------------------------------------------------
+    STATE_GOTO_W:
+        scorerHeightPositioningRunning := TRUE;
+
+        scorerTypeDLamp := FALSE;
+        scorerTypeWLamp := FALSE;   // will blink in WAIT state
+        scorerTypeNLamp := FALSE;
+
+        scorerHeightMotorStart := TRUE;
+        scorerHeightMotorFast  := TRUE;
+        scorerHeightMotorSlow  := FALSE;
+
+        scorerHeightInc := TRUE;    // adjust direction if your mechanics require
+        scorerHeightDec := FALSE;
+
+        instTOFScorerSensorDelay(IN := TRUE);
+
+        scorerHeightPositioningState := STATE_WAIT_W;
+
+
+    // -------------------------------------------------------------
+    // 4) SELECT W — WAIT FOR SENSOR AFTER DELAY
+    // -------------------------------------------------------------
+    STATE_WAIT_W:
+        instTOFScorerSensorDelay.IN := FALSE;
+        scorerTypeWLamp := clock_Pulse_1S;
+
+        IF scorerTypeWSensor AND NOT instTOFScorerSensorDelay.Q THEN
+            scorerHeightMotorStart := FALSE;
+            scorerHeightMotorFast  := FALSE;
+            scorerHeightMotorSlow  := FALSE;
+
+            scorerHeightInc := FALSE;
+            scorerHeightDec := FALSE;
+
+            scorerTypeDLamp := FALSE;
+            scorerTypeWLamp := TRUE;
+            scorerTypeNLamp := FALSE;
+
+            scorerHeightPositioningState := STATE_MANUAL;
+        END_IF;
+
+
+    // -------------------------------------------------------------
+    // 5) SELECT N — START MOVE (fast up)
+    // -------------------------------------------------------------
+    STATE_GOTO_N:
+        scorerHeightPositioningRunning := TRUE;
+
+        scorerTypeDLamp := FALSE;
+        scorerTypeWLamp := FALSE;
+        scorerTypeNLamp := FALSE;   // will blink in WAIT state
+
+        scorerHeightMotorStart := TRUE;
+        scorerHeightMotorFast  := TRUE;
+        scorerHeightMotorSlow  := FALSE;
+
+        scorerHeightInc := TRUE;    // adjust if needed
+        scorerHeightDec := FALSE;
+
+        instTOFScorerSensorDelay(IN := TRUE);
+
+        scorerHeightPositioningState := STATE_WAIT_N;
+
+
+    // -------------------------------------------------------------
+    // 6) SELECT N — WAIT FOR SENSOR AFTER DELAY
+    // -------------------------------------------------------------
+    STATE_WAIT_N:
+        instTOFScorerSensorDelay.IN := FALSE;
+        scorerTypeNLamp := clock_Pulse_1S;
+
+        IF scorerTypeNSensor AND NOT instTOFScorerSensorDelay.Q THEN
+            scorerHeightMotorStart := FALSE;
+            scorerHeightMotorFast  := FALSE;
+            scorerHeightMotorSlow  := FALSE;
+
+            scorerHeightInc := FALSE;
+            scorerHeightDec := FALSE;
+
+            scorerTypeDLamp := FALSE;
+            scorerTypeWLamp := FALSE;
+            scorerTypeNLamp := TRUE;
+
+            scorerHeightPositioningState := STATE_MANUAL;
+        END_IF;
+
+
+    // -------------------------------------------------------------
+    // SAFETY FALLBACK
+    // -------------------------------------------------------------
+    ELSE
+        // Any undefined state: stop and drop back to manual
+        scorerHeightMotorStart := FALSE;
+        scorerHeightMotorFast  := FALSE;
+        scorerHeightMotorSlow  := FALSE;
+
+        scorerHeightInc := FALSE;
+        scorerHeightDec := FALSE;
+
+        scorerHeightPositioningState := STATE_MANUAL;
+END_CASE;
+
+
+{===== Timers / Blink generator configuration =====}
+instTOFScorerSensorDelay(PT := T#3S);  // settle / anti-bounce window
+inst_GEN_PULSE_1S(ENQ := TRUE, PTH := T#1S, PTL := T#1S, Q => clock_Pulse_1S);
+
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_slitterCenterPaperGuideRoll" Id="{d764c5d3-05b5-4774-9394-3ee6015983fb}">
+      <Declaration><![CDATA[METHOD PRIVATE _slitterCenterPaperGuideRoll
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+
+slitterCenterGuideRoll := slitterCenterGuideRollCmd;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_slitterDisplacement" Id="{59e17e64-bca6-4d34-b5cc-8563a8055129}">
+      <Declaration><![CDATA[METHOD PRIVATE _slitterDisplacement
+VAR_INPUT
+END_VAR
+(*
+    moveSlitterOperatorSideLimit : BOOL;
+    moveSlitterMotorSideLimit    : BOOL;
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[    // Slitter movement controls
+moveSlitterOperatorSide :=	moveSlitterOperatorSideCmd AND NOT moveSlitterMotorSideCmd AND moveSlitterOperatorSideLimit AND safetyOK;
+moveSlitterMotorSide :=	moveSlitterMotorSideCmd   AND NOT moveSlitterOperatorSideCmd AND moveSlitterMotorSideLimit AND safetyOK;
+
+moveSlitterOperatorSideLamp := moveSlitterOperatorSide;
+moveSlitterMotorSideLamp    := moveSlitterMotorSide;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_slitterPaperDirectionControl" Id="{dead6df0-9cc5-4cb0-8dab-0f169082ec75}">
+      <Declaration><![CDATA[METHOD _slitterPaperDirectionControl
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Call the Function Block (Execute when the positioning finishes)
+
+//Check for rising edge
+instRTrigToolsInPosition(CLK := bAllKnivesInPos);
+
+
+//Confirm the current order position before set the flap positions
+IF hmiCommands.slitter1.flapsSetAuto AND NOT flapsSetAutoOld THEN
+	
+	
+	instFbCurrentOrderPositionsGeneration(execute := TRUE,
+		machineConfig := machineConfig,
+		currentOrder := currentOrder);
+	
+END_IF
+flapsSetAutoOld := hmiCommands.slitter1.flapsSetAuto;
+
+instFB_PaperDirectionControl(
+	executeCmd := instRTrigToolsInPosition.Q OR hmiCommands.slitter1.flapsSetAuto,
+	allUPCmd := hmiCommands.slitter1.flapsAllUP,
+	allDownCmd := hmiCommands.slitter1.flapsAllDown,
+	invertDirection := hmiCommands.slitter1.flapsInvertDirection,
+    currentOrder  := currentOrder, 
+    machineConfig := machineConfig,
+	flapsManualCmdArr := flapsManualCmdArr
+);
+
+
+// Map internal array to physical output variables
+paperDirectionFlap01 := NOT instFB_PaperDirectionControl.flapSolenoidArr[1];
+paperDirectionFlap02 := NOT instFB_PaperDirectionControl.flapSolenoidArr[2];
+paperDirectionFlap03 := NOT instFB_PaperDirectionControl.flapSolenoidArr[3];
+paperDirectionFlap04 := NOT instFB_PaperDirectionControl.flapSolenoidArr[4];
+paperDirectionFlap05 := NOT instFB_PaperDirectionControl.flapSolenoidArr[5];
+paperDirectionFlap06 := NOT instFB_PaperDirectionControl.flapSolenoidArr[6];
+paperDirectionFlap07 := NOT instFB_PaperDirectionControl.flapSolenoidArr[7];
+paperDirectionFlap08 := NOT instFB_PaperDirectionControl.flapSolenoidArr[8];
+paperDirectionFlap09 := NOT instFB_PaperDirectionControl.flapSolenoidArr[9];
+paperDirectionFlap10 := NOT instFB_PaperDirectionControl.flapSolenoidArr[10];
+paperDirectionFlap11 := NOT instFB_PaperDirectionControl.flapSolenoidArr[11];
+paperDirectionFlap12 := NOT instFB_PaperDirectionControl.flapSolenoidArr[12];
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_startStopCutting" Id="{f61a76db-af64-43ea-a15e-4a4e4e496bdf}">
+      <Declaration><![CDATA[METHOD PRIVATE _startStopCutting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF startCuttingCmd THEN
+	
+	startCutting := TRUE;
+
+END_IF
+
+IF stopCuttingCmd THEN
+	
+	startCutting := FALSE;;
+
+END_IF
+
+
+startCuttingLamp := startCutting;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_startTractionMotor" Id="{f6d921f0-6e94-4d9f-81bb-0b55aae7222a}">
+      <Declaration><![CDATA[METHOD _startTractionMotor
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF startTractionMotorCmd AND safetyOK THEN
+	
+    // Motor commands
+    knifeMotorStart         := TRUE;
+    scorerMotorStart        := TRUE;
+	tractionEnabledLamp		:= TRUE;
+ELSE
+	
+    // Motor commands
+    knifeMotorStart         := FALSE;
+    scorerMotorStart        := FALSE;
+	tractionEnabledLamp		:= FALSE;	
+	
+END_IF
+
+	
+	IF NOT aocRunning THEN
+	
+			slitterKnifeDriveRef := LIMIT(machineConfig.minLineSpeed,
+										  lineSpeedMPM,
+										  999) * machineConfig.knifeSpeedOffset;	
+			
+			slitterScorerDriveRef := LIMIT(machineConfig.minLineSpeed,
+										  lineSpeedMPM,
+										  999) * machineConfig.scorerSpeedOffset;		
+		
+		ELSE
+		
+			slitterKnifeDriveRef := LIMIT(machineConfig.minLineSpeed,
+										  aocSpeedMPM,
+										  999) * machineConfig.knifeSpeedOffset;	
+			
+			slitterScorerDriveRef := LIMIT(machineConfig.minLineSpeed,
+										  aocSpeedMPM,
+										  999) * machineConfig.scorerSpeedOffset;			
+		
+		END_IF
+
+
+    // Zero references when drives are not commanded to run to prevent stale setpoints
+IF NOT knifeMotorStart THEN
+	slitterKnifeDriveRef := 0.0;
+END_IF;
+
+IF NOT scorerMotorStart THEN
+	slitterScorerDriveRef := 0.0;
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_toolEnabledLamp" Id="{21d40d44-5b93-41ee-96bb-ec1adbc84686}">
+      <Declaration><![CDATA[METHOD PRIVATE _toolEnabledLamp
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[knife1EnabledLamp :=  knife1Enabled;
+knife2EnabledLamp :=  knife2Enabled;
+knife3EnabledLamp :=  knife3Enabled;
+knife4EnabledLamp :=  knife4Enabled;
+knife5EnabledLamp :=  knife5Enabled;
+
+scorer1EnabledLamp := scorer1Enabled;
+scorer2EnabledLamp := scorer2Enabled;
+scorer3EnabledLamp := scorer3Enabled;
+scorer4EnabledLamp := scorer4Enabled;
+scorer5EnabledLamp := scorer5Enabled;
+scorer6EnabledLamp := scorer6Enabled;
+scorer7EnabledLamp := scorer7Enabled;
+scorer8EnabledLamp := scorer8Enabled;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_toolsUpDownControl" Id="{97d78b3b-64ef-4b19-b6f0-624c17a18a5b}">
+      <Declaration><![CDATA[METHOD PRIVATE _toolsUpDownControl
+VAR_INPUT
+END_VAR
+(*
+	knife1Enabled						: BOOL;	//Knife 1 - Solenoid enabled
+	knife2Enabled						: BOOL;	//Knife 1 - Solenoid enabled
+	knife3Enabled						: BOOL;	//Knife 1 - Solenoid enabled
+	knife4Enabled						: BOOL;	//Knife 1 - Solenoid enabled
+	knife5Enabled						: BOOL;	//Knife 1 - Solenoid enabled
+
+	scorer1Enabled						: BOOL;	//Scorer 1 - Solenoid enabled
+	scorer2Enabled						: BOOL;	//Scorer 2 - Solenoid enabled
+	scorer3Enabled						: BOOL;	//Scorer 3 - Solenoid enabled
+	scorer4Enabled						: BOOL;	//Scorer 4 - Solenoid enabled
+	scorer5Enabled						: BOOL;	//Scorer 5 - Solenoid enabled
+	scorer6Enabled						: BOOL;	//Scorer 6 - Solenoid enabled
+	scorer7Enabled						: BOOL;	//Scorer 7 - Solenoid enabled
+	scorer8Enabled						: BOOL;	//Scorer 8 - Solenoid enabled*)
+VAR
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ===================== KNIFES 1..5 =====================
+IF knife1EnabledCmd AND NOT knife1EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.knifeEnabledArr[1] THEN
+        currentOrder.generatedOrder.knifeEnabledArr[1] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+    END_IF
+END_IF
+knife1EnabledCmdOld := knife1EnabledCmd;
+
+IF knife2EnabledCmd AND NOT knife2EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.knifeEnabledArr[2] THEN
+        currentOrder.generatedOrder.knifeEnabledArr[2] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.knifeEnabledArr[2] := TRUE;
+    END_IF
+END_IF
+knife2EnabledCmdOld := knife2EnabledCmd;
+
+IF knife3EnabledCmd AND NOT knife3EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.knifeEnabledArr[3] THEN
+        currentOrder.generatedOrder.knifeEnabledArr[3] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.knifeEnabledArr[3] := TRUE;
+    END_IF
+END_IF
+knife3EnabledCmdOld := knife3EnabledCmd;
+
+IF knife4EnabledCmd AND NOT knife4EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.knifeEnabledArr[4] THEN
+        currentOrder.generatedOrder.knifeEnabledArr[4] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.knifeEnabledArr[4] := TRUE;
+    END_IF
+END_IF
+knife4EnabledCmdOld := knife4EnabledCmd;
+
+IF knife5EnabledCmd AND NOT knife5EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.knifeEnabledArr[5] THEN
+        currentOrder.generatedOrder.knifeEnabledArr[5] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+    END_IF
+END_IF
+knife5EnabledCmdOld := knife5EnabledCmd;
+
+
+// ===================== SCORERS 1..8 =====================
+IF scorer1EnabledCmd AND NOT scorer1EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[1] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[1] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+    END_IF
+END_IF
+scorer1EnabledCmdOld := scorer1EnabledCmd;
+
+IF scorer2EnabledCmd AND NOT scorer2EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[2] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[2] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+    END_IF
+END_IF
+scorer2EnabledCmdOld := scorer2EnabledCmd;
+
+IF scorer3EnabledCmd AND NOT scorer3EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[3] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[3] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+    END_IF
+END_IF
+scorer3EnabledCmdOld := scorer3EnabledCmd;
+
+IF scorer4EnabledCmd AND NOT scorer4EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[4] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[4] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+    END_IF
+END_IF
+scorer4EnabledCmdOld := scorer4EnabledCmd;
+
+IF scorer5EnabledCmd AND NOT scorer5EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[5] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[5] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+    END_IF
+END_IF
+scorer5EnabledCmdOld := scorer5EnabledCmd;
+
+IF scorer6EnabledCmd AND NOT scorer6EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[6] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[6] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+    END_IF
+END_IF
+scorer6EnabledCmdOld := scorer6EnabledCmd;
+
+IF scorer7EnabledCmd AND NOT scorer7EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[7] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[7] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[7] := TRUE;
+    END_IF
+END_IF
+scorer7EnabledCmdOld := scorer7EnabledCmd;
+
+IF scorer8EnabledCmd AND NOT scorer8EnabledCmdOld THEN
+    IF currentOrder.generatedOrder.scorerEnabledArr[8] THEN
+        currentOrder.generatedOrder.scorerEnabledArr[8] := FALSE;
+    ELSE
+        currentOrder.generatedOrder.scorerEnabledArr[8] := TRUE;
+    END_IF
+END_IF
+scorer8EnabledCmdOld := scorer8EnabledCmd;
+
+
+
+
+
+//-------------------------------------------------------------------------------------------------
+// Detect if any knife or scorer axis is currently executing a motion command or positioning delay
+//-------------------------------------------------------------------------------------------------
+positioningRunning := 
+    (instFB_AxisControlKnife1_Axis.commandBusy OR
+    instFB_AxisControlKnife2_Axis.commandBusy OR
+    instFB_AxisControlKnife3_Axis.commandBusy OR
+    instFB_AxisControlKnife4_Axis.commandBusy OR
+    instFB_AxisControlKnife5_Axis.commandBusy OR
+    instFB_AxisControlScorer1_Axis.commandBusy OR
+    instFB_AxisControlScorer2_Axis.commandBusy OR
+    instFB_AxisControlScorer3_Axis.commandBusy OR
+    instFB_AxisControlScorer4_Axis.commandBusy OR
+    instFB_AxisControlScorer5_Axis.commandBusy OR
+    instFB_AxisControlScorer6_Axis.commandBusy OR
+    instFB_AxisControlScorer7_Axis.commandBusy OR  
+    instFB_AxisControlScorer8_Axis.commandBusy) AND
+    positioningStarted;
+
+	
+	inTargetPosition := knife1_Axis.Status.NotMoving AND
+						knife2_Axis.Status.NotMoving AND
+						knife3_Axis.Status.NotMoving AND
+						knife4_Axis.Status.NotMoving AND
+						knife5_Axis.Status.NotMoving AND						
+						scorer1_Axis.Status.NotMoving AND
+						scorer2_Axis.Status.NotMoving AND
+						scorer3_Axis.Status.NotMoving AND	 
+						scorer4_Axis.Status.NotMoving AND	 
+						scorer5_Axis.Status.NotMoving AND	 
+						scorer6_Axis.Status.NotMoving AND	 
+						scorer7_Axis.Status.NotMoving AND	 
+						scorer8_Axis.Status.NotMoving;	 
+	 
+	
+bAllKnivesInPos := NOT positioningRunning AND
+						NOT positioningStarted AND
+						knife1_Axis.Status.InTargetPosition AND
+						knife2_Axis.Status.InTargetPosition AND
+						knife3_Axis.Status.InTargetPosition AND
+						knife4_Axis.Status.InTargetPosition AND
+						knife5_Axis.Status.InTargetPosition;	
+						
+						
+//-------------------------------------------------------------------------------------------------
+// Enable signal for knives: Active only if tool is enabled AND machine is cutting AND not positioning
+// Home override also enables it
+//-------------------------------------------------------------------------------------------------
+knife1Enabled := (currentOrder.generatedOrder.knifeEnabledArr[1] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+knife2Enabled := (currentOrder.generatedOrder.knifeEnabledArr[2] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+knife3Enabled := (currentOrder.generatedOrder.knifeEnabledArr[3] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+knife4Enabled := (currentOrder.generatedOrder.knifeEnabledArr[4] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+knife5Enabled := (currentOrder.generatedOrder.knifeEnabledArr[5] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+
+//-------------------------------------------------------------------------------------------------
+// Enable signal for scorers: Same logic as for knives
+//-------------------------------------------------------------------------------------------------
+scorer1Enabled := (currentOrder.generatedOrder.scorerEnabledArr[1] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer2Enabled := (currentOrder.generatedOrder.scorerEnabledArr[2] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer3Enabled := (currentOrder.generatedOrder.scorerEnabledArr[3] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer4Enabled := (currentOrder.generatedOrder.scorerEnabledArr[4] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer5Enabled := (currentOrder.generatedOrder.scorerEnabledArr[5] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer6Enabled := (currentOrder.generatedOrder.scorerEnabledArr[6] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer7Enabled := (currentOrder.generatedOrder.scorerEnabledArr[7] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+scorer8Enabled := (currentOrder.generatedOrder.scorerEnabledArr[8] AND startCutting AND NOT positioningRunning) AND NOT homeRunning AND NOT positioningStarted AND inTargetPosition;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="ACT_AlarmActive" Id="{eda58943-d0fc-4ded-beff-ba471e0f03a1}">
+      <Implementation>
+        <NWL>
+          <XmlArchive>
+            <Data>
+              <o xml:space="preserve" t="NWLImplementationObject">
+                <v n="NetworkListComment">""</v>
+                <v n="DefaultViewMode">"Fbd"</v>
+                <l2 n="NetworkList" />
+                <v n="BranchCounter">0</v>
+                <v n="ValidIds">true</v>
+              </o>
+            </Data>
+            <TypeList>
+              <Type n="Boolean">System.Boolean</Type>
+              <Type n="Int32">System.Int32</Type>
+              <Type n="NWLImplementationObject">{25e509de-33d4-4447-93f8-c9e4ea381c8b}</Type>
+              <Type n="String">System.String</Type>
+            </TypeList>
+          </XmlArchive>
+        </NWL>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_Alarms" Id="{bbbc6ea6-9b11-40d6-8eb6-de88045223c0}">
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_AuxiliaryCommands" Id="{e65b068f-979d-48ca-8a49-e269682b30b0}">
+      <Implementation>
+        <NWL>
+          <XmlArchive>
+            <Data>
+              <o xml:space="preserve" t="NWLImplementationObject">
+                <v n="NetworkListComment">""</v>
+                <v n="DefaultViewMode">"Ld"</v>
+                <l2 n="NetworkList" />
+                <v n="BranchCounter">1</v>
+                <v n="ValidIds">true</v>
+              </o>
+            </Data>
+            <TypeList>
+              <Type n="Boolean">System.Boolean</Type>
+              <Type n="Int32">System.Int32</Type>
+              <Type n="NWLImplementationObject">{25e509de-33d4-4447-93f8-c9e4ea381c8b}</Type>
+              <Type n="String">System.String</Type>
+            </TypeList>
+          </XmlArchive>
+        </NWL>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_GeneratePositions" Id="{f60dfc0c-ae1c-478f-a35f-a6b3f168637b}">
+      <Implementation>
+        <NWL>
+          <XmlArchive>
+            <Data>
+              <o xml:space="preserve" t="NWLImplementationObject">
+                <v n="NetworkListComment">""</v>
+                <v n="DefaultViewMode">"Fbd"</v>
+                <l2 n="NetworkList" cet="Network">
+                  <o>
+                    <v n="ILActive">false</v>
+                    <v n="FBDValid">false</v>
+                    <v n="ILValid">false</v>
+                    <l2 n="ILLines" />
+                    <v n="Comment">"
+					===========================================================================================================================================================================================================
+
+This function block is used to generate the positions of the order
+
+===========================================================================================================================================================================================================
+				"</v>
+                    <v n="Title">""</v>
+                    <v n="Label">""</v>
+                    <v n="OutCommented">false</v>
+                    <l2 n="NetworkItems" cet="BoxTreeBox">
+                      <o>
+                        <v n="BoxType">"FB_PositionsGeneration"</v>
+                        <o n="Instance" t="Operand">
+                          <v n="Operand">"instFbCurrentOrderPositionsGeneration"</v>
+                          <v n="Type">"FB_PositionsGeneration"</v>
+                          <v n="Comment">""</v>
+                          <v n="SymbolComment">""</v>
+                          <v n="Address">""</v>
+                          <o n="Flags" t="Flags">
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <v n="LValue">false</v>
+                          <v n="Boolean">false</v>
+                          <v n="IsInstance">true</v>
+                          <v n="Id">37L</v>
+                        </o>
+                        <o n="OutputItems" t="OutputItemList">
+                          <l2 n="OutputItems" cet="Operand">
+                            <n />
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">19L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">20L</v>
+                            </o>
+                          </l2>
+                        </o>
+                        <o n="Flags" t="Flags">
+                          <v n="Flags">0</v>
+                          <v n="Fixed">true</v>
+                          <v n="Extensible">false</v>
+                        </o>
+                        <n n="InputFlags" />
+                        <l2 n="InputItems" cet="BoxTreeOperand">
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"generatePositions"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">22L</v>
+                            </o>
+                            <v n="Id">21L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"machineConfig"</v>
+                              <v n="Type">"slitterConfig_TypeStruct"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">34L</v>
+                            </o>
+                            <v n="Id">33L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"currentOrder"</v>
+                              <v n="Type">"Order_TypeStruct"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">true</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">30L</v>
+                            </o>
+                            <v n="Id">29L</v>
+                          </o>
+                        </l2>
+                        <o n="InputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>execute</v>
+                            <v>machineConfig</v>
+                            <v>currentOrder</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>slitterConfig_TypeStruct</v>
+                            <v>Order_TypeStruct[REF]</v>
+                          </l2>
+                        </o>
+                        <o n="OutputParam" t="ParamList">
+                          <l2 n="Names" cet="String">
+                            <v>error</v>
+                            <v>done</v>
+                            <v>busy</v>
+                          </l2>
+                          <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                          </l2>
+                        </o>
+                        <v n="CallType" t="Operator">FunctionBlock</v>
+                        <v n="EN">false</v>
+                        <v n="ENO">false</v>
+                        <n n="STSnippet" />
+                        <v n="ContainsExtensibleInputs">false</v>
+                        <v n="ProvidesSTSnippet">false</v>
+                        <v n="Id">38L</v>
+                      </o>
+                    </l2>
+                    <l2 n="Connectors" />
+                    <v n="Id">16L</v>
+                  </o>
+                </l2>
+                <v n="BranchCounter">0</v>
+                <v n="ValidIds">true</v>
+              </o>
+            </Data>
+            <TypeList>
+              <Type n="Boolean">System.Boolean</Type>
+              <Type n="BoxTreeBox">{acfc6f68-8e3a-4af5-bf81-3dd512095a46}</Type>
+              <Type n="BoxTreeOperand">{9de7f100-1b87-424c-a62e-45b0cfc85ed2}</Type>
+              <Type n="Flags">{668066f2-6069-46b3-8962-8db8d13d7db2}</Type>
+              <Type n="Int32">System.Int32</Type>
+              <Type n="Int64">System.Int64</Type>
+              <Type n="Network">{d9a99d73-b633-47db-b876-a752acb25871}</Type>
+              <Type n="NWLImplementationObject">{25e509de-33d4-4447-93f8-c9e4ea381c8b}</Type>
+              <Type n="Operand">{c9b2f165-48a2-4a45-8326-3952d8a3d708}</Type>
+              <Type n="Operator">{bffb3c53-f105-4e85-aba2-e30df579d75f}</Type>
+              <Type n="OutputItemList">{f40d3e09-c02c-4522-a88c-dac23558cfc4}</Type>
+              <Type n="ParamList">{71496971-9e0c-4677-a832-b9583b571130}</Type>
+              <Type n="String">System.String</Type>
+            </TypeList>
+          </XmlArchive>
+        </NWL>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_ProgramCurrentOrder" Id="{63d8961f-72c0-495e-92b0-22ac344d9722}">
+      <Implementation>
+        <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2023 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function is used program the current order and change the order
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+*)
+
+
+IF changeOrder AND NOT changeOrderOld THEN
+
+	currentOrder := nextOrder;
+
+END_IF
+
+changeOrderOld := changeOrder;]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_SlitterControl">
+      <LineId Id="1299" Count="24" />
+      <LineId Id="1355" Count="0" />
+      <LineId Id="1354" Count="0" />
+      <LineId Id="1324" Count="26" />
+      <LineId Id="1831" Count="7" />
+      <LineId Id="1830" Count="0" />
+      <LineId Id="1351" Count="2" />
+      <LineId Id="36" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._08_HmiStatusDisplay">
+      <LineId Id="26" Count="2" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="38" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._09_OutFeedRoll">
+      <LineId Id="54" Count="48" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="46" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._axisControl">
+      <LineId Id="215" Count="18" />
+      <LineId Id="271" Count="1" />
+      <LineId Id="276" Count="1" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="273" Count="1" />
+      <LineId Id="234" Count="5" />
+      <LineId Id="278" Count="0" />
+      <LineId Id="280" Count="2" />
+      <LineId Id="279" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="240" Count="16" />
+      <LineId Id="288" Count="0" />
+      <LineId Id="285" Count="2" />
+      <LineId Id="283" Count="0" />
+      <LineId Id="289" Count="3" />
+      <LineId Id="257" Count="4" />
+      <LineId Id="610" Count="0" />
+      <LineId Id="262" Count="5" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="295" Count="6" />
+      <LineId Id="294" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="306" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="616" Count="14" />
+      <LineId Id="990" Count="3" />
+      <LineId Id="1010" Count="0" />
+      <LineId Id="994" Count="2" />
+      <LineId Id="989" Count="0" />
+      <LineId Id="1007" Count="0" />
+      <LineId Id="997" Count="0" />
+      <LineId Id="1002" Count="2" />
+      <LineId Id="1000" Count="0" />
+      <LineId Id="1006" Count="0" />
+      <LineId Id="1001" Count="0" />
+      <LineId Id="631" Count="10" />
+      <LineId Id="1011" Count="16" />
+      <LineId Id="642" Count="10" />
+      <LineId Id="1028" Count="16" />
+      <LineId Id="653" Count="10" />
+      <LineId Id="1045" Count="15" />
+      <LineId Id="664" Count="10" />
+      <LineId Id="1061" Count="13" />
+      <LineId Id="675" Count="15" />
+      <LineId Id="1089" Count="0" />
+      <LineId Id="1075" Count="13" />
+      <LineId Id="691" Count="10" />
+      <LineId Id="1103" Count="0" />
+      <LineId Id="1090" Count="12" />
+      <LineId Id="1104" Count="25" />
+      <LineId Id="712" Count="2" />
+      <LineId Id="1182" Count="21" />
+      <LineId Id="1138" Count="1" />
+      <LineId Id="723" Count="2" />
+      <LineId Id="1226" Count="0" />
+      <LineId Id="1204" Count="21" />
+      <LineId Id="734" Count="2" />
+      <LineId Id="1228" Count="0" />
+      <LineId Id="1233" Count="21" />
+      <LineId Id="745" Count="2" />
+      <LineId Id="1230" Count="0" />
+      <LineId Id="1229" Count="0" />
+      <LineId Id="1255" Count="21" />
+      <LineId Id="757" Count="0" />
+      <LineId Id="1277" Count="0" />
+      <LineId Id="758" Count="0" />
+      <LineId Id="1232" Count="0" />
+      <LineId Id="1231" Count="0" />
+      <LineId Id="1278" Count="21" />
+      <LineId Id="768" Count="0" />
+      <LineId Id="1300" Count="0" />
+      <LineId Id="769" Count="2" />
+      <LineId Id="959" Count="2" />
+      <LineId Id="965" Count="0" />
+      <LineId Id="1527" Count="0" />
+      <LineId Id="1505" Count="0" />
+      <LineId Id="1507" Count="1" />
+      <LineId Id="1506" Count="0" />
+      <LineId Id="1518" Count="0" />
+      <LineId Id="1512" Count="0" />
+      <LineId Id="1517" Count="0" />
+      <LineId Id="1515" Count="1" />
+      <LineId Id="1513" Count="1" />
+      <LineId Id="968" Count="0" />
+      <LineId Id="967" Count="0" />
+      <LineId Id="1471" Count="0" />
+      <LineId Id="972" Count="0" />
+      <LineId Id="971" Count="0" />
+      <LineId Id="962" Count="2" />
+      <LineId Id="772" Count="1" />
+      <LineId Id="1301" Count="0" />
+      <LineId Id="774" Count="1" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="776" Count="0" />
+      <LineId Id="778" Count="0" />
+      <LineId Id="932" Count="0" />
+      <LineId Id="988" Count="0" />
+      <LineId Id="1008" Count="1" />
+      <LineId Id="779" Count="6" />
+      <LineId Id="1303" Count="0" />
+      <LineId Id="1302" Count="0" />
+      <LineId Id="1326" Count="1" />
+      <LineId Id="1473" Count="0" />
+      <LineId Id="1328" Count="8" />
+      <LineId Id="794" Count="3" />
+      <LineId Id="1305" Count="0" />
+      <LineId Id="1304" Count="0" />
+      <LineId Id="1337" Count="1" />
+      <LineId Id="1475" Count="0" />
+      <LineId Id="1339" Count="8" />
+      <LineId Id="806" Count="3" />
+      <LineId Id="1307" Count="0" />
+      <LineId Id="1306" Count="0" />
+      <LineId Id="1348" Count="1" />
+      <LineId Id="1477" Count="0" />
+      <LineId Id="1350" Count="8" />
+      <LineId Id="819" Count="1" />
+      <LineId Id="1359" Count="0" />
+      <LineId Id="821" Count="0" />
+      <LineId Id="1309" Count="0" />
+      <LineId Id="1308" Count="0" />
+      <LineId Id="1360" Count="1" />
+      <LineId Id="1479" Count="0" />
+      <LineId Id="1362" Count="9" />
+      <LineId Id="831" Count="6" />
+      <LineId Id="1311" Count="0" />
+      <LineId Id="1310" Count="0" />
+      <LineId Id="1372" Count="1" />
+      <LineId Id="1481" Count="0" />
+      <LineId Id="1374" Count="9" />
+      <LineId Id="848" Count="1" />
+      <LineId Id="1313" Count="0" />
+      <LineId Id="1312" Count="0" />
+      <LineId Id="1384" Count="1" />
+      <LineId Id="1483" Count="0" />
+      <LineId Id="1386" Count="9" />
+      <LineId Id="859" Count="2" />
+      <LineId Id="1315" Count="0" />
+      <LineId Id="1314" Count="0" />
+      <LineId Id="1396" Count="1" />
+      <LineId Id="1485" Count="0" />
+      <LineId Id="1484" Count="0" />
+      <LineId Id="1398" Count="9" />
+      <LineId Id="871" Count="2" />
+      <LineId Id="1317" Count="0" />
+      <LineId Id="1316" Count="0" />
+      <LineId Id="1408" Count="1" />
+      <LineId Id="1487" Count="0" />
+      <LineId Id="1486" Count="0" />
+      <LineId Id="1410" Count="9" />
+      <LineId Id="883" Count="2" />
+      <LineId Id="1319" Count="0" />
+      <LineId Id="1318" Count="0" />
+      <LineId Id="1420" Count="1" />
+      <LineId Id="1489" Count="0" />
+      <LineId Id="1488" Count="0" />
+      <LineId Id="1422" Count="9" />
+      <LineId Id="895" Count="2" />
+      <LineId Id="1321" Count="0" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1432" Count="1" />
+      <LineId Id="1491" Count="0" />
+      <LineId Id="1490" Count="0" />
+      <LineId Id="1434" Count="9" />
+      <LineId Id="907" Count="2" />
+      <LineId Id="1323" Count="0" />
+      <LineId Id="1322" Count="0" />
+      <LineId Id="1444" Count="1" />
+      <LineId Id="1493" Count="0" />
+      <LineId Id="1492" Count="0" />
+      <LineId Id="1446" Count="9" />
+      <LineId Id="919" Count="2" />
+      <LineId Id="1325" Count="0" />
+      <LineId Id="1324" Count="0" />
+      <LineId Id="1456" Count="1" />
+      <LineId Id="1495" Count="0" />
+      <LineId Id="1494" Count="0" />
+      <LineId Id="1458" Count="9" />
+      <LineId Id="931" Count="0" />
+      <LineId Id="980" Count="3" />
+      <LineId Id="986" Count="1" />
+      <LineId Id="984" Count="0" />
+      <LineId Id="305" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._exhaustMotor">
+      <LineId Id="10" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="24" Count="2" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._haltTheAxis">
+      <LineId Id="40" Count="19" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="101" Count="1" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="60" Count="10" />
+      <LineId Id="27" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._homeFinished">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._knifeLubrification">
+      <LineId Id="64" Count="3" />
+      <LineId Id="6" Count="4" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="12" Count="4" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="19" Count="4" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="52" Count="3" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="57" Count="2" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="75" Count="3" />
+      <LineId Id="28" Count="11" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._knifeSharpening">
+      <LineId Id="110" Count="52" />
+      <LineId Id="97" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._knifeSharpening_old">
+      <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="23" Count="9" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="48" Count="3" />
+      <LineId Id="38" Count="4" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="53" Count="8" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="72" Count="7" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="81" Count="8" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="95" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="98" Count="3" />
+      <LineId Id="97" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._paperDirectionFlaps">
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="11" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="30" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="46" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._paperTrim">
+      <LineId Id="6" Count="6" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._safetyCircuit">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._scorerHeightControl">
+      <LineId Id="193" Count="15" />
+      <LineId Id="402" Count="1" />
+      <LineId Id="401" Count="0" />
+      <LineId Id="404" Count="0" />
+      <LineId Id="406" Count="1" />
+      <LineId Id="405" Count="0" />
+      <LineId Id="209" Count="19" />
+      <LineId Id="233" Count="164" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="399" Count="1" />
+      <LineId Id="398" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._slitterCenterPaperGuideRoll">
+      <LineId Id="6" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._slitterDisplacement">
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._slitterPaperDirectionControl">
+      <LineId Id="10" Count="0" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="100" Count="1" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="97" Count="1" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="61" Count="2" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="15" Count="13" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._startStopCutting">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="12" Count="4" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._startTractionMotor">
+      <LineId Id="5" Count="1" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="75" Count="32" />
+      <LineId Id="25" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._toolEnabledLamp">
+      <LineId Id="6" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="17" Count="7" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl._toolsUpDownControl">
+      <LineId Id="201" Count="118" />
+      <LineId Id="158" Count="4" />
+      <LineId Id="100" Count="17" />
+      <LineId Id="320" Count="0" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="337" Count="1" />
+      <LineId Id="340" Count="2" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="329" Count="5" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="324" Count="0" />
+      <LineId Id="322" Count="0" />
+      <LineId Id="389" Count="0" />
+      <LineId Id="363" Count="0" />
+      <LineId Id="323" Count="0" />
+      <LineId Id="364" Count="4" />
+      <LineId Id="119" Count="20" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl.ACT_Alarms">
+      <LineId Id="1" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SlitterControl.ACT_ProgramCurrentOrder">
+      <LineId Id="1" Count="27" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

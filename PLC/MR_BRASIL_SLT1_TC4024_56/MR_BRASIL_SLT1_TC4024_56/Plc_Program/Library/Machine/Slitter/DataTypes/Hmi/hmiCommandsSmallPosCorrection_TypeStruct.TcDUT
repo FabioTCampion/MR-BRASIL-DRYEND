@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommandsSmallPosCorrection_TypeStruct" Id="{72725890-5698-488e-826b-958ce06b38de}">
+    <Declaration><![CDATA[TYPE hmiCommandsSmallPosCorrection_TypeStruct :
+STRUCT
+	
+	positionCorrection	: REAL;
+	execute				: BOOL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

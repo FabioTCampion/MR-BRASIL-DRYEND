@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommandsSimpleStacker_TypeStruct" Id="{5fc7284d-6694-4b62-b464-5dc04ee01054}">
+    <Declaration><![CDATA[
+TYPE hmiCommandsSimpleStacker_TypeStruct :
+STRUCT
+
+    //==============================================================
+    // System master commands
+    //==============================================================
+    startCmd                                : BOOL; // EN: Master start command
+    stopCmd                                 : BOOL; // EN: Master stop command
+    resetCmd                                : BOOL; // EN: Fault reset command
+
+
+    //==============================================================
+    // Sheet conveyor group commands
+    //==============================================================
+    sheetConveyorsSpeedUpCmd                : BOOL; // EN: Momentary speed-up command for sheet conveyors
+
+
+    //==============================================================
+    // Sheet handling commands
+    //==============================================================
+    packageCompleteCmd                      : BOOL; // EN: Package complete / discharge cycle request
+    sheetDiscardCmd                         : BOOL; // EN: Sheet discard command
+    noCrushRollersUpCmd                     : BOOL; // EN: No-crush rollers up command
+
+
+    //==============================================================
+    // Backstop commands
+    //==============================================================
+    backstopAutoCmd                         : BOOL; // EN: Enables backstop automatic mode
+    backstopHomeCmd                         : BOOL; // EN: Manual backstop homing command
+    backstopExecutePositioningCmd           : BOOL; // EN: Execute programmed backstop positioning
+
+    backstopOpenCmd                         : BOOL; // EN: Manual backstop open command
+    backstopCloseCmd                        : BOOL; // EN: Manual backstop close command
+
+
+    //==============================================================
+    // Conveyor leveler commands
+    //==============================================================
+    conveyorLevelerAutoCmd                  : BOOL; // EN: Enables conveyor leveler automatic mode
+    conveyorLevelerHomeCmd                  : BOOL; // EN: Manual conveyor leveler homing command
+
+    conveyorLevelerUpCmd                    : BOOL; // EN: Manual conveyor leveler up command
+    conveyorLevelerDownCmd                  : BOOL; // EN: Manual conveyor leveler down command
+
+
+    //==============================================================
+    // Sheet stack discharge conveyor commands
+    //==============================================================
+    sheetStackDischargeConveyorManualRunCmd : BOOL; // EN: Momentary manual run command for discharge conveyor
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

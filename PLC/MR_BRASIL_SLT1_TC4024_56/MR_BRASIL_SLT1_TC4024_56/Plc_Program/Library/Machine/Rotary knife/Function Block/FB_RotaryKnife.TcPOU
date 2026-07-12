@@ -1,0 +1,1684 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_RotaryKnife" Id="{e3cdb2e7-6cba-47d8-84fe-39757273e7be}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_RotaryKnife
+
+VAR_INPUT
+    //────────────────────────────────────────────
+    // SAFETY / GUARDS / INTERLOCKS
+    //────────────────────────────────────────────
+    resetCmd                        : BOOL;
+    safetyFeedback                  : BOOL;
+
+    exitGuardClosed                   : BOOL;
+    infeedGuardClosed                 : BOOL;
+    exhaustPressurized              : BOOL;
+    exhaustDepressurized            : BOOL;
+
+    //────────────────────────────────────────────
+    // UPPER KNIFE — COMMANDS / SENSORS / STATUS
+    //────────────────────────────────────────────
+    upperKnifePowerONCmd            : BOOL;
+    upperKnifePowerOFFCmd           : BOOL;
+
+    upperKnifeJogFwCmd              : BOOL;
+    upperKnifeJogRevCmd             : BOOL;
+    upperKnifeCutCmd                : BOOL;
+
+    upperKnifeHomeSensor            : BOOL;
+    upperKnifePaperSensor           : BOOL;
+
+    upperKnifeGuardClosed           : BOOL;
+    upperKnifeOilLevelLow           : BOOL;
+    upperKnifeJamDetected           : BOOL;
+
+    upperKnifeInfeedDrvOK           : BOOL;
+    upperKnifeOutfeedDrvOK          : BOOL;
+    upperKnifeMainDrvOK             : BOOL;
+    upperKnifeSlave1DrvOK           : BOOL;
+    upperKnifeSlave2DrvOK           : BOOL;
+	upperKnifeResetTotalOfCuts		: BOOL;
+	
+    //────────────────────────────────────────────
+    // LOWER KNIFE — COMMANDS / SENSORS / STATUS
+    //────────────────────────────────────────────
+    lowerKnifePowerONCmd            : BOOL;
+    lowerKnifePowerOFFCmd           : BOOL;
+
+    lowerKnifeJogFwCmd              : BOOL;
+    lowerKnifeJogRevCmd             : BOOL;
+    lowerKnifeCutCmd                : BOOL;
+
+    lowerKnifeHomeSensor            : BOOL;
+    lowerKnifePaperSensor           : BOOL;
+
+    lowerKnifeGuardClosed           : BOOL;
+    lowerKnifeOilLevelLow           : BOOL;
+    lowerKnifeJamDetected           : BOOL;
+
+    lowerKnifeInfeedDrvOK           : BOOL;
+    lowerKnifeOutfeedDrvOK          : BOOL;
+    lowerKnifeMainDrvOK             : BOOL;
+    lowerKnifeSlave1DrvOK           : BOOL;
+    lowerKnifeSlave2DrvOK           : BOOL;
+	lowerKnifeResetTotalOfCuts		: BOOL;
+
+    //────────────────────────────────────────────
+    // COMMON / LINE / ENCODER / CONFIG
+    //────────────────────────────────────────────
+    lineSpeedMPM                    : REAL;
+    aocSpeedMPM                     : REAL;
+    aocRunning                      : BOOL;
+
+    measuringWheelPaperPresence     : BOOL;
+
+    encoderSwitchAutoMan            : BOOL := TRUE;
+
+
+    machineConfigLowerKnife : rotaryKnifeConfig_TypeStruct;
+    machineConfigUpperKnife : rotaryKnifeConfig_TypeStruct;
+	
+    currentOrder              : Order_TypeStruct; // Active order / Ordem atual
+		
+END_VAR
+VAR_OUTPUT
+    //────────────────────────────────────────────
+    // GENERAL / ALARMS
+    //────────────────────────────────────────────
+    alarmActive                     : BOOL;
+
+    //────────────────────────────────────────────
+    // DISPLAY LINE SPEED
+    //────────────────────────────────────────────
+    lineSpeed                     : REAL;
+    lineSpeedStacker                     : REAL;
+	
+	
+	
+    //────────────────────────────────────────────
+    // External control
+    //────────────────────────────────────────────	
+	lineStop						: BOOL;
+	lineSpeedInc					: BOOL;
+	lineSpeedDec					: BOOL;
+	startOutfeedConveyor			: BOOL;
+	
+	
+    //────────────────────────────────────────────
+    // UPPER KNIFE — ENABLE / RUN
+    //────────────────────────────────────────────
+    upperKnifeEnable                : BOOL;
+    upperKnifeInFeedRun             : BOOL;
+    upperKnifeOutFeedRun            : BOOL;
+    upperKnifeSlave1Run             : BOOL;
+    upperKnifeSlave2Run             : BOOL;
+
+    //────────────────────────────────────────────
+    // UPPER KNIFE — MOTION
+    //────────────────────────────────────────────
+    upperKnifeJogFw                 : BOOL;
+    upperKnifeJogRev                : BOOL;
+    upperKnifeCut                   : BOOL;
+    upperKnifeHome                  : BOOL;
+    upperKnifeHomeSensorPulse       : BOOL;
+	upperEnbVirtualMaster			: BOOL;
+	
+    upperKnifeReset                 : BOOL;
+
+    upperKnifeInFeedDriveRef        : REAL;
+    upperKnifeOutFeedDriveRef       : REAL;
+
+    upperKnifeEncoderSwitch         : BOOL;
+    upperKnifeLubrification         : BOOL;
+	
+	
+	
+	upperKnifeSpeedLimit			 : BOOL;
+	upperKnifeSpeedCurveActive		 : INT;
+	upperKnifeMaximumSpeedActive 	 : REAL;
+    //────────────────────────────────────────────
+    // LOWER KNIFE — ENABLE / RUN
+    //────────────────────────────────────────────
+    lowerKnifeEnable                : BOOL;
+    lowerKnifeInFeedRun             : BOOL;
+    lowerKnifeOutFeedRun            : BOOL;
+    lowerKnifeSlave1Run             : BOOL;
+    lowerKnifeSlave2Run             : BOOL;
+
+    //────────────────────────────────────────────
+    // LOWER KNIFE — MOTION
+    //────────────────────────────────────────────
+    lowerKnifeJogFw                 : BOOL;
+    lowerKnifeJogRev                : BOOL;
+    lowerKnifeCut                   : BOOL;
+    lowerKnifeHome                  : BOOL;
+    lowerKnifeHomeSensorPulse       : BOOL;
+	lowerEnbVirtualMaster			: BOOL;
+
+    lowerKnifeReset                 : BOOL;
+
+    lowerKnifeInFeedDriveRef        : REAL;
+    lowerKnifeOutFeedDriveRef       : REAL;
+
+    lowerKnifeEncoderSwitch         : BOOL;
+    lowerKnifeLubrification         : BOOL;
+
+	
+	lowerKnifeSpeedLimit			 : BOOL;
+	lowerKnifeSpeedCurveActive		 : INT;
+	lowerKnifeMaximumSpeedActive 	 : REAL;
+
+
+	measuringWheelSolenoid			: BOOL;
+	
+    //────────────────────────────────────────────
+    // HMI STATUS
+    //────────────────────────────────────────────
+    upperKnifeHmiStatus                       : rotaryKnifeHmiStatus_TypeStruct;
+    lowerKnifeHmiStatus                       : rotaryKnifeHmiStatus_TypeStruct;
+	
+END_VAR
+VAR
+	
+    instFB_Gen_SRamp           : FB_Gen_SRamp;
+
+    //────────────────────────────────────────────
+    // UPPER KNIFE — INTERNAL
+    //────────────────────────────────────────────
+    upperKnifeStep                  : INT := 0;
+    upperKnifeAllDrivesOK           : BOOL := FALSE;
+	upperKnifeReduceLineSpeed 		: BOOL;
+	upperKnifeAllInterlocksOK		: BOOL;
+	
+	
+	
+    upperKnifeRtEnable              : R_TRIG;
+    upperKnifeRtPowerOff            : R_TRIG;
+
+    upperKnifeTimerReset            : TON;
+    upperKnifeTimerPulse            : TON;
+    upperKnifeTimerWait             : TON;
+    upperKnifeTimerClear            : TON;
+	instFB_SpeedLimitUpperKnife				: FB_SpeedLimit;
+	instTONUpperKnifeSwichEncoderDelay	: TON;
+
+    //────────────────────────────────────────────
+    // LOWER KNIFE — INTERNAL
+    //────────────────────────────────────────────
+    lowerKnifeStep                  : INT := 0;
+    lowerKnifeAllDrivesOK           : BOOL := FALSE;
+	lowerKnifeReduceLineSpeed 		: BOOL;
+	lowerKnifeAllInterlocksOK		: BOOL;
+	
+
+    lowerKnifeRtEnable              : R_TRIG;
+    lowerKnifeRtPowerOff            : R_TRIG;
+
+    lowerKnifeTimerReset            : TON;
+    lowerKnifeTimerPulse            : TON;
+    lowerKnifeTimerWait             : TON;
+    lowerKnifeTimerClear            : TON;
+	instFB_SpeedLimitLowerKnife				: FB_SpeedLimit;
+	instTONLowerKnifeSwitchEncoderDelay	: TON;
+
+    //────────────────────────────────────────────
+    // MODBUS TCP
+    //────────────────────────────────────────────
+    instFB_MBReadRegs               : FB_MBReadRegs;
+	
+    instFB_MBWriteRegs              : FB_MBWriteRegs;
+    instFB_MBWriteRegs1              : FB_MBWriteRegs;
+	
+    modbusTCPStep                   : INT;
+
+    upperKnifeStatusWord1           : INT;
+    upperKnifeStatusWord2           : INT;
+    upperKnifeModbusDword           : DWORD;
+    upperKnifeWriteMenu2029         : DWORD;
+    upperKnifeWriteMenu2023         : DWORD;
+	
+    upperKnifeLineSpeed             : INT;
+    upperKnifeStatusW1              : rotaryKnifeStatusWord1_TypeStruct;
+    upperKnifeStatusW2              : rotaryKnifeStatusWord2_TypeStruct;
+
+    lowerKnifeStatusWord1           : INT;
+    lowerKnifeStatusWord2           : INT;
+    lowerKnifeModbusDword           : DWORD;
+    lowerKnifeWriteMenu2029         : DWORD;
+    lowerKnifeWriteMenu2023         : DWORD;
+	
+    lowerKnifeLineSpeed             : INT;
+    lowerKnifeStatusW1              : rotaryKnifeStatusWord1_TypeStruct;
+    lowerKnifeStatusW2              : rotaryKnifeStatusWord2_TypeStruct;
+	
+	upperKnifeHomeSensorOld: BOOL;
+	lowerKnifeHomeSensorOld: BOOL;
+	
+	
+	virtualMasterSpeed	: INT;
+	writeVirtualMasterSpeed : BOOL;
+	
+	
+	lineSpeedMPMRamp: REAL;
+	enableVirtualMaster: BOOL;
+	instTOF_UpperKnifePaperSensor: TOF;
+	instTOF_LowerKnifePaperSensor: TOF;
+	faultDetected: BOOL;
+    instTP_LineStop  : TP;
+    instRtrigFault   : R_TRIG;
+	
+	instTONMeasuringWheelDelay: TON;
+	upperLevelInfeedSpeedLimit: REAL;
+	lowerLevelInfeedSpeedLimit: REAL;
+	
+        upperKnifeWriteMenu2023_Raw : DWORD;
+        lowerKnifeWriteMenu2023_Raw : DWORD;
+		
+        upperKnifeReadMenu1934_Value : BOOL;
+        lowerKnifeReadMenu1934_Value : BOOL;
+
+        upperKnifeWriteMenu1934_WriteValue : WORD;
+        lowerKnifeWriteMenu1934_WriteValue : WORD;
+//==========================================================
+    // PRE-PROCESSING TEMPORARIES (Intermediate Calculations)
+    //==========================================================
+    uLengthTemp             : REAL;          // Calculated Upper Sheet Length (mm)
+    lLengthTemp             : REAL;          // Calculated Lower Sheet Length (mm)
+    uDiamTemp               : REAL;          // Effective Upper Knife Diameter (mm)
+    lDiamTemp               : REAL;          // Effective Lower Knife Diameter (mm)		
+	
+END_VAR
+
+VAR PERSISTENT
+	
+	upperKnifeTotalOfCutsAccumulator : DINT;
+    lowerKnifeTotalOfCutsAccumulator : DINT;
+	
+END_VAR
+
+
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_00_ModbusTCP();
+_01_UpperLevelControl();
+_02_LowerLevelControl();
+_03_LineSpeedLimit();
+_04_AuxControls();
+_05_DisplayVariables();
+_06_TotalOfCuts();
+_07_LineSpeedRamp();
+_08_StopTheLineCommand();
+_09_MeasuringWheel();]]></ST>
+    </Implementation>
+    <Method Name="_00_ModbusTCP" Id="{224e79cd-8c92-4353-b4c3-145d7f61e44a}">
+      <Declaration><![CDATA[METHOD _00_ModbusTCP
+
+VAR CONSTANT
+    MB_TCP_PORT         : UINT := 2010;
+    MB_UNIT_ID          : USINT := 11;
+
+    MB_TMO_READ         : TIME := T#500ms;
+    MB_TMO_WRITE        : TIME := T#1000ms;
+
+    IP_UPPER_KNIFE      : STRING := '192.168.30.86';
+    IP_LOWER_KNIFE      : STRING := '192.168.30.87';
+
+	// Address = (Menu * 100) + Parameter - 1
+	MBADDR_LINE_SPEED          : UINT := 16#0711; // Pr 18.10 -> (18*100)+10-1 = 1809 -> 16#0711
+	MBADDR_STATUS_W1           : UINT := 16#0774; // Pr 19.09 -> (19*100)+09-1 = 1908 -> 16#0774
+	MBADDR_STATUS_W2           : UINT := 16#0775; // Pr 19.10 -> (19*100)+10-1 = 1909 -> 16#0775
+	MBADDR_SHEET_LEN_20_29     : UINT := 16#47EC; // Pr 20.29 -> (20*100)+29-1 = 2028 -> 16#07EC (Start)
+	MBADDR_KNIFE_DIAM_20_23    : UINT := 16#47E6; // Pr 20.23 -> (20*100)+23-1 = 2022 -> 16#07E6 (32-bit)	
+	
+	// New Parameter Updates
+	MBADDR_V_MST_SPEED_18_26   : UINT := 16#0721; // Pr 18.26 -> (18*100)+26-1 = 1825 -> 16#0721
+	MBADDR_V_MST_ENB_18_45     : UINT := 16#0734; // Pr 18.45 -> (18*100)+45-1 = 1844 -> 16#0734
+
+
+	//	virtualMasterSpeed	: INT;
+	// writeVirtualMasterSpeed : BOOL;
+
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE currentOrder.levelSelector OF
+
+    //----------------------------------------------------------
+    // SINGLE PRODUCTION: UPPER KNIFE ACTIVE
+    //----------------------------------------------------------
+    E_LevelSelector.eUpperOnly:
+        IF currentOrder.order1.sheetLength >= 400 THEN
+
+            // Length Calculation - Upper knife selected length
+            upperKnifeHmiStatus.sheetLength := currentOrder.order1.sheetLength + machineConfig.upperKnife.lengthAdjustment;
+            lowerKnifeHmiStatus.sheetLength := upperKnifeHmiStatus.sheetLength;
+
+            upperKnifeModbusDword := REAL_TO_DWORD(upperKnifeHmiStatus.sheetLength) * 1000;
+            lowerKnifeModbusDword := upperKnifeModbusDword;
+
+            // Diameter Logic
+            IF currentOrder.order1.sheetLength < (machineConfig.upperKnife.knifeDiameter * 3.141592) THEN
+                uDiamTemp := (currentOrder.order1.sheetLength / 3.141592) * machineConfig.upperKnife.knifeDiameterFactor;
+            ELSE
+                uDiamTemp := machineConfig.upperKnife.knifeDiameter;
+            END_IF;
+
+            upperKnifeWriteMenu2023_Raw := REAL_TO_DWORD(uDiamTemp * 1000.0);
+            lowerKnifeWriteMenu2023_Raw := upperKnifeWriteMenu2023_Raw;
+
+        END_IF;
+
+
+    //----------------------------------------------------------
+    // SINGLE PRODUCTION: LOWER KNIFE ACTIVE
+    //----------------------------------------------------------
+    E_LevelSelector.eLowerOnly:
+        IF currentOrder.order1.sheetLength >= 400 THEN
+
+            // Length Calculation - Lower knife selected length
+            lowerKnifeHmiStatus.sheetLength := currentOrder.order1.sheetLength + machineConfig.lowerKnife.lengthAdjustment;
+            upperKnifeHmiStatus.sheetLength := lowerKnifeHmiStatus.sheetLength;
+
+            upperKnifeModbusDword := REAL_TO_DWORD(lowerKnifeHmiStatus.sheetLength) * 1000;
+            lowerKnifeModbusDword := upperKnifeModbusDword;
+
+            // Diameter Logic
+            IF currentOrder.order1.sheetLength < (machineConfig.lowerKnife.knifeDiameter * 3.141592) THEN
+                uDiamTemp := (currentOrder.order1.sheetLength / 3.141592) * machineConfig.lowerKnife.knifeDiameterFactor;
+            ELSE
+                uDiamTemp := machineConfig.lowerKnife.knifeDiameter;
+            END_IF;
+
+            upperKnifeWriteMenu2023_Raw := REAL_TO_DWORD(uDiamTemp * 1000.0);
+            lowerKnifeWriteMenu2023_Raw := upperKnifeWriteMenu2023_Raw;
+
+        END_IF;
+
+
+    //----------------------------------------------------------
+    // DUAL PRODUCTION: SPLIT ORDERS
+    //----------------------------------------------------------
+    E_LevelSelector.eBoth:
+
+        // Upper write only if valid
+        IF currentOrder.order1.sheetLength >= 400 THEN
+
+            // Length Calculation - Upper knife uses order1
+            upperKnifeHmiStatus.sheetLength := currentOrder.order1.sheetLength + machineConfig.upperKnife.lengthAdjustment;
+
+            upperKnifeModbusDword := REAL_TO_DWORD(upperKnifeHmiStatus.sheetLength) * 1000;
+
+            IF currentOrder.order1.sheetLength < (machineConfig.upperKnife.knifeDiameter * 3.141592) THEN
+                uDiamTemp := (currentOrder.order1.sheetLength / 3.141592) * machineConfig.upperKnife.knifeDiameterFactor;
+            ELSE
+                uDiamTemp := machineConfig.upperKnife.knifeDiameter;
+            END_IF;
+
+            upperKnifeWriteMenu2023_Raw := REAL_TO_DWORD(uDiamTemp * 1000.0);
+
+        END_IF;
+
+
+        // Lower write only if valid
+        IF currentOrder.order2.sheetLength >= 400 THEN
+
+            // Length Calculation - Lower knife uses order2
+            lowerKnifeHmiStatus.sheetLength := currentOrder.order2.sheetLength + machineConfig.lowerKnife.lengthAdjustment;
+
+            lowerKnifeModbusDword := REAL_TO_DWORD(lowerKnifeHmiStatus.sheetLength) * 1000;
+
+            IF currentOrder.order2.sheetLength < (machineConfig.lowerKnife.knifeDiameter * 3.141592) THEN
+                lDiamTemp := (currentOrder.order2.sheetLength / 3.141592) * machineConfig.lowerKnife.knifeDiameterFactor;
+            ELSE
+                lDiamTemp := machineConfig.lowerKnife.knifeDiameter;
+            END_IF;
+
+            lowerKnifeWriteMenu2023_Raw := REAL_TO_DWORD(lDiamTemp * 1000.0);
+
+        END_IF;
+
+END_CASE;
+
+
+
+//==============================================================
+// MODBUS TCP MASTER STATE MACHINE
+//==============================================================
+
+CASE modbusTCPStep OF
+	
+	// 10: UPPER - Write Knife Diameter
+    00:
+        upperKnifeWriteMenu2023 := SHR(upperKnifeWriteMenu2023_Raw, 16) OR SHL(upperKnifeWriteMenu2023_Raw, 16);
+        instFB_MBWriteRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 2, nMBAddr:= MBADDR_KNIFE_DIAM_20_23, cbLength:= SIZEOF(upperKnifeWriteMenu2023), pSrcAddr:= ADR(upperKnifeWriteMenu2023), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep := 1; END_IF
+
+    // 11: LOWER - Write Knife Diameter
+    01:
+        lowerKnifeWriteMenu2023 := SHR(lowerKnifeWriteMenu2023_Raw, 16) OR SHL(lowerKnifeWriteMenu2023_Raw, 16);
+        instFB_MBWriteRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 2, nMBAddr:= MBADDR_KNIFE_DIAM_20_23, cbLength:= SIZEOF(lowerKnifeWriteMenu2023), pSrcAddr:= ADR(lowerKnifeWriteMenu2023), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep := 2; END_IF	
+
+    // 00-05: READS (Keeping your existing logic)
+    02: // UPPER - Read Line Speed
+        instFB_MBReadRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_LINE_SPEED, cbLength:= SIZEOF(upperKnifeLineSpeed), pDestAddr:= ADR(upperKnifeLineSpeed), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 3; END_IF
+
+    03: // UPPER - Read Status W1
+        instFB_MBReadRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_STATUS_W1, cbLength:= SIZEOF(upperKnifeStatusWord1), pDestAddr:= ADR(upperKnifeStatusWord1), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 4; END_IF
+
+    04: // UPPER - Read Status W2
+        instFB_MBReadRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_STATUS_W2, cbLength:= SIZEOF(upperKnifeStatusWord2), pDestAddr:= ADR(upperKnifeStatusWord2), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 5; END_IF
+
+    05: // LOWER - Read Line Speed
+        instFB_MBReadRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_LINE_SPEED, cbLength:= SIZEOF(lowerKnifeLineSpeed), pDestAddr:= ADR(lowerKnifeLineSpeed), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 6; END_IF
+
+    06: // LOWER - Read Status W1
+        instFB_MBReadRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_STATUS_W1, cbLength:= SIZEOF(lowerKnifeStatusWord1), pDestAddr:= ADR(lowerKnifeStatusWord1), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 7; END_IF
+
+    07: // LOWER - Read Status W2
+        instFB_MBReadRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_STATUS_W2, cbLength:= SIZEOF(lowerKnifeStatusWord2), pDestAddr:= ADR(lowerKnifeStatusWord2), bExecute:= TRUE, tTimeout:= MB_TMO_READ);
+        IF NOT instFB_MBReadRegs.bBusy THEN instFB_MBReadRegs(bExecute := FALSE); modbusTCPStep := 8; END_IF
+
+    // 06: UPPER - Write Cut Length
+    08:
+        upperKnifeWriteMenu2029 := SHR(upperKnifeModbusDword, 16) OR SHL(upperKnifeModbusDword, 16);
+        instFB_MBWriteRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 2, nMBAddr:= MBADDR_SHEET_LEN_20_29, cbLength:= SIZEOF(upperKnifeWriteMenu2029), pSrcAddr:= ADR(upperKnifeWriteMenu2029), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep := 9; END_IF
+
+    // 07: LOWER - Write Cut Length
+    09:
+        lowerKnifeWriteMenu2029 := SHR(lowerKnifeModbusDword, 16) OR SHL(lowerKnifeModbusDword, 16);
+        instFB_MBWriteRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 2, nMBAddr:= MBADDR_SHEET_LEN_20_29, cbLength:= SIZEOF(lowerKnifeWriteMenu2029), pSrcAddr:= ADR(lowerKnifeWriteMenu2029), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep := 00; END_IF
+        
+    // 08: UPPER - Write Master Speed
+    10:
+        instFB_MBWriteRegs(sIPAddr:= IP_UPPER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_V_MST_SPEED_18_26, cbLength:= SIZEOF(virtualMasterSpeed), pSrcAddr:= ADR(virtualMasterSpeed), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep :=11; END_IF  
+
+    // 09: LOWER - Write Master Speed
+    11:
+        instFB_MBWriteRegs(sIPAddr:= IP_LOWER_KNIFE, nTCPPort:= MB_TCP_PORT, nUnitID:= MB_UNIT_ID, nQuantity:= 1, nMBAddr:= MBADDR_V_MST_SPEED_18_26, cbLength:= SIZEOF(virtualMasterSpeed), pSrcAddr:= ADR(virtualMasterSpeed), bExecute:= TRUE, tTimeout:= MB_TMO_WRITE);
+        IF NOT instFB_MBWriteRegs.bBusy THEN instFB_MBWriteRegs(bExecute := FALSE); modbusTCPStep := 00; END_IF      
+        
+
+END_CASE
+
+//==============================================================
+// BIT UNPACKING (Status logic remains exactly as yours)
+//==============================================================
+// ... [Existing Unpacking Code]
+
+//==============================================================
+// BIT UNPACKING: DRIVE STATUS TO HMI/LOGIC BOOLS
+// Converts raw Modbus 16-bit registers into descriptive Booleans.
+//==============================================================
+
+// --- UPPER KNIFE STATUS WORD 1 (Operational State) ---
+upperKnifeStatusW1.knifeAtHomeParkPos1              := upperKnifeStatusWord1.00;
+upperKnifeStatusW1.homingInProgress                 := upperKnifeStatusWord1.01;
+upperKnifeStatusW1.homingComplete                   := upperKnifeStatusWord1.02;
+upperKnifeStatusW1.knifeInspectionMotionInProgress  := upperKnifeStatusWord1.03;
+upperKnifeStatusW1.knifeInspectionMotionComplete    := upperKnifeStatusWord1.04;
+upperKnifeStatusW1.returnHomeMotionInProgress       := upperKnifeStatusWord1.05;
+upperKnifeStatusW1.returnHomeMotionComplete         := upperKnifeStatusWord1.06;
+upperKnifeStatusW1.jogForwardInProgress             := upperKnifeStatusWord1.07;
+upperKnifeStatusW1.jogReverseInProgress             := upperKnifeStatusWord1.08;
+upperKnifeStatusW1.knifeGearingOut                  := upperKnifeStatusWord1.09;
+upperKnifeStatusW1.knifeRunningEngaged              := upperKnifeStatusWord1.10; // Knife actively tracking line
+upperKnifeStatusW1.knifeStoppedDisengaged           := upperKnifeStatusWord1.11;
+upperKnifeStatusW1.maxLineSpeedLimitCalculated      := upperKnifeStatusWord1.12;
+upperKnifeStatusW1.batchMaxLineSpeedCalcInProgress  := upperKnifeStatusWord1.13;
+upperKnifeStatusW1.batchMaxLineSpeedCalculated      := upperKnifeStatusWord1.14;
+upperKnifeStatusW1.watchdogClockOut                 := upperKnifeStatusWord1.15; // Heartbeat from Drive
+
+// --- LOWER KNIFE STATUS WORD 1 (Operational State) ---
+lowerKnifeStatusW1.knifeAtHomeParkPos1              := lowerKnifeStatusWord1.00;
+lowerKnifeStatusW1.homingInProgress                 := lowerKnifeStatusWord1.01;
+lowerKnifeStatusW1.homingComplete                   := lowerKnifeStatusWord1.02;
+lowerKnifeStatusW1.knifeInspectionMotionInProgress  := lowerKnifeStatusWord1.03;
+lowerKnifeStatusW1.knifeInspectionMotionComplete    := lowerKnifeStatusWord1.04;
+lowerKnifeStatusW1.returnHomeMotionInProgress       := lowerKnifeStatusWord1.05;
+lowerKnifeStatusW1.returnHomeMotionComplete         := lowerKnifeStatusWord1.06;
+lowerKnifeStatusW1.jogForwardInProgress             := lowerKnifeStatusWord1.07;
+lowerKnifeStatusW1.jogReverseInProgress             := lowerKnifeStatusWord1.08;
+lowerKnifeStatusW1.knifeGearingOut                  := lowerKnifeStatusWord1.09;
+lowerKnifeStatusW1.knifeRunningEngaged              := lowerKnifeStatusWord1.10;
+lowerKnifeStatusW1.knifeStoppedDisengaged           := lowerKnifeStatusWord1.11;
+lowerKnifeStatusW1.maxLineSpeedLimitCalculated      := lowerKnifeStatusWord1.12;
+lowerKnifeStatusW1.batchMaxLineSpeedCalcInProgress  := lowerKnifeStatusWord1.13;
+lowerKnifeStatusW1.batchMaxLineSpeedCalculated      := lowerKnifeStatusWord1.14;
+lowerKnifeStatusW1.watchdogClockOut                 := lowerKnifeStatusWord1.15;
+
+// --- UPPER KNIFE STATUS WORD 2 (Registration & Health) ---
+upperKnifeStatusW2.batchSingleShotStopInProgress    := upperKnifeStatusWord2.00;
+upperKnifeStatusW2.registrationMarkMissed           := upperKnifeStatusWord2.01;
+upperKnifeStatusW2.registrationWindowOpen           := upperKnifeStatusWord2.02;
+upperKnifeStatusW2.registrationMarkAccepted         := upperKnifeStatusWord2.03;
+upperKnifeStatusW2.onLastBatch                      := upperKnifeStatusWord2.04;
+upperKnifeStatusW2.onLastCutOfLastBatch             := upperKnifeStatusWord2.05;
+upperKnifeStatusW2.pls1Output                       := upperKnifeStatusWord2.06; // Programmable Limit Switch
+upperKnifeStatusW2.pls2Output                       := upperKnifeStatusWord2.07;
+upperKnifeStatusW2.referenceEnabled                 := upperKnifeStatusWord2.08;
+upperKnifeStatusW2.driveHealthy                     := upperKnifeStatusWord2.09; // OK to run
+upperKnifeStatusW2.reserved10                       := upperKnifeStatusWord2.10;
+upperKnifeStatusW2.reserved11                       := upperKnifeStatusWord2.11;
+upperKnifeStatusW2.userDefinedStatusBit12           := upperKnifeStatusWord2.12;
+upperKnifeStatusW2.userDefinedStatusBit13           := upperKnifeStatusWord2.13;
+upperKnifeStatusW2.userDefinedStatusBit14           := upperKnifeStatusWord2.14;
+upperKnifeStatusW2.userDefinedStatusBit15           := upperKnifeStatusWord2.15;
+
+// --- LOWER KNIFE STATUS WORD 2 (Registration & Health) ---
+lowerKnifeStatusW2.batchSingleShotStopInProgress    := lowerKnifeStatusWord2.00;
+lowerKnifeStatusW2.registrationMarkMissed           := lowerKnifeStatusWord2.01;
+lowerKnifeStatusW2.registrationWindowOpen           := lowerKnifeStatusWord2.02;
+lowerKnifeStatusW2.registrationMarkAccepted         := lowerKnifeStatusWord2.03;
+lowerKnifeStatusW2.onLastBatch                      := lowerKnifeStatusWord2.04;
+lowerKnifeStatusW2.onLastCutOfLastBatch             := lowerKnifeStatusWord2.05;
+lowerKnifeStatusW2.pls1Output                       := lowerKnifeStatusWord2.06;
+lowerKnifeStatusW2.pls2Output                       := lowerKnifeStatusWord2.07;
+lowerKnifeStatusW2.referenceEnabled                 := lowerKnifeStatusWord2.08;
+lowerKnifeStatusW2.driveHealthy                     := lowerKnifeStatusWord2.09;
+lowerKnifeStatusW2.reserved10                       := lowerKnifeStatusWord2.10;
+lowerKnifeStatusW2.reserved11                       := lowerKnifeStatusWord2.11;
+lowerKnifeStatusW2.userDefinedStatusBit12           := lowerKnifeStatusWord2.12;
+lowerKnifeStatusW2.userDefinedStatusBit13           := lowerKnifeStatusWord2.13;
+lowerKnifeStatusW2.userDefinedStatusBit14           := lowerKnifeStatusWord2.14;
+lowerKnifeStatusW2.userDefinedStatusBit15           := lowerKnifeStatusWord2.15;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_01_UpperLevelControl" Id="{5652728c-f36a-40fb-8433-4d41e26e93fb}">
+      <Declaration><![CDATA[METHOD _01_UpperLevelControl
+VAR_INPUT
+END_VAR
+(*
+    upperKnifeGuardClosed           : BOOL;
+    upperKnifeOilLevelLow           : BOOL;
+    upperKnifeJamDetected           : BOOL;
+    exitGuardClosed                   : BOOL;
+    infeedGuardClosed                 : BOOL;
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*
+======================================================================
+UPPER KNIFE — Rotary Knife Control (Upper Knife)
+======================================================================
+Concept:
+- Power ON command starts a simple sequence:
+  0  = OFF / Idle
+  10 = Enable drives + follow line speed
+  20 = Send HOME command for 1s
+  21 = Wait for HomingComplete status before running infeed/outfeed
+  40 = Normal operation (cut enabled when command + paper present)
+
+Rule:
+- When the upper knife is powered ON, infeed/outfeed speed references
+  must follow lineSpeedMPM.
+======================================================================
+*)
+
+//==============================================================
+// 1) RESET PULSE (2s) + EDGE DETECTION
+//==============================================================
+upperKnifeTimerReset(IN := resetCmd, PT := T#2S);
+upperKnifeReset := upperKnifeTimerReset.Q;
+
+upperKnifeRtEnable(CLK := upperKnifePowerONCmd);
+upperKnifeRtPowerOff(CLK := upperKnifePowerOFFCmd);
+
+//==============================================================
+// 2) DRIVE / SAFETY STATUS (AGGREGATION)
+//==============================================================
+upperKnifeAllDrivesOK := upperKnifeInfeedDrvOK  AND
+                         upperKnifeOutfeedDrvOK AND
+                         upperKnifeMainDrvOK    AND
+                         upperKnifeSlave1DrvOK  AND
+                         upperKnifeSlave2DrvOK;
+
+upperKnifeHomeSensorPulse := upperKnifeHomeSensor;
+
+upperKnifeAllInterlocksOK := infeedGuardClosed AND
+							 exitGuardClosed AND
+							 upperKnifeGuardClosed AND
+							 upperKnifeOilLevelLow AND NOT
+							 upperKnifeJamDetected;
+				
+
+//==============================================================
+// 3) START SEQUENCE CONDITION
+//==============================================================
+// Start only if:
+// - Rising edge on Power ON
+// - Sequence is idle
+// - Safety chain OK
+// - All drives OK
+// - No reset pulse active
+IF upperKnifeRtEnable.Q
+   AND (upperKnifeStep = 0)
+   AND safetyFeedback
+   AND upperKnifeAllDrivesOK
+   AND NOT upperKnifeReset THEN
+
+    upperKnifeStep := 10;
+END_IF
+
+//==============================================================
+// 4) SEQUENCE STATE MACHINE
+//==============================================================
+CASE upperKnifeStep OF
+
+    //==========================================================
+    // 0 — OFF / IDLE
+    //==========================================================
+    0:
+        // Commands OFF
+        upperKnifeEnable      := FALSE;
+        upperKnifeSlave1Run   := FALSE;
+        upperKnifeSlave2Run   := FALSE;
+        upperKnifeInFeedRun   := FALSE;
+        upperKnifeOutFeedRun  := FALSE;
+
+        // Motion / actions OFF
+        upperKnifeJogFw       := FALSE;
+        upperKnifeJogRev      := FALSE;
+        upperKnifeHome        := FALSE;
+        upperKnifeCut         := FALSE;
+
+        // References = 0
+        upperKnifeInFeedDriveRef  := 0.0;
+        upperKnifeOutFeedDriveRef := 0.0;
+
+    //==========================================================
+    // 10 — ENABLE DRIVES + FOLLOW LINE SPEED
+    //==========================================================
+    10:
+        upperKnifeEnable      := TRUE;
+        upperKnifeSlave1Run   := TRUE;
+        upperKnifeSlave2Run   := TRUE;
+
+        // Follow line speed immediately when powered ON
+        upperKnifeInFeedDriveRef  := lineSpeedMPM;
+        upperKnifeOutFeedDriveRef := lineSpeedMPM;
+
+        // Next step: issue homing pulse
+        upperKnifeStep := 20;
+
+    //==========================================================
+    // 20 — HOME COMMAND PULSE (1s)
+    //==========================================================
+    20:
+        // Command home for 1 second
+        upperKnifeHome := TRUE;
+
+        upperKnifeTimerPulse(IN := TRUE, PT := T#1S);
+        IF upperKnifeTimerPulse.Q THEN
+            upperKnifeHome := FALSE;
+            upperKnifeTimerPulse(IN := FALSE);
+            upperKnifeStep := 21;
+        END_IF
+
+    //==========================================================
+    // 21 — WAIT HOMING COMPLETE
+    //==========================================================
+    21:
+        // Start infeed/outfeed only after homing is complete
+//        IF upperKnifeStatusW1.homingComplete THEN
+            upperKnifeInFeedRun  := TRUE;
+            upperKnifeOutFeedRun := TRUE;
+            upperKnifeStep := 40;
+//        END_IF
+
+    //==========================================================
+    // 40 — NORMAL OPERATION
+    //==========================================================
+    40:
+	
+        upperKnifeJogFw       := upperKnifeJogFwCmd;
+        upperKnifeJogRev      := upperKnifeJogRevCmd;	
+	
+
+		instTOF_UpperKnifePaperSensor(IN := upperKnifePaperSensor, PT:= T#30M);
+		
+	
+		IF instTOF_UpperKnifePaperSensor.Q OR lineSpeedMPM > 5 THEN
+		
+			upperKnifeInFeedDriveRef := LIMIT(machineConfigUpperKnife.minLineSpeed,
+											  lineSpeedMPMRamp,
+											  upperLevelInfeedSpeedLimit) * machineConfigUpperKnife.infeedRollSpeedOffset;		
+				
+			upperKnifeOutFeedDriveRef := LIMIT(machineConfigUpperKnife.minLineSpeed,
+											  lineSpeedMPMRamp,
+											  999) * machineConfigUpperKnife.outfeedRollSpeedOffset;
+		ELSE
+	
+			upperKnifeInFeedDriveRef := 0;				
+			upperKnifeOutFeedDriveRef := 0;
+		
+		END_IF								  
+
+        // Enable cut only when commanded and paper present
+        upperKnifeCut := (upperKnifeCutCmd AND upperKnifePaperSensor);
+		
+		
+		IF NOT measuringWheelPaperPresence THEN
+			
+			upperLevelInfeedSpeedLimit := upperKnifeMaximumSpeedActive;
+			
+		ELSE
+		
+			upperLevelInfeedSpeedLimit := 999;	
+		
+		END_IF		
+
+END_CASE
+
+//==============================================================
+// 5) GLOBAL INTERLOCK — IMMEDIATE STOP
+//==============================================================
+// Immediate stop on any of these conditions:
+// - Safety chain not OK
+// - Any drive not OK
+// - Power OFF command rising edge
+IF (NOT safetyFeedback)
+   OR (NOT upperKnifeAllDrivesOK)
+   OR upperKnifeRtPowerOff.Q THEN
+
+    upperKnifeStep := 0;
+
+    upperKnifeEnable      := FALSE;
+    upperKnifeSlave1Run   := FALSE;
+    upperKnifeSlave2Run   := FALSE;
+    upperKnifeInFeedRun   := FALSE;
+    upperKnifeOutFeedRun  := FALSE;
+
+    upperKnifeJogFw       := FALSE;
+    upperKnifeJogRev      := FALSE;
+    upperKnifeHome        := FALSE;
+    upperKnifeCut         := FALSE;
+
+    upperKnifeInFeedDriveRef  := 0.0;
+    upperKnifeOutFeedDriveRef := 0.0;
+
+    // Reset internal timers for a clean restart
+    upperKnifeTimerWait(IN := FALSE);
+    upperKnifeTimerPulse(IN := FALSE);
+    upperKnifeTimerClear(IN := FALSE);
+    upperKnifeTimerReset(IN := FALSE);
+END_IF
+
+
+//Start Lubrification pump
+upperKnifeLubrification := upperKnifeEnable;
+
+
+//==============================================================
+// ENCODER SELECTION — UPPER KNIFE
+//==============================================================
+// Rules:
+// - encoderSwitchAutoMan = FALSE → ALWAYS use machine encoder
+// - encoderSwitchAutoMan = TRUE  → automatic selection based on paper presence
+//==============================================================
+
+
+    //----------------------------------------------------------
+    // AUTO MODE
+    //----------------------------------------------------------
+    IF NOT measuringWheelPaperPresence THEN
+        // No paper → immediate fallback to measuring wheel encoder
+        upperKnifeEncoderSwitch := TRUE;
+
+        // Reset delay timer
+        instTONUpperKnifeSwichEncoderDelay.IN := FALSE;
+
+    ELSE
+        // Paper present → start delay before switching
+        instTONUpperKnifeSwichEncoderDelay.IN := TRUE;
+
+        // Switch only after delay elapsed
+        IF instTONUpperKnifeSwichEncoderDelay.Q THEN
+				
+			upperKnifeEncoderSwitch := FALSE;
+
+        END_IF
+		
+    END_IF
+
+
+//--------------------------------------------------------------
+// TIMER EXECUTION (ALWAYS CALLED)
+//--------------------------------------------------------------
+instTONUpperKnifeSwichEncoderDelay(
+    PT := machineConfigUpperKnife.switchEncoderDelay
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_02_LowerLevelControl" Id="{b7d3f530-c5c9-43d0-a7b6-a903269afae7}">
+      <Declaration><![CDATA[METHOD _02_LowerLevelControl
+VAR_INPUT
+END_VAR
+(*
+
+    //----------------------------------------------------------
+    // AUTO MODE
+    //----------------------------------------------------------
+    IF NOT measuringWheelPaperPresence THEN
+        // No paper → immediate fallback to measuring wheel encoder
+        upperKnifeEncoderSwitch := TRUE;
+
+        // Reset delay timer
+        instTONUpperKnifeSwichEncoderDelay.IN := FALSE;
+
+    ELSE
+        // Paper present → start delay before switching
+        instTONUpperKnifeSwichEncoderDelay.IN := TRUE;
+
+        // Switch only after delay elapsed
+        IF instTONUpperKnifeSwichEncoderDelay.Q THEN
+				
+			upperKnifeEncoderSwitch := FALSE;
+
+        END_IF
+		
+    END_IF
+
+*)
+
+(*
+    //----------------------------------------------------------
+    // AUTO MODE
+    //----------------------------------------------------------
+    IF NOT measuringWheelPaperPresence THEN
+        // No paper → immediate fallback to measuring wheel encoder
+        lowerEnbVirtualMaster := TRUE;
+
+        // Reset delay timer
+        instTONLowerKnifeSwitchEncoderDelay.IN := FALSE;
+
+    ELSE
+        // Paper present → start delay before switching
+        instTONLowerKnifeSwitchEncoderDelay.IN := TRUE;
+
+        // Switch only after delay elapsed
+        IF instTONLowerKnifeSwitchEncoderDelay.Q THEN
+            lowerEnbVirtualMaster := FALSE;
+        END_IF
+    END_IF
+
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*
+======================================================================
+LOWER KNIFE — Rotary Knife Control (Lower Knife)
+======================================================================
+Concept:
+- Power ON command starts a simple sequence:
+  0  = OFF / Idle
+  10 = Enable drives + follow line speed
+  20 = Send HOME command for 1s
+  21 = Wait for HomingComplete status before running infeed/outfeed
+  40 = Normal operation (cut enabled when command + paper present)
+
+Rule:
+- When the lower knife is powered ON, infeed/outfeed speed references
+  must follow lineSpeedMPM.
+======================================================================
+*)
+
+//==============================================================
+// 1) RESET PULSE (2s) + EDGE DETECTION
+//==============================================================
+lowerKnifeTimerReset(IN := resetCmd, PT := T#2S);
+lowerKnifeReset := lowerKnifeTimerReset.Q;
+
+lowerKnifeRtEnable(CLK := lowerKnifePowerONCmd);
+lowerKnifeRtPowerOff(CLK := lowerKnifePowerOFFCmd);
+
+//==============================================================
+// 2) DRIVE / SAFETY STATUS (AGGREGATION)
+//==============================================================
+lowerKnifeAllDrivesOK := lowerKnifeInfeedDrvOK  AND
+                         lowerKnifeOutfeedDrvOK AND
+                         lowerKnifeMainDrvOK    AND
+                         lowerKnifeSlave1DrvOK  AND
+                         lowerKnifeSlave2DrvOK;
+
+lowerKnifeHomeSensorPulse := lowerKnifeHomeSensor;
+
+// NOTE: keep the same logic structure you used on upper knife.
+// If your signals mean "LOW" = fault, consider inverting oil level here.
+// (This is copied exactly from your upper knife reference.)
+lowerKnifeAllInterlocksOK := infeedGuardClosed AND
+							 exitGuardClosed AND
+							 lowerKnifeGuardClosed AND
+                             lowerKnifeOilLevelLow AND NOT
+                             lowerKnifeJamDetected;
+
+//==============================================================
+// 3) START SEQUENCE CONDITION
+//==============================================================
+// Start only if:
+// - Rising edge on Power ON
+// - Sequence is idle
+// - Safety chain OK
+// - All drives OK
+// - No reset pulse active
+IF lowerKnifeRtEnable.Q
+   AND (lowerKnifeStep = 0)
+   AND safetyFeedback
+   AND lowerKnifeAllDrivesOK
+   AND NOT lowerKnifeReset THEN
+
+    lowerKnifeStep := 10;
+END_IF
+
+//==============================================================
+// 4) SEQUENCE STATE MACHINE
+//==============================================================
+CASE lowerKnifeStep OF
+
+    //==========================================================
+    // 0 — OFF / IDLE
+    //==========================================================
+    0:
+        // Commands OFF
+        lowerKnifeEnable      := FALSE;
+        lowerKnifeSlave1Run   := FALSE;
+        lowerKnifeSlave2Run   := FALSE;
+        lowerKnifeInFeedRun   := FALSE;
+        lowerKnifeOutFeedRun  := FALSE;
+
+        // Motion / actions OFF
+        lowerKnifeJogFw       := FALSE;
+        lowerKnifeJogRev      := FALSE;
+        lowerKnifeHome        := FALSE;
+        lowerKnifeCut         := FALSE;
+
+        // References = 0
+        lowerKnifeInFeedDriveRef  := 0.0;
+        lowerKnifeOutFeedDriveRef := 0.0;
+
+    //==========================================================
+    // 10 — ENABLE DRIVES + FOLLOW LINE SPEED
+    //==========================================================
+    10:
+        lowerKnifeEnable      := TRUE;
+        lowerKnifeSlave1Run   := TRUE;
+        lowerKnifeSlave2Run   := TRUE;
+		
+        // Follow line speed immediately when powered ON
+        lowerKnifeInFeedDriveRef  := lineSpeedMPM;
+        lowerKnifeOutFeedDriveRef := lineSpeedMPM;
+
+        // Next step: issue homing pulse
+        lowerKnifeStep := 20;
+
+    //==========================================================
+    // 20 — HOME COMMAND PULSE (1s)
+    //==========================================================
+    20:
+        // Command home for 1 second
+        lowerKnifeHome := TRUE;
+
+        lowerKnifeTimerPulse(IN := TRUE, PT := T#1S);
+        IF lowerKnifeTimerPulse.Q THEN
+            lowerKnifeHome := FALSE;
+            lowerKnifeTimerPulse(IN := FALSE);
+            lowerKnifeStep := 21;
+        END_IF
+
+    //==========================================================
+    // 21 — WAIT HOMING COMPLETE
+    //==========================================================
+    21:
+        // Start infeed/outfeed only after homing is complete
+//        IF lowerKnifeStatusW1.homingComplete THEN
+            lowerKnifeInFeedRun  := TRUE;
+            lowerKnifeOutFeedRun := TRUE;
+            lowerKnifeStep := 40;
+//        END_IF
+
+    //==========================================================
+    // 40 — NORMAL OPERATION
+    //==========================================================
+    40:
+	
+        lowerKnifeJogFw       := lowerKnifeJogFwCmd;
+        lowerKnifeJogRev      := lowerKnifeJogRevCmd;	
+	
+		instTOF_LowerKnifePaperSensor(IN := lowerKnifePaperSensor, PT:= T#30M);	
+	
+		IF instTOF_LowerKnifePaperSensor.Q  OR lineSpeedMPM > 5 THEN
+			
+			lowerKnifeInFeedDriveRef := LIMIT(machineConfigLowerKnife.minLineSpeed,
+											  lineSpeedMPMRamp,
+											  lowerLevelInfeedSpeedLimit) * machineConfigLowerKnife.infeedRollSpeedOffset;
+		 
+			lowerKnifeOutFeedDriveRef := LIMIT(machineConfigLowerKnife.minLineSpeed,
+											   lineSpeedMPMRamp,
+											   999) * machineConfigLowerKnife.outfeedRollSpeedOffset;		
+		ELSE
+			
+			lowerKnifeInFeedDriveRef := 0;
+			lowerKnifeOutFeedDriveRef := 0;		
+			
+		END_IF
+
+
+
+        // Enable cut only when commanded and paper present
+        lowerKnifeCut := (lowerKnifeCutCmd AND lowerKnifePaperSensor);
+		
+		
+		IF NOT measuringWheelPaperPresence THEN
+			
+			lowerLevelInfeedSpeedLimit := lowerKnifeMaximumSpeedActive;
+			
+		ELSE
+		
+			lowerLevelInfeedSpeedLimit := 999;	
+		
+		END_IF				
+		
+
+END_CASE
+
+//==============================================================
+// 5) GLOBAL INTERLOCK — IMMEDIATE STOP
+//==============================================================
+// Immediate stop on any of these conditions:
+// - Safety chain not OK
+// - Any drive not OK
+// - Power OFF command rising edge
+IF (NOT safetyFeedback)
+   OR (NOT lowerKnifeAllDrivesOK)
+   OR lowerKnifeRtPowerOff.Q THEN
+
+    lowerKnifeStep := 0;
+
+    lowerKnifeEnable      := FALSE;
+    lowerKnifeSlave1Run   := FALSE;
+    lowerKnifeSlave2Run   := FALSE;
+    lowerKnifeInFeedRun   := FALSE;
+    lowerKnifeOutFeedRun  := FALSE;
+
+    lowerKnifeJogFw       := FALSE;
+    lowerKnifeJogRev      := FALSE;
+    lowerKnifeHome        := FALSE;
+    lowerKnifeCut         := FALSE;
+
+    lowerKnifeInFeedDriveRef  := 0.0;
+    lowerKnifeOutFeedDriveRef := 0.0;
+
+    // Reset internal timers for a clean restart
+    lowerKnifeTimerWait(IN := FALSE);
+    lowerKnifeTimerPulse(IN := FALSE);
+    lowerKnifeTimerClear(IN := FALSE);
+    lowerKnifeTimerReset(IN := FALSE);
+END_IF
+
+//Start Lubrification pump
+lowerKnifeLubrification := lowerKnifeEnable;
+ 
+
+
+//==============================================================
+// ENCODER SELECTION — LOWER KNIFE
+//==============================================================
+// Copied 1:1 from the provided upper-knife reference logic.
+// NOTE: The TRUE/FALSE meaning of "*EncoderSwitch" should match your IO mapping.
+//==============================================================
+
+
+   //----------------------------------------------------------
+    // AUTO MODE
+    //----------------------------------------------------------
+    IF NOT measuringWheelPaperPresence THEN
+        // No paper → immediate fallback to measuring wheel encoder
+        lowerKnifeEncoderSwitch := TRUE;
+
+        // Reset delay timer
+        instTONLowerKnifeSwitchEncoderDelay.IN := FALSE;
+
+    ELSE
+        // Paper present → start delay before switching
+        instTONLowerKnifeSwitchEncoderDelay.IN := TRUE;
+
+        // Switch only after delay elapsed
+        IF instTONLowerKnifeSwitchEncoderDelay.Q THEN
+				
+			lowerKnifeEncoderSwitch := FALSE;
+
+        END_IF
+		
+    END_IF
+
+//--------------------------------------------------------------
+// TIMER EXECUTION (ALWAYS CALLED)
+//--------------------------------------------------------------
+instTONLowerKnifeSwitchEncoderDelay(
+    PT := machineConfigLowerKnife.switchEncoderDelay
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_03_LineSpeedLimit" Id="{3a9a29e7-8a90-457d-a9fc-4de403613f45}">
+      <Declaration><![CDATA[METHOD _03_LineSpeedLimit
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//==============================================================
+// SHEET LENGTH SELECTION — UPPER / LOWER KNIFE
+//==============================================================
+
+CASE currentOrder.levelSelector OF
+
+    //----------------------------------------------------------
+    // ORDER 1 ONLY
+    //----------------------------------------------------------
+    E_LevelSelector.eUpperOnly:
+         instFB_SpeedLimitUpperKnife.sheetLength := currentOrder.order1.sheetLength;
+		instFB_SpeedLimitLowerKnife.sheetLength := currentOrder.order1.sheetLength;
+	 
+		instFB_SpeedLimitUpperKnife.knifeEnabled := TRUE;
+		instFB_SpeedLimitLowerKnife.knifeEnabled := FALSE;	
+    //----------------------------------------------------------
+    // ORDER 2 ONLY
+    //----------------------------------------------------------
+    E_LevelSelector.eLowerOnly:
+        instFB_SpeedLimitLowerKnife.sheetLength := currentOrder.order1.sheetLength;
+			instFB_SpeedLimitLowerKnife.sheetLength := currentOrder.order1.sheetLength;
+	
+		instFB_SpeedLimitUpperKnife.knifeEnabled := FALSE;
+		instFB_SpeedLimitLowerKnife.knifeEnabled := TRUE;		
+
+    //----------------------------------------------------------
+    // BOTH ORDERS
+    //----------------------------------------------------------
+    E_LevelSelector.eBoth:
+
+		// Inverted mapping
+		instFB_SpeedLimitUpperKnife.sheetLength := currentOrder.order1.sheetLength;
+		instFB_SpeedLimitLowerKnife.sheetLength := currentOrder.order2.sheetLength;
+		instFB_SpeedLimitUpperKnife.knifeEnabled := TRUE;
+		instFB_SpeedLimitLowerKnife.knifeEnabled := TRUE;
+		
+
+END_CASE
+
+//==============================================================
+// UPPER KNIFE — SPEED LIMIT CALCULATION
+//==============================================================
+instFB_SpeedLimitUpperKnife(
+    machineSpeed             := lineSpeedMPM,
+    numberOfPoints           := 10,
+    machineConfigRotaryKnife := machineConfigUpperKnife,
+
+    reduceLineSpeed          => upperKnifeReduceLineSpeed,
+    speedLimitAcive          => upperKnifeSpeedLimit,
+    speedCurveActive         => upperKnifeSpeedCurveActive,
+    maximumSpeedActive       => upperKnifeMaximumSpeedActive
+);
+
+//==============================================================
+// LOWER KNIFE — SPEED LIMIT CALCULATION
+//==============================================================
+instFB_SpeedLimitLowerKnife(
+    machineSpeed             := lineSpeedMPM,
+    numberOfPoints           := 10,
+    machineConfigRotaryKnife := machineConfigLowerKnife,
+
+    reduceLineSpeed          => lowerKnifeReduceLineSpeed,
+    speedLimitAcive          => lowerKnifeSpeedLimit,
+    speedCurveActive         => lowerKnifeSpeedCurveActive,
+    maximumSpeedActive       => lowerKnifeMaximumSpeedActive
+);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_04_AuxControls" Id="{461a7828-5128-45d5-9f0d-6c8d11546bc6}">
+      <Declaration><![CDATA[METHOD _04_AuxControls
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//Start outfeed conveyor
+startOutfeedConveyor := upperKnifeEnable OR lowerKnifeEnable;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_05_DisplayVariables" Id="{f429ebe9-9ad1-4443-8885-afcf24c41973}">
+      <Declaration><![CDATA[METHOD _05_DisplayVariables
+VAR_INPUT
+END_VAR
+(*
+
+    upperKnifeHmiStatus                       : hmiStatus_TypeStruct;
+    lowerKnifeHmiStatus                       : hmiStatus_TypeStruct;
+
+    reduceLineSpeed          => upperKnifeReduceLineSpeed,
+    speedLimitAcive          => upperKnifeSpeedLimit,
+    speedCurveActive         => upperKnifeSpeedCurveActive,
+    maximumSpeedActive       => upperKnifeMaximumSpeedActive
+	
+    upperKnifeStatusW1              : rotaryKnifeStatusWord1_TypeStruct;
+    upperKnifeStatusW2              : rotaryKnifeStatusWord2_TypeStruct;
+rotaryKnifeStatusWord1_TypeStruct
+rotaryKnifeStatusWord1_TypeStruct
+    lowerKnifeStatusWord1           : INT;
+    lowerKnifeStatusWord2           : INT;
+    lowerKnifeModbusDword           : DWORD;
+    lowerKnifeWriteMenu2029         : DWORD;
+    lowerKnifeLineSpeed             : WORD;
+    lowerKnifeStatusW1              : rotaryKnifeStatusWord1_TypeStruct;
+    lowerKnifeStatusW2              : rotaryKnifeStatusWord2_TypeStruct;	
+	
+	
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//────────────────────────────────────────────
+// LINE SPEED PROCESSING
+//────────────────────────────────────────────
+IF lineSpeedMPM > 0 THEN
+    lineSpeed := TRUNC(lineSpeedMPM);
+ELSE
+    lineSpeed := 0;
+END_IF
+
+//────────────────────────────────────────────
+// UPPER KNIFE - STATUS MAPPING
+//────────────────────────────────────────────
+upperKnifeHmiStatus.maxSpeed         := upperKnifeMaximumSpeedActive;       // Current active maximum speed
+upperKnifeHmiStatus.speedLimitActive := upperKnifeSpeedLimit;                // Speed limit status
+upperKnifeHmiStatus.speedCurveActive := upperKnifeSpeedCurveActive;
+
+upperKnifeHmiStatus.statusWord1      := upperKnifeStatusW1;                 // General status word 1
+upperKnifeHmiStatus.statusWord2      := upperKnifeStatusW2;                 // General status word 2
+upperKnifeHmiStatus.totalOfCuts      := upperKnifeTotalOfCutsAccumulator;   // Cumulative cut counter
+//────────────────────────────────────────────
+// LOWER KNIFE - STATUS MAPPING
+//────────────────────────────────────────────
+lowerKnifeHmiStatus.maxSpeed         := lowerKnifeMaximumSpeedActive;       // Current active maximum speed
+lowerKnifeHmiStatus.speedLimitActive := lowerKnifeSpeedLimit;                // Speed limit status
+lowerKnifeHmiStatus.speedCurveActive := lowerKnifeSpeedCurveActive;
+
+lowerKnifeHmiStatus.statusWord1      := lowerKnifeStatusW1;                 // General status word 1
+lowerKnifeHmiStatus.statusWord2      := lowerKnifeStatusW2;                 // General status word 2
+lowerKnifeHmiStatus.totalOfCuts      := lowerKnifeTotalOfCutsAccumulator;   // Cumulative cut counter
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_06_TotalOfCuts" Id="{d77d9aee-40a5-499e-9e23-5a3e49a8c7e6}">
+      <Declaration><![CDATA[METHOD _06_TotalOfCuts
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ==========================================================
+// UPPER KNIFE CUT DETECTION & COUNTER LOGIC
+// ==========================================================
+
+(* Detect rising edge of the upper knife sensor to increment the cut counter *)
+IF upperKnifeHomeSensor AND NOT upperKnifeHomeSensorOld THEN
+	
+	// Increment the cumulative cut count for the upper knife
+	upperKnifeTotalOfCutsAccumulator := upperKnifeTotalOfCutsAccumulator + 1;
+
+END_IF
+
+// Store current sensor state for next scan cycle edge detection
+upperKnifeHomeSensorOld := upperKnifeHomeSensor;
+
+(* Reset Logic: Clears the upper knife cut counter *)
+IF upperKnifeReset THEN
+	
+	upperKnifeTotalOfCutsAccumulator := 0;
+
+END_IF
+
+
+// ==========================================================
+// LOWER KNIFE CUT DETECTION & COUNTER LOGIC
+// ==========================================================
+
+(* Detect rising edge of the lower knife sensor to increment the cut counter *)
+IF lowerKnifeHomeSensor AND NOT lowerKnifeHomeSensorOld THEN
+	
+	// Increment the cumulative cut count for the lower knife
+	lowerKnifeTotalOfCutsAccumulator := lowerKnifeTotalOfCutsAccumulator + 1;
+
+END_IF
+
+// Store current sensor state for next scan cycle edge detection
+lowerKnifeHomeSensorOld := lowerKnifeHomeSensor;
+
+(* Reset Logic: Clears the lower knife cut counter *)
+IF lowerKnifeReset THEN
+	
+	lowerKnifeTotalOfCutsAccumulator := 0;
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_07_LineSpeedRamp" Id="{dab14c44-4846-4e41-8708-bbb9f66658ee}">
+      <Declaration><![CDATA[METHOD _07_LineSpeedRamp
+VAR
+	
+	rampTargetMPM : REAL;
+
+END_VAR
+(*
+
+    lineSpeedMPM                    : REAL;
+    aocSpeedMPM                     : REAL;
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT aocRunning THEN
+	
+	rampTargetMPM := lineSpeedMPM;
+
+ELSE
+	
+	rampTargetMPM := aocSpeedMPM;
+
+END_IF
+
+
+
+// Ramp function block execution
+instFB_Gen_SRamp(
+    X          := rampTargetMPM,
+    A_UP       := 5,
+    A_DN       := -5,
+    VU_MAX     := 1000.0,
+    VD_MAX     := -1000.0,
+    LIMIT_HIGH := 350,
+	Y => lineSpeedMPMRamp
+);
+
+
+
+
+lineSpeedStacker := upperKnifeInFeedDriveRef;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_08_StopTheLineCommand" Id="{6f1841ab-ffa9-4bec-af5e-735c409aad2c}">
+      <Declaration><![CDATA[METHOD _08_StopTheLineCommand
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// ======================================================================
+// Fault definition (ONLY using the variables you approved)
+// ======================================================================
+//
+// Safety / guards / exhaust
+// - safetyFeedback must be TRUE
+// - guards open => fault
+// - exhaust state must be consistent (one of them TRUE)
+//   * both TRUE  => contradictory => fault
+//   * both FALSE => unknown state  => fault
+//
+// Knives
+// - guard closed must be TRUE
+// - oil low / jam => fault
+// - all drives OK must be TRUE
+// - paper sensors: only considered fault if line is running (lineSpeedMPM > cMinRunSpeedMPM)
+//
+// Home sensors: typically should be validated only during homing,
+// but since you requested them as alarm variables, we treat them as
+// "unexpectedly active while running" (adjust if you prefer a different rule).
+// ======================================================================
+
+faultDetected :=
+    // -----------------------
+    // Safety / Guards
+    // -----------------------
+    (NOT safetyFeedback)
+    OR NOT exitGuardClosed
+    OR NOT infeedGuardClosed
+
+    // -----------------------
+    // Exhaust feedback consistency
+    // -----------------------
+//    OR (exhaustPressurized AND exhaustDepressurized)         // impossible/contradictory
+//    OR ((NOT exhaustPressurized) AND (NOT exhaustDepressurized)) // no valid state
+
+    // -----------------------
+    // Upper knife conditions
+    // -----------------------
+    OR (NOT upperKnifeGuardClosed)
+    OR NOT upperKnifeOilLevelLow
+    OR upperKnifeJamDetected
+    OR (NOT upperKnifeInfeedDrvOK)
+    OR (NOT upperKnifeOutfeedDrvOK)
+    OR (NOT upperKnifeMainDrvOK)
+    OR (NOT upperKnifeSlave1DrvOK)
+    OR (NOT upperKnifeSlave2DrvOK)
+
+    // -----------------------
+    // Lower knife conditions
+    // -----------------------
+    OR (NOT lowerKnifeGuardClosed)
+    OR NOT lowerKnifeOilLevelLow
+    OR lowerKnifeJamDetected
+    OR (NOT lowerKnifeInfeedDrvOK)
+    OR (NOT lowerKnifeOutfeedDrvOK)
+    OR (NOT lowerKnifeMainDrvOK)
+    OR (NOT lowerKnifeSlave1DrvOK)
+    OR (NOT lowerKnifeSlave2DrvOK);
+
+
+// ======================================================================
+// Rising edge on fault => generate a 2s stop pulse
+// ======================================================================
+instRtrigFault(CLK := faultDetected);
+instTP_LineStop(IN := instRtrigFault.Q, PT := T#2S);
+
+// Line stop command (2 seconds pulse)
+lineStop := instTP_LineStop.Q;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_09_MeasuringWheel" Id="{dff169bd-3bb9-423b-b892-6eb1e42ebe1e}">
+      <Declaration><![CDATA[METHOD _09_MeasuringWheel
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//Measuring wheel up down control
+instTONMeasuringWheelDelay(
+IN := measuringWheelPaperPresence,
+PT := T#5S,
+Q => measuringWheelSolenoid
+);]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_RotaryKnife">
+      <LineId Id="1714" Count="0" />
+      <LineId Id="2186" Count="0" />
+      <LineId Id="2429" Count="0" />
+      <LineId Id="2807" Count="0" />
+      <LineId Id="3037" Count="0" />
+      <LineId Id="3046" Count="0" />
+      <LineId Id="3292" Count="0" />
+      <LineId Id="3302" Count="0" />
+      <LineId Id="3575" Count="0" />
+      <LineId Id="3849" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._00_ModbusTCP">
+      <LineId Id="1969" Count="95" />
+      <LineId Id="1614" Count="0" />
+      <LineId Id="2067" Count="1" />
+      <LineId Id="2065" Count="0" />
+      <LineId Id="1615" Count="147" />
+      <LineId Id="319" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._01_UpperLevelControl">
+      <LineId Id="1009" Count="36" />
+      <LineId Id="1252" Count="0" />
+      <LineId Id="1251" Count="0" />
+      <LineId Id="1344" Count="0" />
+      <LineId Id="1343" Count="0" />
+      <LineId Id="1259" Count="1" />
+      <LineId Id="1258" Count="0" />
+      <LineId Id="1046" Count="88" />
+      <LineId Id="1269" Count="0" />
+      <LineId Id="1356" Count="0" />
+      <LineId Id="1354" Count="1" />
+      <LineId Id="1297" Count="2" />
+      <LineId Id="1304" Count="0" />
+      <LineId Id="1312" Count="7" />
+      <LineId Id="1305" Count="0" />
+      <LineId Id="1301" Count="0" />
+      <LineId Id="1321" Count="0" />
+      <LineId Id="1325" Count="0" />
+      <LineId Id="1322" Count="0" />
+      <LineId Id="1320" Count="0" />
+      <LineId Id="1302" Count="0" />
+      <LineId Id="1138" Count="2" />
+      <LineId Id="1383" Count="2" />
+      <LineId Id="1388" Count="0" />
+      <LineId Id="1394" Count="1" />
+      <LineId Id="1390" Count="1" />
+      <LineId Id="1393" Count="0" />
+      <LineId Id="1392" Count="0" />
+      <LineId Id="1389" Count="0" />
+      <LineId Id="1141" Count="35" />
+      <LineId Id="1366" Count="2" />
+      <LineId Id="1178" Count="0" />
+      <LineId Id="1370" Count="0" />
+      <LineId Id="1369" Count="0" />
+      <LineId Id="1206" Count="7" />
+      <LineId Id="1223" Count="16" />
+      <LineId Id="1294" Count="0" />
+      <LineId Id="1372" Count="0" />
+      <LineId Id="1371" Count="0" />
+      <LineId Id="1241" Count="0" />
+      <LineId Id="1373" Count="0" />
+      <LineId Id="1242" Count="8" />
+      <LineId Id="606" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._02_LowerLevelControl">
+      <LineId Id="876" Count="41" />
+      <LineId Id="1134" Count="0" />
+      <LineId Id="1133" Count="0" />
+      <LineId Id="918" Count="53" />
+      <LineId Id="1144" Count="0" />
+      <LineId Id="973" Count="35" />
+      <LineId Id="1139" Count="0" />
+      <LineId Id="1138" Count="0" />
+      <LineId Id="1105" Count="0" />
+      <LineId Id="1009" Count="0" />
+      <LineId Id="1106" Count="1" />
+      <LineId Id="1109" Count="0" />
+      <LineId Id="1120" Count="0" />
+      <LineId Id="1114" Count="5" />
+      <LineId Id="1111" Count="0" />
+      <LineId Id="1113" Count="0" />
+      <LineId Id="1128" Count="0" />
+      <LineId Id="1124" Count="0" />
+      <LineId Id="1121" Count="0" />
+      <LineId Id="1129" Count="0" />
+      <LineId Id="1112" Count="0" />
+      <LineId Id="1108" Count="0" />
+      <LineId Id="1016" Count="3" />
+      <LineId Id="1272" Count="0" />
+      <LineId Id="1283" Count="0" />
+      <LineId Id="1275" Count="7" />
+      <LineId Id="1273" Count="1" />
+      <LineId Id="1020" Count="35" />
+      <LineId Id="1146" Count="1" />
+      <LineId Id="1149" Count="0" />
+      <LineId Id="1148" Count="0" />
+      <LineId Id="1145" Count="0" />
+      <LineId Id="1056" Count="6" />
+      <LineId Id="1104" Count="0" />
+      <LineId Id="1073" Count="0" />
+      <LineId Id="1199" Count="20" />
+      <LineId Id="1093" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._03_LineSpeedLimit">
+      <LineId Id="91" Count="10" />
+      <LineId Id="131" Count="1" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="103" Count="5" />
+      <LineId Id="133" Count="1" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="110" Count="8" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="120" Count="1" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="41" Count="26" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._04_AuxControls">
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._05_DisplayVariables">
+      <LineId Id="91" Count="13" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="105" Count="2" />
+      <LineId Id="109" Count="4" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="114" Count="2" />
+      <LineId Id="90" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._06_TotalOfCuts">
+      <LineId Id="53" Count="43" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._07_LineSpeedRamp">
+      <LineId Id="18" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="6" Count="7" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="44" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._08_StopTheLineCommand">
+      <LineId Id="37" Count="0" />
+      <LineId Id="39" Count="46" />
+      <LineId Id="92" Count="10" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="110" Count="9" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife._09_MeasuringWheel">
+      <LineId Id="11" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

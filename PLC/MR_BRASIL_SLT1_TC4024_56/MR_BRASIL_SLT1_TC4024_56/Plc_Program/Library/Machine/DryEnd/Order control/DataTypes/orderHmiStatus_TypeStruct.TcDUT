@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="orderHmiStatus_TypeStruct" Id="{ca1e0b45-62de-43de-b832-617b98facd19}">
+    <Declaration><![CDATA[TYPE orderHmiStatus_TypeStruct :
+STRUCT
+	
+	orderFinishing					: BOOL;
+	orderFinished					: BOOL;
+	linearMetersProduced			: DINT;
+	arrMetersPerHour				: ARRAY [0..23] OF INT; (*Meters produced per hour*)
+	arrMachineNotRunningTimePerHour	: ARRAY [0..23] OF INT; (*Machine stoped time per hour*)
+	arrAverageSpeedPerHour			: ARRAY [0..23] OF INT; (*Machine average speed per hour*)
+	machineNotRunningTimeTotal		: INT;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

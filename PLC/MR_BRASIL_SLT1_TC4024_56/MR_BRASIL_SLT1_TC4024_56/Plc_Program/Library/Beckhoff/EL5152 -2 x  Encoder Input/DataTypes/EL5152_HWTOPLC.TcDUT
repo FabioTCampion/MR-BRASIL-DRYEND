@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_HWTOPLC" Id="{c5884e78-c61f-410f-9079-993a51b567a7}">
+    <Declaration><![CDATA[TYPE EL5152_HWTOPLC :
+	STRUCT
+		
+			channel1 : EL5152_HWTOPLC_PDOS;
+			channel2 : EL5152_HWTOPLC_PDOS;
+
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

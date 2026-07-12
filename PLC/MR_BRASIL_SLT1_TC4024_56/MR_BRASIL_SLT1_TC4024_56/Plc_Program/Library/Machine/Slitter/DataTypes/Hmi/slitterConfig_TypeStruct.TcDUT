@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="slitterConfig_TypeStruct" Id="{d23c5876-7ae2-41b8-83eb-028449d63b8a}">
+    <Declaration><![CDATA[TYPE slitterConfig_TypeStruct :
+STRUCT
+    // ------------------------------------------------------------
+    // Machine
+    // ------------------------------------------------------------
+    machineWidth            : INT := 2200;   (* Machine total width *)
+    machineNumberOfKnifes   : INT := 5;      (* Machine number of knifes *)
+    machineNumberOfScorers  : INT := 8;      (* Machine number of scorers *)
+
+    // ------------------------------------------------------------
+    // Home positions
+    // (based on the values shown in the screenshots)
+    // ------------------------------------------------------------
+    homePositionKnife  : ARRAY [1..5] OF REAL := [184, 330, 477, 1907, 2060];
+    homePositionScorer : ARRAY [1..8] OF REAL := [204, 202, 364, 340, 1864, 1890, 2004, 2050];
+
+    // ------------------------------------------------------------
+    // Homing
+    // ------------------------------------------------------------
+    toolHommingVelocity     : LREAL := 50;
+    toolHommingAccel        : LREAL := 242.682;
+    toolHommingDecel        : LREAL := 242.682;
+    toolHommingTimeLimit    : DINT  := 9999; (* Homming time limit in seconds *)
+
+    // ------------------------------------------------------------
+    // Parking
+    // ------------------------------------------------------------
+    toolParkingPosition     : LREAL := 40;
+
+    // ------------------------------------------------------------
+    // Tool search profile
+    // ------------------------------------------------------------
+    toolSearchVelocity      : LREAL := 150;       (* Tool search velocity *)
+    toolSearchAccel         : LREAL := 242.682;   (* Tool acceleration *)
+    toolSearchDecel         : LREAL := 970.726;   (* Tool deceleration *)
+    toolSearchJerk          : LREAL := 89486.1;   (* Tool search jerk *)
+
+    // ------------------------------------------------------------
+    // Positioning profiles
+    // ------------------------------------------------------------
+    toolFastPositioningVelocity : LREAL := 180;
+    toolFastPositioningAccel    : LREAL := 242.682;
+    toolFastPositioningDecel    : LREAL := 180;
+    toolFastPositioningJerk     : LREAL := 5592.86;
+
+    toolSlowPositioningVelocity : LREAL := 40;
+    toolSlowPositioningAccel    : LREAL := 200;
+    toolSlowPositioningDecel    : LREAL := 900;
+    toolSlowPositioningJerk     : LREAL := 5592.86;
+
+    // ------------------------------------------------------------
+    // General / Manual motion
+    // ------------------------------------------------------------
+    toolGeneralMotionVelocity    : LREAL := 100;
+    toolGeneralMotionAccel       : LREAL := 242.682;
+    toolGeneralMotionDecel       : LREAL := 242.682;
+    toolGeneralMotionJerk        : LREAL := 5592.86;
+
+    toolManualMotionVelocity     : LREAL := 80;
+    toolManualMotionAccel        : LREAL := 242.682;
+    toolManualMotionDecel        : LREAL := 242.682;
+    toolManualMotionJerk         : LREAL := 5592.86;
+
+    // ------------------------------------------------------------
+    // Maintenance counters
+    // ------------------------------------------------------------
+    knifeSharpeningTime      : INT := 10000;  (* Knife sharpening time in seconds *)
+    knifeSharpeningDistance  : INT := 250;    (* Knife sharpening distance in meters *)
+
+    knifeLubrificationTime   : INT := 500;    (* Knife lubrification time in seconds *)
+    knifeLubrificationDistance : INT := 1000; (* Knife lubrification distance in meters *)
+
+    //=================================================================
+    // KNIFE AUXILIARY FUNCTIONS (SHARPENING / LUBRICATION)
+    //=================================================================
+    knifeSharpeningTimeMS        : INT := 5000;    // [ms] Sharpening pulse time / Tempo de afiação
+
+
+    knifeLubrificationTimeMS     : INT := 1;    // [ms] Lubrication pulse time / Tempo de lubrificação
+
+	
+	homeStartNextAxisDelay		: TIME := T#5S;	
+		
+	
+	
+    // ------------------------------------------------------------
+    // Offsets
+    // ------------------------------------------------------------
+    knifeOffsetArr : ARRAY [1..20] OF REAL :=
+        [-2, -1, 0, 3.5, 1.8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    scorerOffsetArr : ARRAY [1..20] OF REAL :=
+        [5, -3, 4, -3, -3, 54, -6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    scorerHeightArr : ARRAY [1..5] OF REAL := [1.0, 0.8, 0.5, 0.5, 0.5];
+
+    // ------------------------------------------------------------
+    // Limits (min/max)
+    // ------------------------------------------------------------
+    knifeMaxPostionArr : ARRAY [1..20] OF INT :=
+        [1265, 1080, 1220, 1907, 2060, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    knifeMinPostionArr : ARRAY [1..20] OF INT :=
+        [184, 330, 477, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    scorerMaxPostionArr : ARRAY [1..20] OF INT :=
+        [968, 968, 1120, 1120, 1864, 1890, 2004, 2050, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+    scorerMinPostionArr : ARRAY [1..20] OF INT :=
+        [204, 202, 364, 340, 1060, 1130, 1220, 1269, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+
+	
+arrFlapPosition : ARRAY[1..27] OF INT := [
+    880,   // 1  (50   + 830)
+    975,   // 2  (145  + 830)
+    1065,  // 3  (235  + 830)
+    1165,  // 4  (335  + 830)
+    1255,  // 5  (425  + 830)
+    1350,  // 6  (520  + 830)
+    1445,  // 7  (615  + 830)
+    1535,  // 8  (705  + 830)
+    1630,  // 9  (800  + 830)
+    1725,  // 10 (895  + 830)
+    1815,  // 11 (985  + 830)
+    1910,  // 12 (1080 + 830)
+    2005,  // 13 (1175 + 830)
+    2095,  // 14 (1265 + 830)
+    2185,  // 15 (1355 + 830)
+    2280,  // 16 (1450 + 830)
+    2375,  // 17 (1545 + 830)
+    2470,  // 18 (1640 + 830)
+    2560,  // 19 (1730 + 830)
+    2655,  // 20 (1825 + 830)
+    2750,  // 21 (1920 + 830)
+    2840,  // 22 (2010 + 830)
+    2935,  // 23 (2105 + 830)
+    3030,  // 24 (2200 + 830)
+    3125,  // 25 (2295 + 830)
+    3215,  // 26 (2385 + 830)
+    3315   // 27 (2485 + 830)
+];
+
+
+minLineSpeed		: REAL := 20.0;
+knifeSpeedOffset	: REAL := 2;
+scorerSpeedOffset	: REAL := 1.05;
+		
+
+
+
+
+	
+    fluteNameArr  : ARRAY [1..5] OF STRING := [ 'B', 'C', 'BC', 'E', '' ];
+
+
+
+
+    //=================================================================
+    // HOME POSITIONS (REFERENCE / ZERO)
+    //=================================================================
+    // NOTE: Define the mechanical reference position for each tool side.
+    knifeOperatorSideHomePosition        : LREAL := 1947.5; // Knife home OS / Home faca lado operador
+    knifeDriveSideHomePosition           : LREAL := 2247.5; // Knife home DS / Home faca lado acionamento
+
+    upperScorerOperatorSideHomePosition  : LREAL:= 1947.5; // Upper scorer home OS / Home vinco superior lado operador
+    upperScorerDriveSideHomePosition     : LREAL:= 2247.5; // Upper scorer home DS / Home vinco superior lado acionamento
+
+    lowerScorerOperatorSideHomePosition  : LREAL:= 1947.5; // Lower scorer home OS / Home vinco inferior lado operador
+    lowerScorerDriveSideHomePosition     : LREAL:= 2247.5; // Lower scorer home DS / Home vinco inferior lado acionamento
+
+	
+    knifeOperatorSideHomeSensorPosition        : LREAL := 883; // Knife home OS / Home faca lado operador
+    knifeDriveSideHomeSensorPosition           : LREAL := 3275 ; // Knife home DS / Home faca lado acionamento
+
+    upperScorerOperatorSideHomeSensorPosition  : LREAL:= 847; // Upper scorer home OS / Home vinco superior lado operador
+    upperScorerDriveSideHomeSensorPosition     : LREAL:= 3433; // Upper scorer home DS / Home vinco superior lado acionamento
+
+    lowerScorerOperatorSideHomeSensorPosition  : LREAL:= 761; // Lower scorer home OS / Home vinco inferior lado operador
+    lowerScorerDriveSideHomeSensorPosition     : LREAL:= 3344; // Lower scorer home DS / Home vinco inferior lado acionamento
+	
+	
+	
+
+    knifeOperatorSideParkingPosition          : INT;  // Knife park OS / Estacionamento faca lado operador
+    knifeDriveSideParkingPosition             : INT;  // Knife park DS / Estacionamento faca lado acionamento
+
+    upperScorerOperatorSideParkingPosition    : INT;  // Upper scorer park OS / Estacionamento vinco superior lado operador
+    upperScorerDriveSideParkingPosition       : INT;  // Upper scorer park DS / Estacionamento vinco superior lado acionamento
+
+    lowerScorerOperatorSideParkingPosition    : INT;  // Lower scorer park OS / Estacionamento vinco inferior lado operador
+    lowerScorerDriveSideParkingPosition       : INT;  // Lower scorer park DS / Estacionamento vinco inferior lado acionamento
+
+    //=================================================================
+    // MOTION PROFILES (POSITIONING / GENERAL / MANUAL)
+    //=================================================================
+	
+	knifeMinDistance : LREAL := 150.0;
+	scorerMinDistance : LREAL := 95.0;
+	
+	
+	
+
+    // Manual jog motion (HMI / maintenance)
+    toolJogMotionVelocity     : LREAL := 10.0;    // [mm/s] Manual speed / Velocidade manual
+    toolJogMotionAccel        : LREAL := 9214.76; // [mm/s²] Manual accel / Aceleração manual
+    toolJogMotionDecel        : LREAL := 9214.76; // [mm/s²] Manual decel / Desaceleração manual
+    toolJogMotionJerk         : LREAL := 276443; // [mm/s³] Manual jerk / Jerk manual
+	
+
+
+	
+
+    //=================================================================
+    // TOOL OFFSETS / CALIBRATION ARRAYS
+    //=================================================================
+    // Offsets are typically used to compensate mechanical differences per tool.
+    // Keep array size >= maximum possible tools (configured by machineNumberOf*).
+    knifePositionCorrectionArr  	: ARRAY [1..20] OF REAL := [ 00.0, 00.0, 00.0, 00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0 ];
+    scorerPositionCorrectionArr  	: ARRAY [1..20] OF REAL := [ 00.0, 00.0, 00.0, 00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0 ];
+    scorerAlignmentCompensationArr  : ARRAY [1..20] OF REAL := [ 00.0, 00.0, 00.0, 00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0, 00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0,  00.0 ];
+
+dsTrimDuctHomeSensorPosition : REAL;
+scorerHeightSensorPosition : REAL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

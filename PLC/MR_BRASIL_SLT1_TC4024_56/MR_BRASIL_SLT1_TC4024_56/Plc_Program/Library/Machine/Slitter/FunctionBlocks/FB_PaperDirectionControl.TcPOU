@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_PaperDirectionControl" Id="{6fa79746-5a8f-4def-99bd-659504d832eb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PaperDirectionControl
+VAR_INPUT
+	
+	executeCmd	: BOOL;
+	allUPCmd : BOOL;
+	allDownCmd : BOOL;
+	invertDirection	: BOOL;
+	numberOfFlaps				: INT := 27;
+	flapsManualCmdArr			: ARRAY [1..27] OF hmiCommandsFlaps_TypeStruct;	
+	currentOrder				: Order_TypeStruct;
+	machineConfig				: slitterConfig_TypeStruct; // Slitter configuration parameters / Parâmetros do slitter
+
+END_VAR
+VAR_OUTPUT
+	
+	flapSolenoidArr			: ARRAY [1..27] OF BOOL;	
+
+END_VAR
+
+
+VAR
+	invertDirectionOld	: BOOL;
+	executeCmdOld: BOOL;
+	i: INT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Trigger logic on rising edge of execute command
+IF executeCmd AND NOT executeCmdOld THEN
+
+    FOR i := 1 TO numberOfFlaps DO
+        
+        // 1. Level 1 Only (Upper)
+        IF currentOrder.levelSelector = E_LevelSelector.eUpperOnly THEN
+            flapSolenoidArr[i] := TRUE;
+
+        // 2. Level 2 Only (Lower)
+        ELSIF currentOrder.levelSelector = E_LevelSelector.eLowerOnly THEN
+            flapSolenoidArr[i] := FALSE;
+
+        // 3. Both Levels (Decision based on Order 1 Width vs Flap physical position)
+        ELSIF currentOrder.levelSelector = E_LevelSelector.eBoth THEN
+            
+            // If flap is within the width of Order 1, it follows Order 1 direction
+            IF machineConfig.arrFlapPosition[i] <= (currentOrder.generatedOrder.order1Width + currentOrder.generatedOrder.firstKnifePosition) THEN
+                flapSolenoidArr[i] :=  FALSE;
+            ELSE
+                // Otherwise it follows Order 2 direction
+                flapSolenoidArr[i] :=  TRUE;
+            END_IF;
+
+        END_IF;
+    END_FOR;
+
+END_IF;
+// Update edge detection memory
+executeCmdOld := executeCmd;
+
+// Global Overrides (Master Up / Master Down)
+// These run regardless of the executeCmd rising edge if triggered
+IF allUPCmd THEN
+    FOR i := 1 TO 27 DO flapSolenoidArr[i] := TRUE; END_FOR;
+ELSIF allDownCmd THEN
+    FOR i := 1 TO 27 DO flapSolenoidArr[i] := FALSE; END_FOR;
+	
+END_IF;
+
+// Manual HMI Control Override (If enabled in the HMI command structure)
+FOR i := 1 TO 27 DO
+    IF flapsManualCmdArr[i].upCmd THEN
+        flapSolenoidArr[i] := TRUE;
+    END_IF;
+	
+    IF flapsManualCmdArr[i].downCmd THEN
+        flapSolenoidArr[i] := FALSE;
+    END_IF;	
+	
+END_FOR;
+
+//Invert flap direction
+IF invertDirection AND NOT invertDirectionOld THEN
+	
+	// Loop through all flaps and flip their current solenoid state
+	FOR i := 1 TO numberOfFlaps DO
+		flapSolenoidArr[i] := NOT flapSolenoidArr[i];
+	END_FOR;
+
+END_IF
+invertDirectionOld := invertDirection;]]></ST>
+    </Implementation>
+    <LineIds Name="FB_PaperDirectionControl">
+      <LineId Id="118" Count="27" />
+      <LineId Id="165" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="166" Count="0" />
+      <LineId Id="147" Count="5" />
+      <LineId Id="167" Count="0" />
+      <LineId Id="153" Count="6" />
+      <LineId Id="173" Count="0" />
+      <LineId Id="171" Count="1" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="198" Count="0" />
+      <LineId Id="207" Count="8" />
+      <LineId Id="70" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

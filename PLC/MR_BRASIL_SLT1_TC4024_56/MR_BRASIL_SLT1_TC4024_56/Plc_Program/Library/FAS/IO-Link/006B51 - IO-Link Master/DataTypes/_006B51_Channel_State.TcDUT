@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_006B51_Channel_State" Id="{4a1a83e5-36ec-4a42-9037-f2c9ef2571ba}">
+    <Declaration><![CDATA[TYPE _006B51_Channel_State :
+STRUCT
+	
+	inputPin4 	 			: BOOL;
+	inputPin2  				: BOOL;
+	deviceState  			: BOOL;
+	
+    state_PortInNoDigitalInput        : BOOL;
+    state_PortInNcDigitalInput        : BOOL;
+    state_PortInDigitalOutput         : BOOL;
+    state_PortInIoLink                : BOOL;
+
+    state_NoDeviceDetected            : BOOL;
+    state_IoLinkCommunicationStatus   : BOOL;
+    state_InvalidVendorId             : BOOL;
+    state_InvalidDeviceId             : BOOL;
+    state_InvalidSerialNumber         : BOOL;
+    state_InvalidCycleTime            : BOOL;
+    state_InvalidProcessDataInLength  : BOOL;
+    state_InvalidProcessDataOutLength : BOOL;
+    state_InvalidIoLinkVersion        : BOOL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

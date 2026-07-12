@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeStop" Id="{fbf51fd2-0703-4d04-8a18-c9e424616f8c}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeStop :
+STRUCT
+
+	deceleration		: LREAL;
+	jerk				: REAL;
+	abortAcceleration	: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

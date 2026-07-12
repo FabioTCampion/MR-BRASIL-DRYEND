@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeStatus_TypeStruct" Id="{fc8d3b93-e60a-421c-b9ca-0cf617eff67f}">
+    <Declaration><![CDATA[TYPE rotaryKnifeStatus_TypeStruct :
+	STRUCT
+	
+		lowerLevelSpeedRPM	: INT;
+		lowerLevelKnifeSpeedMPM	: INT;
+	
+		lowerLevelMotorCurrent	: INT;
+		
+		lowerLevelInfeedSpeedRPM	: INT;
+		lowerLevelInfeedEncoderMPM	: INT;
+		lowerLevelInfeedMotorCurrent	: INT;
+		
+		lowerLevelOutfeedSpeedRPM	: INT;
+		lowerLevelOutfeeddEncoderMPM	: INT;
+		lowerLevelOutfeedMotorCurrent	: INT;
+		
+		
+		upperLevelKnifeSpeedMPM	: INT;
+		upperLevelEncoderMPM	: INT;
+		upperLevelMotorCurrent	: INT;
+		
+		upperLevelInfeedSpeedRPM	: INT;
+		upperLevelInfeedEncoderMPM	: INT;
+		upperLevelInfeedMotorCurrent	: INT;
+		
+		upperLevelOutfeeddEncoderMPM	: INT;
+		upperLevelOutfeedMotorCurrent	: INT;
+		
+		
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

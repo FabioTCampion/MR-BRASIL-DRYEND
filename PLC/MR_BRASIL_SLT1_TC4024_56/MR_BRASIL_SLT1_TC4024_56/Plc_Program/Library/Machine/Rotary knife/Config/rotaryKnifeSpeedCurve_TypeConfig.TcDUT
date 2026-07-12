@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeSpeedCurve_TypeConfig" Id="{b3b36856-d758-4ea4-8c9c-e858c00923c4}">
+    <Declaration><![CDATA[TYPE rotaryKnifeSpeedCurve_TypeConfig :
+STRUCT
+	
+	machineSpeed	: REAL := 150;
+	sheetLength		: REAL	:= 800;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

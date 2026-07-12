@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typePhasing" Id="{d8ec1225-b341-4024-9764-2a30c603d207}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typePhasing :
+STRUCT
+
+	phaseShift               		: LREAL;
+	velocity                 		: LREAL;
+ 	acceleration			: LREAL;
+	deceleration			: LREAL;
+	jerk                     			: LREAL;
+	phaseAbsolute            		: BOOL;
+	phaseShiftChangeOnTheFly 	: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

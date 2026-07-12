@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typePosAbsolute" Id="{57cc8d13-0980-4b60-a048-a5ead8e4226c}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typePosAbsolute :
+STRUCT
+
+ 	position				: LREAL := 0.0;    (* Absolute target position*)
+      	velocity				: LREAL := 100;    (*Velocity setpoint for absolute positioning (Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+      	acceleration			: LREAL := 100;   (* Acceleration setpoint for absolute positioning (Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+      	deceleration			: LREAL := 100;    (* Deceleration setpoint for absolute positioning (Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+      	jerk					: LREAL := 100;    (* Jerk for absolute positioning (Value > 0.0: Smooth velocity profile, the specified value is used; (Value = 0.0: Trapezoid velocity profile; (Value < 0.0: Use of the default value configured in the technology object)*)
+      	direction				: INT   := 1;      (* Motion direction of the axis (1: Positive direction; 2: Negative direction; 3: Shortest way)*)
+      	positionChangeOnTheFly	: BOOL  := TRUE;   (* TRUE: Changing position on-the-fly; FALSE: Position change requires a new rising edge at posAbsolute input*)
+      	velocityChangeOnTheFly	: BOOL  := TRUE;   (* TRUE: Changing velocity on-the-fly; FALSE: Velocity change requires a new rising edge at posAbsolute input*)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

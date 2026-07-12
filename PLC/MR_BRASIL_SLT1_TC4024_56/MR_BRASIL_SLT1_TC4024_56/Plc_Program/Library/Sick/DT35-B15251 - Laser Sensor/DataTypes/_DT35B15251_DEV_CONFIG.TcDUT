@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_DT35B15251_DEV_CONFIG" Id="{257e8a97-f6cf-442c-9230-3b9ee43467d6}">
+    <Declaration><![CDATA[TYPE _DT35B15251_DEV_CONFIG :
+STRUCT
+
+    //=============================================================
+    // IO-Link process data
+    //=============================================================
+
+    processDataResolutionFactor : REAL := 1.0; 
+    // 1.0 = process data in 1 mm steps
+    // 0.1 = process data in 0.1 mm steps
+    // 10.0 = process data in 10 mm steps
+
+
+    //=============================================================
+    // Distance limits
+    //=============================================================
+
+    distanceLowLimit  : REAL := 0.0;
+    distanceHighLimit : REAL := 12000.0;
+
+
+    //=============================================================
+    // Relative distance from zero
+    // EN: Shows distance starting from a configured zero point.
+    // Example:
+    // distance = 1500 mm
+    // distanceZeroReference = 1000 mm
+    // distanceFromZero = 500 mm
+    //=============================================================
+
+    distanceZeroReference       : REAL := 0.0;
+    distanceFromZeroLowLimit    : REAL := 0.0;
+    distanceFromZeroHighLimit   : REAL := 12000.0;
+
+
+    //=============================================================
+    // Height calculation
+    // EN: Height is calculated from the measured distance.
+    // Example:
+    // heightReferenceDistance = distance from sensor to zero-height surface
+    // height = heightReferenceDistance - distance
+    //=============================================================
+
+    heightReferenceDistance : REAL := 2000.0;
+    heightLowLimit          : REAL := 0.0;
+    heightHighLimit         : REAL := 2000.0;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

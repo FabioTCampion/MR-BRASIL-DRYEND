@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeHmiStatus_TypeStruct" Id="{d2140bac-aea0-47a5-8bb4-0d789b65956b}">
+    <Declaration><![CDATA[TYPE rotaryKnifeHmiStatus_TypeStruct :
+STRUCT
+
+
+	statusWord1 : rotaryKnifeStatusWord1_TypeStruct;
+	statusWord2 : rotaryKnifeStatusWord2_TypeStruct;
+	
+	speedLimitActive	: BOOL;
+	speedCurveActive	: INT;
+	maxSpeed			: REAL;
+	totalOfCuts	: DINT;
+	sheetLength : REAL;
+	
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

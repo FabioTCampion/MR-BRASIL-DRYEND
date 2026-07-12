@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="orderConfig_TypeStruct" Id="{087b2c28-d8f5-463f-b895-c3afae6e011c}">
+    <Declaration><![CDATA[TYPE orderConfig_TypeStruct :
+STRUCT
+	
+
+	automaticReduceMachineSpeed	: BOOL;		(*Reduce machine speed when order finishes*)
+	autoStartAOC				: BOOL;		(*Start aoc automatic when the order finishes*)
+	
+	machineSpeedWhenOrderFinishes	: INT := 50;		(*Machine speed when the machine finishes the order*)
+	
+	orderFinishingAlertWhenRemainig	: INT := 100;		(*Used to alert the operator when the order is almost finished*)
+
+	measuringWheelDiameter			: REAL := 264.3312;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

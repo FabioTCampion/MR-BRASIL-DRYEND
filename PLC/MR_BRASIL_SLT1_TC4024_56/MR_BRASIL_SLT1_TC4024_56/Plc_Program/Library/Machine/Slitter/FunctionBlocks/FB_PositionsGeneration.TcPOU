@@ -1,0 +1,2473 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_PositionsGeneration" Id="{c9f902a4-8819-4eec-9e7b-f6614d83a996}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_PositionsGeneration
+VAR_INPUT
+
+	execute					: BOOL;	(*Execute function block*)
+	machineConfig						: slitterConfig_TypeStruct;
+	
+END_VAR
+
+
+VAR_IN_OUT
+
+	currentOrder				: Order_TypeStruct;
+
+END_VAR
+
+VAR_OUTPUT
+
+	error						: BOOL;
+	done						: BOOL;
+	busy						: BOOL;
+
+END_VAR
+VAR
+
+
+	tempCurrentOrder				: Order_TypeStruct;
+
+	executeOld 				: BOOL;
+	firstOrderTotal 				: REAL;
+	secondOrderTotal 			: REAL;
+	firstKnifePosition 				: REAL;	(*First knife position*)
+	topOrderIndex				: INT;		(*Top order index*)
+	bottomOrderIndex			: INT;		(*Bottom order index*)
+	toolPositionIndex 			: INT;		(*Tool position array index*)
+	knifePositionTopIndex 			: INT ;	(*Knife position array index*)
+	knifePositionBottomIndex 		: INT ;	(*Knife position array index*)
+	scorerPositionTopIndex 		: INT ;	(*Knife position array index*)
+	scorerPositionBottomIndex 		: INT ;	(*Knife position array index*)
+	scorerPositionIndex			: INT;		(*Scorer position array index*)
+	knifeEnabledIndex			: INT;		(*Knife enabled index*)
+	scorerEnabledIndex			: INT;		(*Scorer enabled index*)
+	knifeDistributionIndex			: INT;		(*Position distribution index*)
+	scorerDistributionIndex			: INT;		(*Position distribution index*)
+	toolPositionArrSize 			: INT ;	(*Tool position array size*)
+	knifePositionArrSize 			: INT ;	(*Knife position array size*)
+	scorerPositionArrSize 			: INT ;	(*Scorer position array size*)
+	scorerExecTimes			: INT;		(*Execution times of the for loop - Used only for diagnostics*)
+	toolDistributionIndex			: INT;		(*Index used to select the position and distribute to the desired toll (Knife or scorer)*)
+	numberOfScorersTopOrder		: INT;		(*Number of scorers used in the top order*)
+	numberOfScorersBottomOrder	: INT;		(*Number of scorers used in the bottom order*)
+
+	toolPositionArr 				: ARRAY [1..30] OF REAL;
+	knifePositionArr 				: ARRAY [1..20] OF REAL; (*Knife position*)
+	scorerPositionArr 			: ARRAY [1..20] OF REAL; (*scorer position*)
+
+	useOrder2 : BOOL;
+	userOrder1 					: BOOL;
+    topStep                 : INT;    // ToolPosition step for TOP (1 / 3 / 5) / Passo do TOP (1 / 3 / 5)
+    bottomStep              : INT;    // ToolPosition step for BOTTOM (1 / 3 / 5) / Passo do BOTTOM (1 / 3 / 5)
+
+    knifeOutIdx             : INT;    // Write index into knifePositionArr[] / Índice de escrita no knifePositionArr[]
+
+	scorerMaxPositionIndex: INT;
+	i: INT;
+	nIndex: INT;
+	nStartIdx: INT;
+	scorerIdx: INT;
+	topScorerIdx: INT;
+	bottomScorerIdx: INT;
+	knifePostionLimitIndex: INT;
+	scorerPositionLimitIndex: INT;
+	invertOrderSideOld: BOOL;
+	scorerPositionDistributionDone: BOOL;
+	base: INT;
+	valid: BOOL;
+	
+    iKnf         : INT;
+    iScr      : INT;
+
+    nScrReq   : INT;
+    startSlot : INT;
+    endSlot   : INT;
+    posIdx    : INT;	
+    nKnfReq      : INT;
+   	startKnife : INT;
+	endKnife : INT;
+	lbKnf: INT;
+	knifeNum: INT;
+	
+idx : INT;	
+	
+	tempNextOrder: Order_TypeStruct;
+	instTON_SaveSQLTimeOut: TON;
+	
+//    valid       : BOOL := FALSE;
+    found       : BOOL := FALSE;
+
+    startBase   : INT := 0;
+    endBase     : INT := 0;
+
+//    base        : INT := 0;
+ //   i           : INT := 0;	
+	
+END_VAR
+
+
+
+VAR CONSTANT
+(*
+	MACHINE_NUMBER_OF_KNIFES		: SINT		:= 5;	(* Number of knifes existing in the machine *)
+	MACHINE_NUMBER_OF_SCORERS	: SINT	:= 8;	(* Number of scorers existing in the machine *)
+*)
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block is used to generate and distribute the position for the desired tools based in the operator input
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+ACT_GenerateOrderPositions();
+
+_invertOrders();
+
+_bottomOrderDisplayControl();]]></ST>
+    </Implementation>
+    <Method Name="_bottomOrderDisplayControl" Id="{2cf3d262-31e3-4555-8eb1-049ba0006094}">
+      <Declaration><![CDATA[METHOD PRIVATE _bottomOrderDisplayControl
+VAR_INPUT
+END_VAR
+(*
+
+	SHEET_WITH_NO_SCORER,		(* Sheet with no scoring marks*)
+	SHEET_WITH_TWO_SCORER,		(* Sheet with two socoring marks *)
+	SHEET_WITH_FOUR_SCORER		(*Sheet with four socoring marks*)
+
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*
+IF NOT currentOrder.secondOrderEnabled THEN
+	
+	currentOrder.bottom.sheetType := 0;
+	currentOrder.bottom.sheetQuantity := 0;
+	currentOrder.bottom.sheetM1 := 0;
+	currentOrder.bottom.sheetM2 := 0;
+	currentOrder.bottom.sheetM3 := 0;
+	currentOrder.bottom.sheetM4 := 0;
+
+END_IF
+
+IF currentOrder.bottom.sheetType = SHEET_WITH_NO_SCORER THEN
+	
+	currentOrder.bottom.sheetM2 := 0;
+	currentOrder.bottom.sheetM3 := 0;
+	currentOrder.bottom.sheetM4 := 0;
+
+END_IF
+
+IF currentOrder.bottom.sheetType = SHEET_WITH_TWO_SCORER THEN
+	
+	currentOrder.bottom.sheetM4 := 0;
+
+END_IF
+
+
+
+IF currentOrder.top.sheetType = SHEET_WITH_NO_SCORER THEN
+	
+	currentOrder.top.sheetM2 := 0;
+	currentOrder.top.sheetM3 := 0;
+	currentOrder.top.sheetM4 := 0;
+
+END_IF
+
+IF currentOrder.top.sheetType = SHEET_WITH_TWO_SCORER THEN
+	
+	currentOrder.top.sheetM4 := 0;
+
+END_IF
+*)
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_checkOrderLimits" Id="{4093cb65-cbd9-4cec-9084-ac4019d348c7}">
+      <Declaration><![CDATA[METHOD PRIVATE _checkOrderLimits
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//-------------------------------------------------------------------------------------------------
+// Validate tool positions - Limits + Knife Sequence + Scorer Axis Sequence
+//-------------------------------------------------------------------------------------------------
+// Reset overall status flag
+currentOrder.generatedOrder.statusWord.orderNotOk := FALSE;
+
+// --- 1. KNIFE VALIDATION (Continuous Sequence: 1 < 2 < 3...) ---
+FOR i := 1 TO machineConfig.machineNumberOfKnifes DO
+    // Reset individual flag before checks
+    currentOrder.generatedOrder.statusWord.knifeOutOfRangeArr[i] := FALSE;
+
+    // Physical Limits
+    IF currentOrder.generatedOrder.knifePositionReferenceArr[i] > machineConfig.knifeMaxPostionArr[i] OR
+       currentOrder.generatedOrder.knifePositionReferenceArr[i] < machineConfig.knifeMinPostionArr[i] THEN
+        currentOrder.generatedOrder.statusWord.knifeOutOfRangeArr[i] := TRUE;
+        currentOrder.generatedOrder.statusWord.orderNotOk := TRUE;
+    END_IF
+
+    // Sequence Check (Next tool: i + 1)
+    IF i < machineConfig.machineNumberOfKnifes THEN
+        IF currentOrder.generatedOrder.knifePositionReferenceArr[i] >=
+           currentOrder.generatedOrder.knifePositionReferenceArr[i + 1] THEN
+            currentOrder.generatedOrder.statusWord.knifeOutOfRangeArr[i] := TRUE;
+            currentOrder.generatedOrder.statusWord.knifeOutOfRangeArr[i + 1] := TRUE;
+            currentOrder.generatedOrder.statusWord.orderNotOk := TRUE;
+        END_IF
+    END_IF
+END_FOR
+
+// --- 2. SCORER VALIDATION (Axis Sequence: 1 < 3 < 5... and 2 < 4 < 6...) ---
+FOR i := 1 TO machineConfig.machineNumberOfScorers DO
+    // Reset individual flag before checks
+    currentOrder.generatedOrder.statusWord.scorerOutOfRangeArr[i] := FALSE;
+
+    // Physical Limits
+    IF currentOrder.generatedOrder.scorerPositionReferenceArr[i] > machineConfig.scorerMaxPostionArr[i] OR
+       currentOrder.generatedOrder.scorerPositionReferenceArr[i] < machineConfig.scorerMinPostionArr[i] THEN
+        currentOrder.generatedOrder.statusWord.scorerOutOfRangeArr[i] := TRUE;
+        currentOrder.generatedOrder.statusWord.orderNotOk := TRUE;
+    END_IF
+
+    // Axis Sequence Check (Next tool on same axis: i + 2)
+    IF (i + 2) <= machineConfig.machineNumberOfScorers THEN
+        IF currentOrder.generatedOrder.scorerPositionReferenceArr[i] >=
+           currentOrder.generatedOrder.scorerPositionReferenceArr[i + 2] THEN
+            currentOrder.generatedOrder.statusWord.scorerOutOfRangeArr[i] := TRUE;
+            currentOrder.generatedOrder.statusWord.scorerOutOfRangeArr[i + 2] := TRUE;
+            currentOrder.generatedOrder.statusWord.orderNotOk := TRUE;
+        END_IF
+    END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_invertOrders" Id="{fcc98153-3abc-4dd3-81c1-9bb682742fb9}">
+      <Declaration><![CDATA[METHOD PRIVATE _invertOrders
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// ==========================================================================
+// ORDER INVERSION LOGIC (TOP/BOTTOM SWAP)
+// Logic: Swaps Order 1 and Order 2 on the rising edge of the 'invert' flag
+// ==========================================================================
+
+// ---------------------------------------------------------
+// CURRENT ORDER SWAP
+// ---------------------------------------------------------
+
+IF currentOrder.levelSelector =  E_LevelSelector.eBoth THEN
+	
+	IF currentOrder.invertOrderSide AND NOT invertOrderSideOld THEN
+	
+		// Backup current structure to allow safe swapping
+		tempCurrentOrder := currentOrder;
+	
+		// Swap top and bottom orders
+		currentOrder.order1 := tempCurrentOrder.order2;
+		currentOrder.order2 := tempCurrentOrder.order1;
+	
+	END_IF
+	
+END_IF
+
+// ---------------------------------------------------------
+// NEXT ORDER SWAP
+// ---------------------------------------------------------
+IF nextOrder.levelSelector =  E_LevelSelector.eBoth THEN
+	
+	IF nextOrder.invertOrderSide AND NOT invertOrderSideOld THEN
+	
+		// Backup current structure to allow safe swapping
+		tempNextOrder := nextOrder;
+	
+		// Swap top and bottom orders
+		nextOrder.order1 := tempNextOrder.order2;
+		nextOrder.order2 := tempNextOrder.order1;
+	
+	END_IF
+		
+END_IF
+
+invertOrderSideOld := currentOrder.invertOrderSide OR nextOrder.invertOrderSide;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_scorerPositionDistribution" Id="{41254117-ebb4-474d-91e0-fca31a9e0b5a}">
+      <Declaration><![CDATA[METHOD _scorerPositionDistribution
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*===============================================================================================================================
+CPNTeck - Automação Industrial
+(c)Copyright 2022-2025 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140, CX9220, C6017
+Engineering: TwinCAT 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block distributes the position for the desired scorer.
+Support: fabio@cpnteck.com.br
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version      | Date          | Expert in charge | Changes applied
+01.00.05     | 17.02.2026    | Gemini AI        | MRBRASIL Version: Standardized to order1/order2 naming.
+                                               | Kept active Home Position reset for safety.
+===============================================================================================================================*)
+
+// Verifica se ambos os pedidos não possuem vincadores
+IF currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER AND currentOrder.order2.sheetType = SHEET_WITH_NO_SCORER THEN
+    // No scorers needed → send all tools to home and disable them
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+ELSE
+    // Default: Reset preventivo (Garante que ferramentas não usadas voltem ao Home)
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+    //──────────────────────────────────────────────────────────────────────────────
+    // Order 1 Logic (Equivalente ao Top)
+    //──────────────────────────────────────────────────────────────────────────────
+    CASE currentOrder.order1.sheetQuantity OF
+        1:
+            CASE currentOrder.order1.sheetType OF
+                SHEET_WITH_TWO_SCORER:
+                    // Option 1: Use scorers 3 and 4 if within limits
+                    IF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[4]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                
+                    // Option 2: Try scorers 5 and 6
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[5] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[5] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                
+                    // Option 3: Try scorers 3 and 5
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[5] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[5]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                
+                    // Option 4: Try scorers 4 and 6
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[4] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                    END_IF;
+
+                SHEET_WITH_FOUR_SCORER:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        2:
+            CASE currentOrder.order1.sheetType OF
+                SHEET_WITH_TWO_SCORER:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+                SHEET_WITH_FOUR_SCORER:
+                    FOR i := 1 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        3:
+            FOR i := 1 TO 6 DO
+                currentOrder.generatedOrder.scorerPositionReferenceArr[i + 1] := scorerPositionArr[i];
+                currentOrder.generatedOrder.scorerEnabledArr[i + 1] := TRUE;
+            END_FOR;
+
+        4, 5:
+            FOR i := 1 TO 8 DO
+                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+            END_FOR;
+    END_CASE;
+
+    //──────────────────────────────────────────────────────────────────────────────
+    // Order 2 Logic (Equivalente ao Bottom)
+    //──────────────────────────────────────────────────────────────────────────────
+    IF currentOrder.order2.sheetQuantity > 0 THEN
+        // If no order1 scorers → we can start from position 1
+        IF currentOrder.order1.sheetQuantity > 0 AND currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER THEN
+            CASE currentOrder.order2.sheetQuantity OF
+                1:
+                    CASE currentOrder.order2.sheetType OF
+                        SHEET_WITH_TWO_SCORER:
+                            IF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                                scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[4] OR
+                                scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                                scorerPositionArr[2] < machineConfig.scorerMinPostionArr[4]) THEN
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2];
+                                currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                                currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                            ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[5] OR
+                                scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                                scorerPositionArr[1] < machineConfig.scorerMinPostionArr[5] OR
+                                scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[1];
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                                currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                                currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                            END_IF;
+                        SHEET_WITH_FOUR_SCORER:
+                            FOR i := 1 TO 4 DO
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                            END_FOR;
+                    END_CASE;
+
+                2:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i + 4] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i + 4] := TRUE;
+                    END_FOR;
+
+                3:
+                    FOR i := 1 TO 6 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                4, 5:
+                    FOR i := 1 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        ELSE
+            // Order 1 exists → start order 2 from scorer 5
+            CASE currentOrder.order2.sheetQuantity OF
+                1:
+                    CASE currentOrder.order2.sheetType OF
+                        SHEET_WITH_TWO_SCORER:
+                            currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[numberOfScorersTopOrder + 1];
+                            currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[numberOfScorersTopOrder + 2];
+                            currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                            currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                        SHEET_WITH_FOUR_SCORER:
+                            FOR i := 5 TO 8 DO
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 4];
+                                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                            END_FOR;
+                    END_CASE;
+
+                2:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 4];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                3:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 2];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                4, 5:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+        END_IF;
+    END_IF;
+END_IF;
+
+// Final validation for safety limits
+_checkOrderLimits();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_scorerPositionDistribution_1" Id="{509f14ed-6470-4b3d-a6d1-9fa64dc318ed}">
+      <Declaration><![CDATA[METHOD _scorerPositionDistribution_1
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[valid := FALSE;
+found := FALSE;
+startBase := 0;
+endBase := 0;
+
+// -----------------------------------------------------------------------------
+// Default: send all scorers to home and disable all
+// -----------------------------------------------------------------------------
+FOR i := 1 TO 8 DO
+    currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+    currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+END_FOR
+
+// -----------------------------------------------------------------------------
+// If both sheets do not require scorers, keep all scorers at home
+// -----------------------------------------------------------------------------
+IF (currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER) AND
+   (currentOrder.order2.sheetType = SHEET_WITH_NO_SCORER) THEN
+    // Nothing else to do
+ELSE
+
+    // -------------------------------------------------------------------------
+    // Define possible starting windows according to required scorer quantity
+    // -------------------------------------------------------------------------
+    CASE currentOrder.generatedOrder.numberOfScorers OF
+        2:
+            startBase := 3;
+            endBase := 6;
+
+        4:
+            startBase := 1;
+            endBase := 5;
+
+        6:
+            startBase := 1;
+            endBase := 3;
+
+        8:
+            startBase := 1;
+            endBase := 1;
+
+        ELSE
+            startBase := 0;
+            endBase := -1;
+    END_CASE
+
+    // -------------------------------------------------------------------------
+    // Search for first valid scorer window
+    // -------------------------------------------------------------------------
+    IF startBase <= endBase THEN
+        FOR base := startBase TO endBase DO
+            valid := TRUE;
+
+            FOR i := 0 TO currentOrder.generatedOrder.numberOfScorers - 1 DO
+                IF (scorerPositionArr[i + 1] > machineConfig.scorerMaxPostionArr[base + i]) OR
+                   (scorerPositionArr[i + 1] < machineConfig.scorerMinPostionArr[base + i]) THEN
+                    valid := FALSE;
+                    EXIT;
+                END_IF
+            END_FOR
+
+            IF valid THEN
+                FOR i := 0 TO currentOrder.generatedOrder.numberOfScorers - 1 DO
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[base + i] := scorerPositionArr[i + 1];
+                    currentOrder.generatedOrder.scorerEnabledArr[base + i] := TRUE;
+                END_FOR
+
+                found := TRUE;
+                EXIT;
+            END_IF
+        END_FOR
+    END_IF
+
+    // -------------------------------------------------------------------------
+    // Flexible allocation fallback for dual-axis scorer layout
+    // Odd axis : V1 V3 V5 V7
+    // Even axis: V2 V4 V6 V8
+    // Minimum spacing 130 mm applies only inside the same axis
+    // -------------------------------------------------------------------------
+    IF NOT found THEN
+
+        IF currentOrder.generatedOrder.numberOfScorers = 6 THEN
+			IF NOT found THEN
+				IF (scorerPositionArr[1] >= machineConfig.scorerMinPostionArr[1]) AND
+				   (scorerPositionArr[1] <= machineConfig.scorerMaxPostionArr[1]) AND
+				   (scorerPositionArr[2] >= machineConfig.scorerMinPostionArr[2]) AND
+				   (scorerPositionArr[2] <= machineConfig.scorerMaxPostionArr[2]) AND
+				   (scorerPositionArr[3] >= machineConfig.scorerMinPostionArr[5]) AND
+				   (scorerPositionArr[3] <= machineConfig.scorerMaxPostionArr[5]) AND
+				   (scorerPositionArr[4] >= machineConfig.scorerMinPostionArr[6]) AND
+				   (scorerPositionArr[4] <= machineConfig.scorerMaxPostionArr[6]) AND
+				   (scorerPositionArr[5] >= machineConfig.scorerMinPostionArr[7]) AND
+				   (scorerPositionArr[5] <= machineConfig.scorerMaxPostionArr[7]) AND
+				   (scorerPositionArr[6] >= machineConfig.scorerMinPostionArr[8]) AND
+				   (scorerPositionArr[6] <= machineConfig.scorerMaxPostionArr[8]) THEN
+			
+					currentOrder.generatedOrder.scorerPositionReferenceArr[1] := scorerPositionArr[1];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[2];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1] + 120;	
+					currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2] + 120;				
+					currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[3];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[4];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[7] := scorerPositionArr[5];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[8] := scorerPositionArr[6];
+			
+					currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[7] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[8] := TRUE;
+			
+					found := TRUE;
+				END_IF
+			END_IF		
+		
+				
+		
+            // -----------------------------------------------------------------
+            // Pattern: V1 V2 V3 V4 V5 V7
+            // -----------------------------------------------------------------
+			IF NOT found THEN
+				IF (scorerPositionArr[1] >= machineConfig.scorerMinPostionArr[1]) AND
+				   (scorerPositionArr[1] <= machineConfig.scorerMaxPostionArr[1]) AND
+				   (scorerPositionArr[2] >= machineConfig.scorerMinPostionArr[2]) AND
+				   (scorerPositionArr[2] <= machineConfig.scorerMaxPostionArr[2]) AND
+				   (scorerPositionArr[3] >= machineConfig.scorerMinPostionArr[3]) AND
+				   (scorerPositionArr[3] <= machineConfig.scorerMaxPostionArr[3]) AND
+				   (scorerPositionArr[4] >= machineConfig.scorerMinPostionArr[4]) AND
+				   (scorerPositionArr[4] <= machineConfig.scorerMaxPostionArr[4]) AND
+				   (scorerPositionArr[5] >= machineConfig.scorerMinPostionArr[5]) AND
+				   (scorerPositionArr[5] <= machineConfig.scorerMaxPostionArr[5]) AND
+				   (scorerPositionArr[6] >= machineConfig.scorerMinPostionArr[7]) AND
+				   (scorerPositionArr[6] <= machineConfig.scorerMaxPostionArr[7]) THEN
+	
+					currentOrder.generatedOrder.scorerPositionReferenceArr[1] := scorerPositionArr[1];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[2];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[3];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[4];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[5];
+					currentOrder.generatedOrder.scorerPositionReferenceArr[7] := scorerPositionArr[6];
+	
+					currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+					currentOrder.generatedOrder.scorerEnabledArr[7] := TRUE;
+	
+					found := TRUE;
+				END_IF
+            END_IF
+
+            // -----------------------------------------------------------------
+            // Pattern: V2 V3 V4 V5 V7 V8
+            // -----------------------------------------------------------------
+            IF NOT found THEN
+                IF (scorerPositionArr[1] >= machineConfig.scorerMinPostionArr[2]) AND
+                   (scorerPositionArr[1] <= machineConfig.scorerMaxPostionArr[2]) AND
+                   (scorerPositionArr[2] >= machineConfig.scorerMinPostionArr[3]) AND
+                   (scorerPositionArr[2] <= machineConfig.scorerMaxPostionArr[3]) AND
+                   (scorerPositionArr[3] >= machineConfig.scorerMinPostionArr[4]) AND
+                   (scorerPositionArr[3] <= machineConfig.scorerMaxPostionArr[4]) AND
+                   (scorerPositionArr[4] >= machineConfig.scorerMinPostionArr[5]) AND
+                   (scorerPositionArr[4] <= machineConfig.scorerMaxPostionArr[5]) AND
+                   (scorerPositionArr[5] >= machineConfig.scorerMinPostionArr[7]) AND
+                   (scorerPositionArr[5] <= machineConfig.scorerMaxPostionArr[7]) AND
+                   (scorerPositionArr[6] >= machineConfig.scorerMinPostionArr[8]) AND
+                   (scorerPositionArr[6] <= machineConfig.scorerMaxPostionArr[8]) THEN
+
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[1];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[2];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[3];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[4];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[7] := scorerPositionArr[5];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[8] := scorerPositionArr[6];
+
+                    currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[7] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[8] := TRUE;
+
+                    found := TRUE;
+                END_IF
+            END_IF
+
+            // -----------------------------------------------------------------
+            // Pattern: V1 V2 V3 V4 V6 V8
+            // -----------------------------------------------------------------
+            IF NOT found THEN
+                IF (scorerPositionArr[1] >= machineConfig.scorerMinPostionArr[1]) AND
+                   (scorerPositionArr[1] <= machineConfig.scorerMaxPostionArr[1]) AND
+                   (scorerPositionArr[2] >= machineConfig.scorerMinPostionArr[2]) AND
+                   (scorerPositionArr[2] <= machineConfig.scorerMaxPostionArr[2]) AND
+                   (scorerPositionArr[3] >= machineConfig.scorerMinPostionArr[3]) AND
+                   (scorerPositionArr[3] <= machineConfig.scorerMaxPostionArr[3]) AND
+                   (scorerPositionArr[4] >= machineConfig.scorerMinPostionArr[4]) AND
+                   (scorerPositionArr[4] <= machineConfig.scorerMaxPostionArr[4]) AND
+                   (scorerPositionArr[5] >= machineConfig.scorerMinPostionArr[6]) AND
+                   (scorerPositionArr[5] <= machineConfig.scorerMaxPostionArr[6]) AND
+                   (scorerPositionArr[6] >= machineConfig.scorerMinPostionArr[8]) AND
+                   (scorerPositionArr[6] <= machineConfig.scorerMaxPostionArr[8]) THEN
+
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[1] := scorerPositionArr[1];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[2];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[3];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[4];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[5];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[8] := scorerPositionArr[6];
+
+                    currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[8] := TRUE;
+
+                    found := TRUE;
+                END_IF
+            END_IF
+
+        END_IF
+    END_IF
+END_IF
+
+// Final safety validation
+_checkOrderLimits();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_scorerPositionDistribution_bak" Id="{e3bf6946-8eba-4a1c-904a-7a354f743995}">
+      <Declaration><![CDATA[METHOD _scorerPositionDistribution_bak
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*===============================================================================================================================
+CPNTeck - Automação Industrial
+(c)Copyright 2022-2026 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140, CX9220, C6017
+Engineering: TwinCAT 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block distributes the position for the desired scorer.
+Support: fabio@cpnteck.com.br
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version      | Date          | Expert in charge | Changes applied
+01.00.06     | 17.02.2026    | Gemini AI        | Syntax fix for TwinCAT 3 (IEC 61131-3).
+                                               | Standardized to order1/order2 logic.
+===============================================================================================================================*)
+(*
+// 1) Verificação de ausência de vincadores em ambos os pedidos
+IF currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER AND currentOrder.order2.sheetType = SHEET_WITH_NO_SCORER THEN
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+ELSE
+    // Default: Reset preventivo para Home e desabilitar
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+    // 2) Distribuição baseada na quantidade total de vincadores gerados
+    CASE currentOrder.generatedOrder.numberOfScorers OF
+
+        2:
+            (* Tenta pares em múltiplas posições *)
+            FOR base := 3 TO 6 DO
+                IF NOT (
+                    scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[base] OR
+                    scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[base + 1] OR
+                    scorerPositionArr[1] < machineConfig.scorerMinPostionArr[base] OR
+                    scorerPositionArr[2] < machineConfig.scorerMinPostionArr[base + 1]
+                ) THEN
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[base] := scorerPositionArr[1];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[base + 1] := scorerPositionArr[2];
+                    currentOrder.generatedOrder.scorerEnabledArr[base] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[base + 1] := TRUE;
+                    EXIT; 
+                END_IF
+            END_FOR
+
+        4:
+            (* Tenta grupos de 4 vincadores *)
+            FOR base := 1 TO 5 DO
+                IF NOT (
+                    scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[base] OR
+                    scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[base + 1] OR
+                    scorerPositionArr[3] > machineConfig.scorerMaxPostionArr[base + 2] OR
+                    scorerPositionArr[4] > machineConfig.scorerMaxPostionArr[base + 3] OR
+                    scorerPositionArr[1] < machineConfig.scorerMinPostionArr[base] OR
+                    scorerPositionArr[2] < machineConfig.scorerMinPostionArr[base + 1] OR
+                    scorerPositionArr[3] < machineConfig.scorerMinPostionArr[base + 2] OR
+                    scorerPositionArr[4] < machineConfig.scorerMinPostionArr[base + 3]
+                ) THEN
+                    FOR i := 0 TO 3 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[base + i] := scorerPositionArr[i + 1];
+                        currentOrder.generatedOrder.scorerEnabledArr[base + i] := TRUE;
+                    END_FOR
+                    EXIT;
+                END_IF
+            END_FOR
+
+        6:
+            (* Tenta grupos de 6 vincadores *)
+            FOR base := 1 TO 3 DO
+                valid := TRUE;
+                FOR i := 0 TO 5 DO
+                    IF scorerPositionArr[i + 1] > machineConfig.scorerMaxPostionArr[base + i] OR
+                       scorerPositionArr[i + 1] < machineConfig.scorerMinPostionArr[base + i] THEN
+                        valid := FALSE;
+                        EXIT;
+                    END_IF
+                END_FOR
+                
+                IF valid THEN
+                    FOR i := 0 TO 5 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[base + i] := scorerPositionArr[i + 1];
+                        currentOrder.generatedOrder.scorerEnabledArr[base + i] := TRUE;
+                    END_FOR
+                    EXIT;
+                END_IF
+            END_FOR
+
+        8:
+            (* Validação direta para todos os 8 vincadores *)
+            valid := TRUE;
+            FOR i := 1 TO 8 DO
+                IF scorerPositionArr[i] > machineConfig.scorerMaxPostionArr[i] OR
+                   scorerPositionArr[i] < machineConfig.scorerMinPostionArr[i] THEN
+                    valid := FALSE;
+                    EXIT;
+                END_IF
+            END_FOR
+            
+            IF valid THEN
+                FOR i := 1 TO 8 DO
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                    currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                END_FOR
+            END_IF
+
+    END_CASE
+END_IF
+
+// 3) Validação final de segurança
+_checkOrderLimits();
+
+*)
+
+
+(*===============================================================================================================================
+CPNTeck - Automação Industrial
+(c)Copyright 2022-2025 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140, CX9220, C6017
+Engineering: TwinCAT 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block distributes the position for the desired scorer.
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version      | Date         | Expert in charge | Changes applied
+01.00.01     | 29.03.2023   | Fabio Campion    | First released version
+01.00.02     | 27.04.2025   | Fabio Campion    | Added scorerEnabledArr logic
+01.00.03     | 29.04.2025   | Fabio Campion    | Fixed bottom scorer distribution if top is empty
+01.00.04     | 29.04.2025   | Fabio Campion    | Unified CASE logic for bottom scorers, added collision check
+01.00.05     | 28.05.2025   | Fabio Campion    | Completed logic up to 8 scorers with validation combinations
+===============================================================================================================================*)
+
+IF currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER AND currentOrder.order2.sheetType = SHEET_WITH_NO_SCORER THEN
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+ELSE
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+    CASE currentOrder.generatedOrder.numberOfScorers OF
+
+        2:
+            (* Try pairs in multiple positions *)
+            FOR base := 3 TO 6 BY 1 DO
+                IF NOT (
+                    scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[base] OR
+                    scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[base + 1] OR
+                    scorerPositionArr[1] < machineConfig.scorerMinPostionArr[base] OR
+                    scorerPositionArr[2] < machineConfig.scorerMinPostionArr[base + 1]
+                ) THEN
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[base] := scorerPositionArr[1];
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[base + 1] := scorerPositionArr[2];
+                    currentOrder.generatedOrder.scorerEnabledArr[base] := TRUE;
+                    currentOrder.generatedOrder.scorerEnabledArr[base + 1] := TRUE;
+                    EXIT;
+                END_IF
+            END_FOR
+
+        4:
+            FOR base := 1 TO 5 BY 1 DO
+                IF NOT (
+                    scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[base] OR
+                    scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[base + 1] OR
+                    scorerPositionArr[3] > machineConfig.scorerMaxPostionArr[base + 2] OR
+                    scorerPositionArr[4] > machineConfig.scorerMaxPostionArr[base + 3] OR
+                    scorerPositionArr[1] < machineConfig.scorerMinPostionArr[base] OR
+                    scorerPositionArr[2] < machineConfig.scorerMinPostionArr[base + 1] OR
+                    scorerPositionArr[3] < machineConfig.scorerMinPostionArr[base + 2] OR
+                    scorerPositionArr[4] < machineConfig.scorerMinPostionArr[base + 3]
+                ) THEN
+                    FOR i := 0 TO 3 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[base + i] := scorerPositionArr[i + 1];
+                        currentOrder.generatedOrder.scorerEnabledArr[base + i] := TRUE;
+                    END_FOR
+                    EXIT;
+                END_IF
+            END_FOR
+
+        6:
+            FOR base := 1 TO 3 BY 1 DO
+                valid := TRUE;
+                FOR i := 0 TO 5 DO
+                    IF scorerPositionArr[i + 1] > machineConfig.scorerMaxPostionArr[base + i] OR
+                       scorerPositionArr[i + 1] < machineConfig.scorerMinPostionArr[base + i] THEN
+                        valid := FALSE;
+                        EXIT;
+                    END_IF
+                END_FOR
+                IF valid THEN
+                    FOR i := 0 TO 5 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[base + i] := scorerPositionArr[i + 1];
+                        currentOrder.generatedOrder.scorerEnabledArr[base + i] := TRUE;
+                    END_FOR
+                    EXIT;
+                END_IF
+            END_FOR
+
+        8:
+            valid := TRUE;
+            FOR i := 1 TO 8 DO
+                IF scorerPositionArr[i] > machineConfig.scorerMaxPostionArr[i] OR
+                   scorerPositionArr[i] < machineConfig.scorerMinPostionArr[i] THEN
+                    valid := FALSE;
+                    EXIT;
+                END_IF
+            END_FOR
+            IF valid THEN
+                FOR i := 1 TO 8 DO
+                    currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                    currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                END_FOR
+            END_IF
+
+    END_CASE
+END_IF;
+
+// Final safety validation
+_checkOrderLimits();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="ACT_CalculateNumberOfKnifes" Id="{83872937-fac9-4e67-9872-1a4692ce9c10}">
+      <Implementation>
+        <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This method is used to calculate the number of knifes used in the order entered by the operator
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+
+(*Calculate the number of knifes to be used in the production*)
+currentOrder.generatedOrder.numberOfKnifes := currentOrder.generatedOrder.numberOfSheets + 1;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_CalculateNumberOfScorers" Id="{80382a26-8d9d-407c-8175-e90058b01ef8}">
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140
+Engineering: TwinCAT 2
+Restrictions: -
+Requirements: N/A
+Functionality:
+    Calculates the number of scorers required for the operator-entered order, considering the level enable mode:
+      - eUpperOnly: calculate only TOP (upper) sheet
+      - eLowerOnly: calculate only BOTTOM (lower) sheet
+      - eBoth:      calculate TOP + BOTTOM
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version   | Date       | Expert in charge | Changes applied
+01.00.01  | 29.03.2023 | Fabio Campion    | First released version
+01.00.02  | 30.12.2025 | Fabio Campion    | Add E_ScorerEnableMode selection (upper/lower/both)
+===============================================================================================================================*)
+
+currentOrder.generatedOrder.numberOfScorers := 0; // Reset before calculation
+
+// Default to zero every scan
+numberOfScorersTopOrder    := 0;
+numberOfScorersBottomOrder := 0;
+
+//-------------------------------------------------------------------------------------------------
+// TOP (Upper) calculation
+//-------------------------------------------------------------------------------------------------
+IF (currentOrder.levelSelector = E_LevelSelector.eUpperOnly)
+ OR (currentOrder.levelSelector = E_LevelSelector.eLowerOnly)	
+   OR (currentOrder.levelSelector = E_LevelSelector.eBoth) THEN
+
+    CASE currentOrder.order1.sheetType OF
+        SHEET_WITH_NO_SCORER:
+            numberOfScorersTopOrder := 0;
+
+        SHEET_WITH_TWO_SCORER:
+            numberOfScorersTopOrder := (2 * currentOrder.order1.sheetQuantity);
+
+        SHEET_WITH_FOUR_SCORER:
+            numberOfScorersTopOrder := (4 * currentOrder.order1.sheetQuantity);
+    END_CASE
+
+END_IF
+
+//-------------------------------------------------------------------------------------------------
+// BOTTOM (Lower) calculation
+//-------------------------------------------------------------------------------------------------
+IF (currentOrder.levelSelector = E_LevelSelector.eBoth) THEN
+	
+    CASE currentOrder.order2.sheetType OF
+        SHEET_WITH_NO_SCORER:
+            numberOfScorersBottomOrder := 0;
+
+        SHEET_WITH_TWO_SCORER:
+            numberOfScorersBottomOrder := (2 * currentOrder.order2.sheetQuantity);
+
+        SHEET_WITH_FOUR_SCORER:
+            numberOfScorersBottomOrder := (4 * currentOrder.order2.sheetQuantity);
+    END_CASE
+
+END_IF
+
+//-------------------------------------------------------------------------------------------------
+// Total
+//-------------------------------------------------------------------------------------------------
+currentOrder.generatedOrder.numberOfScorers := numberOfScorersTopOrder + numberOfScorersBottomOrder;
+
+
+
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_CalculateNumberOfSheets" Id="{db769fe1-829e-4e71-add2-b7c58aa966e0}">
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140
+Engineering: TwinCAT 2
+Restrictions: -
+Requirements: N/A
+Functionality: This method is used to calculate the number of sheets used in the order entered by the operator,
+               considering E_LevelSelector (eUpperOnly / eLowerOnly / eBoth).
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version   | Date       | Expert in charge | Changes applied
+01.00.01  | 29.03.2023 | Fabio Campion    | First released version
+01.00.02  | 30.12.2025 | Fabio Campion    | Add E_LevelSelector selection (upper/lower/both)
+===============================================================================================================================*)
+
+(* Calculate the number of sheets of production list *)
+
+// Default
+currentOrder.generatedOrder.numberOfSheets := 0;
+
+CASE currentOrder.levelSelector OF
+
+    E_LevelSelector.eUpperOnly:
+        currentOrder.generatedOrder.numberOfSheets := currentOrder.order1.sheetQuantity;
+
+    E_LevelSelector.eLowerOnly:
+        currentOrder.generatedOrder.numberOfSheets := currentOrder.order1.sheetQuantity;
+
+    E_LevelSelector.eBoth:
+        currentOrder.generatedOrder.numberOfSheets := currentOrder.order1.sheetQuantity
+                                                   + currentOrder.order2.sheetQuantity;
+
+ELSE
+    // Defensive fallback (treat as Upper only)
+    currentOrder.generatedOrder.numberOfSheets := currentOrder.order1.sheetQuantity;
+
+END_CASE
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_GenerateOrderPositions" Id="{a149229c-bc8e-407c-8a99-84405415e883}">
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block is used to generate the order positions base on the operator inputs
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version        | Date       | Expert in charge | Changes applied
+01.00.01       | 29.03.2023 | Fabio Campion    | First released version
+01.00.02       | 30.12.2025 | Fabio Campion    | Add E_LevelSelector selection (upper/lower/both) + fix Bottom/Top references
+===============================================================================================================================*)
+
+IF execute AND NOT executeOld THEN
+
+    //-------------------------------------------------------------------------------------------------
+    // Level selection (E_LevelSelector)
+    //-------------------------------------------------------------------------------------------------
+    userOrder1    := FALSE;
+    useOrder2 := FALSE;
+
+    CASE currentOrder.levelSelector OF
+        E_LevelSelector.eUpperOnly:
+            userOrder1    := TRUE;
+            useOrder2 := FALSE;
+
+        E_LevelSelector.eLowerOnly:
+            userOrder1    := TRUE;
+            useOrder2 := FALSE;
+
+        E_LevelSelector.eBoth:
+            userOrder1    := TRUE;
+            useOrder2 := TRUE;
+
+    ELSE
+        // Defensive fallback
+        userOrder1    := TRUE;
+        useOrder2 := FALSE;
+    END_CASE
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Recalculate sheets based on selector (your method already updated previously)
+    //-------------------------------------------------------------------------------------------------
+    ACT_CalculateNumberOfSheets();
+
+
+    (*Calculate array size*)
+    toolPositionArrSize  := 30;
+    knifePositionArrSize := 10;
+    scorerPositionArrSize := 20;
+
+    (*Reset positions index*)
+    toolPositionIndex := 0;
+    topOrderIndex     := 0;
+    bottomOrderIndex  := 0;
+
+    (*Reset positions array*)
+    FOR toolPositionIndex := 1 TO toolPositionArrSize BY 1 DO
+        toolPositionArr[toolPositionIndex] := 0;
+    END_FOR;
+
+    (*Reset knife positions array*)
+    toolPositionIndex := 1;
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Order totals (per level selection)
+    //-------------------------------------------------------------------------------------------------
+    firstOrderTotal  := 0;
+    secondOrderTotal := 0;
+
+    // TOP (Upper)
+    IF userOrder1 THEN
+        (*Number of boxes of the first (top) order*)
+        firstOrderTotal := currentOrder.order1.sheetM1;
+
+        (*Top order: two scorers*)
+        IF (currentOrder.order1.sheetType = SHEET_WITH_TWO_SCORER)
+           OR (currentOrder.order1.sheetType = SHEET_WITH_FOUR_SCORER) THEN
+
+            firstOrderTotal := firstOrderTotal + currentOrder.order1.sheetM2;
+            firstOrderTotal := firstOrderTotal + currentOrder.order1.sheetM3;
+        END_IF
+
+        (*Top order: four scorers*)
+        IF currentOrder.order1.sheetType = SHEET_WITH_FOUR_SCORER THEN
+            firstOrderTotal := firstOrderTotal + currentOrder.order1.sheetM4;
+            firstOrderTotal := firstOrderTotal + currentOrder.order1.sheetM5;
+        END_IF
+    END_IF
+
+    // BOTTOM (Lower)
+    IF useOrder2 THEN
+        secondOrderTotal := currentOrder.order2.sheetM1;
+
+        (*Bottom order: two scorers*)
+        IF (currentOrder.order2.sheetType = SHEET_WITH_TWO_SCORER)
+           OR (currentOrder.order2.sheetType = SHEET_WITH_FOUR_SCORER) THEN
+
+            // NOTE: corrected to Bottom (was Top in original snippet)
+            secondOrderTotal := secondOrderTotal + currentOrder.order2.sheetM2;
+            secondOrderTotal := secondOrderTotal + currentOrder.order2.sheetM3;
+        END_IF
+
+        (*Bottom order: four scorers*)
+        IF currentOrder.order2.sheetType = SHEET_WITH_FOUR_SCORER THEN
+            // NOTE: corrected to Bottom (was Top in original snippet)
+            secondOrderTotal := secondOrderTotal + currentOrder.order2.sheetM4;
+            secondOrderTotal := secondOrderTotal + currentOrder.order2.sheetM5;
+        END_IF
+    END_IF
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Width calculations (per level selection)
+    //-------------------------------------------------------------------------------------------------
+    IF userOrder1 THEN
+        currentOrder.generatedOrder.order1Width :=
+            ( currentOrder.order1.sheetM1
+            + currentOrder.order1.sheetM2
+            + currentOrder.order1.sheetM3
+            + currentOrder.order1.sheetM4
+            + currentOrder.order1.sheetM5 ) * currentOrder.order1.sheetQuantity;
+    ELSE
+        currentOrder.generatedOrder.order1Width := 0;
+    END_IF
+
+    IF useOrder2 THEN
+        currentOrder.generatedOrder.order2Width :=
+            ( currentOrder.order2.sheetM1
+            + currentOrder.order2.sheetM2
+            + currentOrder.order2.sheetM3
+            + currentOrder.order2.sheetM4
+            + currentOrder.order2.sheetM5 ) * currentOrder.order2.sheetQuantity;
+    ELSE
+        currentOrder.generatedOrder.order2Width := 0;
+    END_IF
+
+    currentOrder.generatedOrder.orderTotalWidth :=
+        currentOrder.generatedOrder.order1Width + currentOrder.generatedOrder.order2Width;
+
+    firstKnifePosition := (machineConfig.machineWidth - currentOrder.generatedOrder.orderTotalWidth) / 2;
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Tool position generation
+    //-------------------------------------------------------------------------------------------------
+    (*First Knife position*)
+    toolPositionArr[toolPositionIndex] := firstKnifePosition; // The first knife always uses the first position
+    toolPositionIndex := toolPositionIndex + 1;
+
+    // TOP order positions
+    IF userOrder1 THEN
+        FOR topOrderIndex := 1 TO currentOrder.order1.sheetQuantity BY 1 DO
+
+            (*Box without scorer*)
+            toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order1.sheetM1;
+            firstKnifePosition := firstKnifePosition + currentOrder.order1.sheetM1;
+            toolPositionIndex := toolPositionIndex + 1;
+
+            (*Box with two scorers*)
+            IF (currentOrder.order1.sheetType = SHEET_WITH_TWO_SCORER)
+               OR (currentOrder.order1.sheetType = SHEET_WITH_FOUR_SCORER) THEN
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order1.sheetM2;
+                firstKnifePosition := firstKnifePosition + currentOrder.order1.sheetM2;
+                toolPositionIndex := toolPositionIndex + 1;
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order1.sheetM3;
+                firstKnifePosition := firstKnifePosition + currentOrder.order1.sheetM3;
+                toolPositionIndex := toolPositionIndex + 1;
+            END_IF
+
+            (*Box with 4 scorers*)
+            IF currentOrder.order1.sheetType = SHEET_WITH_FOUR_SCORER THEN
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order1.sheetM4;
+                firstKnifePosition := firstKnifePosition + currentOrder.order1.sheetM4;
+                toolPositionIndex := toolPositionIndex + 1;
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order1.sheetM5;
+                firstKnifePosition := firstKnifePosition + currentOrder.order1.sheetM5;
+                toolPositionIndex := toolPositionIndex + 1;
+            END_IF
+
+        END_FOR
+    END_IF
+
+    // BOTTOM order positions
+    IF useOrder2 THEN
+        FOR bottomOrderIndex := 1 TO currentOrder.order2.sheetQuantity BY 1 DO
+
+            (*Box without scorer*)
+            toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order2.sheetM1;
+            firstKnifePosition := firstKnifePosition + currentOrder.order2.sheetM1;
+            toolPositionIndex := toolPositionIndex + 1;
+
+            (*Box with two scorers*)
+            IF (currentOrder.order2.sheetType = SHEET_WITH_TWO_SCORER)
+               OR (currentOrder.order2.sheetType = SHEET_WITH_FOUR_SCORER) THEN
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order2.sheetM2;
+                firstKnifePosition := firstKnifePosition + currentOrder.order2.sheetM2;
+                toolPositionIndex := toolPositionIndex + 1;
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order2.sheetM3;
+                firstKnifePosition := firstKnifePosition + currentOrder.order2.sheetM3;
+                toolPositionIndex := toolPositionIndex + 1;
+            END_IF
+
+            (*Box with 4 scorers*)
+            IF currentOrder.order2.sheetType = SHEET_WITH_FOUR_SCORER THEN
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order2.sheetM4;
+                firstKnifePosition := firstKnifePosition + currentOrder.order2.sheetM4;
+                toolPositionIndex := toolPositionIndex + 1;
+
+                toolPositionArr[toolPositionIndex] := firstKnifePosition + currentOrder.order2.sheetM5;
+                firstKnifePosition := firstKnifePosition + currentOrder.order2.sheetM5;
+                toolPositionIndex := toolPositionIndex + 1;
+            END_IF
+
+        END_FOR
+    END_IF
+
+
+    //-------------------------------------------------------------------------------------------------
+    // Post-processing (unchanged call flow)
+    //-------------------------------------------------------------------------------------------------
+    ACT_CalculateNumberOfKnifes();
+    ACT_KnifePositionSelection();  // Call the program
+    ACT_ScorerPositionSelection(); // Call the program
+
+END_IF
+
+executeOld := execute;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_KnifePositionDistribution" Id="{b1fb4bc8-6d99-441a-bae5-102bc547fd35}">
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+CPNTeck - Automação industrial - MRBrasil Refactored
+Version: 01.00.04 | Date: 19.02.2026 | Expert: Gemini AI
+Functionality: Optimized position distribution with DYNAMIC boundary detection.
+===============================================================================================================================
+
+// 1. Reset all Enables to FALSE and clear boundaries
+FOR i := 1 TO 5 DO
+	currentOrder.generatedOrder.knifeEnabledArr[i] := FALSE;
+END_FOR
+
+currentOrder.generatedOrder.firstKnifePosition := 0.0;
+currentOrder.generatedOrder.lastKnifePosition  := 0.0;
+
+// 2. Position Distribution (MRBrasil specific logic)
+CASE currentOrder.generatedOrder.numberOfKnifes OF
+
+	2:
+		currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+		
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 300;
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2] - 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[2];
+
+	3:
+		IF knifePositionArr[2] > machineConfig.knifeMaxPostionArr[3] THEN
+			currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[4] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+			
+			currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+			currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+			currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 300;
+			currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2];
+			currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+		ELSE
+			currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[3] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+			
+			currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+			currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+			currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2];
+			currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3] - 150;
+			currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+		END_IF
+
+	4:
+		IF knifePositionArr[3] > machineConfig.knifeMaxPostionArr[3] THEN
+			currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[2] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[4] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+			
+			currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+			currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+			currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2] + 150;
+			currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3];
+			currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];
+		ELSE
+			currentOrder.generatedOrder.knifeEnabledArr[1] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[2] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[3] := TRUE;
+			currentOrder.generatedOrder.knifeEnabledArr[5] := TRUE;
+			
+			currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+			currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+			currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[3];
+			currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[4] - 150;
+			currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];
+		END_IF
+
+	5:
+		FOR i := 1 TO 5 DO
+			currentOrder.generatedOrder.knifeEnabledArr[i] := TRUE;
+			currentOrder.generatedOrder.knifePositionReferenceArr[i] := knifePositionArr[i];
+		END_FOR
+
+END_CASE
+
+// 3. DYNAMIC BOUNDARY DETECTION
+// Find the first enabled knife
+FOR i := 1 TO 5 DO
+    IF currentOrder.generatedOrder.knifeEnabledArr[i] THEN
+        currentOrder.generatedOrder.firstKnifePosition := currentOrder.generatedOrder.knifePositionReferenceArr[i];
+        EXIT; // Stop at the first one found
+    END_IF
+END_FOR
+
+// Find the last enabled knife
+FOR i := 5 TO 1 BY -1 DO
+    IF currentOrder.generatedOrder.knifeEnabledArr[i] THEN
+        currentOrder.generatedOrder.lastKnifePosition := currentOrder.generatedOrder.knifePositionReferenceArr[i];
+        EXIT; // Stop at the last one found (searching backwards)
+    END_IF
+END_FOR
+*)
+
+
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block is used to distribute the position for the desired knife
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+IF currentOrder.generatedOrder.numberOfKnifes = 2 THEN
+
+	currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+
+	currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+	currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 160;
+	currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 160 + 160;
+	currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2] - 160;
+	currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[2];
+
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 3 THEN
+
+
+	IF knifePositionArr[2] > machineConfig.knifeMaxPostionArr[3] THEN
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 160 + 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+	
+	ELSE
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3] - 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+		
+	END_IF
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 4 THEN
+
+	IF knifePositionArr[3] > machineConfig.knifeMaxPostionArr[3] THEN
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2] + 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3];
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];		
+		
+	ELSE
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[3];
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[4] - 160;
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];		
+		
+	END_IF
+
+	
+	
+	
+	
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 5 THEN
+
+	currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+
+	currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+	currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+	currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[3];
+	currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[4];
+	currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[5];
+
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_KnifePositionDistribution_bak" Id="{4b0cbfc6-c728-4f3d-832a-1dd1e9d6e22c}">
+      <Implementation>
+        <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block is used to distribute the position for the desired knife
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+IF currentOrder.generatedOrder.numberOfKnifes = 2 THEN
+
+	currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+	currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+
+	currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+	currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+	currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 150 + 150;
+	currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2] - 150;
+	currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[2];
+
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 3 THEN
+
+
+	IF knifePositionArr[2] > machineConfig.knifeMaxPostionArr[3] THEN
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[1] + 150 + 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+	
+	ELSE
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[1] + 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3] - 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[3];
+		
+	END_IF
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 4 THEN
+
+	IF knifePositionArr[3] > machineConfig.knifeMaxPostionArr[3] THEN
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[2] + 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[3];
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];		
+		
+	ELSE
+		
+		currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+		currentOrder.generatedOrder.knifeEnabledArr[04] := FALSE;
+		currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+	
+		currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+		currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+		currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[3];
+		currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[4] - 150;
+		currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[4];		
+		
+	END_IF
+
+	
+	
+	
+	
+END_IF
+
+IF currentOrder.generatedOrder.numberOfKnifes = 5 THEN
+
+	currentOrder.generatedOrder.knifeEnabledArr[01] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[02] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[03] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[04] := TRUE;
+	currentOrder.generatedOrder.knifeEnabledArr[05] := TRUE;
+
+	currentOrder.generatedOrder.knifePositionReferenceArr[1] := knifePositionArr[1];
+	currentOrder.generatedOrder.knifePositionReferenceArr[2] := knifePositionArr[2];
+	currentOrder.generatedOrder.knifePositionReferenceArr[3] := knifePositionArr[3];
+	currentOrder.generatedOrder.knifePositionReferenceArr[4] := knifePositionArr[4];
+	currentOrder.generatedOrder.knifePositionReferenceArr[5] := knifePositionArr[5];
+
+END_IF]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_KnifePositionSelection" Id="{0691d953-079b-454f-bf35-20fd03ccdc6c}">
+      <Implementation>
+        <ST><![CDATA[(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality:
+    Distribute knife positions from toolPositionArr[] into knifePositionArr[] according to:
+      - Sheet type (0 / 2 / 4 scorers) => step size (1 / 3 / 5)
+      - E_LevelSelector => UpperOnly / LowerOnly / Both
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version        | Date       | Expert in charge | Changes applied
+01.00.01       | 29.03.2023 | Fabio Campion    | First released version
+01.00.02       | 30.12.2025 | Fabio Campion    | Add E_LevelSelector selection (upper/lower/both) + fix index handling
+===============================================================================================================================*)
+{region "Knife Position Selection — Reset arrays"}
+
+(* Reset the knife enabled/position arrays (knives are 1..7 in your project) *)
+FOR knifeEnabledIndex := 1 TO 7 BY 1 DO
+    currentOrder.generatedOrder.knifeEnabledArr[knifeEnabledIndex] := FALSE;
+    knifePositionArr[knifeEnabledIndex] := 0;
+    currentOrder.generatedOrder.knifePositionReferenceArr[knifeEnabledIndex] := 0;
+END_FOR;
+
+(* Reset distribution indexes *)
+knifeDistributionIndex := 1;  // Index into toolPositionArr[]
+knifeOutIdx            := 1;  // Index into knifePositionArr[]
+
+{endregion}
+
+
+{region "Knife Position Selection — Determine active levels (E_LevelSelector)"}
+
+userOrder1    := FALSE;
+useOrder2 := FALSE;
+
+CASE currentOrder.levelSelector OF
+    E_LevelSelector.eUpperOnly:
+        userOrder1    := TRUE;
+        useOrder2 := FALSE;
+
+    E_LevelSelector.eLowerOnly:
+        userOrder1    := TRUE;
+        useOrder2 := FALSE;
+
+    E_LevelSelector.eBoth:
+        userOrder1    := TRUE;
+        useOrder2 := TRUE;
+
+ELSE
+    // Defensive fallback: keep legacy behavior (Top only)
+    userOrder1    := TRUE;
+    useOrder2 := FALSE;
+END_CASE
+
+{endregion}
+
+
+{region "Knife Position Selection — TOP distribution"}
+
+IF userOrder1 THEN
+
+    topStep := 1;
+    CASE currentOrder.order1.sheetType OF
+        SHEET_WITH_NO_SCORER:   topStep := 1;
+        SHEET_WITH_TWO_SCORER:  topStep := 3;
+        SHEET_WITH_FOUR_SCORER: topStep := 5;
+    ELSE
+        topStep := 1;
+    END_CASE
+
+    // For each produced sheet, take one knife position then jump by step
+    FOR knifePositionTopIndex := 1 TO currentOrder.order1.sheetQuantity BY 1 DO
+        knifePositionArr[knifeOutIdx] := toolPositionArr[knifeDistributionIndex];
+        knifeOutIdx := knifeOutIdx + 1;
+        knifeDistributionIndex := knifeDistributionIndex + topStep;
+    END_FOR
+
+    // Final knife after last top box (end of top order)
+    knifePositionArr[knifeOutIdx] := toolPositionArr[knifeDistributionIndex];
+    knifeOutIdx := knifeOutIdx + 1;
+
+END_IF
+
+{endregion}
+
+
+{region "Knife Position Selection — BOTTOM distribution"}
+
+IF useOrder2 THEN
+
+    bottomStep := 1;
+    CASE currentOrder.order2.sheetType OF
+        SHEET_WITH_NO_SCORER:   bottomStep := 1;
+        SHEET_WITH_TWO_SCORER:  bottomStep := 3;
+        SHEET_WITH_FOUR_SCORER: bottomStep := 5;
+    ELSE
+        bottomStep := 1;
+    END_CASE
+
+    // If TOP and BOTTOM are enabled, the start knife of bottom equals the last knife of top.
+    // Therefore, DO NOT write the shared boundary again.
+    IF userOrder1 THEN
+
+        // BOTH enabled: write only END-OF-SHEET knives for bottom
+        FOR knifePositionBottomIndex := 1 TO currentOrder.order2.sheetQuantity BY 1 DO
+            knifeDistributionIndex := knifeDistributionIndex + bottomStep;          // move to end-of-sheet
+            knifePositionArr[knifeOutIdx] := toolPositionArr[knifeDistributionIndex];
+            knifeOutIdx := knifeOutIdx + 1;
+        END_FOR
+
+    ELSE
+
+        // BOTTOM only: legacy behavior (start + final)
+        FOR knifePositionBottomIndex := 1 TO currentOrder.order2.sheetQuantity BY 1 DO
+            knifePositionArr[knifeOutIdx] := toolPositionArr[knifeDistributionIndex];
+            knifeOutIdx := knifeOutIdx + 1;
+            knifeDistributionIndex := knifeDistributionIndex + bottomStep;
+        END_FOR
+
+        // Final knife after last bottom box
+        knifePositionArr[knifeOutIdx] := toolPositionArr[knifeDistributionIndex];
+        knifeOutIdx := knifeOutIdx + 1;
+
+    END_IF
+
+END_IF
+
+ACT_KnifePositionDistribution();
+	 
+{endregion}
+
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_ScorerPositionDistribution" Id="{f682c022-9042-44a3-bec0-01ef0aa9a1db}">
+      <Implementation>
+        <ST><![CDATA[(*===============================================================================================================================
+CPNTeck - Automação Industrial
+(c)Copyright 2022-2025 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Functionality: Scorer Distribution Logic (Merged Version)
+Target: MRBRASIL Logic with COCELPA Variable Naming
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version      | Date          | Expert in charge | Changes applied
+01.00.05     | 17.02.2026   | Gemini AI        | Merged MRBRASIL logic into COCELPA naming structure
+                                               | (Uses .order1/.order2 and active Home positioning)
+===============================================================================================================================*)
+
+// Verifica se ambos os pedidos não possuem vincadores
+IF currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER AND currentOrder.order2.sheetType = SHEET_WITH_NO_SCORER THEN
+    // Lógica MRBRASIL: Envia para home E desabilita
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+ELSE
+    // Default: Reset preventivo para Home (Comportamento MRBRASIL)
+    FOR i := 1 TO 8 DO
+        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := machineConfig.homePositionScorer[i];
+        currentOrder.generatedOrder.scorerEnabledArr[i] := FALSE;
+    END_FOR
+
+    //──────────────────────────────────────────────────────────────────────────────
+    // Top Order Logic (Usando .order1 da COCELPA)
+    //──────────────────────────────────────────────────────────────────────────────
+    CASE currentOrder.order1.sheetQuantity OF
+        1:
+            CASE currentOrder.order1.sheetType OF
+                SHEET_WITH_TWO_SCORER:
+                    // Option 1: Scorer 3 e 4
+                    IF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[4]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                
+                    // Option 2: Scorer 5 e 6
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[5] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[5] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                
+                    // Option 3: Scorer 3 e 5
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[5] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[5]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                
+                    // Option 4: Scorer 4 e 6
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[4] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                
+                    // Option 5: Scorer 1 e 2 (+ aux 150mm)
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[1] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[2] OR
+                        scorerPositionArr[1] + 150 > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[2] + 150 > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[1] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[2]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[1] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1] + 160;
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2] + 160;
+                        currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+                
+                    // Option 6: Scorer 1 e 3
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[1] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[3] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[1] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[3]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[1] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[1] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                
+                    // Option 7: Scorer 2 e 4
+                    ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[2] OR
+                        scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[4] OR
+                        scorerPositionArr[1] < machineConfig.scorerMinPostionArr[2] OR
+                        scorerPositionArr[2] < machineConfig.scorerMinPostionArr[4]) THEN
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[2] := scorerPositionArr[1];
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2];
+                        currentOrder.generatedOrder.scorerEnabledArr[2] := TRUE;
+                        currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                    END_IF;
+
+                SHEET_WITH_FOUR_SCORER:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        2:
+            CASE currentOrder.order1.sheetType OF
+                SHEET_WITH_TWO_SCORER:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+                SHEET_WITH_FOUR_SCORER:
+                    FOR i := 1 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        3:
+            FOR i := 1 TO 6 DO
+                currentOrder.generatedOrder.scorerPositionReferenceArr[i + 1] := scorerPositionArr[i];
+                currentOrder.generatedOrder.scorerEnabledArr[i + 1] := TRUE;
+            END_FOR;
+
+        4, 5:
+            FOR i := 1 TO 8 DO
+                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+            END_FOR;
+    END_CASE;
+
+    //──────────────────────────────────────────────────────────────────────────────
+    // Bottom Order Logic (Usando .order2 da COCELPA)
+    //──────────────────────────────────────────────────────────────────────────────
+    IF currentOrder.order2.sheetQuantity > 0 THEN
+        // Se order1 não usa vincadores, order2 pode começar do índice 1
+        IF currentOrder.order1.sheetQuantity > 0 AND currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER THEN
+            CASE currentOrder.order2.sheetQuantity OF
+                1:
+                    CASE currentOrder.order2.sheetType OF
+                        SHEET_WITH_TWO_SCORER:
+                            // Tenta posicionar conforme limites (Lógica MRBRASIL aplicada à order2)
+                            IF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[3] OR
+                                scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[4] OR
+                                scorerPositionArr[1] < machineConfig.scorerMinPostionArr[3] OR
+                                scorerPositionArr[2] < machineConfig.scorerMinPostionArr[4]) THEN
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[3] := scorerPositionArr[1];
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[4] := scorerPositionArr[2];
+                                currentOrder.generatedOrder.scorerEnabledArr[3] := TRUE;
+                                currentOrder.generatedOrder.scorerEnabledArr[4] := TRUE;
+                            ELSIF NOT (scorerPositionArr[1] > machineConfig.scorerMaxPostionArr[5] OR
+                                scorerPositionArr[2] > machineConfig.scorerMaxPostionArr[6] OR
+                                scorerPositionArr[1] < machineConfig.scorerMinPostionArr[5] OR
+                                scorerPositionArr[2] < machineConfig.scorerMinPostionArr[6]) THEN
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[1];
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[2];
+                                currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                                currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                            END_IF;
+                        SHEET_WITH_FOUR_SCORER:
+                            FOR i := 1 TO 4 DO
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                            END_FOR;
+                    END_CASE;
+
+                2:
+                    FOR i := 1 TO 4 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i + 4] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i + 4] := TRUE;
+                    END_FOR;
+
+                3:
+                    FOR i := 1 TO 6 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                4, 5:
+                    FOR i := 1 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+
+        ELSE
+            // Se order1 já está ocupando ferramentas, order2 começa do índice 5
+            CASE currentOrder.order2.sheetQuantity OF
+                1:
+                    CASE currentOrder.order2.sheetType OF
+                        SHEET_WITH_TWO_SCORER:
+                            currentOrder.generatedOrder.scorerPositionReferenceArr[5] := scorerPositionArr[numberOfScorersTopOrder + 1];
+                            currentOrder.generatedOrder.scorerPositionReferenceArr[6] := scorerPositionArr[numberOfScorersTopOrder + 2];
+                            currentOrder.generatedOrder.scorerEnabledArr[5] := TRUE;
+                            currentOrder.generatedOrder.scorerEnabledArr[6] := TRUE;
+                        SHEET_WITH_FOUR_SCORER:
+                            FOR i := 5 TO 8 DO
+                                currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 4];
+                                currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                            END_FOR;
+                    END_CASE;
+
+                2:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 4];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                3:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i - 2];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+
+                4, 5:
+                    FOR i := 5 TO 8 DO
+                        currentOrder.generatedOrder.scorerPositionReferenceArr[i] := scorerPositionArr[i];
+                        currentOrder.generatedOrder.scorerEnabledArr[i] := TRUE;
+                    END_FOR;
+            END_CASE;
+        END_IF;
+    END_IF;
+END_IF;
+
+// Validação final (Limits check)
+_checkOrderLimits();]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_ScorerPositionSelection" Id="{14131191-f43e-4ad4-9138-b6130970c9a3}">
+      <Implementation>
+        <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block offers basic functionalities for distribute the positions generated from the program to the scoring toll
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 29.03.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+(*Reset the scorer enabled array*)
+FOR scorerEnabledIndex := 1 TO 20 BY 1 DO
+
+	currentOrder.generatedOrder.scorerEnabledArr[scorerEnabledIndex] := FALSE;
+	scorerPositionArr[scorerEnabledIndex] := 0;
+	currentOrder.generatedOrder.scorerPositionReferenceArr[scorerEnabledIndex] := 0;
+
+END_FOR;
+
+
+scorerDistributionIndex := 1;
+toolDistributionIndex := 2;
+scorerExecTimes := 0;
+
+(*Calculate the number of scorers to be used in the production*)
+
+ACT_CalculateNumberOfScorers();
+
+
+(*Distribute the scorer positions*)
+IF currentOrder.generatedOrder.numberOfScorers > 0 THEN
+
+	(*Distribute the scorer position for sheets with no scorer (Only count the sheets)*)
+	IF currentOrder.order1.sheetType = SHEET_WITH_NO_SCORER THEN
+
+		FOR scorerPositionTopIndex := 1 TO currentOrder.order1.sheetQuantity BY 1 DO
+
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+		END_FOR
+
+	END_IF
+
+	(*Distribute the scorer position for sheets with two scorer*)
+	IF currentOrder.order1.sheetType = SHEET_WITH_TWO_SCORER THEN
+
+		scorerExecTimes := 0;
+
+		FOR scorerPositionTopIndex := 1 TO currentOrder.order1.sheetQuantity BY 1 DO
+
+			scorerExecTimes := scorerExecTimes + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 2;
+
+		END_FOR
+
+	END_IF
+
+	(*Distribute the scorer position for sheets with four scorer*)
+	IF currentOrder.order1.sheetType = SHEET_WITH_FOUR_SCORER THEN
+
+		scorerExecTimes :=0;
+
+		FOR scorerPositionTopIndex := 1 TO currentOrder.order1.sheetQuantity BY 1 DO
+
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 2;
+			
+
+		END_FOR
+
+	END_IF
+
+	(*Distribute the scorer position for sheets with two scorer - bottom orderr*)
+	IF currentOrder.order2.sheetType = SHEET_WITH_TWO_SCORER THEN
+
+		scorerExecTimes := 0;
+
+		FOR scorerPositionBottomIndex := 1 TO currentOrder.order2.sheetQuantity BY 1 DO
+
+			scorerExecTimes := scorerExecTimes + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 2;
+
+		END_FOR
+
+	END_IF
+
+	(*Distribute the scorer position for sheets with four scorer - bottom orderr*)
+	IF currentOrder.order2.sheetType = SHEET_WITH_FOUR_SCORER THEN
+
+		scorerExecTimes := 0;
+
+		FOR scorerPositionBottomIndex := 1 TO currentOrder.order2.sheetQuantity BY 1 DO
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 1;
+
+			scorerPositionArr[scorerDistributionIndex] := toolPositionArr[toolDistributionIndex];
+			scorerDistributionIndex := scorerDistributionIndex + 1;
+			toolDistributionIndex := toolDistributionIndex + 2;
+
+		END_FOR
+
+	END_IF
+
+END_IF
+
+//ACT_ScorerPositionDistribution();
+_scorerPositionDistribution_1();
+
+]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_PositionsGeneration">
+      <LineId Id="1" Count="23" />
+      <LineId Id="118" Count="0" />
+      <LineId Id="117" Count="0" />
+      <LineId Id="214" Count="0" />
+      <LineId Id="213" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._bottomOrderDisplayControl">
+      <LineId Id="75" Count="0" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="15" Count="3" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="52" Count="13" />
+      <LineId Id="26" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._checkOrderLimits">
+      <LineId Id="201" Count="50" />
+      <LineId Id="114" Count="0" />
+      <LineId Id="252" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._invertOrders">
+      <LineId Id="40" Count="43" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._scorerPositionDistribution">
+      <LineId Id="722" Count="207" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._scorerPositionDistribution_1">
+      <LineId Id="1227" Count="81" />
+      <LineId Id="1433" Count="0" />
+      <LineId Id="1436" Count="10" />
+      <LineId Id="1452" Count="3" />
+      <LineId Id="1470" Count="1" />
+      <LineId Id="1456" Count="13" />
+      <LineId Id="1475" Count="0" />
+      <LineId Id="1474" Count="0" />
+      <LineId Id="1434" Count="1" />
+      <LineId Id="1310" Count="2" />
+      <LineId Id="1472" Count="0" />
+      <LineId Id="1313" Count="10" />
+      <LineId Id="1329" Count="17" />
+      <LineId Id="1473" Count="0" />
+      <LineId Id="1347" Count="15" />
+      <LineId Id="1368" Count="34" />
+      <LineId Id="1408" Count="22" />
+      <LineId Id="1432" Count="0" />
+      <LineId Id="1431" Count="0" />
+      <LineId Id="895" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration._scorerPositionDistribution_bak">
+      <LineId Id="769" Count="16" />
+      <LineId Id="792" Count="97" />
+      <LineId Id="535" Count="0" />
+      <LineId Id="894" Count="0" />
+      <LineId Id="893" Count="0" />
+      <LineId Id="896" Count="113" />
+      <LineId Id="895" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_CalculateNumberOfKnifes">
+      <LineId Id="1" Count="25" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_CalculateNumberOfScorers">
+      <LineId Id="69" Count="76" />
+      <LineId Id="68" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_CalculateNumberOfSheets">
+      <LineId Id="35" Count="42" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_GenerateOrderPositions">
+      <LineId Id="211" Count="243" />
+      <LineId Id="210" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_KnifePositionDistribution">
+      <LineId Id="384" Count="97" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="482" Count="0" />
+      <LineId Id="484" Count="125" />
+      <LineId Id="483" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_KnifePositionDistribution_bak">
+      <LineId Id="1" Count="39" />
+      <LineId Id="86" Count="2" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="117" Count="9" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="105" Count="9" />
+      <LineId Id="104" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="54" Count="2" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="151" Count="9" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="133" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="138" Count="9" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="134" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="128" Count="3" />
+      <LineId Id="69" Count="16" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_KnifePositionSelection">
+      <LineId Id="137" Count="138" />
+      <LineId Id="136" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_ScorerPositionDistribution">
+      <LineId Id="2442" Count="237" />
+      <LineId Id="1026" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_PositionsGeneration.ACT_ScorerPositionSelection">
+      <LineId Id="956" Count="158" />
+      <LineId Id="159" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,632 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_EL5152" Id="{dd651b18-b2c6-49fd-94bf-d11eacda2045}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_EL5152
+
+//===========================
+// INPUTS
+//===========================
+
+VAR_INPUT PERSISTENT
+	
+	channel1DeviceConfig    : EL5152_DEV_CONFIG; // Encoder device configuration (scaling, PPR, timing, etc.)
+	channel2DeviceConfig    : EL5152_DEV_CONFIG; // Encoder device configuration (scaling, PPR, timing, etc.)
+	
+END_VAR
+
+VAR_INPUT
+	
+	PlcToHw  AT %Q* : EL5152_PLCTOHW; // Output PDOs from PLC to encoder hardware (control signals)
+    //==============================================================
+    // Channel 1 - set position command
+    //==============================================================
+    channel1SetPosition     : BOOL;  // Rising edge sets encoder channel 1 position
+    channel1DesiredPosition : LREAL; // Desired position in mm for encoder channel 1
+
+    //==============================================================
+    // Channel 2 - set position command
+    //==============================================================
+    channel2SetPosition     : BOOL;  // Rising edge sets encoder channel 2 position
+    channel2DesiredPosition : LREAL; // Desired position in mm for encoder channel 2	
+	
+END_VAR
+
+//===========================
+// OUTPUTS
+//===========================
+
+VAR_OUTPUT
+	
+	HwToPlc AT %I* : EL5152_HWTOPLC; // Input PDOs from encoder hardware to PLC (status + values)
+	
+    channel1EncoderSpeedMMs        : REAL;
+    channel1EncoderSpeedMPM        : REAL;
+    channel1EncoderSpeedAbsMMs     : REAL;
+    channel1EncoderSpeedAbsMPM     : REAL;
+    channel1EncoderPosition        : LREAL;
+    channel1EncoderModuloPosition  : LREAL;  // Position inside configured modulo range
+
+    channel2EncoderSpeedMMs        : REAL;
+    channel2EncoderSpeedMPM        : REAL;
+    channel2EncoderSpeedAbsMMs     : REAL;
+    channel2EncoderSpeedAbsMPM     : REAL;
+    channel2EncoderPosition        : LREAL;
+    channel2EncoderModuloPosition  : LREAL;  // Position inside configured modulo range
+	
+END_VAR
+//===========================
+// INTERNAL VARIABLES
+//===========================
+
+VAR
+    //==============================================================
+    // Channel 1 - speed calculation memory
+    //==============================================================
+    instTON_calculateEncSpeedCh1 : TON;
+
+    lastCounterValueCh1          : UDINT;
+    counterDeltaCh1              : DINT;
+    positionDeltaCh1             : REAL;
+    firstCycleCh1                : BOOL := TRUE;
+
+    //==============================================================
+    // Channel 2 - speed calculation memory
+    //==============================================================
+    instTON_calculateEncSpeedCh2 : TON;
+
+    lastCounterValueCh2          : UDINT;
+    counterDeltaCh2              : DINT;
+    positionDeltaCh2             : REAL;
+    firstCycleCh2                : BOOL := TRUE;
+
+    //==============================================================
+    // Channel 1 - simulation memory
+    //==============================================================
+    currentSystemTimeCh1         : ULINT;
+    lastCycleTimeCh1             : ULINT;
+    deltaTimeMsCh1               : REAL;
+    pulsesPerSecondCh1           : REAL;
+    pulsesToAddCh1               : DINT;
+    simulatedPositionRawValueCh1 : UDINT;
+    simulationInitCh1            : BOOL := FALSE;
+
+    //==============================================================
+    // Channel 2 - simulation memory
+    //==============================================================
+    currentSystemTimeCh2         : ULINT;
+    lastCycleTimeCh2             : ULINT;
+    deltaTimeMsCh2               : REAL;
+    pulsesPerSecondCh2           : REAL;
+    pulsesToAddCh2               : DINT;
+    simulatedPositionRawValueCh2 : UDINT;
+    simulationInitCh2            : BOOL := FALSE;
+
+    //==============================================================
+    // Set counter command control
+    //==============================================================
+    setPositionOld               : BOOL;
+
+    instTON_setCounterTimeoutCh1 : TON;
+    instTON_setCounterTimeoutCh2 : TON;
+
+    setCounterCommandIssuedCh1   : BOOL := FALSE;
+    setCounterCommandIssuedCh2   : BOOL := FALSE;
+	
+    //==============================================================
+    // Channel 1 - set position memory
+    //==============================================================
+    channel1SetPositionOld       : BOOL;
+    channel1SetPositionRawValue  : UDINT;
+
+    //==============================================================
+    // Channel 2 - set position memory
+    //==============================================================
+    channel2SetPositionOld       : BOOL;
+    channel2SetPositionRawValue  : UDINT;	
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//==============================================================
+// CHANNEL 1 - Set encoder position
+//==============================================================
+_SetEncoderPosition(
+    channel              := 1,
+    setPosition          := channel1SetPosition,
+    desiredPosition      := channel1DesiredPosition,
+    encoderScalingFactor := channel1DeviceConfig.encoderScalingFactor
+);
+
+//==============================================================
+// CHANNEL 1 - Modulo position
+//==============================================================
+channel1EncoderModuloPosition :=
+    _CalculateModuloPosition(
+        absolutePosition := channel1EncoderPosition,
+        moduloPosition   := channel1DeviceConfig.moduloPosition
+    );
+
+
+//==============================================================
+// CHANNEL 1 - Position
+//==============================================================
+channel1EncoderPosition :=
+    _CalculateEncoderPositionMM(
+        encoderPositionRawValue := HwToPlc.channel1.CounterValue,
+        encoderScalingFactor    := channel1DeviceConfig.encoderScalingFactor
+    );
+
+
+//==============================================================
+// CHANNEL 1 - Speed
+//==============================================================
+_CalculateEncoderSpeed(
+    channel                   := 1,
+    speedCalculationCycleTime := channel1DeviceConfig.speedCalculationCycleTime,
+    encoderPositionRawValue   := HwToPlc.channel1.CounterValue,
+    encoderScalingFactor      := channel1DeviceConfig.encoderScalingFactor
+);
+
+
+//==============================================================
+// CHANNEL 2 - Set encoder position
+//==============================================================
+_SetEncoderPosition(
+    channel              := 2,
+    setPosition          := channel2SetPosition,
+    desiredPosition      := channel2DesiredPosition,
+    encoderScalingFactor := channel2DeviceConfig.encoderScalingFactor
+);
+
+//==============================================================
+// CHANNEL 2 - Position
+//==============================================================
+channel2EncoderPosition :=
+    _CalculateEncoderPositionMM(
+        encoderPositionRawValue := HwToPlc.channel2.CounterValue,
+        encoderScalingFactor    := channel2DeviceConfig.encoderScalingFactor
+    );
+//==============================================================
+// CHANNEL 2 - Modulo position
+//==============================================================
+channel2EncoderModuloPosition :=
+    _CalculateModuloPosition(
+        absolutePosition := channel2EncoderPosition,
+        moduloPosition   := channel2DeviceConfig.moduloPosition
+    );
+
+//==============================================================
+// CHANNEL 2 - Speed
+//==============================================================
+_CalculateEncoderSpeed(
+    channel                   := 2,
+    speedCalculationCycleTime := channel2DeviceConfig.speedCalculationCycleTime,
+    encoderPositionRawValue   := HwToPlc.channel2.CounterValue,
+    encoderScalingFactor      := channel2DeviceConfig.encoderScalingFactor
+);]]></ST>
+    </Implementation>
+    <Method Name="_CalculateEncoderPositionMM" Id="{c424b00e-5c5f-4bb4-94fd-ec45a042eda8}">
+      <Declaration><![CDATA[METHOD PRIVATE _CalculateEncoderPositionMM : LREAL
+// ==============================================================================
+// Calculates the absolute encoder position in millimeters
+// using the raw counter value and a scaling factor.
+// ==============================================================================
+
+VAR_INPUT
+    encoderPositionRawValue : UDINT; // Raw counter value from encoder
+    encoderScalingFactor    : REAL;  // Scale factor: mm per pulse
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Convert raw encoder counter value to engineering position using scaling factor
+_CalculateEncoderPositionMM := UDINT_TO_LREAL(encoderPositionRawValue) * REAL_TO_LREAL(encoderScalingFactor);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_CalculateEncoderSpeed" Id="{6bd6e5ef-384e-40db-83ec-1e61096356e9}">
+      <Declaration><![CDATA[METHOD PRIVATE _CalculateEncoderSpeed
+// ==================================================================================================
+// Calculates encoder speed in both mm/s and m/min for channel 1 or channel 2.
+//
+// IMPORTANT:
+// Each channel has independent timer, previous counter value and first-cycle flag.
+// ==================================================================================================
+
+VAR_INPUT
+    channel                   : USINT; // 1 = Channel 1, 2 = Channel 2
+    speedCalculationCycleTime : TIME;  // Time interval for speed calculation
+    encoderPositionRawValue   : UDINT; // Current raw value from encoder counter
+    encoderScalingFactor      : REAL;  // Scaling factor: mm per encoder pulse
+END_VAR
+
+VAR
+    calculationTimeSec : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+// Convert configured calculation time from milliseconds to seconds
+calculationTimeSec := TIME_TO_REAL(speedCalculationCycleTime) / 1000.0;
+
+IF calculationTimeSec <= 0.0 THEN
+    RETURN;
+END_IF
+
+
+CASE channel OF
+
+    //==============================================================
+    // CHANNEL 1
+    //==============================================================
+    1:
+        instTON_calculateEncSpeedCh1(IN := TRUE, PT := speedCalculationCycleTime);
+
+        IF instTON_calculateEncSpeedCh1.Q THEN
+            // Reset timer
+            instTON_calculateEncSpeedCh1(IN := FALSE);
+
+            IF NOT firstCycleCh1 THEN
+
+                // Counter delta with 32-bit wrap support.
+                // This also allows negative movement when converted to DINT.
+                counterDeltaCh1 := UDINT_TO_DINT(encoderPositionRawValue - lastCounterValueCh1);
+
+                // Convert pulses to millimeters
+                positionDeltaCh1 := DINT_TO_REAL(counterDeltaCh1) * encoderScalingFactor;
+
+                // Calculate speed
+                channel1EncoderSpeedMMs := positionDeltaCh1 / calculationTimeSec;
+                channel1EncoderSpeedMPM := channel1EncoderSpeedMMs * 60.0 / 1000.0;
+
+                // Absolute speed
+                channel1EncoderSpeedAbsMMs := ABS(channel1EncoderSpeedMMs);
+                channel1EncoderSpeedAbsMPM := ABS(channel1EncoderSpeedMPM);
+
+            ELSE
+                // First cycle has no valid previous counter
+                channel1EncoderSpeedMMs    := 0.0;
+                channel1EncoderSpeedMPM    := 0.0;
+                channel1EncoderSpeedAbsMMs := 0.0;
+                channel1EncoderSpeedAbsMPM := 0.0;
+
+                firstCycleCh1 := FALSE;
+            END_IF
+
+            // Store current counter for next calculation
+            lastCounterValueCh1 := encoderPositionRawValue;
+        END_IF
+
+
+    //==============================================================
+    // CHANNEL 2
+    //==============================================================
+    2:
+        instTON_calculateEncSpeedCh2(IN := TRUE, PT := speedCalculationCycleTime);
+
+        IF instTON_calculateEncSpeedCh2.Q THEN
+            // Reset timer
+            instTON_calculateEncSpeedCh2(IN := FALSE);
+
+            IF NOT firstCycleCh2 THEN
+
+                // Counter delta with 32-bit wrap support.
+                // This also allows negative movement when converted to DINT.
+                counterDeltaCh2 := UDINT_TO_DINT(encoderPositionRawValue - lastCounterValueCh2);
+
+                // Convert pulses to millimeters
+                positionDeltaCh2 := DINT_TO_REAL(counterDeltaCh2) * encoderScalingFactor;
+
+                // Calculate speed
+                channel2EncoderSpeedMMs := positionDeltaCh2 / calculationTimeSec;
+                channel2EncoderSpeedMPM := channel2EncoderSpeedMMs * 60.0 / 1000.0;
+
+                // Absolute speed
+                channel2EncoderSpeedAbsMMs := ABS(channel2EncoderSpeedMMs);
+                channel2EncoderSpeedAbsMPM := ABS(channel2EncoderSpeedMPM);
+
+            ELSE
+                // First cycle has no valid previous counter
+                channel2EncoderSpeedMMs    := 0.0;
+                channel2EncoderSpeedMPM    := 0.0;
+                channel2EncoderSpeedAbsMMs := 0.0;
+                channel2EncoderSpeedAbsMPM := 0.0;
+
+                firstCycleCh2 := FALSE;
+            END_IF
+
+            // Store current counter for next calculation
+            lastCounterValueCh2 := encoderPositionRawValue;
+        END_IF
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_CalculateModuloPosition" Id="{0e0650ce-6b79-4cb3-93df-7120ed6bb01c}">
+      <Declaration><![CDATA[METHOD PRIVATE _CalculateModuloPosition : LREAL
+// ==================================================================================================
+// Calculates modulo position without using FLOOR.
+//
+// Output range:
+//   0.0 <= modulo position < moduloPosition
+//
+// Example:
+//   absolutePosition = 725.0
+//   moduloPosition   = 360.0
+//   return           = 5.0
+// ==================================================================================================
+
+VAR_INPUT
+    absolutePosition : LREAL; // Absolute accumulated position
+    moduloPosition   : LREAL; // Modulo range, for example 360.0
+END_VAR
+
+VAR
+    quotient    : LINT;
+    moduloValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+// If modulo is disabled or invalid, return absolute position
+IF moduloPosition <= 0.0 THEN
+    _CalculateModuloPosition := absolutePosition;
+    RETURN;
+END_IF
+
+
+// Approximate quotient.
+// Depending on the PLC/runtime, LREAL_TO_LINT may truncate or round.
+// The correction below guarantees the final value stays inside the modulo range.
+quotient := LREAL_TO_LINT(absolutePosition / moduloPosition);
+
+
+// Calculate initial modulo value
+moduloValue := absolutePosition - (LINT_TO_LREAL(quotient) * moduloPosition);
+
+
+// Correct negative residue
+WHILE moduloValue < 0.0 DO
+    moduloValue := moduloValue + moduloPosition;
+END_WHILE
+
+
+// Correct value above modulo range
+WHILE moduloValue >= moduloPosition DO
+    moduloValue := moduloValue - moduloPosition;
+END_WHILE
+
+
+_CalculateModuloPosition := moduloValue;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SetEncoderPosition" Id="{bcad5daa-3f84-4fcd-a1e8-9a6d9c2fabb9}">
+      <Declaration><![CDATA[METHOD PRIVATE _SetEncoderPosition
+// ==================================================================================================
+// Sets encoder position for channel 1 or channel 2.
+//
+// The command is triggered on the rising edge of setPosition.
+// The desired position in millimeters is converted to raw encoder pulses.
+// ==================================================================================================
+
+VAR_INPUT
+    channel              : USINT; // 1 = Channel 1, 2 = Channel 2
+    setPosition          : BOOL;  // Rising edge command
+    desiredPosition      : LREAL; // Desired position in mm
+    encoderScalingFactor : REAL;  // mm per pulse
+END_VAR
+
+VAR
+    setPositionRawValue : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+IF encoderScalingFactor <= 0.0 THEN
+    RETURN;
+END_IF
+
+
+// Convert desired position from mm to raw encoder pulses
+setPositionRawValue := LREAL_TO_UDINT(desiredPosition / REAL_TO_LREAL(encoderScalingFactor));
+
+
+CASE channel OF
+
+    //==============================================================
+    // CHANNEL 1
+    //==============================================================
+    1:
+
+        // Rising edge detection
+        IF setPosition AND NOT channel1SetPositionOld THEN
+
+            channel1SetPositionRawValue := setPositionRawValue;
+
+            // Write raw set value to output PDO
+            // Adjust these member names according to your EL5152_PLCTOHW structure
+            PlcToHw.channel1.setCounterValue := channel1SetPositionRawValue;
+
+            // Generate one PLC-cycle command pulse
+            // Adjust this member name according to your EL5152_PLCTOHW structure
+            PlcToHw.channel1.control.Set_counter := TRUE;
+
+            // Avoid false speed spike after position jump
+            firstCycleCh1 := TRUE;
+
+        ELSE
+
+            // Reset command bit after one PLC cycle
+            // Adjust this member name according to your EL5152_PLCTOHW structure
+            PlcToHw.channel1.control.Set_counter := FALSE;
+
+        END_IF
+
+        channel1SetPositionOld := setPosition;
+
+
+    //==============================================================
+    // CHANNEL 2
+    //==============================================================
+    2:
+
+        // Rising edge detection
+        IF setPosition AND NOT channel2SetPositionOld THEN
+
+            channel2SetPositionRawValue := setPositionRawValue;
+
+            // Write raw set value to output PDO
+            // Adjust these member names according to your EL5152_PLCTOHW structure
+            PlcToHw.channel2.setCounterValue := channel2SetPositionRawValue;
+
+            // Generate one PLC-cycle command pulse
+            // Adjust this member name according to your EL5152_PLCTOHW structure
+            PlcToHw.channel2.control.Set_counter := TRUE;
+
+            // Avoid false speed spike after position jump
+            firstCycleCh2 := TRUE;
+
+        ELSE
+
+            // Reset command bit after one PLC cycle
+            // Adjust this member name according to your EL5152_PLCTOHW structure
+            PlcToHw.channel2.control.Set_counter := FALSE;
+
+        END_IF
+
+        channel2SetPositionOld := setPosition;
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SimulateEncoderSpeed" Id="{77c61349-88ef-4942-81f8-f8d6ecd10bdf}">
+      <Declaration><![CDATA[METHOD PRIVATE _SimulateEncoderSpeed : UDINT
+// ==================================================================================================
+// Simulates encoder motion by incrementing a virtual counter value based on a given speed in m/min.
+//
+// Positive simulateSpeedMPM increases the raw counter.
+// Negative simulateSpeedMPM decreases the raw counter.
+// ==================================================================================================
+
+VAR_INPUT
+    channel              : USINT; // 1 = Channel 1, 2 = Channel 2
+    encoderScalingFactor : REAL;  // Encoder resolution: mm per pulse
+    simulateSpeedMPM     : REAL;  // Target speed in meters per minute
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+IF encoderScalingFactor <= 0.0 THEN
+    RETURN;
+END_IF
+
+
+CASE channel OF
+
+    //==============================================================
+    // CHANNEL 1
+    //==============================================================
+    1:
+        currentSystemTimeCh1 := F_GetSystemTime();
+
+        // Initialize simulation time reference
+        IF NOT simulationInitCh1 THEN
+            lastCycleTimeCh1 := currentSystemTimeCh1;
+            simulationInitCh1 := TRUE;
+            _SimulateEncoderSpeed := simulatedPositionRawValueCh1;
+            RETURN;
+        END_IF
+
+        // 1 tick = 100 ns
+        // 1 ms = 10,000 ticks
+        deltaTimeMsCh1 := ULINT_TO_REAL(currentSystemTimeCh1 - lastCycleTimeCh1) / 10000.0;
+
+        // Store time for next cycle
+        lastCycleTimeCh1 := currentSystemTimeCh1;
+
+        IF deltaTimeMsCh1 > 0.0 THEN
+
+            // Convert m/min to pulses per second
+            pulsesPerSecondCh1 := (simulateSpeedMPM * 1000.0 / 60.0) / encoderScalingFactor;
+
+            // Convert pulses per second to pulses per cycle
+            pulsesToAddCh1 := REAL_TO_DINT(pulsesPerSecondCh1 * (deltaTimeMsCh1 / 1000.0));
+
+            IF pulsesToAddCh1 >= 0 THEN
+                simulatedPositionRawValueCh1 := simulatedPositionRawValueCh1 + DINT_TO_UDINT(pulsesToAddCh1);
+            ELSE
+                simulatedPositionRawValueCh1 := simulatedPositionRawValueCh1 - DINT_TO_UDINT(ABS(pulsesToAddCh1));
+            END_IF
+
+        END_IF
+
+        _SimulateEncoderSpeed := simulatedPositionRawValueCh1;
+
+
+    //==============================================================
+    // CHANNEL 2
+    //==============================================================
+    2:
+        currentSystemTimeCh2 := F_GetSystemTime();
+
+        // Initialize simulation time reference
+        IF NOT simulationInitCh2 THEN
+            lastCycleTimeCh2 := currentSystemTimeCh2;
+            simulationInitCh2 := TRUE;
+            _SimulateEncoderSpeed := simulatedPositionRawValueCh2;
+            RETURN;
+        END_IF
+
+        // 1 tick = 100 ns
+        // 1 ms = 10,000 ticks
+        deltaTimeMsCh2 := ULINT_TO_REAL(currentSystemTimeCh2 - lastCycleTimeCh2) / 10000.0;
+
+        // Store time for next cycle
+        lastCycleTimeCh2 := currentSystemTimeCh2;
+
+        IF deltaTimeMsCh2 > 0.0 THEN
+
+            // Convert m/min to pulses per second
+            pulsesPerSecondCh2 := (simulateSpeedMPM * 1000.0 / 60.0) / encoderScalingFactor;
+
+            // Convert pulses per second to pulses per cycle
+            pulsesToAddCh2 := REAL_TO_DINT(pulsesPerSecondCh2 * (deltaTimeMsCh2 / 1000.0));
+
+            IF pulsesToAddCh2 >= 0 THEN
+                simulatedPositionRawValueCh2 := simulatedPositionRawValueCh2 + DINT_TO_UDINT(pulsesToAddCh2);
+            ELSE
+                simulatedPositionRawValueCh2 := simulatedPositionRawValueCh2 - DINT_TO_UDINT(ABS(pulsesToAddCh2));
+            END_IF
+
+        END_IF
+
+        _SimulateEncoderSpeed := simulatedPositionRawValueCh2;
+
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_EL5152">
+      <LineId Id="3" Count="75" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EL5152._CalculateEncoderPositionMM">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EL5152._CalculateEncoderSpeed">
+      <LineId Id="3" Count="94" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EL5152._CalculateModuloPosition">
+      <LineId Id="3" Count="30" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EL5152._SetEncoderPosition">
+      <LineId Id="3" Count="75" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EL5152._SimulateEncoderSpeed">
+      <LineId Id="3" Count="87" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

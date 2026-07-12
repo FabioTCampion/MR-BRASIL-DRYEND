@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeTorqueLimiting" Id="{dc0876e8-a04d-45bd-8d87-d42eebe0ab36}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeTorqueLimiting :
+STRUCT
+
+	TorqueLimit	: LREAL;
+	mode			: DINT;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

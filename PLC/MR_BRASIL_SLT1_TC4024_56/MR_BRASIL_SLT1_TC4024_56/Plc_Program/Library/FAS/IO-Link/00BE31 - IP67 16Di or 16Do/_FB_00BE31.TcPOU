@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_00BE31" Id="{c97004a3-14e7-4f0c-9911-075ec8f418f7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_00BE31
+VAR_INPUT
+	
+	ch0_Output_Pin2 : BOOL;
+	ch0_Output_Pin4 : BOOL;	
+	ch1_Output_Pin2 : BOOL;
+	ch1_Output_Pin4 : BOOL;	
+	ch2_Output_Pin2 : BOOL;
+	ch2_Output_Pin4 : BOOL;		
+	ch3_Output_Pin2 : BOOL;
+	ch3_Output_Pin4 : BOOL;	
+	ch4_Output_Pin2 : BOOL;
+	ch4_Output_Pin4 : BOOL;		
+	ch5_Output_Pin2 : BOOL;
+	ch5_Output_Pin4 : BOOL;			
+	ch6_Output_Pin2 : BOOL;
+	ch6_Output_Pin4 : BOOL;		
+	ch7_Output_Pin2 : BOOL;
+	ch7_Output_Pin4 : BOOL;		
+	
+	PlcToHw	AT %Q* 	: _00BE31_PLCTOHW_PDOS;	
+		
+END_VAR
+VAR_OUTPUT
+	
+	ch0_Input_Pin2 : BOOL;
+	ch0_Input_Pin4 : BOOL;	
+	ch1_Input_Pin2 : BOOL;
+	ch1_Input_Pin4 : BOOL;
+	ch2_Input_Pin2 : BOOL;
+	ch2_Input_Pin4 : BOOL;
+	ch3_Input_Pin2 : BOOL;
+	ch3_Input_Pin4 : BOOL;	
+	ch4_Input_Pin2 : BOOL;
+	ch4_Input_Pin4 : BOOL;	
+	ch5_Input_Pin2 : BOOL;
+	ch5_Input_Pin4 : BOOL;		
+	ch6_Input_Pin2 : BOOL;
+	ch6_Input_Pin4 : BOOL;	
+	ch7_Input_Pin2 : BOOL;
+	ch7_Input_Pin4 : BOOL;
+	
+	HwToPlc	AT %I* 	: _00BE31_HWTOPLC_PDOS;	
+	
+			
+END_VAR
+VAR
+
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[PlcToHw.outputByte_1.0 := ch0_Output_Pin2;
+PlcToHw.outputByte_0.0 := ch0_Output_Pin4;
+
+PlcToHw.outputByte_1.1 := ch1_Output_Pin2;
+PlcToHw.outputByte_0.1 := ch1_Output_Pin4;
+
+PlcToHw.outputByte_1.2 := ch2_Output_Pin2;
+PlcToHw.outputByte_0.2 := ch2_Output_Pin4;
+
+PlcToHw.outputByte_1.3 := ch3_Output_Pin2;
+PlcToHw.outputByte_0.3 := ch3_Output_Pin4;
+
+PlcToHw.outputByte_1.4 := ch4_Output_Pin2;
+PlcToHw.outputByte_0.4 := ch4_Output_Pin4;
+
+PlcToHw.outputByte_1.5 := ch5_Output_Pin2;
+PlcToHw.outputByte_0.5 := ch5_Output_Pin4;
+
+PlcToHw.outputByte_1.6 := ch6_Output_Pin2;
+PlcToHw.outputByte_0.6 := ch6_Output_Pin4;
+
+PlcToHw.outputByte_1.7 := ch7_Output_Pin2;
+PlcToHw.outputByte_0.7 := ch7_Output_Pin4;
+
+
+ch0_Input_Pin2 := HwToPlc.inputByte_1.0;
+ch0_Input_Pin4 := HwToPlc.inputByte_0.0;
+
+ch1_Input_Pin2 := HwToPlc.inputByte_1.1;
+ch1_Input_Pin4 := HwToPlc.inputByte_0.1;
+
+ch2_Input_Pin2 := HwToPlc.inputByte_1.2;
+ch2_Input_Pin4 := HwToPlc.inputByte_0.2;
+
+ch3_Input_Pin2 := HwToPlc.inputByte_1.3;
+ch3_Input_Pin4 := HwToPlc.inputByte_0.3;
+
+ch4_Input_Pin2 := HwToPlc.inputByte_1.4;
+ch4_Input_Pin4 := HwToPlc.inputByte_0.4;
+
+ch5_Input_Pin2 := HwToPlc.inputByte_1.5;
+ch5_Input_Pin4 := HwToPlc.inputByte_0.5;
+
+ch6_Input_Pin2 := HwToPlc.inputByte_1.6;
+ch6_Input_Pin4 := HwToPlc.inputByte_0.6;
+
+ch7_Input_Pin2 := HwToPlc.inputByte_1.7;
+ch7_Input_Pin4 := HwToPlc.inputByte_0.7;]]></ST>
+    </Implementation>
+    <LineIds Name="_FB_00BE31">
+      <LineId Id="3" Count="46" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

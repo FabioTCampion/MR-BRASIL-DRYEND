@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeConfig_TypeStruct" Id="{46148a8b-3064-4bc0-9fd8-a11898fdb182}">
+    <Declaration><![CDATA[(*
+TYPE rotaryKnifeConfig_TypeStruct :
+STRUCT
+	
+	infeedRollSpeedOffset	: REAL	:= 1.1;
+	outfeedRollSpeedOffset	: REAL	:= 1.2;
+	minLineSpeed			: REAL := 20.0;
+	
+	switchEncoderDelay			: TIME := T#30S;
+	speedCurve				    : ARRAY [1..10] OF rotaryKnifeSpeedCurve_TypeConfig;
+
+	lengthAdjustment			: INT;
+	
+END_STRUCT
+END_TYPE 
+*)
+TYPE rotaryKnifeConfig_TypeStruct :
+STRUCT
+    
+    // --- Roll Speed Ratios ---
+    infeedRollSpeedOffset   : REAL := 1.1;  // Multiplier for infeed roll speed relative to line speed (e.g., 1.1 = 10% draw)
+    outfeedRollSpeedOffset  : REAL := 1.2;  // Multiplier for outfeed roll speed to maintain tension/gap after cut
+    
+    // --- Operational Limits ---
+    minLineSpeed            : REAL := 20.0; // Minimum line speed (e.g., m/min) to allow automatic operation
+    
+    // --- Geometry & Logic ---
+    enableSyncDiameter      : BOOL;         // TRUE: Use synchronous cutting if sheet length < Knife Circumference (π * D)
+    knifeDiameter           : REAL := 262.670; // Physical diameter of the knife cylinder (mm)
+    knifeDiameterFactor           	: REAL := 1.0; // Physical diameter of the knife cylinder (mm)
+    
+	
+    // --- Timing & Profiles ---
+    switchEncoderDelay      : TIME := T#30S; // Delay/filter time when toggling between feedback encoders
+    speedCurve              : ARRAY [1..10] OF rotaryKnifeSpeedCurve_TypeConfig; // CAM or velocity profiles for different materials/speeds
+
+    // --- Fine Tuning ---
+    lengthAdjustment        : INT;          // Global position offset (pulses or tenths of mm) to trim cut accuracy
+    
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

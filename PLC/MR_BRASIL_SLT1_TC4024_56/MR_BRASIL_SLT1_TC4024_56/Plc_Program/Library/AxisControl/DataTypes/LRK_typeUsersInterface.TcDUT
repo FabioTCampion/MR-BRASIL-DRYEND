@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LRK_typeUsersInterface" Id="{8aae46ff-dbd0-47e3-a70f-ae6f895ac2dd}">
+    <Declaration><![CDATA[TYPE LRK_typeUsersInterface:
+STRUCT
+
+	knifeCircumference					:LREAL :=857.65479443007;	(*[mm]*)
+	startSyncAngle						:LREAL :=340.0;			(*[°]*)
+	endSyncAngle						:LREAL :=20.0;			(*[°]*)
+	startAngle							:LREAL :=90.0;			(*[°]*)
+	stopAngle							:LREAL :=270.0;			(*[°]*)
+	inflectionPoint						:LREAL :=50.0;			(*[%]*)
+	numberOfKnives						:INT :=1;
+	cutProfileCutOut						:DINT :=0;
+	camProfilePhase1					:DINT :=0;
+	jerkPhase1							:LREAL :=0.0;			(*[%]*)
+	camProfilePhase2					:DINT :=0;
+	jerkPhase2							:LREAL :=0.0;			(*[%]*)
+	cutProfileCutIn						:DINT :=0;
+	distanceToSensor					:LREAL :=0.0;			(*[mm]*)
+	firstCutCorrection						:LREAL :=0.0;			(*[mm]*)
+	startBacklashOffset					:LREAL :=50.0;			(*[mm]*)
+	toStartPosVel						:LREAL :=10.0;			(*[mm/s]*)
+	knifeOverspeedStartCut				:LREAL :=0.0;			(*[%]*)
+	knifeOverspeedZero					:LREAL :=0.0;			(*[%]*)
+	knifeOverspeedEndCut					:LREAL :=0.0;			(*[%]*)
+	cpCorrectionMaximum					:LREAL :=0.0;			(*[mm]*)
+	cpDeltaToleranceRangePositive			:LREAL :=0.0;			(*[mm]*)
+	cpDeltaToleranceRangeNegative			:LREAL :=0.0;			(*[mm]*)
+	adjustCutPositionPositiveValue			:LREAL :=0.0;			(*[mm]*)
+	trimmCutPositionPositiveValue			:LREAL :=0.0;			(*[mm]*)
+	adjustCutPositionNegativeValue			:LREAL :=0.0;			(*[mm]*)
+	trimmCutPositionNegativeValue			:LREAL :=0.0;			(*[mm]*)
+	cutPositionCorrectionVelocity			:LREAL :=0.0;			(*[mm/s]*)
+	cutCorrWait						:INT :=0;
+	shiftCorrectionStartPos					:LREAL :=0.0;			(*[%]percentageshiftinformatarea*)
+	reStart							:BOOL :=FALSE;
+	quickStart							:BOOL :=FALSE;
+	formatlengthChangePossible				:BOOL :=FALSE;
+	switchCAM							:BOOL :=FALSE;
+	measuringEdge						:DINT :=0;
+	cutPositionCorrectionOn				:BOOL :=FALSE;
+	adjustCutPositionPositive				:BOOL :=FALSE;
+	trimmCutPositionPositive				:BOOL :=FALSE;
+	adjustCutPositionNegative				:BOOL :=FALSE;
+	trimmCutPositionNegative				:BOOL :=FALSE;
+	cleanCut							:BOOL :=FALSE;			(*cutwithoutcountingsheets*)
+	torquePreControlOn					:BOOL :=FALSE;			(*activationoftorqueprecontrol*)
+	totalInertiaOfRotaryKnifeSystem			:LREAL :=0.0;			(*[kgm²]totalinertiaofrotaryknifesystem*)
+	torquePreControlMode					:DINT :=0;
+	lookAHead							:LREAL :=0.0;			(*[µs]lookaheadtimeinCAM*)
+	interruptProduction					:BOOL :=FALSE;
+	continueProduction					:BOOL :=FALSE;
+	leadingValueCouplingMode				:DINT :=0;
+	syncLength							:LREAL :=0.0;			(*[mm]synchronizinglength*)
+	extrapolationTime					:LREAL :=0.0;			(*[ms]extrapolationtimeonlyusedbyactualvaluecoupling*)
+	constantVelocityAtCut					:BOOL :=FALSE;			(*=synchronousareawithconstantvirtualaxisvelocity,=synchronousareawithactualencodervelocity*)
+	startLengthMode						:DINT :=0;
+	startLength							:LREAL :=0.0;			(*[mm]*)
+	stopLengthMode						:DINT :=0;
+	stopLength							:LREAL :=0.0;			(*[mm]*)
+	cuttingTorquePreControlOn				:BOOL :=FALSE;
+	cuttingTorquePreControlActivePoints		:INT :=0;
+	gearInRatioNumerator					:DINT :=0;
+	gearInRatioDenominator				:DINT :=0;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

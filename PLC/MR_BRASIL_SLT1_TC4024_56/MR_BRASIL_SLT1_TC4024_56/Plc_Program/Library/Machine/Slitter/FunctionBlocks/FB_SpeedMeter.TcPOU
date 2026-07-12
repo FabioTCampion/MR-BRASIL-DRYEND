@@ -1,0 +1,95 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SpeedMeter" Id="{6d720439-8429-4eb3-972d-403e3205f2dc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SpeedMeter
+VAR_INPUT
+
+	mesuringWheelPulseSensor		: BOOL;
+	measuringWheelDiameter		: REAL	:= 159.0;
+	cycleTimeSeconds			: TIME	:= T#1S;
+
+END_VAR
+VAR_OUTPUT
+
+	mesuringWheelSpeedRPM		: REAL;
+	measuringWheelSpeedMPM		: REAL;
+
+END_VAR
+VAR
+
+	measuringWheelPulseCounter	: DINT;
+	measuringWheelPulseCounterOld	: DINT;
+	measuringWheelPulseDif		: DINT;
+	cycleCounter				: DINT;
+
+	mesuringWheelPulseSensorOld	: BOOL;
+	timerPulse					: BOOL;
+	timerPulseOld				: BOOL;
+	instTimerTON				: TON;
+
+	cycleTimeSecondsInt: INT;
+END_VAR
+
+
+
+VAR CONSTANT
+
+	PI						: REAL	:= 3.14159265359;
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+IF mesuringWheelPulseSensor AND NOT mesuringWheelPulseSensorOld THEN
+
+	measuringWheelPulseCounter := measuringWheelPulseCounter + 1;
+
+END_IF
+
+mesuringWheelPulseSensorOld := mesuringWheelPulseSensor;
+
+
+
+
+IF instTimerTON.Q THEN
+
+	timerPulse := FALSE;
+	instTimerTON.IN	:= FALSE;
+
+END_IF
+
+IF NOT instTimerTON.IN AND NOT instTimerTON.Q THEN
+
+	timerPulse := TRUE;
+	instTimerTON.PT := cycleTimeSeconds;
+	instTimerTON.IN	:= TRUE;
+
+END_IF
+
+
+IF timerPulse AND NOT timerPulseOld THEN
+
+	measuringWheelPulseDif := measuringWheelPulseCounter - measuringWheelPulseCounterOld;
+	cycleCounter := cycleCounter + 1;
+	measuringWheelPulseCounterOld := measuringWheelPulseCounter;
+
+END_IF
+
+timerPulseOld := timerPulse;
+
+cycleTimeSecondsInt := TIME_TO_INT(cycleTimeSeconds / 1000);
+
+mesuringWheelSpeedRPM := (60 / cycleTimeSecondsInt) * measuringWheelPulseDif;
+
+measuringWheelSpeedMPM :=  (mesuringWheelSpeedRPM * ( measuringWheelDiameter * PI)*0.001);
+
+
+instTimerTON();
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SpeedMeter">
+      <LineId Id="1" Count="48" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

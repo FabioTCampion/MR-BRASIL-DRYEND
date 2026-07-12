@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="aocHmiStatus_TypeStruct" Id="{faf56f49-1438-4c27-ae08-6040110fb1b1}">
+    <Declaration><![CDATA[TYPE aocHmiStatus_TypeStruct :
+STRUCT
+	
+	automaticOrderChangeStatus	: STRING;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

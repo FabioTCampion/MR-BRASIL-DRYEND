@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="aocHmiCommands_TypeStruct" Id="{0c8830b3-4dcf-4aba-97ee-3eb5f91e0d6b}">
+    <Declaration><![CDATA[TYPE aocHmiCommands_TypeStruct :
+STRUCT
+	
+	aocExecute : BOOL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

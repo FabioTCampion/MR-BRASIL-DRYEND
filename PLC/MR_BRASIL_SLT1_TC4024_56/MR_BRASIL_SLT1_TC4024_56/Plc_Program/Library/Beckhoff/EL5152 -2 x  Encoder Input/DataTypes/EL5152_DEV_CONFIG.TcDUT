@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_DEV_CONFIG" Id="{2ea3b03e-ed0f-404f-9725-260a1e996c92}">
+    <Declaration><![CDATA[TYPE EL5152_DEV_CONFIG :
+STRUCT
+
+	// Encoder configuration
+	encoderPulsePerRevolution	: INT := 2000;      // Number of pulses per revolution (PPR) from the encoder
+	encoderScalingFactor	    : REAL := 0.18;      // Position increment per pulse (e.g., 360 mm / 2000 PPR = 0.18 mm/pulse)
+	moduloPosition 				: LREAL := 360.0	; // Modulo position range, for example 360.0 
+
+	// Speed calculation
+	speedCalculationCycleTime	: TIME := T#300MS;     // Interval at which encoder speed is recalculated
+
+	// Simulation mode
+	startSimulation				: BOOL := FALSE;    // Enables encoder simulation mode
+	simulatedSpeed				: REAL := 10.0;     // Simulated speed in meters per minute (MPM)
+
+	// Manual position set
+	setPosition					: BOOL;             // Trigger to manually set encoder position
+	desiredPosition				: LREAL;            // Desired encoder position in millimeters
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

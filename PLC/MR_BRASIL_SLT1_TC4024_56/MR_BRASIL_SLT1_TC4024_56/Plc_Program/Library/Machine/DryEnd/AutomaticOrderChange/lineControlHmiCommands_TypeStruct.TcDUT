@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="lineControlHmiCommands_TypeStruct" Id="{c1ccb89c-be1c-40b6-9cb6-92df3ffa3874}">
+    <Declaration><![CDATA[TYPE lineControlHmiCommands_TypeStruct :
+STRUCT
+	
+	speedInc : BOOL;
+	speedDec : BOOL;
+	speedStop : BOOL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

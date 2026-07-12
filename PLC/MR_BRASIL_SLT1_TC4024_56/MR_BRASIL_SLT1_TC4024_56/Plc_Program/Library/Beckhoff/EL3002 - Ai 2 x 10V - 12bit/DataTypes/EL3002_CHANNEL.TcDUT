@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL3002_CHANNEL" Id="{72c41ae3-6521-41c2-b446-4199d1b594cf}">
+    <Declaration><![CDATA[TYPE EL3002_CHANNEL :
+	STRUCT
+		
+	
+	Status 	AT %I* : EL3002_DEV_STATUS;
+	Value 	AT %I* : INT;
+	
+	
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

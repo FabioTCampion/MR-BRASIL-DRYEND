@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LRK_typeCamCommand" Id="{faf47355-a193-478a-9652-5b6118f658b3}">
+    <Declaration><![CDATA[TYPE LRK_typeCamCommand :
+STRUCT
+	
+	resetExecute:BOOL;
+	resetRestart:BOOL;
+	interpolateCamExecute:BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

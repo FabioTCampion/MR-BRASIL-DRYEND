@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <FileVersion>1.0.0.0</FileVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{cbdb8ccc-0f43-46e7-8c82-c97a3a06a577}</ProjectGuid>
+    <SubObjectsSortedByName>true</SubObjectsSortedByName>
+    <DownloadApplicationInfo>true</DownloadApplicationInfo>
+    <WriteProductVersion>false</WriteProductVersion>
+    <GenerateTpy>false</GenerateTpy>
+    <Name>Plc_Program</Name>
+    <ProgramVersion>3.1.4026.15</ProgramVersion>
+    <Application>{75b6ba25-cdc2-4b86-a79e-8a227bafbda7}</Application>
+    <TypeSystem>{7b8d031d-5791-4bf4-b6bb-0bfaca8a87b5}</TypeSystem>
+    <Implicit_Task_Info>{9f4e2142-af77-407c-8fa7-c3ff7c9e5d24}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{8e64aac0-b0fe-45f0-afb7-63a09c9832db}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{7d3cef3a-ddf9-41bf-97e9-82b029bf656f}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{5cea0967-5541-4691-b49e-b8c377940251}</LibraryReferences>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="GVLs\GVL_Hmi.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL_Hw.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL_InterConnection.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeAxisConfig.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeCamIn.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeDiagnostics.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeFastStop.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeGearInAbsolute.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeGearInRelative.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeGeneralSettings.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeHoming.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeJog.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeMoveVelocity.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typePhasing.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typePosAbsolute.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typePosRelative.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typePosSuperimposed.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typePower.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeStop.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LAxisCtrl_typeTorqueLimiting.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LRK_typeCamCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LRK_typeCamStatus.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LRK_typeRotaryKnifeAxisCommand.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\LRK_typeUsersInterface.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\MC_SYNCHRONIZEDMOTIONSIMULATION.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\TO_Cam_Struct_PointData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\DataTypes\TO_Cam_Struct_SegmentData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\FB_ComplexAxisControl.TcPOU">
+      <SubType>Code</SubType>
+      <ExcludeFromBuild>true</ExcludeFromBuild>
+    </Compile>
+    <Compile Include="Library\AxisControl\FB_SimpleAxisControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\AxisControl\MC_TORQUELIMITING.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\CX9020\FB_SavePersistentData.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1809\DataTypes\EL1809_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1809\DataTypes\EL1809_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1809\DataTypes\EL1809_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1809\FB_EL1809.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL2809\DataTypes\EL2809_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL2809\DataTypes\EL2809_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL2809\DataTypes\EL2809_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL2809\FB_EL2809.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes\EL3002_CHANNEL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes\EL3002_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes\EL3002_DEV_STATUS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes\EL3002_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes\EL3002_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\FB_EL3002.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\DataTypes\EL4004_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\DataTypes\EL4004_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\DataTypes\EL4004_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\FB_EL4004.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_CONTROL.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_HWTOPLC.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_PLCTOHW.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes\EL5152_STATUS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\FB_EL5152.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\006B51 - IO-Link Master\DataTypes\_006B51_Channel_State.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\006B51 - IO-Link Master\DataTypes\_006B51_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\006B51 - IO-Link Master\_FB_006B51.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BE31 - IP67 16Di or 16Do\DataTypes\_00BE31_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BE31 - IP67 16Di or 16Do\DataTypes\_00BE31_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BE31 - IP67 16Di or 16Do\_FB_00BE31.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BH11 - 16Di or 16Do\DataTypes\_00BH11_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BH11 - 16Di or 16Do\DataTypes\_00BH11_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BH11 - 16Di or 16Do\_FB_00BH11.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BW12 - 16 Solenoid Island\DataTypes\_00BW12_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\00BW12 - 16 Solenoid Island\_FB_00BW1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\0AC001 - Analog Input\DataTypes\_0AC001_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\0AC001 - Analog Input\DataTypes\_0AC001_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\FAS\IO-Link\0AC001 - Analog Input\_FB_0AC001.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Alarm Control\FB_AlarmControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\aocConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\aocHmiCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\aocHmiStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\FB_AutomaticOrderChange.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\FB_AutomaticOrderChange_V1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\FB_AutomaticOrderChange_V1_BAK.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\AutomaticOrderChange\lineControlHmiCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Hmi\hmiAlarms_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Hmi\hmiCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Hmi\hmiStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Hmi\machineConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\generatedOrderStatusWord_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\generatedOrder_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\orderConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\orderHmiCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\orderHmiStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\orderVariables_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\order_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\DataTypes\sheetTypeEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\DryEnd\Order control\FB_MetricsAndCalculation.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Config\rotaryKnifeConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Config\rotaryKnifeHmiStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Config\rotaryKnifeSpeedCurve_TypeConfig.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Config\rotaryKnifeStatusWord1_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Config\rotaryKnifeStatusWord2_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Function Block\FB_RotaryKnife.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Function Block\FB_RotaryKnife_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Function Block\FB_SpeedLimit.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Hmi\hmiAlarmsRotaryKnife_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Hmi\rotaryKnifeCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Rotary knife\Hmi\rotaryKnifeStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\E_LevelSelector.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\hmiAlarmsSlitter_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\hmiCommandsFlaps_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\hmiCommandsJog_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\hmiCommandsSmallPosCorrection_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\hmiSlitterAlarms_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\slitterCommands_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\slitterConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\DataTypes\Hmi\slitterStatus_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_KnifeLubrification.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_KnifeSharpening.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_KnifeSharpening_old.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_PaperDirectionControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_PaperDirectionControl_.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_PositionsGeneration.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_ScorerHeight.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_SlitterControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_SpeedMeter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiAlarmsSimpleStacker_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiCommandsSimpleStacker_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiStatusSimpleStacker_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\SimpleStackerConfig_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\SimpleStackerConfig_TypeStruct_1.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_BackstopState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_ConveyorLevelerState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_PackageSeparationState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_SheetStackDischargeState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_SyncConveyorsState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Ramp\FB_Gen_SRamp.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Sick\DT35-B15251 - Laser Sensor\DataTypes\_DT35B15251_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Sick\DT35-B15251 - Laser Sensor\DataTypes\_DT35B15251_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Sick\DT35-B15251 - Laser Sensor\_FB_DT35_B15251.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PlcFastTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PlcTask.TcTTO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\FAST.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\MAIN.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RecipeManager.TcRMO">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="DUTs" />
+    <Folder Include="GVLs" />
+    <Folder Include="Library" />
+    <Folder Include="Library\AxisControl" />
+    <Folder Include="Library\AxisControl\DataTypes" />
+    <Folder Include="Library\Beckhoff" />
+    <Folder Include="Library\Beckhoff\CX9020" />
+    <Folder Include="Library\Beckhoff\EL1809" />
+    <Folder Include="Library\Beckhoff\EL1809\DataTypes" />
+    <Folder Include="Library\Beckhoff\EL2809" />
+    <Folder Include="Library\Beckhoff\EL2809\DataTypes" />
+    <Folder Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit" />
+    <Folder Include="Library\Beckhoff\EL3002 - Ai 2 x 10V - 12bit\DataTypes" />
+    <Folder Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V" />
+    <Folder Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\DataTypes" />
+    <Folder Include="Library\Beckhoff\EL5152 -2 x  Encoder Input" />
+    <Folder Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes" />
+    <Folder Include="Library\FAS" />
+    <Folder Include="Library\FAS\IO-Link" />
+    <Folder Include="Library\FAS\IO-Link\006B51 - IO-Link Master" />
+    <Folder Include="Library\FAS\IO-Link\006B51 - IO-Link Master\DataTypes" />
+    <Folder Include="Library\FAS\IO-Link\00BE31 - IP67 16Di or 16Do" />
+    <Folder Include="Library\FAS\IO-Link\00BE31 - IP67 16Di or 16Do\DataTypes" />
+    <Folder Include="Library\FAS\IO-Link\00BH11 - 16Di or 16Do" />
+    <Folder Include="Library\FAS\IO-Link\00BH11 - 16Di or 16Do\DataTypes" />
+    <Folder Include="Library\FAS\IO-Link\00BW12 - 16 Solenoid Island" />
+    <Folder Include="Library\FAS\IO-Link\00BW12 - 16 Solenoid Island\DataTypes" />
+    <Folder Include="Library\FAS\IO-Link\0AC001 - Analog Input" />
+    <Folder Include="Library\FAS\IO-Link\0AC001 - Analog Input\DataTypes" />
+    <Folder Include="Library\Machine" />
+    <Folder Include="Library\Machine\DryEnd" />
+    <Folder Include="Library\Machine\DryEnd\Alarm Control" />
+    <Folder Include="Library\Machine\DryEnd\AutomaticOrderChange" />
+    <Folder Include="Library\Machine\DryEnd\Hmi" />
+    <Folder Include="Library\Machine\DryEnd\Order control" />
+    <Folder Include="Library\Machine\DryEnd\Order control\DataTypes" />
+    <Folder Include="Library\Machine\Stacker" />
+    <Folder Include="Library\Machine\Rotary knife" />
+    <Folder Include="Library\Machine\Rotary knife\Config" />
+    <Folder Include="Library\Machine\Rotary knife\Function Block" />
+    <Folder Include="Library\Machine\Rotary knife\Hmi" />
+    <Folder Include="Library\Machine\Slitter" />
+    <Folder Include="Library\Machine\Slitter\DataTypes" />
+    <Folder Include="Library\Machine\Slitter\DataTypes\Hmi" />
+    <Folder Include="Library\Machine\Slitter\FunctionBlocks" />
+    <Folder Include="Library\Machine\Stacker\Simple Stacker" />
+    <Folder Include="Library\Machine\Stacker\Simple Stacker\DataTypes" />
+    <Folder Include="Library\Ramp" />
+    <Folder Include="Library\Sick" />
+    <Folder Include="Library\Sick\DT35-B15251 - Laser Sensor" />
+    <Folder Include="Library\Sick\DT35-B15251 - Laser Sensor\DataTypes" />
+    <Folder Include="VISUs" />
+    <Folder Include="POUs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderReference Include="CPNTeck - OSCAT BASIC">
+      <DefaultResolution>CPNTeck - OSCAT BASIC, * (CPNTeck - Automação Industrial)</DefaultResolution>
+      <Namespace>CPNTeck_OSCAT_BASIC</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_ModbusSrv">
+      <DefaultResolution>Tc2_ModbusSrv, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_ModbusSrv</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_SUPS">
+      <DefaultResolution>Tc2_SUPS, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_SUPS</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+      <SystemLibrary>true</SystemLibrary>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Plc_Program.tmc">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <SubObject Include="FB_SimpleSheetStackerControl_1._AlarmControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._BackstopControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._ConveyorLevelerControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._ConveyorSpeedControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._HmiStatus" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._MachineAuxiliary" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._SheetConveyorGroupControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._SheetStackDischargeControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._SheetStackDischargeConveyorControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_1._SystemControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._AlarmControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._BackstopControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._ConveyorLevelerControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._ConveyorSpeedControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._HmiStatus" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._MachineAuxiliary" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._SheetConveyorGroupControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._SheetStackDischargeControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._SheetStackDischargeConveyorControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_2._SystemControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._AlarmControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._BackstopControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._ConveyorLevelerControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._ConveyorSpeedControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._HmiStatus" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._MachineAuxiliary" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._SheetConveyorGroupControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._SheetStackDischargeControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._SheetStackDischargeConveyorControl" />
+    <SubObject Include="FB_SimpleSheetStackerControl_3._SystemControl" />
+  </ItemGroup>
+  <ProjectExtensions>
+    <PlcProjectOptions>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
+      <v n="Name">"&lt;ProjectRoot&gt;"</v>
+      <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
+        <o>
+          <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
+          <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>NamingConventions</v>
+            <o>
+              <v n="Name">"NamingConventions"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+            <v>Rules</v>
+            <o>
+              <v n="Name">"Rules"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+          </d>
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
+        <o>
+          <v n="Name">"{40450F57-0AA3-4216-96F3-5444ECB29763}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>ActiveVisuProfile</v>
+            <v>IR0whWr8bwfyBwAAaCbC8QAAAABVAgAA1xHl6QAAAAABAAAAAAAAAAEaUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwACTHsAZgA5ADUAYgBiADQAMgA2AC0ANQA1ADIANAAtADQAYgA0ADUALQA5ADQAMAAwAC0AZgBiADAAZgAyAGUANwA3AGUANQAxAGIAfQADCE4AYQBtAGUABDJUAHcAaQBuAEMAQQBUACAAMwAuADEAIABCAHUAaQBsAGQAIAA0ADAAMgA2AC4AMQA1AAUWUAByAG8AZgBpAGwAZQBEAGEAdABhAAZMewAxADYAZQA1ADUAYgA2ADAALQA3ADAANAAzAC0ANABhADYAMwAtAGIANgA1AGIALQA2ADEANAA3ADEAMwA4ADcAOABkADQAMgB9AAcSTABpAGIAcgBhAHIAaQBlAHMACEx7ADMAYgBmAGQANQA0ADUAOQAtAGIAMAA3AGYALQA0AGQANgBlAC0AYQBlADEAYQAtAGEAOAAzADMANQA2AGEANQA1ADEANAAyAH0ACUx7ADkAYwA5ADUAOAA5ADYAOAAtADIAYwA4ADUALQA0ADEAYgBiAC0AOAA4ADcAMQAtADgAOQA1AGYAZgAxAGYAZQBkAGUAMQBhAH0ACg5WAGUAcgBzAGkAbwBuAAsGaQBuAHQADApVAHMAYQBnAGUADQpUAGkAdABsAGUADhpWAGkAcwB1AEUAbABlAG0ATQBlAHQAZQByAA8OQwBvAG0AcABhAG4AeQAQDFMAeQBzAHQAZQBtABESVgBpAHMAdQBFAGwAZQBtAHMAEjBWAGkAcwB1AEUAbABlAG0AcwBTAHAAZQBjAGkAYQBsAEMAbwBuAHQAcgBvAGwAcwATKFYAaQBzAHUARQBsAGUAbQBzAFcAaQBuAEMAbwBuAHQAcgBvAGwAcwAUJFYAaQBzAHUARQBsAGUAbQBUAGUAeAB0AEUAZABpAHQAbwByABUiVgBpAHMAdQBOAGEAdABpAHYAZQBDAG8AbgB0AHIAbwBsABYUVgBpAHMAdQBJAG4AcAB1AHQAcwAXGFYAaQBzAHUARQBsAGUAbQBCAGEAcwBlABgmRABlAHYAUABsAGEAYwBlAGgAbwBsAGQAZQByAHMAVQBzAGUAZAAZCGIAbwBvAGwAGiJQAGwAdQBnAGkAbgBDAG8AbgBzAHQAcgBhAGkAbgB0AHMAG0x7ADQAMwBkADUAMgBiAGMAZQAtADkANAAyAGMALQA0ADQAZAA3AC0AOQBlADkANAAtADEAYgBmAGQAZgAzADEAMABlADYAMwBjAH0AHBxBAHQATABlAGEAcwB0AFYAZQByAHMAaQBvAG4AHRRQAGwAdQBnAGkAbgBHAHUAaQBkAB4WUwB5AHMAdABlAG0ALgBHAHUAaQBkAB9IYQBmAGMAZAA1ADQANAA2AC0ANAA5ADEANAAtADQAZgBlADcALQBiAGIANwA4AC0AOQBiAGYAZgBlAGIANwAwAGYAZAAxADcAIBRVAHAAZABhAHQAZQBJAG4AZgBvACFMewBiADAAMwAzADYANgBhADgALQBiADUAYwAwAC0ANABiADkAYQAtAGEAMAAwAGUALQBlAGIAOAA2ADAAMQAxADEAMAA0AGMAMwB9ACIOVQBwAGQAYQB0AGUAcwAjTHsAMQA4ADYAOABmAGYAYwA5AC0AZQA0AGYAYwAtADQANQAzADIALQBhAGMAMAA2AC0AMQBlADMAOQBiAGIANQA1ADcAYgA2ADkAfQAkTHsAYQA1AGIAZAA0ADgAYwAzAC0AMABkADEANwAtADQAMQBiADUALQBiADEANgA0AC0ANQBmAGMANgBhAGQAMgBiADkANgBiADcAfQAlFk8AYgBqAGUAYwB0AHMAVAB5AHAAZQAmVFUAcABkAGEAdABlAEwAYQBuAGcAdQBhAGcAZQBNAG8AZABlAGwARgBvAHIAQwBvAG4AdgBlAHIAdABpAGIAbABlAEwAaQBiAHIAYQByAGkAZQBzACcQTABpAGIAVABpAHQAbABlACgUTABpAGIAQwBvAG0AcABhAG4AeQApHlUAcABkAGEAdABlAFAAcgBvAHYAaQBkAGUAcgBzACo4UwB5AHMAdABlAG0ALgBDAG8AbABsAGUAYwB0AGkAbwBuAHMALgBIAGEAcwBoAHQAYQBiAGwAZQArEnYAaQBzAHUAZQBsAGUAbQBzACwMcwB5AHMAdABlAG0ALUg2AGMAYgAxAGMAZABlADEALQBkADUAZABjAC0ANABhADMAYgAtADkAMAA1ADQALQAyADEAZgBhADcANQA2AGEAMwBmAGEANAAuKEkAbgB0AGUAcgBmAGEAYwBlAFYAZQByAHMAaQBvAG4ASQBuAGYAbwAvTHsAYwA2ADEAMQBlADQAMAAwAC0ANwBmAGIAOQAtADQAYwAzADUALQBiADkAYQBjAC0ANABlADMAMQA0AGIANQA5ADkANgA0ADMAfQAwGE0AYQBqAG8AcgBWAGUAcgBzAGkAbwBuADEYTQBpAG4AbwByAFYAZQByAHMAaQBvAG4AMgxMAGUAZwBhAGMAeQAzMEwAYQBuAGcAdQBhAGcAZQBNAG8AZABlAGwAVgBlAHIAcwBpAG8AbgBJAG4AZgBvADQwTABvAGEAZABMAGkAYgByAGEAcgBpAGUAcwBJAG4AdABvAFAAcgBvAGoAZQBjAHQANRpDAG8AbQBwAGEAdABpAGIAaQBsAGkAdAB5ANAAAhoD0AMBLQTQBQYaB9AHCBoBRQcJCNAACRoERQoLBAQAAAAHAAAAAAAAAAAAAADQDAutAgAAANANAS0O0A8BLRDQAAkaBEUKCwQEAAAABwAAAAAAAAAAAAAA0AwLrQEAAADQDQEtEdAPAS0Q0AAJGgRFCgsEBAAAAAcAAAAAAAAAAAAAANAMC60CAAAA0A0BLRLQDwEtENAACRoERQoLBAQAAAAHAAAAAAAAAAAAAADQDAutAgAAANANAS0T0A8BLRDQAAkaBEUKCwQEAAAABwAAAAAAAAAAAAAA0AwLrQIAAADQDQEtFNAPAS0Q0AAJGgRFCgsEBAAAAAcAAAAAAAAAAAAAANAMC60CAAAA0A0BLRXQDwEtENAACRoERQoLBAQAAAAHAAAAAAAAAAAAAADQDAutAgAAANANAS0W0A8BLRDQAAkaBEUKCwQEAAAABwAAAAAAAAAAAAAA0AwLrQQAAADQDQEtF9APAS0Q0BgZrQFFGhsB0AAbGgJFHAsEBAAAAAIAAAAAAAAAAAAAANAdHi0f0CAhGgJFIiMC0AAkGgVFCgsEAwAAAAMAAAAAAAAACgAAANAlC60AAAAA0AMBLSbQJwEtEdAoAS0Q0AAkGgVFCgsEAwAAAAMAAAAAAAAACgAAANAlC60BAAAA0AMBLSbQJwEtEdAoAS0QmikqAUUAAQLQAAEtK9AAAS0s0AAeLS3QLi8aA9AwC60BAAAA0DELrSQAAADQMhmtANAzLxoD0DALrQIAAADQMQutBgAAANAyGa0A0DQZrQDQNRmtAA==</v>
+          </d>
+        </o>
+        <v>{8A0FB252-96EB-4DCC-A5B4-B4804D05E2D6}</v>
+        <o>
+          <v n="Name">"{8A0FB252-96EB-4DCC-A5B4-B4804D05E2D6}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="Boolean">
+            <v>WriteLineIDs</v>
+            <v>True</v>
+          </d>
+        </o>
+        <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
+        <o>
+          <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>DisabledWarningIds</v>
+            <v>410,5410</v>
+          </d>
+        </o>
+      </d>
+      <d n="Values" t="Hashtable" />
+    </o>
+        </Data>
+        <TypeList>
+          <Type n="Boolean">System.Boolean</Type>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
+    </PlcProjectOptions>
+  </ProjectExtensions>
+</Project>

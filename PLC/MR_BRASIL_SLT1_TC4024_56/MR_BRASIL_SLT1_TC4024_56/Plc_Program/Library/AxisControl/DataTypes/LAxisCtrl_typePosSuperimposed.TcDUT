@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typePosSuperimposed" Id="{41d110e3-e84c-4e1e-adfa-c90d4dbaa945}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typePosSuperimposed :
+STRUCT
+
+	distance		: LREAL;
+	velocityDiff		: LREAL;
+	acceleration	: LREAL;
+	deceleration	: LREAL;
+	jerk			: LREAL;
+	direction		: DINT;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

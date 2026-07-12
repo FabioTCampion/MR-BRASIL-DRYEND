@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_STATUS" Id="{07f36563-df92-46f0-b3e3-450c440bdf60}">
+    <Declaration><![CDATA[TYPE EL5152_STATUS :
+STRUCT
+
+		{attribute 'hide'}
+		_reserved1 : BIT;
+		{attribute 'hide'}
+		_reserved2 : BIT;
+		Set_counter_done : BIT;
+		{attribute 'hide'}
+		_reserved3 : BIT;
+		{attribute 'hide'}
+		_reserved4 : BIT;
+		{attribute 'hide'}
+		_reserved5 : BIT;
+		{attribute 'hide'}
+		_reserved6 : BIT;
+		Extrapolation_stall : BIT;
+		Status_of_input_A : BIT;
+		Status_of_input_B : BIT;
+		{attribute 'hide'}
+		_reserved7 : BIT;
+		{attribute 'hide'}
+		_reserved8 : BIT;
+		{attribute 'hide'}
+		_reserved9 : BIT;
+		Sync_error : BIT;
+		{attribute 'hide'}
+		_reserved10 : BIT;
+		TxPDO_Toggle : BIT;	
+
+END_STRUCT
+END_TYPE
+
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

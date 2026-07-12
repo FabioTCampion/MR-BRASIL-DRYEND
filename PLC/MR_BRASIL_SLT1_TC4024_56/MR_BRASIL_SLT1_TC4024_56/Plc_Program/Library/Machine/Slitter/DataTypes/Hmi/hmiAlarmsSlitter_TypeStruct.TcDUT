@@ -1,0 +1,85 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiAlarmsSlitter_TypeStruct" Id="{af19cb5f-c83d-4f6e-99b1-892b74aeae0c}">
+    <Declaration><![CDATA[TYPE hmiAlarmsSlitter_TypeStruct :
+STRUCT
+	
+
+	safetyCircuitFault								: BOOL;
+	slitterHomeNotCompleteFault							: BOOL;
+	slitterTractionNotEnabledFault					: BOOL;
+	
+	knife01Fault								: BOOL;
+	knife02Fault								: BOOL;
+	knife03Fault								: BOOL;
+	knife04Fault								: BOOL;
+	knife05Fault								: BOOL;
+	knife06Fault								: BOOL;
+	knife07Fault								: BOOL;
+	
+
+	upperScorer01Fault								: BOOL;
+	upperScorer02Fault								: BOOL;
+	upperScorer03Fault								: BOOL;
+	upperScorer04Fault								: BOOL;
+	upperScorer05Fault								: BOOL;
+	upperScorer06Fault								: BOOL;
+	upperScorer07Fault								: BOOL;
+	upperScorer08Fault								: BOOL;
+	upperScorer09Fault								: BOOL;
+	upperScorer10Fault								: BOOL;
+	upperScorer11Fault								: BOOL;
+	upperScorer12Fault								: BOOL;
+	
+	
+
+	lowerScorer01Fault								: BOOL;
+	lowerScorer02Fault								: BOOL;
+	lowerScorer03Fault								: BOOL;
+	lowerScorer04Fault								: BOOL;
+	lowerScorer05Fault								: BOOL;
+	lowerScorer06Fault								: BOOL;
+	lowerScorer07Fault								: BOOL;
+	lowerScorer08Fault								: BOOL;
+	lowerScorer09Fault								: BOOL;
+	lowerScorer10Fault								: BOOL;
+	lowerScorer11Fault								: BOOL;
+	lowerScorer12Fault								: BOOL;
+	
+	
+	orderFault			:BOOL;
+
+	knife1OutOfRange	:BOOL;
+	knife2OutOfRange	:BOOL;
+	knife3OutOfRange	:BOOL;
+	knife4OutOfRange	:BOOL;
+	knife5OutOfRange	:BOOL;
+	
+	scorer1OutOfRange	:BOOL;
+	scorer2OutOfRange	:BOOL;
+	scorer3OutOfRange	:BOOL;
+	scorer4OutOfRange	:BOOL;
+	scorer5OutOfRange	:BOOL;
+	scorer6OutOfRange	:BOOL;
+	scorer7OutOfRange	:BOOL;
+	scorer8OutOfRange	:BOOL;
+	
+	
+	
+	
+	
+
+    // Scorer traction (main traction axis for scorers)
+    scorerTractionFault          : BOOL;
+	knifeTractionFault : BOOL;	
+    // ─────────────── SCORER HEIGHT ───────────────
+    scorerHeightAxisFault        : BOOL;
+
+    // ─────────────── SCRAP TRIMMING ───────────────
+    scrapTrimOperatorSideFault   : BOOL;
+    scrapTrimDriveSideFault      : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

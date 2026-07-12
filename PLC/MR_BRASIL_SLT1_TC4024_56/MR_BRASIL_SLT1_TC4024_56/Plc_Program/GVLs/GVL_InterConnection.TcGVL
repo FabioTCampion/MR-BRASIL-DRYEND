@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <GVL Name="GVL_InterConnection" Id="{0fa15f22-3973-431f-9642-0bf4c5e6b236}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+	
+	upperStackerUnload : BOOL;
+	lowerStackerUnload : BOOL;
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

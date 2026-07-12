@@ -1,0 +1,926 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_RotaryKnife_1" Id="{5b460b29-6807-431e-bb0a-cf32388e6734}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_RotaryKnife_1
+
+
+
+
+VAR_OUTPUT
+    //────────────────────────────────────────────
+    // GENERAL / ALARMS (COMMON)
+    //────────────────────────────────────────────
+    alarmActive                     : BOOL;  // Global alarm active / Alarme geral ativo
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — ENABLE / RUN COMMANDS
+    //────────────────────────────────────────────
+    upperLevelEnable                : BOOL;  // Upper level enable / Habilita nível superior
+    upperLevelInFeedRun             : BOOL;  // Upper infeed run / Partida infeed superior
+    upperLevelOutFeedRun            : BOOL;  // Upper outfeed run / Partida outfeed superior
+    upperLevelSlave1Run             : BOOL;  // Upper slave1 run / Partida slave1 superior
+    upperLevelSlave2Run             : BOOL;  // Upper slave2 run / Partida slave2 superior
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — MOTION / CUT / HOME COMMANDS
+    //────────────────────────────────────────────
+    upperLevelJogFw                 : BOOL;  // Upper jog forward / JOG avanço superior
+    upperLevelJogRev                : BOOL;  // Upper jog reverse / JOG reverso superior
+    upperLevelCut                   : BOOL;  // Upper cut command output / Saída corte superior
+    upperLevelHome                  : BOOL;  // Upper home command output / Saída home superior
+    upperLevelHomeSensorPulse       : BOOL;  // Upper home sensor pulse / Pulso sensor home superior
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — RESET STATUS
+    //────────────────────────────────────────────
+    upperLevelReset                 : BOOL;  // Upper reset active / Reset superior ativo
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — SPEED REFERENCES
+    //────────────────────────────────────────────
+    upperLevelInFeedDriveRef        : REAL;  // Upper infeed speed reference / Referência velocidade infeed superior
+    upperLevelOutFeedDriveRef       : REAL;  // Upper outfeed speed reference / Referência velocidade outfeed superior
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — ENCODER SELECTION OUTPUT
+    //────────────────────────────────────────────
+    upperLevelEncoderSwitch         : BOOL;  // Upper encoder select (to drive/IO) / Seletor encoder superior
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — ENABLE / RUN COMMANDS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelEnable                : BOOL;  // Lower level enable / Habilita nível inferior
+    lowerLevelInFeedRun             : BOOL;  // Lower infeed run / Partida infeed inferior
+    lowerLevelOutFeedRun            : BOOL;  // Lower outfeed run / Partida outfeed inferior
+    lowerLevelSlave1Run             : BOOL;  // Lower slave1 run / Partida slave1 inferior
+    lowerLevelSlave2Run             : BOOL;  // Lower slave2 run / Partida slave2 inferior
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — MOTION / CUT / HOME COMMANDS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelJogFw                 : BOOL;  // Lower jog forward / JOG avanço inferior
+    lowerLevelJogRev                : BOOL;  // Lower jog reverse / JOG reverso inferior
+    lowerLevelCut                   : BOOL;  // Lower cut command output / Saída corte inferior
+    lowerLevelHome                  : BOOL;  // Lower home command output / Saída home inferior
+    lowerLevelHomeSensorPulse       : BOOL;  // Lower home sensor pulse / Pulso sensor home inferior
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — RESET STATUS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelReset                 : BOOL;  // Lower reset active / Reset inferior ativo
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — SPEED REFERENCES (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelInFeedDriveRef        : REAL;  // Lower infeed speed reference / Referência velocidade infeed inferior
+    lowerLevelOutFeedDriveRef       : REAL;  // Lower outfeed speed reference / Referência velocidade outfeed inferior
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — ENCODER SELECTION OUTPUT (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelEncoderSwitch         : BOOL;  // Lower encoder select (to drive/IO) / Seletor encoder inferior
+
+    //────────────────────────────────────────────
+    // HMI STATUS (COMMON)
+    //────────────────────────────────────────────
+    hmiStatus                       : hmiStatus_TypeStruct; // HMI status structure / Estrutura status HMI
+END_VAR
+VAR
+    //────────────────────────────────────────────
+    // UPPER LEVEL — INTERNAL SEQUENCE / STATE
+    //────────────────────────────────────────────
+    upperLevelStep                 : INT := 0;      // Sequence step for upper level
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — INTERNAL AGGREGATIONS / FLAGS
+    //────────────────────────────────────────────
+    upperLevelAllDrivesOK          : BOOL := FALSE; // Aggregated drive OK status
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — EDGE DETECTORS
+    //────────────────────────────────────────────
+    upperLevelRtEnable             : R_TRIG;        // Rising edge for Power ON command
+    upperLevelRtPowerOff           : R_TRIG;        // Rising edge for Power OFF command
+
+    //────────────────────────────────────────────
+    // UPPER LEVEL — TIMERS
+    //────────────────────────────────────────────
+    upperLevelTimerReset           : TON;           // 2s reset pulse timer
+    upperLevelTimerPulse           : TON;           // General wait/pulse timer used in step 20
+    upperLevelTimerWait            : TON;           // Reserved (used in safety reset section)
+    upperLevelTimerClear           : TON;           // Reserved (used in safety reset section)
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — INTERNAL SEQUENCE / STATE (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelStep                 : INT := 0;      // Sequence step for lower level
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — INTERNAL AGGREGATIONS / FLAGS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelAllDrivesOK          : BOOL := FALSE; // Aggregated drive OK status
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — EDGE DETECTORS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelRtEnable             : R_TRIG;        // Rising edge for Power ON command
+    lowerLevelRtPowerOff           : R_TRIG;        // Rising edge for Power OFF command
+
+    //────────────────────────────────────────────
+    // LOWER LEVEL — TIMERS (CREATED)
+    //────────────────────────────────────────────
+    lowerLevelTimerReset           : TON;           // 2s reset pulse timer
+    lowerLevelTimerPulse           : TON;           // General wait/pulse timer used in step 20
+    lowerLevelTimerWait            : TON;           // Reserved (used in safety reset section)
+    lowerLevelTimerClear           : TON;           // Reserved (used in safety reset section)
+
+    //────────────────────────────────────────────
+    // MODBUS TCP — FUNCTION BLOCKS / GLOBAL STATE
+    //────────────────────────────────────────────
+    instFB_MBReadRegs              : FB_MBReadRegs;   // Modbus TCP read registers FB
+    instFB_MBWriteRegs             : FB_MBWriteRegs;  // Modbus TCP write registers FB
+    modbusTCPStep                  : INT;             // Modbus TCP state machine step
+
+    //────────────────────────────────────────────
+    // MODBUS TCP — UPPER LEVEL DATA
+    //────────────────────────────────────────────
+    upperLevelStatusWord1          : INT;
+    upperLevelStatusWord2          : INT;
+    upperLevelModbusDword          : DWORD;
+    upperLevelWriteMenu2029        : DWORD;
+    upperLevelLineSpeed            : WORD;
+	upperLevelStatusW1				: rotaryKnifeStatusWord1_TypeStruct;
+	upperLevelStatusW2				: rotaryKnifeStatusWord2_TypeStruct;		
+
+    //────────────────────────────────────────────
+    // MODBUS TCP — LOWER LEVEL DATA
+    //────────────────────────────────────────────
+    lowerLevelStatusWord1          : INT;
+    lowerLevelStatusWord2          : INT;
+    lowerLevelModbusDword          : DWORD;
+    lowerLevelWriteMenu2029        : DWORD;
+    lowerLevelLineSpeed            : WORD;
+
+	lowerLevelStatusW1				: rotaryKnifeStatusWord1_TypeStruct;
+	lowerLevelStatusW2				: rotaryKnifeStatusWord2_TypeStruct;	
+	
+	
+END_VAR
+
+VAR PERSISTENT
+	
+	lowerLevelTotalOfCutsAccumulator : DINT;
+	upperLevelTotalOfCutsAccumulator : DINT;
+
+
+END_VAR
+
+VAR_IN_OUT
+
+	currentOrder	: Order_TypeStruct;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_00_ModbusTCP();
+_01_UpperLevelControl();
+_02_LowerLevelControl();]]></ST>
+    </Implementation>
+    <Method Name="_00_ModbusTCP" Id="{585eced8-3cb2-4d83-b8b5-efabc07ad939}">
+      <Declaration><![CDATA[METHOD _00_ModbusTCP
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE modbusTCPStep OF
+	
+		(*________________________________________________________________*)
+		00:(*Read lower level line speed*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.11', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#711, (*Menu 18.10*)
+		cbLength:= SIZEOF(lowerLevelLineSpeed),  
+		pDestAddr:= ADR(lowerLevelLineSpeed),  
+		bExecute:= TRUE, 
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+	
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)
+		END_IF
+		
+		
+		(*________________________________________________________________*)		
+		01:(*Read rotary knife status word1*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.11', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#774, //Parameter #19.09 - 1 = > HEX
+		cbLength:= SIZEOF(upperLevelStatusWord1),  
+		pDestAddr:= ADR(upperLevelStatusWord1),  
+		bExecute:= TRUE,  
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)			
+		END_IF	
+		
+		
+		(*________________________________________________________________*)		
+		02:(*Read rotary knife status word1*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.11', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#775, //Parameter #19.10 - 1 = > HEX
+		cbLength:= SIZEOF(upperLevelStatusWord2),  
+		pDestAddr:= ADR(upperLevelStatusWord2),  
+		bExecute:= TRUE,  
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)
+
+		END_IF			
+
+
+
+
+
+		(*________________________________________________________________*)
+		03:(*Read lower level line speed*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.12', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#711, (*Menu 18.10*)
+		cbLength:= SIZEOF(lowerLevelLineSpeed),  
+		pDestAddr:= ADR(lowerLevelLineSpeed),  
+		bExecute:= TRUE, 
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+	
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)
+		END_IF
+		
+		
+		(*________________________________________________________________*)		
+		04:(*Read rotary knife status word1*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.12', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#774, //Parameter #19.09 - 1 = > HEX
+		cbLength:= SIZEOF(lowerLevelStatusWord1),  
+		pDestAddr:= ADR(lowerLevelStatusWord1),  
+		bExecute:= TRUE,  
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+		
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)			
+		END_IF	
+		
+		(*________________________________________________________________*)		
+		05:(*Read rotary knife status word1*)
+	
+		instFB_MBReadRegs(
+		sIPAddr:= '192.168.100.12', 
+		nTCPPort:= 502, 
+		nUnitID:= 1, 
+		nQuantity:= 1, 
+		nMBAddr:= 16#775, //Parameter #19.10 - 1 = > HEX
+		cbLength:= SIZEOF(lowerLevelStatusWord2),  
+		pDestAddr:= ADR(lowerLevelStatusWord2),  
+		bExecute:= TRUE,  
+		tTimeout:= T#500MS,  
+		bBusy=> , 
+		bError=> , 
+		nErrId=> , 
+		cbRead=> );
+		
+		IF NOT instFB_MBReadRegs.bBusy THEN
+			instFB_MBReadRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)
+
+		END_IF	
+		
+		
+		
+	(*________________________________________________________________*)	
+		6:(*Write lower level sheet lenght*)	
+	
+		
+		IF NOT currentOrder.invertOrderLevel THEN
+			
+			upperLevelModbusDword := (INT_TO_DWORD(currentOrder.order1.sheetLength) * 1000);
+	
+		ELSE
+			
+			upperLevelModbusDword := (INT_TO_DWORD(currentOrder.order2.sheetLength) * 1000);			
+		
+		END_IF
+					
+		upperLevelWriteMenu2029 := SHR(upperLevelModbusDword,16) OR SHL(upperLevelModbusDword,16);
+		
+		//Write menu 20.29 - MBAddres: 16#47EC (18412dec)
+		instFB_MBWriteRegs(
+		sIPAddr:= '192.168.100.11', //Modbus gateway IP Addres
+		nTCPPort:= 502, //Modbus gateway port
+		nUnitID:= 1, //Drive addres subnode
+		nQuantity:= 2, //Number of words
+		nMBAddr:= 16#47EC, 
+		cbLength:= SIZEOF(upperLevelWriteMenu2029), 
+		pSrcAddr:= ADR(upperLevelWriteMenu2029), 
+		bExecute:= TRUE, 
+		tTimeout:= T#1000MS, 
+		bBusy=> , 
+		bError=> , 
+		nErrId=> );
+		
+		IF NOT instFB_MBWriteRegs.bBusy THEN
+			instFB_MBWriteRegs(bExecute:=FALSE);
+			modbusTCPStep:=modbusTCPStep + 1;	(*Index*)
+
+		END_IF			
+
+		
+		
+		7:(*Write lower level sheet lenght*)	
+	
+		
+		IF NOT currentOrder.invertOrderLevel THEN
+			
+			lowerLevelModbusDword := (INT_TO_DWORD(currentOrder.order2.sheetLength) * 1000);
+	
+		ELSE
+			
+			lowerLevelModbusDword := (INT_TO_DWORD(currentOrder.order1.sheetLength) * 1000);			
+		
+		END_IF
+					
+		lowerLevelWriteMenu2029 := SHR(lowerLevelModbusDword,16) OR SHL(lowerLevelModbusDword,16);
+		
+		//Write menu 20.29 - MBAddres: 16#47EC (18412dec)
+		instFB_MBWriteRegs(
+		sIPAddr:= '192.168.100.12', //Modbus gateway IP Addres
+		nTCPPort:= 502, //Modbus gateway port
+		nUnitID:= 1, //Drive addres subnode
+		nQuantity:= 2, //Number of words
+		nMBAddr:= 16#47EC, 
+		cbLength:= SIZEOF(lowerLevelWriteMenu2029), 
+		pSrcAddr:= ADR(lowerLevelWriteMenu2029), 
+		bExecute:= TRUE, 
+		tTimeout:= T#1000MS, 
+		bBusy=> , 
+		bError=> , 
+		nErrId=> );
+		
+		IF NOT instFB_MBWriteRegs.bBusy THEN
+			instFB_MBWriteRegs(bExecute:=FALSE);
+			modbusTCPStep:=0;	(*Index*)
+
+		END_IF				
+	
+END_CASE		
+
+
+
+//==============================================================
+// STATUS WORD 1 — BIT TO BOOL MAPPING (Upper + Lower)
+//==============================================================
+
+//-----------------------------
+// Upper Level — Status Word 1
+//-----------------------------
+upperLevelStatusW1.knifeAtHomeParkPos1              := upperLevelStatusWord1.00;
+upperLevelStatusW1.homingInProgress                 := upperLevelStatusWord1.01;
+upperLevelStatusW1.homingComplete                   := upperLevelStatusWord1.02;
+upperLevelStatusW1.knifeInspectionMotionInProgress  := upperLevelStatusWord1.03;
+upperLevelStatusW1.knifeInspectionMotionComplete    := upperLevelStatusWord1.04;
+upperLevelStatusW1.returnHomeMotionInProgress       := upperLevelStatusWord1.05;
+upperLevelStatusW1.returnHomeMotionComplete         := upperLevelStatusWord1.06;
+upperLevelStatusW1.jogForwardInProgress             := upperLevelStatusWord1.07;
+upperLevelStatusW1.jogReverseInProgress             := upperLevelStatusWord1.08;
+upperLevelStatusW1.knifeGearingOut                  := upperLevelStatusWord1.09;
+upperLevelStatusW1.knifeRunningEngaged              := upperLevelStatusWord1.10;
+upperLevelStatusW1.knifeStoppedDisengaged           := upperLevelStatusWord1.11;
+upperLevelStatusW1.maxLineSpeedLimitCalculated      := upperLevelStatusWord1.12;
+upperLevelStatusW1.batchMaxLineSpeedCalcInProgress  := upperLevelStatusWord1.13;
+upperLevelStatusW1.batchMaxLineSpeedCalculated      := upperLevelStatusWord1.14;
+upperLevelStatusW1.watchdogClockOut                 := upperLevelStatusWord1.15;
+
+//-----------------------------
+// Lower Level — Status Word 1
+//-----------------------------
+lowerLevelStatusW1.knifeAtHomeParkPos1              := lowerLevelStatusWord1.00;
+lowerLevelStatusW1.homingInProgress                 := lowerLevelStatusWord1.01;
+lowerLevelStatusW1.homingComplete                   := lowerLevelStatusWord1.02;
+lowerLevelStatusW1.knifeInspectionMotionInProgress  := lowerLevelStatusWord1.03;
+lowerLevelStatusW1.knifeInspectionMotionComplete    := lowerLevelStatusWord1.04;
+lowerLevelStatusW1.returnHomeMotionInProgress       := lowerLevelStatusWord1.05;
+lowerLevelStatusW1.returnHomeMotionComplete         := lowerLevelStatusWord1.06;
+lowerLevelStatusW1.jogForwardInProgress             := lowerLevelStatusWord1.07;
+lowerLevelStatusW1.jogReverseInProgress             := lowerLevelStatusWord1.08;
+lowerLevelStatusW1.knifeGearingOut                  := lowerLevelStatusWord1.09;
+lowerLevelStatusW1.knifeRunningEngaged              := lowerLevelStatusWord1.10;
+lowerLevelStatusW1.knifeStoppedDisengaged           := lowerLevelStatusWord1.11;
+lowerLevelStatusW1.maxLineSpeedLimitCalculated      := lowerLevelStatusWord1.12;
+lowerLevelStatusW1.batchMaxLineSpeedCalcInProgress  := lowerLevelStatusWord1.13;
+lowerLevelStatusW1.batchMaxLineSpeedCalculated      := lowerLevelStatusWord1.14;
+lowerLevelStatusW1.watchdogClockOut                 := lowerLevelStatusWord1.15;
+
+//==============================================================
+// STATUS WORD 2 — BIT TO BOOL MAPPING (Upper + Lower)
+//==============================================================
+
+//-----------------------------
+// Upper Level — Status Word 2
+//-----------------------------
+upperLevelStatusW2.batchSingleShotStopInProgress := upperLevelStatusWord2.00;
+upperLevelStatusW2.registrationMarkMissed        := upperLevelStatusWord2.01;
+upperLevelStatusW2.registrationWindowOpen        := upperLevelStatusWord2.02;
+upperLevelStatusW2.registrationMarkAccepted      := upperLevelStatusWord2.03;
+upperLevelStatusW2.onLastBatch                   := upperLevelStatusWord2.04;
+upperLevelStatusW2.onLastCutOfLastBatch          := upperLevelStatusWord2.05;
+upperLevelStatusW2.pls1Output                    := upperLevelStatusWord2.06;
+upperLevelStatusW2.pls2Output                    := upperLevelStatusWord2.07;
+upperLevelStatusW2.referenceEnabled              := upperLevelStatusWord2.08;
+upperLevelStatusW2.driveHealthy                  := upperLevelStatusWord2.09;
+upperLevelStatusW2.reserved10                    := upperLevelStatusWord2.10;
+upperLevelStatusW2.reserved11                    := upperLevelStatusWord2.11;
+upperLevelStatusW2.userDefinedStatusBit12        := upperLevelStatusWord2.12;
+upperLevelStatusW2.userDefinedStatusBit13        := upperLevelStatusWord2.13;
+upperLevelStatusW2.userDefinedStatusBit14        := upperLevelStatusWord2.14;
+upperLevelStatusW2.userDefinedStatusBit15        := upperLevelStatusWord2.15;
+
+//-----------------------------
+// Lower Level — Status Word 2
+//-----------------------------
+lowerLevelStatusW2.batchSingleShotStopInProgress := lowerLevelStatusWord2.00;
+lowerLevelStatusW2.registrationMarkMissed        := lowerLevelStatusWord2.01;
+lowerLevelStatusW2.registrationWindowOpen        := lowerLevelStatusWord2.02;
+lowerLevelStatusW2.registrationMarkAccepted      := lowerLevelStatusWord2.03;
+lowerLevelStatusW2.onLastBatch                   := lowerLevelStatusWord2.04;
+lowerLevelStatusW2.onLastCutOfLastBatch          := lowerLevelStatusWord2.05;
+lowerLevelStatusW2.pls1Output                    := lowerLevelStatusWord2.06;
+lowerLevelStatusW2.pls2Output                    := lowerLevelStatusWord2.07;
+lowerLevelStatusW2.referenceEnabled              := lowerLevelStatusWord2.08;
+lowerLevelStatusW2.driveHealthy                  := lowerLevelStatusWord2.09;
+lowerLevelStatusW2.reserved10                    := lowerLevelStatusWord2.10;
+lowerLevelStatusW2.reserved11                    := lowerLevelStatusWord2.11;
+lowerLevelStatusW2.userDefinedStatusBit12        := lowerLevelStatusWord2.12;
+lowerLevelStatusW2.userDefinedStatusBit13        := lowerLevelStatusWord2.13;
+lowerLevelStatusW2.userDefinedStatusBit14        := lowerLevelStatusWord2.14;
+lowerLevelStatusW2.userDefinedStatusBit15        := lowerLevelStatusWord2.15;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_01_UpperLevelControl" Id="{6b024d70-da38-46ca-ae35-9200b59f964d}">
+      <Declaration><![CDATA[METHOD _01_UpperLevelControl
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*
+======================================================================
+UPPER LEVEL — Rotary Knife Control (Upper Knife)
+======================================================================
+Concept:
+- Power ON command starts a simple sequence:
+  0  = OFF / Idle
+  10 = Enable drives + follow line speed
+  20 = Send HOME command for 1s
+  21 = Wait for HomingComplete status before running infeed/outfeed
+  40 = Normal operation (cut enabled when command + paper present)
+
+Rule:
+- When the upper level is powered ON, infeed/outfeed speed references
+  must follow lineSpeedMPM.
+======================================================================
+*)
+
+//==============================================================
+// 1) RESET PULSE (2s) + EDGE DETECTION
+//==============================================================
+upperLevelTimerReset(IN := resetCmd, PT := T#2S);
+upperLevelReset := upperLevelTimerReset.Q;
+
+upperLevelRtEnable(CLK := upperLevelPowerONCmd);
+upperLevelRtPowerOff(CLK := upperLevelPowerOFFCmd);
+
+//==============================================================
+// 2) DRIVE/SAFETY STATUS (AGGREGATION)
+//==============================================================
+upperLevelAllDrivesOK := upperLevelInfeedDrvOK  AND
+                         upperLevelOutfeedDrvOK AND
+                         upperLevelMainDrvOK    AND
+                         upperLevelSlave1DrvOK  AND
+                         upperLevelSlave2DrvOK;
+
+upperLevelHomeSensorPulse := upperLevelHomeSensor;
+
+//==============================================================
+// 3) START SEQUENCE CONDITION
+//==============================================================
+// Start only if:
+// - Rising edge on Power ON
+// - Sequence is idle
+// - Safety chain OK
+// - All drives OK
+// - No reset pulse active
+IF upperLevelRtEnable.Q
+   AND (upperLevelStep = 0)
+   AND safetyFeedback
+   AND upperLevelAllDrivesOK
+   AND NOT upperLevelReset THEN
+
+    upperLevelStep := 10;
+END_IF
+
+//==============================================================
+// 4) SEQUENCE STATE MACHINE
+//==============================================================
+CASE upperLevelStep OF
+
+    //==========================================================
+    // 0 — OFF / IDLE
+    //==========================================================
+    0:
+        // Commands OFF
+        upperLevelEnable      := FALSE;
+        upperLevelSlave1Run   := FALSE;
+        upperLevelSlave2Run   := FALSE;
+        upperLevelInFeedRun   := FALSE;
+        upperLevelOutFeedRun  := FALSE;
+
+        // Motion / actions OFF
+        upperLevelJogFw       := FALSE;
+        upperLevelJogRev      := FALSE;
+        upperLevelHome        := FALSE;
+        upperLevelCut         := FALSE;
+
+        // References = 0
+        upperLevelInFeedDriveRef  := 0.0;
+        upperLevelOutFeedDriveRef := 0.0;
+
+    //==========================================================
+    // 10 — ENABLE DRIVES + FOLLOW LINE SPEED
+    //==========================================================
+    10:
+        upperLevelEnable      := TRUE;
+        upperLevelSlave1Run   := TRUE;
+        upperLevelSlave2Run   := TRUE;
+
+        // Follow line speed immediately when powered ON
+        upperLevelInFeedDriveRef  := lineSpeedMPM;
+        upperLevelOutFeedDriveRef := lineSpeedMPM;
+
+        // Next step: issue homing pulse
+        upperLevelStep := 20;
+
+    //==========================================================
+    // 20 — HOME COMMAND PULSE (1s)
+    //==========================================================
+    20:
+        // Command home for 1 second
+        upperLevelHome := TRUE;
+
+        upperLevelTimerPulse(IN := TRUE, PT := T#1S);
+        IF upperLevelTimerPulse.Q THEN
+            upperLevelHome := FALSE;
+            upperLevelTimerPulse(IN := FALSE);
+            upperLevelStep := 21;
+        END_IF
+
+    //==========================================================
+    // 21 — WAIT HOMING COMPLETE
+    //==========================================================
+    21:
+
+        // Start infeed/outfeed only after homing is complete
+        IF upperLevelStatusW1.homingComplete THEN
+            upperLevelInFeedRun  := TRUE;
+            upperLevelOutFeedRun := TRUE;
+            upperLevelStep := 40;
+        END_IF
+
+    //==========================================================
+    // 40 — NORMAL OPERATION
+    //==========================================================
+    40:
+        // Track line speed continuously
+        upperLevelInFeedDriveRef  := lineSpeedMPM;
+        upperLevelOutFeedDriveRef := lineSpeedMPM;
+
+        // Enable cut only when commanded and paper present
+        upperLevelCut := (upperLevelCutCmd AND upperLevelPaperSensor);
+
+END_CASE
+
+//==============================================================
+// 5) GLOBAL INTERLOCK — IMMEDIATE STOP
+//==============================================================
+// Immediate stop on any of these conditions:
+// - Safety chain not OK
+// - Any drive not OK
+// - Power OFF command rising edge
+IF (NOT safetyFeedback) OR (NOT upperLevelAllDrivesOK) OR upperLevelRtPowerOff.Q THEN
+
+    upperLevelStep := 0;
+
+    upperLevelEnable      := FALSE;
+    upperLevelSlave1Run   := FALSE;
+    upperLevelSlave2Run   := FALSE;
+    upperLevelInFeedRun   := FALSE;
+    upperLevelOutFeedRun  := FALSE;
+
+    upperLevelJogFw       := FALSE;
+    upperLevelJogRev      := FALSE;
+    upperLevelHome        := FALSE;
+    upperLevelCut         := FALSE;
+
+    upperLevelInFeedDriveRef  := 0.0;
+    upperLevelOutFeedDriveRef := 0.0;
+
+    // Reset internal timers for a clean restart
+    upperLevelTimerWait(IN := FALSE);
+    upperLevelTimerPulse(IN := FALSE);
+    upperLevelTimerClear(IN := FALSE);
+    upperLevelTimerReset(IN := FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_02_LowerLevelControl" Id="{79a324f4-f536-40e3-b286-c298d60d6756}">
+      <Declaration><![CDATA[METHOD _02_LowerLevelControl
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[(*
+======================================================================
+LOWER LEVEL — Rotary Knife Control (Lower Knife)
+======================================================================
+Concept:
+- Power ON command starts a simple sequence:
+  0  = OFF / Idle
+  10 = Enable drives + follow line speed
+  20 = Send HOME command for 1s
+  21 = Wait for HomingComplete status before running infeed/outfeed
+  40 = Normal operation (cut enabled when command + paper present)
+
+Rule:
+- When the lower level is powered ON, infeed/outfeed speed references
+  must follow lineSpeedMPM.
+======================================================================
+*)
+
+//==============================================================
+// 1) RESET PULSE (2s) + EDGE DETECTION
+//==============================================================
+lowerLevelTimerReset(IN := resetCmd, PT := T#2S);
+lowerLevelReset := lowerLevelTimerReset.Q;
+
+lowerLevelRtEnable(CLK := lowerLevelPowerONCmd);
+lowerLevelRtPowerOff(CLK := lowerLevelPowerOFFCmd);
+
+//==============================================================
+// 2) DRIVE/SAFETY STATUS (AGGREGATION)
+//==============================================================
+lowerLevelAllDrivesOK := lowerLevelInfeedDrvOK  AND
+                         lowerLevelOutfeedDrvOK AND
+                         lowerLevelMainDrvOK    AND
+                         lowerLevelSlave1DrvOK  AND
+                         lowerLevelSlave2DrvOK;
+
+lowerLevelHomeSensorPulse := lowerLevelHomeSensor;
+
+//==============================================================
+// 3) START SEQUENCE CONDITION
+//==============================================================
+// Start only if:
+// - Rising edge on Power ON
+// - Sequence is idle
+// - Safety chain OK
+// - All drives OK
+// - No reset pulse active
+IF lowerLevelRtEnable.Q
+   AND (lowerLevelStep = 0)
+   AND safetyFeedback
+   AND lowerLevelAllDrivesOK
+   AND NOT lowerLevelReset THEN
+
+    lowerLevelStep := 10;
+END_IF
+
+//==============================================================
+// 4) SEQUENCE STATE MACHINE
+//==============================================================
+CASE lowerLevelStep OF
+
+    //==========================================================
+    // 0 — OFF / IDLE
+    //==========================================================
+    0:
+        // Commands OFF
+        lowerLevelEnable      := FALSE;
+        lowerLevelSlave1Run   := FALSE;
+        lowerLevelSlave2Run   := FALSE;
+        lowerLevelInFeedRun   := FALSE;
+        lowerLevelOutFeedRun  := FALSE;
+
+        // Motion / actions OFF
+        lowerLevelJogFw       := FALSE;
+        lowerLevelJogRev      := FALSE;
+        lowerLevelHome        := FALSE;
+        lowerLevelCut         := FALSE;
+
+        // References = 0
+        lowerLevelInFeedDriveRef  := 0.0;
+        lowerLevelOutFeedDriveRef := 0.0;
+
+    //==========================================================
+    // 10 — ENABLE DRIVES + FOLLOW LINE SPEED
+    //==========================================================
+    10:
+        lowerLevelEnable      := TRUE;
+        lowerLevelSlave1Run   := TRUE;
+        lowerLevelSlave2Run   := TRUE;
+
+        // Follow line speed immediately when powered ON
+        lowerLevelInFeedDriveRef  := lineSpeedMPM;
+        lowerLevelOutFeedDriveRef := lineSpeedMPM;
+
+        // Next step: issue homing pulse
+        lowerLevelStep := 20;
+
+    //==========================================================
+    // 20 — HOME COMMAND PULSE (1s)
+    //==========================================================
+    20:
+        // Command home for 1 second
+        lowerLevelHome := TRUE;
+
+        lowerLevelTimerPulse(IN := TRUE, PT := T#1S);
+        IF lowerLevelTimerPulse.Q THEN
+            lowerLevelHome := FALSE;
+            lowerLevelTimerPulse(IN := FALSE);
+            lowerLevelStep := 21;
+        END_IF
+
+    //==========================================================
+    // 21 — WAIT HOMING COMPLETE
+    //==========================================================
+    21:
+        // Start infeed/outfeed only after homing is complete
+        IF lowerLevelStatusW1.homingComplete THEN
+            lowerLevelInFeedRun  := TRUE;
+            lowerLevelOutFeedRun := TRUE;
+            lowerLevelStep := 40;
+        END_IF
+
+    //==========================================================
+    // 40 — NORMAL OPERATION
+    //==========================================================
+    40:
+        // Track line speed continuously
+        lowerLevelInFeedDriveRef  := lineSpeedMPM;
+        lowerLevelOutFeedDriveRef := lineSpeedMPM;
+
+        // Enable cut only when commanded and paper present
+        lowerLevelCut := (lowerLevelCutCmd AND lowerLevelPaperSensor);
+
+END_CASE
+
+//==============================================================
+// 5) GLOBAL INTERLOCK — IMMEDIATE STOP
+//==============================================================
+// Immediate stop on any of these conditions:
+// - Safety chain not OK
+// - Any drive not OK
+// - Power OFF command rising edge
+IF (NOT safetyFeedback) OR (NOT lowerLevelAllDrivesOK) OR lowerLevelRtPowerOff.Q THEN
+
+    lowerLevelStep := 0;
+
+    lowerLevelEnable      := FALSE;
+    lowerLevelSlave1Run   := FALSE;
+    lowerLevelSlave2Run   := FALSE;
+    lowerLevelInFeedRun   := FALSE;
+    lowerLevelOutFeedRun  := FALSE;
+
+    lowerLevelJogFw       := FALSE;
+    lowerLevelJogRev      := FALSE;
+    lowerLevelHome        := FALSE;
+    lowerLevelCut         := FALSE;
+
+    lowerLevelInFeedDriveRef  := 0.0;
+    lowerLevelOutFeedDriveRef := 0.0;
+
+    // Reset internal timers for a clean restart
+    lowerLevelTimerWait(IN := FALSE);
+    lowerLevelTimerPulse(IN := FALSE);
+    lowerLevelTimerClear(IN := FALSE);
+    lowerLevelTimerReset(IN := FALSE);
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_RotaryKnife_1">
+      <LineId Id="1714" Count="0" />
+      <LineId Id="2186" Count="0" />
+      <LineId Id="2429" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife_1._00_ModbusTCP">
+      <LineId Id="6" Count="1" />
+      <LineId Id="79" Count="46" />
+      <LineId Id="318" Count="0" />
+      <LineId Id="126" Count="20" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="149" Count="4" />
+      <LineId Id="156" Count="42" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="199" Count="24" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="225" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="231" Count="2" />
+      <LineId Id="235" Count="2" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="238" Count="2" />
+      <LineId Id="271" Count="0" />
+      <LineId Id="241" Count="0" />
+      <LineId Id="269" Count="0" />
+      <LineId Id="267" Count="1" />
+      <LineId Id="242" Count="1" />
+      <LineId Id="246" Count="16" />
+      <LineId Id="264" Count="1" />
+      <LineId Id="314" Count="0" />
+      <LineId Id="266" Count="0" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="276" Count="0" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="277" Count="0" />
+      <LineId Id="279" Count="34" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="320" Count="2" />
+      <LineId Id="326" Count="86" />
+      <LineId Id="325" Count="0" />
+      <LineId Id="319" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife_1._01_UpperLevelControl">
+      <LineId Id="835" Count="100" />
+      <LineId Id="940" Count="13" />
+      <LineId Id="957" Count="51" />
+      <LineId Id="606" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_RotaryKnife_1._02_LowerLevelControl">
+      <LineId Id="259" Count="165" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

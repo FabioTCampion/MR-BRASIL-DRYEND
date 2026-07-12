@@ -1,0 +1,863 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_MetricsAndCalculation" Id="{341c08e0-8018-46e0-9a1f-b66b2a02498f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_MetricsAndCalculation
+
+//======================================================================
+// INPUTS
+//======================================================================
+VAR_INPUT
+
+    //────────────────────────────────────────────
+    // GENERAL CONTROL
+    //────────────────────────────────────────────
+    enable                          : BOOL;   // FB enable
+    changeOrder                     : BOOL;   // Request order change
+
+    //────────────────────────────────────────────
+    // UPPER KNIFE / LEVEL — COUNTERS & SENSORS
+    //────────────────────────────────────────────
+    upperKnifeCounterReset          : BOOL;   // Upper level sheet counter reset
+    upperKnifeHomeSensor            : BOOL;   // Upper level home sensor (counter pulse)
+    upperKnifePaperSensor   		: BOOL;   // Upper level paper presence
+    upperLevelEnabled               : BOOL;   // Upper level enabled
+
+    //────────────────────────────────────────────
+    // LOWER KNIFE / LEVEL — COUNTERS & SENSORS
+    //────────────────────────────────────────────
+    lowerKnifeCounterReset          : BOOL;   // Lower level sheet counter reset
+    lowerKnifeHomeSensor            : BOOL;   // Lower level home sensor (counter pulse)
+    lowerKnifePaperSensor   		: BOOL;   // Lower level paper presence
+    lowerLevelEnabled               : BOOL;   // Lower level enabled
+
+    //────────────────────────────────────────────
+    // MEASURING WHEEL
+    //────────────────────────────────────────────
+    measuringWheelPaperPresence     : BOOL;   // Paper presence at measuring wheel
+    measuringWheelPulse        : BOOL;   // Measuring wheel pulse counter
+
+    //────────────────────────────────────────────
+    // MACHINE SPEED / CONFIGURATION
+    //────────────────────────────────────────────
+    doubleFacerSpeedMPM             : REAL;   // Double facer speed [m/min]
+    orderConfig                     : orderConfig_TypeStruct;
+
+END_VAR
+
+
+//======================================================================
+// OUTPUTS
+//======================================================================
+VAR_OUTPUT
+
+    //────────────────────────────────────────────
+    // ORDER STATUS
+    //────────────────────────────────────────────
+    orderFinished                   : BOOL;   // Order completed
+    orderFinishing                  : BOOL;   // Order in finishing phase
+	orderFinishedBuzzer				: BOOL;
+	
+    //────────────────────────────────────────────
+    // MACHINE CONTROL
+    //────────────────────────────────────────────
+    doubleFacerSpeedDown            : BOOL;   // Request speed reduction
+
+    //────────────────────────────────────────────
+    // HMI
+    //────────────────────────────────────────────
+    hmiStatus                       : orderHmiStatus_TypeStruct;
+	
+    //────────────────────────────────────────────
+    // EXT COMMANDS
+    //────────────────────────────────────────────
+
+	upperStackerUnload		: BOOL;
+	lowerStackerUnload		: BOOL;
+
+END_VAR
+
+
+//======================================================================
+// INTERNAL VARIABLES
+//======================================================================
+VAR
+
+
+	instTPUpperStackerUnload		: TP;
+	instTPLowerStackerUnload		: TP;
+    //────────────────────────────────────────────
+    // EDGE DETECTION / STATE
+    //────────────────────────────────────────────
+    changeOrderOld                  : BOOL;
+
+    upperLevelHomeSensorOld         : BOOL;
+    lowerLevelHomeSensorOld         : BOOL;
+
+    //────────────────────────────────────────────
+    // SHEET COUNTERS
+    //────────────────────────────────────────────
+    upperKnifelSheetCounter          : DINT;
+    lowerKnifeSheetCounter          : DINT;
+
+    //────────────────────────────────────────────
+    // MEASURING WHEEL
+    //────────────────────────────────────────────
+    measuringWheelPulseOld     : BOOL;
+
+    //────────────────────────────────────────────
+    // TIME / SYSTEM
+    //────────────────────────────────────────────
+    instFBLocalSystemTime           : FB_LocalSystemTime;
+    instFBGetTimeZoneInformation    : FB_GetTimeZoneInformation;
+    localTimeZone                   : Tc2_Utilities.E_TimeZoneID;
+
+    instClkProg1Min                 : CLK_PRG;    // 1-minute clock pulse
+
+    //────────────────────────────────────────────
+    // INDEXES / STATE MACHINES
+    //────────────────────────────────────────────
+    index                           : INT;
+    resetIndex                     : INT;
+    count                           : INT;
+
+    notRunningTimeIndex             : INT;
+    linearMetersCalculationIndex    : INT;
+    averageSpeedIndex               : INT;
+
+    //────────────────────────────────────────────
+    // SPEED STATISTICS (RUNTIME)
+    //────────────────────────────────────────────
+    arrAverageSpeedPerHour          : ARRAY [0..23] OF INT; // Avg speed per hour
+
+	instTON_SaveSQLTimeOut: TON;
+	instGEN_PULSEBuzzer: GEN_PULSE;
+	changeOrderRequestOld: BOOL;
+	instGEN_PULSEPlcWatchDog: GEN_PULSE;	
+	
+END_VAR
+
+
+//======================================================================
+// PERSISTENT DATA
+//======================================================================
+VAR PERSISTENT
+
+    //────────────────────────────────────────────
+    // PRODUCTION METRICS (PER HOUR)
+    //────────────────────────────────────────────
+    arrMetersPerHour                : ARRAY [0..23] OF INT; // Produced meters per hour
+    arrPulsePerHour                 : ARRAY [0..23] OF INT; // Measuring wheel pulses per hour
+    arrMachineNotRunningTimePerHour : ARRAY [0..23] OF INT; // Machine stopped time per hour
+
+    wDayOfWeekOld                   : WORD; // Used to detect day change
+
+END_VAR
+
+
+//======================================================================
+// IN/OUT VARIABLES
+//======================================================================
+VAR_IN_OUT
+
+    currentOrder                    : Order_TypeStruct;
+    nextOrder                       : Order_TypeStruct;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*=================================================================================================
+CPNTeck - Automação ind.
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140 
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block offers basic functionalities to control the order and count the varibles
+the fallowing functions:
+- Reduce the double facer speed
+- Execute a single cut in the material web
+- Increase the speed of the dryend
+- Change the slitter order
+- Change the rotary knife sheet lenght
+- Execute the stacker discharge of the remaining boards
+- Increase the speed of the double facer the the speed that it was before.
+
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version  		| Date        			| Expert in charge  			| Changes applied
+
+01.00.01		| 28.09.2022  		| Fabio Campion                	| First released version
+
+
+
+==================================================================================================*)
+
+ACT_OneMinuteClock();
+ACT_AverageSpeedPerHourCalculation();
+ACT_ProgramCurrentOrder();
+ACT_SheetCounter();
+ACT_OderStatusDisplay();
+ACT_MetersPerHourCalculation();
+ACT_MachineNotRunningTimePerHour();
+ACT_ResetMetrics();
+_01_LinearMetersCalculation();
+_012_ChangeOrder();
+_13_PlcWatchDog();
+
+instFBGetTimeZoneInformation(bExecute := TRUE);
+instFBLocalSystemTime(bEnable := TRUE, dwCycle := 1);
+
+
+]]></ST>
+    </Implementation>
+    <Method Name="_01_LinearMetersCalculation" Id="{3d3d90e0-dce0-46f4-8ed0-e9860957dcab}">
+      <Declaration><![CDATA[METHOD _01_LinearMetersCalculation
+VAR
+    kMmToM : REAL := 0.001; // mm → m conversion factor
+    // Working variables
+    rProd1 : REAL;
+    rTot1  : REAL;
+    rRem1  : REAL;
+
+    rProd2 : REAL;
+    rTot2  : REAL;
+    rRem2  : REAL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//==============================================================
+// CUTS REMAINING (PER ORDER) — ALWAYS UPDATED WHEN RELEVANT
+//==============================================================
+currentOrder.order1.numberOfCutsRemaining := currentOrder.order1.numberOfCuts - currentOrder.order1.numberOfCutsProduced;
+currentOrder.order2.numberOfCutsRemaining := currentOrder.order2.numberOfCuts - currentOrder.order2.numberOfCutsProduced;		
+
+
+//==============================================================
+// LINEAR METERS CALCULATION
+// Formula (per order):
+//   total     = sheetLength[mm] * 0.001 * numberOfCuts
+//   produced  = sheetLength[mm] * 0.001 * numberOfCutsProduced
+//   remaining = total - produced
+//==============================================================
+CASE currentOrder.levelSelector OF
+
+    //==========================================================
+    // ORDER 1 ONLY (Upper level -> Order 1)
+    //==========================================================
+    E_LevelSelector.eUpperOnly:
+
+        rProd1 := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCutsProduced;
+        rTot1  := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCuts;
+        rRem1  := rTot1 - rProd1;
+
+        currentOrder.linearMetersProduced  := rProd1;
+        currentOrder.linearMetersRemaining := rRem1;
+        currentOrder.linearMeters          := rTot1;
+
+
+    //==========================================================
+    // ORDER 1 ONLY (Lower level -> Order 1)  // corrected mapping
+    //==========================================================
+    E_LevelSelector.eLowerOnly:
+
+        rProd1 := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCutsProduced;
+        rTot1  := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCuts;
+        rRem1  := rTot1 - rProd1;
+
+        currentOrder.linearMetersProduced  := rProd1;
+        currentOrder.linearMetersRemaining := rRem1;
+        currentOrder.linearMeters          := rTot1;
+
+
+    //==========================================================
+    // BOTH ORDERS (SUM)
+    // Order 1 uses LOWER counter (but order1 parameters)
+    // Order 2 uses UPPER counter (but order2 parameters)
+    //==========================================================
+    E_LevelSelector.eBoth:
+
+        // Order 1 (Lower level -> Order 1)
+        rProd1 := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCutsProduced;
+        rTot1  := (currentOrder.order1.sheetLength * kMmToM) * currentOrder.order1.numberOfCuts;
+        rRem1  := rTot1 - rProd1;
+
+        // Order 2 (Upper level -> Order 2)
+        rProd2 := (currentOrder.order2.sheetLength * kMmToM) * currentOrder.order2.numberOfCutsProduced;
+        rTot2  := (currentOrder.order2.sheetLength * kMmToM) * currentOrder.order2.numberOfCuts;
+        rRem2  := rTot2 - rProd2;
+
+        // Aggregate totals for overall order
+        currentOrder.linearMetersProduced  := rProd1;
+        currentOrder.linearMetersRemaining := rRem1;
+        currentOrder.linearMeters          := rTot1;
+
+		
+
+		
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_012_ChangeOrder" Id="{59c963c7-cbbe-4462-b6d9-d9a01ad0feac}">
+      <Declaration><![CDATA[METHOD _012_ChangeOrder
+VAR_INPUT
+END_VAR
+
+VAR
+
+	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//Reset the saved flag 
+IF currentOrder.changeOrderRequest AND NOT changeOrderRequestOld THEN
+	
+	currentOrder.saveSQLFinished := FALSE;
+
+END_IF
+
+changeOrderRequestOld := currentOrder.changeOrderRequest;
+
+
+IF (currentOrder.changeOrderRequest AND currentOrder.saveSQLFinished) OR  currentOrder.saveSQLTimeOut THEN
+	
+	currentOrder.startedAt           	:= nextOrder.startedAt;
+	currentOrder.tableID             	:= nextOrder.tableID;
+	currentOrder.productionListNumber 	:= nextOrder.productionListNumber;
+	currentOrder.paperComposition  	  	:= nextOrder.paperComposition;
+	currentOrder.fluteType           	:= nextOrder.fluteType;
+	currentOrder.paperWidth          	:= nextOrder.paperWidth;
+	currentOrder.paper1              	:= nextOrder.paper1;
+	currentOrder.paper2              	:= nextOrder.paper2;
+	currentOrder.paper3              	:= nextOrder.paper3;
+	currentOrder.paper4              	:= nextOrder.paper4;
+	currentOrder.paper5              	:= nextOrder.paper5;
+	currentOrder.linearMeters        	:= nextOrder.linearMeters;
+	currentOrder.linearMetersProduced 	:= nextOrder.linearMetersProduced;
+	currentOrder.linearMetersRemaining	:= nextOrder.linearMeters;
+	currentOrder.scorerHeightMM      	:= nextOrder.scorerHeightMM;
+	currentOrder.levelSelector       	:= nextOrder.levelSelector;
+	currentOrder.invertOrderLevel    	:= nextOrder.invertOrderLevel;
+	currentOrder.invertOrderSide     	:= nextOrder.invertOrderSide;
+	currentOrder.order1              	:= nextOrder.order1;
+	currentOrder.order2              	:= nextOrder.order2;
+	currentOrder.aocRequest             := nextOrder.aocRequest;
+	currentOrder.changeOrderRequest     := nextOrder.changeOrderRequest;
+
+END_IF
+
+instTON_SaveSQLTimeOut(IN := currentOrder.changeOrderRequest, PT:= T#5S, Q=>currentOrder.saveSQLTimeOut );
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_13_PlcWatchDog" Id="{181efa5d-71cd-4fcb-badc-ecb158a09721}">
+      <Declaration><![CDATA[METHOD _13_PlcWatchDog
+VAR_INPUT
+END_VAR
+
+VAR
+
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+instGEN_PULSEPlcWatchDog(
+    ENQ := TRUE,
+    PTH := T#500MS,
+    PTL := T#500MS
+);
+
+currentOrder.plcWatchDog := instGEN_PULSEPlcWatchDog.Q;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Action Name="ACT_AverageSpeedPerHourCalculation" Id="{163fa814-0f7a-4f2d-a689-1b199e20328e}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Calculate the machine average speed per hour
+// Converts meters per hour into meters per minute for each hour slot (0 to 23)
+//----------------------------------------------------------------------------------------------
+FOR averageSpeedIndex := 0 TO 23 BY 1 DO
+	
+	IF arrMetersPerHour[averageSpeedIndex] > 0 THEN
+		arrAverageSpeedPerHour[averageSpeedIndex] := arrMetersPerHour[averageSpeedIndex] / 60;
+	ELSE
+		arrAverageSpeedPerHour[averageSpeedIndex] := 0;
+	END_IF
+
+END_FOR
+
+//----------------------------------------------------------------------------------------------
+// Update HMI status structure with calculated average speeds
+//----------------------------------------------------------------------------------------------
+hmiStatus.arrAverageSpeedPerHour := arrAverageSpeedPerHour;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_MachineNotRunningTimePerHour" Id="{31380408-fb44-43fd-b531-c38c503aea24}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Calculate stop time per hour and total machine stopped time for the order
+// If the machine speed is below 20 MPM, count it as downtime
+//----------------------------------------------------------------------------------------------
+IF instClkProg1Min.Q AND doubleFacerSpeedMPM < 20 THEN
+	
+	// Increment downtime for the current hour
+	arrMachineNotRunningTimePerHour[index] := arrMachineNotRunningTimePerHour[index] + 1;
+
+	// Reset total downtime accumulator before recalculating
+	hmiStatus.machineNotRunningTimeTotal := 0;
+
+	//------------------------------------------------------------------------------------------
+	// Sum all hourly downtime values to get total machine stopped time
+	//------------------------------------------------------------------------------------------
+	FOR notRunningTimeIndex := 0 TO 23 BY 1 DO
+		hmiStatus.machineNotRunningTimeTotal := hmiStatus.machineNotRunningTimeTotal + arrMachineNotRunningTimePerHour[notRunningTimeIndex];
+	END_FOR
+
+END_IF
+
+//----------------------------------------------------------------------------------------------
+// Update HMI structure with current hourly machine stop time array
+//----------------------------------------------------------------------------------------------
+hmiStatus.arrMachineNotRunningTimePerHour := arrMachineNotRunningTimePerHour;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_MetersPerHourCalculation" Id="{caec68b9-09b3-4019-9542-e80450a6b363}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Calculate the linear meters produced per hour
+// Uses measuring wheel pulses and wheel diameter to compute distance
+//----------------------------------------------------------------------------------------------
+
+// Get the current hour index from system time
+index := WORD_TO_INT(instFBLocalSystemTime.systemTime.wHour);
+
+//----------------------------------------------------------------------------------------------
+// Detect pulse from measuring wheel when paper is present
+//----------------------------------------------------------------------------------------------
+IF measuringWheelPulse AND NOT measuringWheelPulseOld AND measuringWheelPaperPresence THEN
+
+	// Increment pulse count for the current hour
+	arrPulsePerHour[index] := arrPulsePerHour[index] + 1;
+
+	// Convert pulse count to meters using wheel diameter
+	arrMetersPerHour[index] := REAL_TO_INT(arrPulsePerHour[index] * ((orderConfig.measuringWheelDiameter * 3.14) * 0.001));
+
+	// Reset linear meters accumulator before summing
+	hmiStatus.linearMetersProduced := 0;
+
+	//------------------------------------------------------------------------------------------
+	// Sum linear meters produced for all hours to get total production
+	//------------------------------------------------------------------------------------------
+	FOR linearMetersCalculationIndex := 0 TO 23 BY 1 DO
+		hmiStatus.linearMetersProduced := hmiStatus.linearMetersProduced + arrMetersPerHour[linearMetersCalculationIndex];
+	END_FOR
+
+END_IF
+
+//----------------------------------------------------------------------------------------------
+// Store current pulse counter for next edge detection cycle
+//----------------------------------------------------------------------------------------------
+measuringWheelPulseOld := measuringWheelPulse;
+
+//----------------------------------------------------------------------------------------------
+// Update HMI with meters produced per hour
+//----------------------------------------------------------------------------------------------
+hmiStatus.arrMetersPerHour := arrMetersPerHour;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_OderStatusDisplay" Id="{d399e7f8-eb75-45f1-baef-9c7eed55d791}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Display an alert when the order is almost finishing
+// Triggered when remaining linear meters are below a configured threshold
+//----------------------------------------------------------------------------------------------
+IF currentOrder.linearMetersRemaining < orderConfig.orderFinishingAlertWhenRemainig THEN
+	orderFinishing := TRUE;
+	hmiStatus.orderFinishing := TRUE;
+ELSE
+	orderFinishing := FALSE;
+	hmiStatus.orderFinishing := FALSE;
+END_IF
+
+//----------------------------------------------------------------------------------------------
+// Display an alert when the order is finished
+// Triggered when there are no remaining linear meters to produce
+//----------------------------------------------------------------------------------------------
+IF currentOrder.linearMetersRemaining <= 0 THEN
+	orderFinished := TRUE;
+	hmiStatus.orderFinished := TRUE;
+ELSE
+	orderFinished := FALSE;
+	hmiStatus.orderFinished := FALSE;
+END_IF
+
+// Pulse generator for DF speed up/down buttons
+instGEN_PULSEBuzzer(
+    ENQ := TRUE,
+    PTH := T#1M,
+    PTL := T#2M
+);
+
+orderFinishedBuzzer := orderFinishing AND instGEN_PULSEBuzzer.Q;]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_OneMinuteClock" Id="{7f47ff0c-96f4-4340-98dc-246a78451a9b}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// One-minute clock
+// Used to calculate machine not running time and time-based counters
+//----------------------------------------------------------------------------------------------
+instClkProg1Min(PT := T#1M);
+
+//----------------------------------------------------------------------------------------------
+// Increment counter every time the one-minute timer elapses
+//----------------------------------------------------------------------------------------------
+IF instClkProg1Min.Q THEN
+	count := count + 1;
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_ProgramCurrentOrder" Id="{6c7cc4e3-d076-44a0-a48a-b13307d9debd}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Load next order when changeOrder is triggered (rising edge)
+//----------------------------------------------------------------------------------------------
+IF changeOrder AND NOT changeOrderOld THEN
+	currentOrder := nextOrder;
+END_IF
+
+//----------------------------------------------------------------------------------------------
+// Store previous state of changeOrder for edge detection
+//----------------------------------------------------------------------------------------------
+changeOrderOld := changeOrder;
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_ResetMetrics" Id="{3fdc12e5-5886-42d9-8914-e804aef50419}">
+      <Implementation>
+        <ST><![CDATA[//----------------------------------------------------------------------------------------------
+// Reset metric arrays once per day (on day change)
+//----------------------------------------------------------------------------------------------
+IF instFBLocalSystemTime.systemTime.wDayOfWeek <> wDayOfWeekOld THEN
+
+	//------------------------------------------------------------------------------------------
+	// Clear all hourly tracking arrays (pulses, meters, downtime, average speed)
+	//------------------------------------------------------------------------------------------
+	FOR resetIndex := 0 TO 23 BY 1 DO
+		arrPulsePerHour[resetIndex] := 0;
+		arrMetersPerHour[resetIndex] := 0;
+		arrMachineNotRunningTimePerHour[resetIndex] := 0;
+		arrAverageSpeedPerHour[resetIndex] := 0;
+	END_FOR
+
+	//------------------------------------------------------------------------------------------
+	// Store the current day to detect next change
+	//------------------------------------------------------------------------------------------
+	wDayOfWeekOld := instFBLocalSystemTime.systemTime.wDayOfWeek;
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Action>
+    <Action Name="ACT_SheetCounter" Id="{528469a2-c855-4a07-b5e7-3ab4e7125ca5}">
+      <Implementation>
+        <ST><![CDATA[//==========================================================
+// Default unload pulse requests
+// These variables are used first as one-scan trigger requests.
+// At the end of the code, they are overwritten with TP.Q.
+//==========================================================
+upperStackerUnload := FALSE;
+lowerStackerUnload := FALSE;
+
+
+//==========================================================
+// Sheet counting and stacker unload logic
+//==========================================================
+CASE currentOrder.levelSelector OF
+
+    //==========================================================
+    // ORDER 1 ONLY
+    // Upper level -> Order 1
+    //==========================================================
+    E_LevelSelector.eUpperOnly:
+
+        // Rising edge detection from upper knife home sensor
+        IF upperKnifeHomeSensor AND NOT upperLevelHomeSensorOld AND upperKnifePaperSensor THEN
+
+            upperKnifelSheetCounter := upperKnifelSheetCounter + 1;
+            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
+
+            // Track pile building for upper level
+            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
+
+            // Check if the current pile is complete
+            IF (currentOrder.order1.pileQuantity > 0) AND
+               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
+
+                currentOrder.order1.pileQuantityProduced := 0;
+                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
+
+                // Send unload pulse to upper stacker
+                upperStackerUnload := TRUE;
+
+                // Update remaining pile count
+                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
+                END_IF
+
+            END_IF
+
+        END_IF
+
+        // Store previous state for edge detection
+        upperLevelHomeSensorOld := upperKnifeHomeSensor;
+
+
+    //==========================================================
+    // ORDER 1 ONLY
+    // Lower level -> Order 1
+    //==========================================================
+    E_LevelSelector.eLowerOnly:
+
+        // Rising edge detection from lower knife home sensor
+        IF lowerKnifeHomeSensor AND NOT lowerLevelHomeSensorOld AND lowerKnifePaperSensor THEN
+
+            // lowerKnifelSheetCounter := lowerKnifelSheetCounter + 1;
+            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
+
+            // Track pile building for lower level
+            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
+
+            // Check if the current pile is complete
+            IF (currentOrder.order1.pileQuantity > 0) AND
+               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
+
+                currentOrder.order1.pileQuantityProduced := 0;
+                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
+
+                // Send unload pulse to lower stacker
+                lowerStackerUnload := TRUE;
+
+                // Update remaining pile count
+                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
+                END_IF
+
+            END_IF
+
+        END_IF
+
+        // Store previous state for edge detection
+        lowerLevelHomeSensorOld := lowerKnifeHomeSensor;
+
+
+    //==========================================================
+    // BOTH ORDERS
+    // Order 1 uses lower level
+    // Order 2 uses upper level
+    //==========================================================
+    E_LevelSelector.eBoth:
+
+        //======================================================
+        // ORDER 1
+        // Lower level -> Order 1
+        //======================================================
+        IF lowerKnifeHomeSensor AND NOT lowerLevelHomeSensorOld AND lowerKnifePaperSensor THEN
+
+            // lowerKnifelSheetCounter := lowerKnifelSheetCounter + 1;
+            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
+
+            // Track pile building for lower level
+            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
+
+            // Check if the current pile is complete
+            IF (currentOrder.order1.pileQuantity > 0) AND
+               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
+
+                currentOrder.order1.pileQuantityProduced := 0;
+                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
+
+                // Send unload pulse to lower stacker
+                lowerStackerUnload := TRUE;
+
+                // Update remaining pile count
+                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
+                END_IF
+
+            END_IF
+
+        END_IF
+
+
+        //======================================================
+        // ORDER 2
+        // Upper level -> Order 2
+        //======================================================
+        IF upperKnifeHomeSensor AND NOT upperLevelHomeSensorOld AND upperKnifePaperSensor THEN
+
+            upperKnifelSheetCounter := upperKnifelSheetCounter + 1;
+            currentOrder.order2.numberOfCutsProduced := currentOrder.order2.numberOfCutsProduced + 1;
+
+            // Track pile building for upper level
+            currentOrder.order2.pileQuantityProduced := currentOrder.order2.pileQuantityProduced + 1;
+
+            // Check if the current pile is complete
+            IF (currentOrder.order2.pileQuantity > 0) AND
+               (currentOrder.order2.pileQuantityProduced > currentOrder.order2.pileQuantity) THEN
+
+                currentOrder.order2.pileQuantityProduced := 0;
+                currentOrder.order2.pileCounter := currentOrder.order2.pileCounter + 1;
+
+                // Send unload pulse to upper stacker
+                upperStackerUnload := TRUE;
+
+                // Update remaining pile count
+                IF currentOrder.order2.pileQuantityRemaining > 0 THEN
+                    currentOrder.order2.pileQuantityRemaining := currentOrder.order2.pileQuantityRemaining - 1;
+                END_IF
+
+            END_IF
+
+        END_IF
+
+        // Store previous states for edge detection
+        lowerLevelHomeSensorOld := lowerKnifeHomeSensor;
+        upperLevelHomeSensorOld := upperKnifeHomeSensor;
+
+END_CASE;
+
+
+//==========================================================
+// Order 1 counter reset
+//==========================================================
+IF currentOrder.order1.counterReset THEN
+    currentOrder.order1.numberOfCutsProduced := 0;
+    currentOrder.order1.pileQuantityProduced := 0;
+    currentOrder.order1.pileCounter := 0;
+    currentOrder.order1.pileQuantityRemaining := 0;
+END_IF;
+
+
+//==========================================================
+// Order 2 counter reset
+//==========================================================
+IF currentOrder.order2.counterReset THEN
+    currentOrder.order2.numberOfCutsProduced := 0;
+    currentOrder.order2.pileQuantityProduced := 0;
+    currentOrder.order2.pileCounter := 0;
+    currentOrder.order2.pileQuantityRemaining := 0;
+END_IF;
+
+
+//==========================================================
+// Stacker unload pulse timers
+//==========================================================
+instTPUpperStackerUnload(
+    IN := upperStackerUnload,
+    PT := T#500MS
+);
+
+instTPLowerStackerUnload(
+    IN := lowerStackerUnload,
+    PT := T#500MS
+);
+
+
+//==========================================================
+// Final unload outputs
+//==========================================================
+upperStackerUnload := instTPUpperStackerUnload.Q;
+lowerStackerUnload := instTPLowerStackerUnload.Q;]]></ST>
+      </Implementation>
+    </Action>
+    <LineIds Name="FB_MetricsAndCalculation">
+      <LineId Id="1" Count="34" />
+      <LineId Id="37" Count="4" />
+      <LineId Id="2048" Count="0" />
+      <LineId Id="2195" Count="0" />
+      <LineId Id="2346" Count="0" />
+      <LineId Id="42" Count="4" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation._01_LinearMetersCalculation">
+      <LineId Id="158" Count="3" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="95" Count="57" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="156" Count="1" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation._012_ChangeOrder">
+      <LineId Id="74" Count="2" />
+      <LineId Id="84" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="77" Count="2" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="31" Count="2" />
+      <LineId Id="36" Count="2" />
+      <LineId Id="41" Count="4" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="54" Count="3" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="13" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation._13_PlcWatchDog">
+      <LineId Id="8" Count="4" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="16" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_AverageSpeedPerHourCalculation">
+      <LineId Id="1" Count="18" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_MachineNotRunningTimePerHour">
+      <LineId Id="1" Count="25" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_MetersPerHourCalculation">
+      <LineId Id="1" Count="40" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_OderStatusDisplay">
+      <LineId Id="1" Count="22" />
+      <LineId Id="27" Count="5" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_OneMinuteClock">
+      <LineId Id="1" Count="12" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_ProgramCurrentOrder">
+      <LineId Id="1" Count="11" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_ResetMetrics">
+      <LineId Id="1" Count="21" />
+    </LineIds>
+    <LineIds Name="FB_MetricsAndCalculation.ACT_SheetCounter">
+      <LineId Id="590" Count="206" />
+      <LineId Id="80" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

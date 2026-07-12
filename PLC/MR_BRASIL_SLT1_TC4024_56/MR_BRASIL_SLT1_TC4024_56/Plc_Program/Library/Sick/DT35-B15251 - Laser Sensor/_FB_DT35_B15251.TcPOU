@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_DT35_B15251" Id="{7cd33e80-08a4-474c-bdae-ca41eeaf915c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_DT35_B15251
+
+VAR_INPUT PERSISTENT
+
+    deviceConfig : _DT35B15251_DEV_CONFIG; // Device configuration settings
+
+END_VAR
+
+VAR_INPUT
+
+    HwToPlc AT %I* : _DT35B15251_HWTOPLC_PDOS; // IO-Link input process data
+
+END_VAR
+
+VAR_OUTPUT
+
+    distanceRaw      : REAL; // Raw sensor value
+
+    distance         : REAL; // Measured distance [mm]
+
+    distanceFromZero : REAL; // Distance relative to configured zero point [mm]
+
+    height           : REAL; // Calculated height from reference distance [mm]
+
+END_VAR
+
+VAR
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+
+
+//=============================================================
+// Main execution
+//=============================================================
+
+_SensorInputs();]]></ST>
+    </Implementation>
+    <Method Name="_Scale" Id="{356b7063-a272-435c-82e7-f5174d986427}">
+      <Declaration><![CDATA[METHOD PRIVATE _Scale : REAL
+VAR_INPUT
+	
+	X : REAL;
+	I_LO : REAL;
+	I_HI : REAL;
+	O_LO : REAL;
+	O_HI : REAL;
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF I_LO = I_HI THEN
+	_Scale := O_LO;
+ELSE
+	_Scale := (O_HI - O_LO) / (I_HI - I_LO) * (LIMIT(I_LO, X, I_HI) - I_LO) + O_LO;
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SensorInputs" Id="{b219bdf6-cdbc-45cb-a42c-3f8c98781ad3}">
+      <Declaration><![CDATA[METHOD PRIVATE _SensorInputs
+VAR
+    rawDistanceWord        : WORD;
+    measuredDistance       : REAL;
+    calculatedDistanceZero : REAL;
+    calculatedHeight       : REAL;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//=============================================================
+// Raw sensor value
+// EN: Combines the two IO-Link input bytes into one 16-bit value.
+//=============================================================
+
+rawDistanceWord := SHL(BYTE_TO_WORD(HwToPlc.inputByte_0), 8)
+                   OR BYTE_TO_WORD(HwToPlc.inputByte_1);
+
+distanceRaw := WORD_TO_REAL(rawDistanceWord);
+
+
+//=============================================================
+// Distance calculation
+// EN: Converts process data to millimeters.
+// In the default sensor configuration, the process data is already in mm.
+//=============================================================
+
+measuredDistance := distanceRaw * deviceConfig.processDataResolutionFactor;
+
+
+//=============================================================
+// Distance limit
+// EN: Limits the measured distance to the configured valid range.
+//=============================================================
+
+distance := LIMIT(
+    deviceConfig.distanceLowLimit,
+    measuredDistance,
+    deviceConfig.distanceHighLimit
+);
+
+
+//=============================================================
+// Distance from zero
+// EN: Calculates the distance relative to a configured zero reference.
+//=============================================================
+
+calculatedDistanceZero := distance - deviceConfig.distanceZeroReference;
+
+distanceFromZero := LIMIT(
+    deviceConfig.distanceFromZeroLowLimit,
+    calculatedDistanceZero,
+    deviceConfig.distanceFromZeroHighLimit
+);
+
+
+//=============================================================
+// Height calculation
+// EN: Calculates height from the measured distance.
+// Higher object = smaller distance = bigger height.
+//=============================================================
+
+calculatedHeight := deviceConfig.heightReferenceDistance - distance;
+
+height := LIMIT(
+    deviceConfig.heightLowLimit,
+    calculatedHeight,
+    deviceConfig.heightHighLimit
+);]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="_FB_DT35_B15251">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="_FB_DT35_B15251._Scale">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="_FB_DT35_B15251._SensorInputs">
+      <LineId Id="3" Count="58" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

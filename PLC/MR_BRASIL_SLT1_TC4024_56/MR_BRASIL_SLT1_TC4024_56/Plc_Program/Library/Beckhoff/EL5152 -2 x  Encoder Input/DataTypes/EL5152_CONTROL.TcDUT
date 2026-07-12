@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_CONTROL" Id="{b3c70218-a53c-4974-a3c8-126767880847}">
+    <Declaration><![CDATA[TYPE EL5152_CONTROL :
+STRUCT
+
+		{attribute 'hide'}
+		_reserved1 : BIT;
+		{attribute 'hide'}
+		_reserved2 : BIT;
+		Set_counter : BIT;
+		{attribute 'hide'}
+		_reserved3 : BIT;
+		{attribute 'hide'}
+		_reserved4 : BIT;
+		{attribute 'hide'}
+		_reserved5 : BIT;
+		{attribute 'hide'}
+		_reserved6 : BIT;
+		{attribute 'hide'}
+		_reserved7 : BIT;
+		{attribute 'hide'}
+		_reserved8 : USINT;
+		
+END_STRUCT
+END_TYPE
+
+
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

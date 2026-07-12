@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="SimpleStackerConfig_TypeStruct_1" Id="{937f7431-3dca-493e-aa45-2a8601aae989}">
+    <Declaration><![CDATA[TYPE SimpleStackerConfig_TypeStruct_1 :
+STRUCT
+
+    //==============================================================
+    // Normal speed synchronization
+    //==============================================================
+    // EN: Normal stacker speed ratio relative to line speed.
+    //     Example: 0.17 = stacker runs at 17% of line speed.
+    // PT: Fator normal de velocidade do stacker em relação à linha.
+    //     Exemplo: 0.17 = stacker trabalha com 17% da velocidade da linha.
+    stackerSpeedRatio                 : REAL := 0.17;
+
+
+    //==============================================================
+    // Individual conveyor speed trim
+    //==============================================================
+    // EN: Individual speed correction for each conveyor.
+    // PT: Correção individual de velocidade de cada esteira.
+    sheetConveyor1SpeedTrim           : REAL := 1.0;
+    sheetConveyor2SpeedTrim           : REAL := 1.0;
+    sheetConveyor3SpeedTrim           : REAL := 1.0;
+    conveyorLevelerSpeedTrim          : REAL := 1.0;
+
+	//==============================================================
+	// Sheet conveyors speed-up command
+	//==============================================================
+	// EN: Additional speed reference applied to sheet conveyors 1/2/3 [m/min].
+	// PT: Referência adicional aplicada nas esteiras 1/2/3 [m/min].
+	sheetConveyorsSpeedUpMPM : REAL := 20.0;
+	
+    //==============================================================
+    // Conveyor length
+    //==============================================================
+    // EN: Conveyor length [m].
+    // PT: Comprimento da esteira [m].
+    sheetConveyor1LengthM             : REAL := 20.0;
+    sheetConveyor2LengthM             : REAL := 20.0;
+    sheetConveyor3LengthM             : REAL := 20.0;
+
+
+    //==============================================================
+    // Package separation
+    //==============================================================
+    // EN: Speed multiplier used during package separation.
+    // PT: Multiplicador de velocidade usado durante a separação.
+    packageGapSpeedRatio              : REAL := 1.50;
+
+    // EN: Additional fixed speed offset during separation [m/min].
+    // PT: Offset fixo adicional de velocidade durante a separação [m/min].
+    packageGapSpeedOffsetMPM          : REAL := 0.0;
+
+    // EN: Gap distance as factor of sheet length.
+    //     Example: 0.25 with 2.0 m sheet = 0.5 m gap.
+    // PT: Distância de abertura como fator do comprimento da chapa.
+    //     Exemplo: 0.25 com chapa de 2.0 m = 0.5 m de vão.
+//    packageGapLengthFactor            : REAL := 0.25;
+
+    // EN: Minimum valid differential speed for opening calculation [m/min].
+    // PT: Velocidade diferencial mínima válida para cálculo de abertura [m/min].
+    minimumOpeningSpeedMPM            : REAL := 1.0;
+
+    // EN: Maximum package gap distance allowed [m].
+    // PT: Distância máxima permitida para abertura do pacote [m].
+//    maximumPackageGapDistanceM        : REAL := 3.0;
+
+
+    //==============================================================
+    // Speed limits
+    //==============================================================
+    // EN: Minimum and maximum conveyor speed reference [m/min].
+    // PT: Velocidade mínima e máxima de referência das esteiras [m/min].
+    minimumSpeedMPM                   : REAL := 0.0;
+    maximumSpeedMPM                   : REAL := 80.0;
+
+
+    //==============================================================
+    // Ramp parameters
+    //==============================================================
+    // EN: Maximum ramp velocity [m/min/s].
+    // PT: Velocidade máxima da rampa [m/min/s].
+    rampVelocityUpMaxMPMps            : REAL := 1000.0;
+    rampVelocityDownMaxMPMps          : REAL := 1000.0;
+
+    // EN: Ramp acceleration / S-ramp smoothing [m/min/s²].
+    // PT: Aceleração da rampa / suavização da rampa S [m/min/s²].
+    rampAccelerationUpMPMps2          : REAL := 1000.0;
+    rampAccelerationDownMPMps2        : REAL := 1000.0;
+
+
+
+	//==============================================================
+	// Backstop homing
+	//==============================================================
+	// EN: Homing direction. -1 = close/min limit, +1 = open/max limit.
+	// PT: Direção de homing. -1 = fechar/limite mínimo, +1 = abrir/limite máximo.
+	backstopHomeDirection              : INT := -1;
+	
+	// EN: Encoder position value to set after homing is completed [mm].
+	// PT: Valor de posição que será gravado no encoder após finalizar o homing [mm].
+	backstopHomePositionMm             : REAL := 300.0;
+	
+	// EN: Backstop homing speed [mm/s].
+	// PT: Velocidade de homing do backstop [mm/s].
+	backstopHomingSpeedMmps            : REAL := 50.0;
+	
+	// EN: Maximum allowed time for homing movement.
+	// PT: Tempo máximo permitido para o movimento de homing.
+	backstopHomingTimeout              : TIME := T#30S;
+	
+	// EN: Pulse time for encoder position set command.
+	// PT: Tempo do pulso para comando de set da posição do encoder.
+	backstopSetEncoderPulseTime        : TIME := T#200MS;	
+	//==============================================================
+	// Backstop position limits
+	//==============================================================
+	// EN: Minimum allowed backstop position [mm].
+	// PT: Posição mínima permitida do backstop [mm].
+	backstopMinPositionMm              : REAL := 300.0;
+	
+	// EN: Maximum allowed backstop position [mm].
+	// PT: Posição máxima permitida do backstop [mm].
+	backstopMaxPositionMm              : REAL := 2500.0;
+	
+	
+	//==============================================================
+	// Backstop automatic positioning
+	//==============================================================
+	// EN: Offset added to sheet length to calculate automatic backstop target [mm].
+	// PT: Offset somado ao comprimento da chapa para calcular o alvo automático [mm].
+	backstopSheetLengthOffsetMm        : REAL := 0.0;
+	
+	// EN: Position tolerance to consider the backstop in position [mm].
+	// PT: Tolerância de posição para considerar o backstop em posição [mm].
+	backstopPositionToleranceMm        : REAL := 2.0;
+	
+	// EN: Proportional gain for position control [(mm/s)/mm].
+	// PT: Ganho proporcional do controle de posição [(mm/s)/mm].
+	backstopPositionKp                 : REAL := 0.5;
+	
+	// EN: Maximum speed allowed in automatic positioning [mm/s].
+	// PT: Velocidade máxima permitida no posicionamento automático [mm/s].
+	backstopAutoMaxSpeedMmps           : REAL := 150.0;
+	
+	// EN: Minimum movement speed when position error is above tolerance [mm/s].
+	// PT: Velocidade mínima de movimento quando o erro de posição estiver acima da tolerância [mm/s].
+	backstopMinMoveSpeedMmps           : REAL := 10.0;
+	
+	
+	//==============================================================
+	// Backstop manual movement
+	//==============================================================
+	// EN: Manual open/close speed [mm/s].
+	// PT: Velocidade manual para abrir/fechar o backstop [mm/s].
+	backstopManualSpeedMmps            : REAL := 80.0;
+	
+	// EN: Minimum speed reference to enable backstop drive run [mm/s].
+	// PT: Referência mínima de velocidade para liberar RUN do inversor do backstop [mm/s].
+	backstopRunMinSpeedMmps             : REAL := 0.1;
+	
+		
+	//==============================================================
+	// Conveyor leveler position limits
+	//==============================================================
+	conveyorLevelerMinPositionMm          : REAL := 0.0;
+	conveyorLevelerMaxPositionMm          : REAL := 1000.0;
+	
+	
+	//==============================================================
+	// Conveyor leveler automatic control
+	//==============================================================
+	conveyorLevelerStackHeightOffsetMm    : REAL := 0.0;
+	conveyorLevelerPositionToleranceMm    : REAL := 5.0;
+	conveyorLevelerPositionKp             : REAL := 0.5;
+	conveyorLevelerAutoMaxSpeedMmps       : REAL := 100.0;
+	conveyorLevelerMinMoveSpeedMmps       : REAL := 5.0;
+	
+	
+	//==============================================================
+	// Conveyor leveler manual control
+	//==============================================================
+	conveyorLevelerManualSpeedMmps        : REAL := 50.0;
+	
+	
+	//==============================================================
+	// Conveyor leveler homing
+	//==============================================================
+	conveyorLevelerHomingSpeedMmps        : REAL := 30.0;
+	conveyorLevelerHomingTimeout          : TIME := T#30S;
+	
+	
+	//==============================================================
+	// Conveyor leveler encoder set pulse
+	//==============================================================
+	conveyorLevelerSetEncoderPulseTime    : TIME := T#200MS;
+	
+	
+	//==============================================================
+	// Conveyor leveler magnetic brake
+	//==============================================================
+	conveyorLevelerBrakeReleaseDelay      : TIME := T#300MS;
+	conveyorLevelerBrakeHoldTime          : TIME := T#2S;
+	
+	
+	//==============================================================
+	// Conveyor leveler drive enable
+	//==============================================================
+	conveyorLevelerRunMinSpeedMmps        : REAL := 0.1;	
+	
+	//==============================================================
+	// Sheet stack discharge conveyor
+	//==============================================================
+	// EN: Discharge conveyor speed reference [m/min].
+	// PT: Referência de velocidade da esteira de descarga [m/min].
+	sheetStackDischargeConveyorSpeedMPM     : REAL := 20.0;
+	
+	// EN: Discharge conveyor running time.
+	// PT: Tempo de giro da esteira de descarga.
+	sheetStackDischargeTime                 : TIME := T#5S;
+	
+	
+	//==============================================================
+	// Backstop discharge movement
+	//==============================================================
+	// EN: Additional backstop opening during sheet stack discharge [mm].
+	// PT: Abertura adicional do backstop durante a descarga da pilha [mm].
+	backstopDischargeOpenOffsetMm           : REAL := 100.0;
+	
+	sheetStackDischargeWaitSeparationTimeout : TIME := T#10S;
+	sheetStackDischargePositioningTimeout    : TIME := T#10S;
+	sheetStackDischargeConveyorStartTimeout  : TIME := T#3S;
+	sheetStackDischargeReturnTimeout         : TIME := T#10S;	
+	
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

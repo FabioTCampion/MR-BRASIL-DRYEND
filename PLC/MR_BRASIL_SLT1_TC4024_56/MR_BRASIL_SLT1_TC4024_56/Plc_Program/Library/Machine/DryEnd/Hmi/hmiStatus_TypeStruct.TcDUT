@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiStatus_TypeStruct" Id="{345a31f7-08cf-0bf3-3ae8-89c6a7d858b5}">
+    <Declaration><![CDATA[TYPE hmiStatus_TypeStruct :
+STRUCT
+	alarmActive : BOOL;
+		arrKnifeRunningMetersForSharpening		: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+		arrKnifeRunningMetersForLubfrication	: ARRAY [1..5] OF INT;	(*This array is used to reset the lifetime meters that the knife runs*)
+		slitter1 : slitterStatus_TypeStruct;
+		
+		upperKnife								: rotaryKnifeHmiStatus_TypeStruct;
+		lowerKnife								: rotaryKnifeHmiStatus_TypeStruct;	
+		machineMetrics 							: orderHmiStatus_TypeStruct;
+		lowerStacker	: hmiStatusSimpleStacker_TypeStruct;
+
+		
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

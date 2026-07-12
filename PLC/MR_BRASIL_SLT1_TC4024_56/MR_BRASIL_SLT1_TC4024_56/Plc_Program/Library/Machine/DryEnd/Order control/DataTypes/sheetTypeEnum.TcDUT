@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="sheetTypeEnum" Id="{45026d91-4ffa-0c98-0693-4c5e2806bc11}">
+    <Declaration><![CDATA[(*
+This enumerator is used to define the type of sheet that is going to be
+produced by the machine
+*)
+
+TYPE sheetTypeEnum:
+ (
+	SHEET_WITH_NO_SCORER,		(* Sheet with no scoring marks*)
+	SHEET_WITH_TWO_SCORER,		(* Sheet with two socoring marks *)
+	SHEET_WITH_FOUR_SCORER		(*Sheet with four socoring marks*)
+
+ );
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="slitterStatus_TypeStruct" Id="{da2cd8f0-bdf0-4659-bca1-f460dee12c56}">
+    <Declaration><![CDATA[TYPE slitterStatus_TypeStruct :
+STRUCT
+
+
+
+//	sharpeningSolenoidArr			: ARRAY [1..20] OF BOOL;	(*Sharpening solenoid output*)
+//	lubrificationSolenoidArr		: ARRAY [1..20] OF BOOL;	(*Lubrificaion solenoid output*)
+//	knifeRunningMetersArr			: ARRAY [1..20] OF INT;		(*Knife running meters until sharpening*)
+//	lubrificationRunningMetersArr	: ARRAY [1..20] OF INT;		(*Knife running meters until lubrificaion*)
+//	knifeRunningMetersTotalArr		: ARRAY [1..20] OF DINT;	(*Knife total running meters without blade change*)
+
+	doubleFacerSpeed				: INT;
+
+	positioningRunning				: BOOL;						(*Positioning running*)
+	positioningFinished				: BOOL;						(*Positioning finished*)
+	
+	slitterCutting					: BOOL;						(*Slitter cutting the material (At least one knife enabled)*)
+	
+	
+	knifeMotorRunning				: BOOL;
+	knifeMotorSpeedRPM				: INT;
+	knifeMotorSpeedMPM				: INT;
+	knifeMotorCurrent				: INT;
+
+	scorerMotorRunning				: BOOL;
+	scorerMotorSpeedRPM				: INT;
+	scorerMotorSpeedMPM				: INT;
+	scorerMotorCurrent				: INT;
+
+	knifeAxisSpeed					: LREAL;
+	knifeAxisPosition				: DINT;
+	knifeAxisState					: STRING;
+
+	innerScorerAxisSpeed			: LREAL;	
+	innerScorerAxisPosition			: DINT;
+	innerScorerAxisState			: STRING;
+	
+	outerScorerAxisSpeed			: LREAL;		
+	outerScorerAxisPosition			: DINT;
+	outerScorerAxisState			: STRING;
+
+	scorerHeight					: REAL;	(*Scorer actual height in milimiters*)
+	alarmActive						: BOOL;	(**)
+	
+
+    // ─────────────── TOOL POSITIONS ───────────────
+    knifePosition                    : ARRAY [1..7] OF REAL;   // Knife actual position (machine units, e.g. mm)
+    scorerPosition                   : ARRAY [1..12] OF REAL;  // Scorer actual position (machine units, e.g. mm)
+
+    // ─────────────── FLAPS / DIVERTERS ───────────────
+    flapSolenoidArr                  : ARRAY [1..27] OF BOOL;  // Flap solenoid output command/status (per flap)
+
+	
+    // ─────────────── KNIFE SERVICE / MAINTENANCE STATUS ───────────────
+    sharpeningSolenoidArr            : ARRAY [1..7] OF BOOL;   // Sharpening solenoid output command/status (per knife)
+    lubrificationSolenoidArr         : ARRAY [1..7] OF BOOL;   // Lubrication solenoid output command/status (per knife)
+
+    knifeRunningMetersArr            : ARRAY [1..7] OF INT;    // Running meters since last sharpening (per knife)
+    lubrificationRunningMetersArr    : ARRAY [1..7] OF INT;    // Running meters since last lubrication (per knife)
+    knifeRunningMetersTotalArr       : ARRAY [1..7] OF DINT;   // Total running meters since last blade change (per knife)
+	
+	
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

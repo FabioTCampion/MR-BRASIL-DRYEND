@@ -1,0 +1,627 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_AutomaticOrderChange" Id="{32a8e456-ad98-4a80-a547-0958a165c5a1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AutomaticOrderChange
+VAR_INPUT
+	
+	enable						: BOOL;
+	executeAOC					: BOOL; 				(*Start automatic order change*)
+	executeManualOC				: BOOL;					(*Execute manual order change copy the value from the next order to the current order*)
+	rotaryShearCutSensor 		: BOOL;					(*Rotary shear cut sensor*)
+	measuringWheelPaperSensor 	: BOOL;					(*Measuring wheel sensor*)
+	slitterClearSensor			: BOOL;					(*Slitter clear sensor signal*)
+	slitterInPosition			: BOOL;
+	rotaryKnifePaperSensor		: BOOL;					(*Rotary knife paper presence sensorl*)
+	doubleFacerSpeedMPM			: REAL;	 				(*Line speed in meters per minute (Double facer speed)*)
+
+
+	configuration					: aocConfig_TypeStruct;		(*Automatic order change configuration parameters*)
+	currentOrder					: Order_TypeStruct;				(*Automatic order current order details*)
+	nextOrder						: Order_TypeStruct;				(*Automatic order next order details*)
+
+END_VAR
+VAR_OUTPUT
+	
+	error						: BOOL;				(*Error ocurred during automatic order change*)
+	aocRunning					: BOOL;				(*Automatic order change running signal*)
+	changeOrder					: BOOL;				(*Change order from automatic order change*)
+	aocTimeOut					: BOOL;
+	
+	referenceSwitch				: BOOL;				(*Reference swith between double facer and AOC ramp reference*)
+	doubleFacerSpeedUP			: BOOL;				(*Speed up command to double facer*)
+	doubleFacerSpeedDown		: BOOL;				(*Speed down command to double facer*)
+	doubleFacerStop				: BOOL;				(*Double facer stop command*)
+	stopDoubleFacer				: BOOL;				(*Stop command to double facer*)
+	rotaryShearCutX1			: BOOL;				(*Rotary shar cut x1 command*)
+	slitterChangeOrder			: BOOL;				(*Slitter change order command*)
+	flapsChangeOrder			: BOOL;
+
+	lowerLevelStackerDischarge			: BOOL;				(*Top stacker discharge command*)
+	upperLevelStackerDischarge			: BOOL;				(*Bottom stacker discharge command*)
+	
+	rotaryKnifeSpeedRef			: LREAL;
+	siltterKnifeSpeedRef		: LREAL;
+	siltterScorerSpeedRef		: REAL;
+
+	statusDisplay				: STRING;
+
+END_VAR
+VAR
+	stateMachine					: WORD;				(*Function block state machine*)
+	status							: INT;
+	statErrorUserCleared			: BOOL;
+	statNotEnabled					: BOOL;
+	statFirtsCycle					: BOOL;
+	statExecuteManualOC				: BOOL;
+	statSpeedDiference				: REAL;				(*Speed diference between double facer and AOC speed*)
+
+	statRotaryKnife1Counter			: DINT;
+	statRotaryKnife2Counter			: DINT;
+
+
+	statPile1Counter				: DINT;
+	statPile2Counter				: DINT;
+
+
+	tempRunningCounter				: DINT;
+	statEnableOld					: BOOL;
+
+	instFbCtrlPwm					: FB_CTRL_PWM_OUT_EXT;
+	instFbCtrlPwmOutParameters 		: ST_CTRL_PWM_OUT_EXT_PARAMS; (*Configuration of PWM Function block*)
+
+	statePwmInputSignal				: REAL;
+	tempDoubleFacerSpeedMPM			: REAL;
+
+	instFbTPRoaryShear						: TP;
+	instFbTPSlitter								: TP;
+	instFBCtrlRampGenerator					: FB_CTRL_RAMP_GENERATOR;
+
+
+	statFBCtrlRampGeneratorParams			: ST_CTRL_RAMP_GENERATOR_PARAMS;
+
+
+	instFbTONSlitterDelay: TON;
+	instFbTONStackerDischargeDelay: TON;
+
+	instFbTPStacker1Discharge: TP;
+	instFbTPStacker2Discharge: TP;
+	tempExecuteAOC: BOOL;
+	instFbTONStacker1Discharge: TON;
+	instFbTONStacker2Discharge: TON;
+
+	instRotaryShearCutX1TP: TP;
+	instChangeSheetLengthTON: TON;
+	instAOCTimeOutTON: TON;
+	instTONChangeCutLenght: TON;
+END_VAR
+
+
+VAR_IN_OUT
+
+
+
+END_VAR
+
+VAR CONSTANT
+
+	STATUS_NO_CALL								: WORD := 16#7000;				(* No call of FB *)
+	STATUS_FB_FIRST_CALL						: WORD := 16#7001;				(* First cycle of FB after enabling *)
+	STATUS_SUBSEQUENT_CALL						: WORD := 16#7002;				(* FB enabled *)
+
+
+
+	STATUS_CHECK_CONDITIONS						: WORD := 16#8000;				(* Check the conditions before start the AOC*)
+	STATUS_SAVE_DF_SPEED						: WORD := 16#8001;				(* Saves the current double facer speed and reset variables*)
+	STATUS_REDUCE_DF_SPEED						: WORD := 16#8002;				(* Reduce the line speed until the programmed AOC speed*)
+	STATUS_ROTARY_SHEAR_CUT_X1					: WORD := 16#8003;				(* Cut the material web*)
+	STATUS_INCREASE_DRYEND_SPEED				: WORD := 16#8004;				(* Increase the dryend speed*)
+	STATUS_CHANGE_SLT_ORDER						: WORD := 16#8005;				(* FB enabled *)
+	STATUS_CHANGE_RK_SHEET_LENGTH				: WORD := 16#8006;				(* FB enabled *)
+	STATUS_STK_DISCHARGE						: WORD := 16#8007;				(* FB enabled *)
+	STATUS_INCREASE_DF_SPEED					: WORD := 16#8008;				(* FB enabled *)
+	STATUS_SYNC_DRYEND_DF_SPEED					: WORD := 16#8009;				(* FB enabled *)
+	STATUS_AOC_FINISHED							: WORD := 16#8010;				(* FB enabled *)
+	STATUS_AOC_CANCELED							: WORD := 16#8011;				(* FB enabled *)
+	STATUS_AOC_ERROR							: WORD := 16#8012;				(* Called if an error occurs during the AOC*)
+
+
+
+
+ END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[(*=================================================================================================
+CPNTeck - Automação ind.
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: C6017 
+Engineering: Twincat 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block offers basic functionalities to control the automatic order change of the machine using
+the fallowing functions:
+- Reduce the double facer speed
+- Execute a single cut in the material web
+- Increase the speed of the dryend
+- Change the slitter order
+- Change the rotary knife sheet lenght
+- Execute the stacker discharge of the remaining boards
+- Increase the speed of the double facer the the speed that it was before.
+
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version  		| Date        			| Expert in charge  			| Changes applied
+
+01.00.01		| 01.02.2026  		| Fabio Campion                	| First released version
+
+
+
+==================================================================================================*)
+
+(*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+(* Enable / disable FB																																			*)
+(*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*)
+
+(* Reset outputs 																				 *)
+(*==========================================================*)
+(* Error and valid outputs are reset with falling edge of enable input							 *)
+
+IF NOT enable AND statEnableOld THEN
+
+	(* Reset error and status *)
+	error := FALSE;
+	status := STATUS_NO_CALL;
+	statusDisplay := 'Not running...';
+
+	(* Reset status outputs *)
+	error := FALSE;
+	aocRunning	 := FALSE;
+	//encoderSwitch := FALSE;
+	referenceSwitch := FALSE;
+	doubleFacerSpeedUP := FALSE;
+	doubleFacerSpeedDown := FALSE;
+	stopDoubleFacer := FALSE;
+	rotaryShearCutX1 := FALSE;
+	slitterChangeOrder := FALSE;
+	lowerLevelStackerDischarge := FALSE;
+	upperLevelStackerDischarge := FALSE;
+	instFbTPRoaryShear.IN := FALSE;
+	instFbTPSlitter.IN := FALSE;
+	instFbTONSlitterDelay.IN := FALSE;
+	instFbTONStackerDischargeDelay.IN := FALSE;
+	instFbTPStacker1Discharge.IN	:= FALSE;
+	instFbTPStacker2Discharge.IN	:= FALSE;
+	instFBCtrlRampGenerator.bEnable := FALSE;
+	instFBCtrlRampGenerator.fStart := configuration.automaticOrderChangeSpeed;
+	instFBCtrlRampGenerator.fTarget := configuration.automaticOrderChangeSpeed;
+
+
+	rotaryKnifeSpeedRef			:= 0.0;
+	siltterKnifeSpeedRef		:= 0.0;
+
+	(* Reset internal variables*)
+	statFirtsCycle := FALSE;
+	tempRunningCounter := 0;
+
+
+	statEnableOld := enable;
+	RETURN;
+
+(* Check if FB is enabled - first cycle*)
+(*===========================================================*)
+ELSIF enable AND NOT statEnableOld THEN
+
+	status := STATUS_FB_FIRST_CALL;
+	statFirtsCycle := TRUE;
+	(* Set old value of enable for edge detection and end execution*)
+	statEnableOld := enable;
+	RETURN;
+
+
+(* Check if function block is disabled or UserClearedError is present*)
+ELSIF NOT enable THEN
+
+	(*Function block not running*)
+	statNotEnabled := TRUE;
+
+ELSE
+
+	(* Function block enabled													    					   *)
+	(*===========================================================*)
+
+	(*Function block cycles increment counter*)
+	tempRunningCounter := tempRunningCounter + 1;
+
+
+
+	(*Execute automatic order change command*)
+	IF executeAOC AND NOT tempExecuteAOC THEN
+
+		stateMachine := STATUS_CHECK_CONDITIONS;
+
+	END_IF
+
+	tempExecuteAOC := executeAOC;
+
+	(* Function block state machine											    					   *)
+	(*===========================================================*)
+	CASE stateMachine OF
+
+
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Check the conditions before start the AOC										 *)
+	(*----------------------------------------------------------------------------------------------*)
+		STATUS_CHECK_CONDITIONS:
+
+		(*Check if there is paper in the machine*)
+		IF NOT measuringWheelPaperSensor OR NOT slitterClearSensor OR NOT rotaryKnifePaperSensor THEN
+
+			stateMachine := STATUS_AOC_FINISHED;
+
+		ELSE
+			instAOCTimeOutTON.IN := TRUE;
+			stateMachine := STATUS_SAVE_DF_SPEED;
+
+		END_IF
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Saves the current running speed of the double facer	to be used latter			 *)
+	(*----------------------------------------------------------------------------------------------*)
+		STATUS_SAVE_DF_SPEED:
+
+		statusDisplay := 'STATUS_SAVE_DF_SPEED';
+		tempDoubleFacerSpeedMPM := doubleFacerSpeedMPM;
+		(*instFBCtrlRampGenerator.fTarget := 0;*)
+		stateMachine := STATUS_REDUCE_DF_SPEED;
+
+
+		(*Reset variables*)
+
+		aocRunning := TRUE;
+		//encoderSwitch := FALSE;
+		doubleFacerSpeedUP := FALSE;
+		doubleFacerSpeedDown := FALSE;
+		stopDoubleFacer := FALSE;
+		
+		slitterChangeOrder := FALSE;
+		lowerLevelStackerDischarge := FALSE;
+		upperLevelStackerDischarge := FALSE;
+		instFbTPRoaryShear.IN := FALSE;
+		instFbTPSlitter.IN := FALSE;
+		instFbTONSlitterDelay.IN := FALSE;
+		instFbTONStackerDischargeDelay.IN := FALSE;
+		instFbTPStacker1Discharge.IN	:= FALSE;
+		instFbTPStacker2Discharge.IN	:= FALSE;
+
+		instFBCtrlRampGenerator.fStart := configuration.automaticOrderChangeSpeed;
+		instFBCtrlRampGenerator.fTarget := configuration.automaticOrderChangeSpeed;
+		instFBCtrlRampGenerator.bEnable := TRUE;
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Reduce double facer speed to the programmed speed 							 *)
+	(*----------------------------------------------------------------------------------------------*)
+		STATUS_REDUCE_DF_SPEED:
+
+		statusDisplay := 'STATUS_REDUCE_DF_SPEED';
+
+		IF doubleFacerSpeedMPM > configuration.automaticOrderChangeSpeed THEN
+
+			doubleFacerSpeedDown := instFbCtrlPwm.bPwmOutBitNeg;
+			doubleFacerSpeedUP := instFbCtrlPwm.bPwmOutBitPos;
+
+		END_IF
+
+		IF doubleFacerSpeedMPM <= configuration.automaticOrderChangeSpeed THEN
+
+			doubleFacerSpeedDown := FALSE;
+			doubleFacerSpeedUP := FALSE;
+			stateMachine := STATUS_ROTARY_SHEAR_CUT_X1;
+
+		END_IF
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Cut the web material															 *)
+	(*----------------------------------------------------------------------------------------------*)
+		STATUS_ROTARY_SHEAR_CUT_X1:
+
+		statusDisplay := 'Cut the material and wait for the sensor of the rotary shear';
+
+		instFbTPRoaryShear.PT := T#1S;
+		instFbTPRoaryShear.IN := TRUE;
+		
+		instRotaryShearCutX1TP.IN := TRUE;
+
+
+
+		IF rotaryShearCutSensor THEN
+			
+			instRotaryShearCutX1TP.IN := FALSE;
+			instFbTPRoaryShear.PT := T#1S;
+			instFbTPRoaryShear.IN := FALSE;
+			referenceSwitch := TRUE;
+			stateMachine := STATUS_INCREASE_DRYEND_SPEED;
+			changeOrder := TRUE;
+
+		END_IF
+
+		rotaryShearCutX1 := instFbTPRoaryShear.Q;
+		instFbTPRoaryShear();
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Increase the dryend speed to clear the slitter and execute the order change	 *)
+	(*----------------------------------------------------------------------------------------------*)
+	STATUS_INCREASE_DRYEND_SPEED:
+
+
+		statusDisplay := 'Increase the dryend speed to clear the slitter';
+
+		instFBCtrlRampGenerator.fTarget := configuration.automaticOrderChangeSpeed * configuration.automaticOrderChangeSpeedMult;
+
+		IF NOT measuringWheelPaperSensor THEN
+
+			//encoderSwitch := TRUE;
+			stateMachine := STATUS_CHANGE_SLT_ORDER;
+
+		END_IF
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Increase the dryend speed to clear the slitter and execute the order change	 *)
+	(*----------------------------------------------------------------------------------------------*)
+		STATUS_CHANGE_SLT_ORDER:
+
+		statusDisplay := 'Waiting for the slitter to be clear and change the order (Sensor clear)';
+
+		IF NOT slitterClearSensor THEN
+
+			instFbTPSlitter.PT := T#5S;
+			instFbTPSlitter.IN := TRUE;
+			stateMachine := STATUS_CHANGE_RK_SHEET_LENGTH;
+
+		END_IF
+
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Wait until the sensor is clear and change the sheet  length of the rotary knife	 *)
+	(*----------------------------------------------------------------------------------------------*)
+	STATUS_CHANGE_RK_SHEET_LENGTH:
+
+		statusDisplay := 'Waiting to change rotary knife length (Sensor clear)';
+
+		instTONChangeCutLenght.PT := T#4S;
+		instTONChangeCutLenght.IN := TRUE;
+
+		
+		instChangeSheetLengthTON.PT := configuration.changeSheetLengthTime;
+		instChangeSheetLengthTON.IN := TRUE;
+		
+		(*Wait until the sensor is clear and change the sheet length*)
+		IF NOT rotaryKnifePaperSensor OR instChangeSheetLengthTON.Q THEN
+		
+		
+			flapsChangeOrder := TRUE; (*Adjuste the flaps*)
+			instChangeSheetLengthTON.IN := FALSE;
+			instChangeSheetLengthTON.IN := FALSE;
+			stateMachine := STATUS_STK_DISCHARGE;
+
+		END_IF
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Wait a small delay and discharge the stacker if the ID is diferent				 *)
+	(*----------------------------------------------------------------------------------------------*)
+	STATUS_STK_DISCHARGE:
+
+	statusDisplay := 'Discharge the stacker if the next order ID is diferent';
+
+
+		instFbTONStackerDischargeDelay.PT := configuration.stackerDischargeDelay;
+		instFbTONStackerDischargeDelay.IN := TRUE;
+	
+		instFbTONStacker1Discharge.PT := T#2S;
+		instFbTONStacker2Discharge.PT := T#2S;
+	
+		IF instFbTONStackerDischargeDelay.Q THEN
+	
+			//IF currentOrder.top.id <> nextOrder.top.id THEN
+
+				instFbTONStacker1Discharge.IN := TRUE;
+				lowerLevelStackerDischarge := TRUE;
+	
+			//END_IF
+	
+	
+			//IF currentOrder.bottom.id <> nextOrder.bottom.id THEN
+	
+				instFbTONStacker2Discharge.IN := TRUE;
+				upperLevelStackerDischarge := TRUE;
+
+			//END_IF
+	
+		END_IF
+
+		IF instFbTONStackerDischargeDelay.Q  THEN
+
+			IF  instFbTONStacker1Discharge.Q OR instFbTONStacker2Discharge.Q THEN
+
+				lowerLevelStackerDischarge := FALSE;
+				upperLevelStackerDischarge := FALSE;
+				instFbTONStackerDischargeDelay.IN := FALSE;
+				instFbTONStacker1Discharge.IN := FALSE;
+				instFbTONStacker2Discharge.IN := FALSE;
+				currentOrder := nextOrder;
+				stateMachine := STATUS_AOC_FINISHED;
+
+			END_IF
+	
+		END_IF
+
+
+
+	instFbTONStacker1Discharge();
+	instFbTONStacker2Discharge();
+	instFbTONStackerDischargeDelay();
+
+
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* AOC Finished																	 *)
+	(*----------------------------------------------------------------------------------------------*)
+	STATUS_AOC_FINISHED:
+
+	statusDisplay := 'STATUS_AOC_FINISHED...';
+	
+	aocRunning	 := FALSE;
+	//encoderSwitch := FALSE;
+	referenceSwitch := FALSE;
+	doubleFacerSpeedUP := FALSE;
+	doubleFacerSpeedDown := FALSE;
+	stopDoubleFacer := FALSE;
+	instRotaryShearCutX1TP.IN := FALSE;
+	slitterChangeOrder := FALSE;
+	flapsChangeOrder := FALSE; (*Adjuste the flaps*)
+
+	lowerLevelStackerDischarge := FALSE;
+	upperLevelStackerDischarge := FALSE;
+	instFbTPRoaryShear.IN := FALSE;
+	instFbTPSlitter.IN := FALSE;
+	instFbTPSlitter.IN := FALSE;
+	instFbTONSlitterDelay.IN := FALSE;
+	instFbTONStackerDischargeDelay.IN := FALSE;
+	instFbTPStacker1Discharge.IN	:= FALSE;
+	instFbTPStacker2Discharge.IN	:= FALSE;
+	instFBCtrlRampGenerator.bEnable := FALSE;
+	instFBCtrlRampGenerator.fTarget := configuration.automaticOrderChangeSpeed;
+	changeOrder := FALSE;
+	instAOCTimeOutTON.IN := FALSE;
+
+
+	END_CASE
+
+END_IF
+
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* PWM FunctionBlock call															 *)
+	(*----------------------------------------------------------------------------------------------*)
+
+	(*Parameters configuration*)
+	instFbCtrlPwmOutParameters.tTaskCycleTime := configuration.taskCycleTime;
+	instFbCtrlPwmOutParameters.tMinOnTime := T#100MS;
+	instFbCtrlPwmOutParameters.tMinOffTime := T#100MS;
+	instFbCtrlPwmOutParameters.tPWMPeriod := T#1S;
+
+	(*Speed error calculation for the PWM input*)
+	statSpeedDiference := configuration.automaticOrderChangeSpeed - doubleFacerSpeedMPM;
+
+	(*Pwm input calculation and LIMIT*)
+	statePwmInputSignal := LIMIT (-100 , (statSpeedDiference * configuration.speedErrorGain ), 100);
+
+	(*PWM Function block call*)
+	instFbCtrlPwm(
+		fPwmInput := -20,
+		eMode:= eCTRL_MODE_ACTIVE,
+		stParams:= instFbCtrlPwmOutParameters );
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Ramp FunctionBlock call															 *)
+	(*----------------------------------------------------------------------------------------------*)
+	(*Function block output call*)
+
+		statFBCtrlRampGeneratorParams.fVeloPos := configuration.rampUpTimeSec;
+		statFBCtrlRampGeneratorParams.fVeloNeg := configuration.rampDownTimeSec;
+		statFBCtrlRampGeneratorParams.tCtrlCycleTime := configuration.controlerCycleTime;
+		statFBCtrlRampGeneratorParams.tTaskCycleTime := configuration.taskCycleTime;
+
+		instFBCtrlRampGenerator(
+			stParams:= statFBCtrlRampGeneratorParams);
+
+
+		rotaryKnifeSpeedRef := instFBCtrlRampGenerator.fOut * configuration.rotaryKnifeSpeedMult;
+		siltterKnifeSpeedRef	 := instFBCtrlRampGenerator.fOut	* configuration.slitterSpeedMult;
+	
+
+
+	(*----------------------------------------------------------------------------------------------*)
+	(* Execute manual order change																	 *)
+	(*----------------------------------------------------------------------------------------------*)
+
+	IF executeManualOC AND NOT statExecuteManualOC THEN
+
+		currentOrder := nextOrder;
+
+	END_IF
+
+	statExecuteManualOC := executeManualOC;
+
+	
+	instRotaryShearCutX1TP(PT:=T#500MS,Q=>rotaryShearCutX1);
+	instFbTPSlitter(Q=>slitterChangeOrder);
+	
+	instChangeSheetLengthTON();
+	
+	(*----------------------------------------------------------------------------------------------*)
+	(* AOC Timeout																	 *)
+	(*----------------------------------------------------------------------------------------------*)
+	
+	IF instAOCTimeOutTON.Q THEN
+		
+		instAOCTimeOutTON.IN := FALSE;
+		stateMachine := STATUS_AOC_FINISHED;
+		aocTimeOut := TRUE;
+
+	
+	END_IF
+	
+	instAOCTimeOutTON(PT:=configuration.aocTimeout);
+
+	
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_AutomaticOrderChange">
+      <LineId Id="3987" Count="216" />
+      <LineId Id="4417" Count="0" />
+      <LineId Id="4204" Count="46" />
+      <LineId Id="4420" Count="0" />
+      <LineId Id="4251" Count="0" />
+      <LineId Id="4574" Count="0" />
+      <LineId Id="4576" Count="0" />
+      <LineId Id="4421" Count="1" />
+      <LineId Id="4425" Count="0" />
+      <LineId Id="4423" Count="0" />
+      <LineId Id="4252" Count="2" />
+      <LineId Id="4426" Count="0" />
+      <LineId Id="4255" Count="0" />
+      <LineId Id="4427" Count="0" />
+      <LineId Id="4577" Count="0" />
+      <LineId Id="4258" Count="90" />
+      <LineId Id="4418" Count="0" />
+      <LineId Id="4435" Count="0" />
+      <LineId Id="4349" Count="64" />
+      <LineId Id="4428" Count="1" />
+      <LineId Id="4447" Count="0" />
+      <LineId Id="4445" Count="1" />
+      <LineId Id="4436" Count="3" />
+      <LineId Id="4441" Count="0" />
+      <LineId Id="4443" Count="0" />
+      <LineId Id="4578" Count="0" />
+      <LineId Id="4444" Count="0" />
+      <LineId Id="4442" Count="0" />
+      <LineId Id="4440" Count="0" />
+      <LineId Id="4431" Count="2" />
+      <LineId Id="4430" Count="0" />
+      <LineId Id="2098" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

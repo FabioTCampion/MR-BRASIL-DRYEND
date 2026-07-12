@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="slitterCommands_TypeStruct" Id="{8b1378b9-d9da-45f5-b988-5dd215f9df60}">
+    <Declaration><![CDATA[TYPE slitterCommands_TypeStruct :
+STRUCT
+
+	tractionMotorAutoMan			: BOOL;	(*Knife / scorer motor automatic manual (0 = Auto / 1 = Manual)*)
+	tractionMotorSpeed				: INT;		(*Traction motor manual speed reference in meters per minute*)
+	knifeMotorRun					: BOOL;	(*Start / Stop knife motor*)
+	scorerMotorRun					: BOOL;	(*Start / Stop scorer motor*)
+	enablePositioningAxis			: BOOL;	(*Enable positioning axis*)
+	executeHomming					: BOOL;	(*Execute homming*)
+	enableAxis						: BOOL;	(*Enable positioning axis*)
+	executePositioning				: BOOL;	(*Execute positioning*)
+
+	resetCommand					: BOOL;	(**)
+
+	startCutting					: BOOL;	(*Start / Stop cutting*)
+	generatePositions				: BOOL;	(*Generate order positions*)
+	changeOrder						: BOOL;	(*Change order*)
+
+	paperTrimSuctionOpen			: BOOL;	(*Paper trim suction motor open*)
+	paperTrimSuctionClose			: BOOL;	(*Paper trim suction motor close*)
+	paperTrimSuctionAutoPos			: BOOL;	(*Paper trim suction motor automatic positioning*)
+	paperTrimSuctionHome			: BOOL;	(*Paper trim suction motor home*)
+	paperTrimSuctionPosSetpoint		: INT;	(*Paper trim suction motor position setpoint*)
+
+	scorerHeightIncrement			: BOOL;	(*Scorer height increment*)
+	scorerHeightDecrement			: BOOL;	(*Scorer height decrement*)
+	scorerHeightHome				: BOOL;	(*Scorer height execute home*)
+	scorerHightPos					: BOOL;	(*Scorer height execute positioning*)
+	scorerHeightAutoMan				: BOOL;	(*Scorer height auto / manual (0 = Auto / 1 = Manual)*)
+
+	autoManualCommand				: BOOL;	(*Slitter automatic / manual positioning*)
+	moveKnifeOpSide					: BOOL;
+	moveKnifeStSide					: BOOL;
+	searchKnifeManual				: BOOL;
+
+	moveInnerScorerOpSide			: BOOL;
+	moveInnerScorerStSide			: BOOL;
+	searchInnerScorerManual			: BOOL;
+
+
+	moveOuterScorerOpSide			: BOOL;
+	moveOuterScorerStSide			: BOOL;
+	searchOuterScorerManual			: BOOL;
+
+	moveMachineOperatorSide			: BOOL;	(*Move slitter to operator side*)
+	moveMachineSteamSide			: BOOL;	(*Move slitter to steam side*)
+
+
+	knifeRunningMetersResetArr		: ARRAY [1..20] OF BOOL;	(*This array is used to reset the lifetime meters that the knife runs*)
+	knifeManualSharpeningArr		: ARRAY [1..20] OF BOOL;	(*This array is used to sharpen the knife manualy*)
+	knifeManualLubrificationArr		: ARRAY [1..20] OF BOOL;	(*This array is used to lubrificate the knife manualy*)
+	knifeEnabledArr					: ARRAY [1..20] OF BOOL;	(*Tool enabled array*)
+	scorerEnabledArr				: ARRAY [1..20] OF BOOL;	(*Tool enabled array*)
+	scorerSolenoidArr				: ARRAY [1..20] OF BOOL;	(*Tool positions*)
+	knifeSolenoidArr				: ARRAY [1..20] OF BOOL;	(*Tool positions*)
+	
+	
+	knifeJogArr						: ARRAY [1..5] OF hmiCommandsJog_TypeStruct;
+	scorerJogArr						: ARRAY [1..8] OF hmiCommandsJog_TypeStruct;
+	knifePosCorrectionArr				: ARRAY [1..5] OF hmiCommandsSmallPosCorrection_TypeStruct;
+	scorerPosCorrectionArr				: ARRAY [1..8] OF hmiCommandsSmallPosCorrection_TypeStruct;
+
+    // ─────────────── KNIFE MAINTENANCE (HMI COMMANDS) ───────────────
+    knifeManualSharpeningCmdArr       : ARRAY [1..20] OF BOOL; // Manual knife sharpening command (per knife) / Comando manual de afiação (por faca)
+    knifeManualLubrificationCmdArr    : ARRAY [1..20] OF BOOL; // Manual knife lubrication command (per knife) / Comando manual de lubrificação (por faca)
+
+	
+    // ─────────────── FLAPS / DIVERTERS ───────────────
+    flapsAllUP                    : BOOL;  // TRUE when all flaps are in UP position / TRUE quando todas as aletas estão para cima
+    flapsAllDown                  : BOOL;  // TRUE when all flaps are in DOWN position / TRUE quando todas as aletas estão para baixo
+    flapsSetAuto                  : BOOL;  // Flap system in automatic mode / Sistema de aletas em automático
+	flapsInvertDirection		  : BOOL;
+	
+    flapsManualCmdArr             : ARRAY [1..27] OF hmiCommandsFlaps_TypeStruct;  // Manual commands per flap / Comandos manuais por alet
+	
+	
+    // ─────────────── GENERAL / SEQUENCES ───────────────
+    resetCmd                      : BOOL;  // Reset commands, states and latched faults / Reset de comandos, estados e falhas
+
+    enableAxisCmd                 : BOOL;  // Enable slitter positioning axes (power/permit motion) / Habilita eixos de posicionamento
+    disableAxisCmd                : BOOL;  // Disable slitter positioning axes / Desabilita eixos de posicionamento
+
+    executePositioningCmd         : BOOL;  // Start positioning sequence (pulse/edge) / Executa sequência de posicionamento (pulso)
+    executePosCorrectionCmd       : BOOL;  // Start position correction routine (pulse/edge) / Executa correção de posição (pulso)
+    executeHomeCmd                : BOOL;  // Start homing sequence (pulse/edge) / Executa homing (pulso)
+
+    // ─────────────── TRACTION MOTOR ───────────────
+    tractionMotorStartCmd         : BOOL;  // Start command for slitter traction motor / Partida motor de tração do slitter
+    tractionMotorStopCmd          : BOOL;  // Stop command for slitter traction motor / Parada motor de tração do slitter
+
+    // ─────────────── SLITTER CARRIAGE MANUAL MOVE ───────────────
+    moveSlitterOperatorSideCmd    : BOOL;  // Slitter carriage move OS / Movimento carro slitter LO (lado operador)
+    moveSlitterDriveSideCmd       : BOOL;  // Slitter carriage move DS / Movimento carro slitter LA (lado acionamento)
+
+    // ─────────────── SCORER HEIGHT CONTROL ───────────────
+    scorerHeightIncCmd            : BOOL;  // Increase scorer height / Sobe altura do scorer
+    scorerHeightDecCmd            : BOOL;  // Decrease scorer height / Desce altura do scorer
+
+    scorerHightPosCmd             : BOOL;  // Execute scorer height positioning / Executa posicionamento da altura do scorer
+
+    // ─────────────── TRIM DUCT LIMIT SENSORS (COMMAND/STATUS) ───────────────
+    osTrimDuctSensorOpenCmd       : BOOL;  // OS trim duct sensor — maximum limit reached / Sensor duto refilo LO — limite máximo atingido
+    osTrimDuctSensorCloseCmd      : BOOL;  // OS trim duct sensor — minimum limit reached / Sensor duto refilo LO — limite mínimo atingido
+
+    dsTrimDuctSensorOpenCmd       : BOOL;  // DS trim duct sensor — maximum limit reached / Sensor duto refilo LA — limite máximo atingido
+    dsTrimDuctSensorCloseCmd      : BOOL;  // DS trim duct sensor — minimum limit reached / Sensor duto refilo LA — limite mínimo atingido
+
+    // ─────────────── OUTFEED ROLLS COMMAND ───────────────
+	
+  	outfeedRoll_ManCmd      : BOOL; // Manual Mode activation command
+    outfeedRoll_UpCmd       : BOOL; // Manual command to raise the roll
+    outfeedRoll_DownCmd     : BOOL; // Manual command to lower the roll
+	
+
+
+    // ─────────────── JOG COMMANDS ───────────────
+    knifeJogCmdArr                : ARRAY [1..7] OF hmiCommandsJog_TypeStruct;   // Knife jog commands (per knife) / Jog das facas (por faca)
+    scorerJogCmdArr               : ARRAY [1..12] OF hmiCommandsJog_TypeStruct;  // Scorer jog commands (per scorer) / Jog dos scorers (por scorer)
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

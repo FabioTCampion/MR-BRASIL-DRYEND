@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_00BH11_PLCTOHW_PDOS" Id="{ea5193e9-3427-46ac-bb06-ee258331e3d0}">
+    <Declaration><![CDATA[TYPE _00BH11_PLCTOHW_PDOS :
+STRUCT
+	
+	outputByte_0 	 : BYTE;
+	outputByte_1 	 : BYTE;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

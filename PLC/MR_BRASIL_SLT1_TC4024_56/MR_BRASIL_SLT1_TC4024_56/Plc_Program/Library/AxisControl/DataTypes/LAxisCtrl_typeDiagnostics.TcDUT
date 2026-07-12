@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeDiagnostics" Id="{5e47efe8-51b0-498d-9c63-212cf28be27e}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeDiagnostics :
+STRUCT
+
+	status						:WORD;	(*Status OF FB when error occurred*)
+	subfunctionStatus			:UDINT;	(*ErrorID OF called subfunction*)
+	basicMotionState			:DINT;	(*Current basic motion state when error occurred*)
+	superimposedMotionState		:DINT;	(*Current superimposed motion state when error occurred*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

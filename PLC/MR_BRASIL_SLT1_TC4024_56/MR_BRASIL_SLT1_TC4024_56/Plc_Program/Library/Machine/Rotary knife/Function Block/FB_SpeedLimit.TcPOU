@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SpeedLimit" Id="{855d7821-349a-4956-8980-cb38cd8c4b77}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SpeedLimit
+VAR_INPUT
+	
+	knifeEnabled			: BOOL;
+    machineSpeed            : REAL; // Current machine speed (MPM)
+    sheetLength             : REAL; // Length of the sheet being processed (MM)
+    numberOfPoints          : INT;  // Total number of data points in the speed curve
+    machineConfigRotaryKnife	: rotaryKnifeConfig_TypeStruct; // Configuration data for the rotary knife
+END_VAR
+
+VAR_OUTPUT
+	reduceLineSpeed         : BOOL; // Flag indicating whether line speed should be reduced
+	speedLimitAcive			: BOOL;
+    speedCurveActive        : INT;  // Index of the active speed curve segment
+	maximumSpeedActive		: REAL;	// Maximum speed for the current length
+END_VAR
+
+VAR
+    index: INT; // Loop index
+	count: DINT;
+	nextPoint: INT;
+	instGenPulse: GEN_PULSE;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Ensure pulse generator is updated every scan
+instGenPulse(ENQ:=TRUE, PTH:=T#100MS, PTL:=T#500MS);
+
+IF knifeEnabled THEN
+    // Reset status before checking
+    reduceLineSpeed := FALSE;
+    speedLimitAcive := FALSE;
+
+    FOR index := 1 TO (numberOfPoints - 1) BY 1 DO
+        nextPoint := index + 1;
+        
+        // Check if sheetLength falls within the current segment of the speed curve
+        IF sheetLength >= machineConfigRotaryKnife.speedCurve[index].sheetLength AND 
+           sheetLength < machineConfigRotaryKnife.speedCurve[nextPoint].sheetLength THEN
+            
+            // Reference the specific config for the current index to improve readability
+            maximumSpeedActive := machineConfigRotaryKnife.speedCurve[index].machineSpeed;
+            speedCurveActive := index;
+
+            // Logic for speed reduction and warnings
+            IF machineSpeed > maximumSpeedActive THEN
+                reduceLineSpeed := instGenPulse.Q;
+            END_IF
+            
+            // Warning threshold (5 units below max)
+            speedLimitAcive := machineSpeed > (maximumSpeedActive - 5);
+            
+            // Exit loop early once the matching range is found
+            EXIT; 
+        END_IF
+    END_FOR;
+ELSE    
+    speedLimitAcive := FALSE;
+    reduceLineSpeed := FALSE;
+    maximumSpeedActive := 0;
+END_IF]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SpeedLimit">
+      <LineId Id="220" Count="34" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

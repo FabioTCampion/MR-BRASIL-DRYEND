@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <GVL Name="GVL_Hw" Id="{db76b687-8be8-473d-9e14-e98886b1950a}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	SLT1_P1_100_UG1		: AXIS_REF; //Knife 1 - axis variables
+	SLT1_P1_100_UG2		: AXIS_REF; //Knife 2 - axis variables
+	SLT1_P1_100_UG3		: AXIS_REF; //Knife 3 - axis variables
+	SLT1_P1_100_UG4		: AXIS_REF; //Knife 4 - axis variables
+	SLT1_P1_100_UG5		: AXIS_REF; //Knife 5 - axis variables
+	SLT1_P1_100_UG6		: AXIS_REF; //Knife 6 - axis variables
+
+	SLT1_P1_200_UG1		: AXIS_REF; //Scorer 1 - axis variables
+	SLT1_P1_200_UG2		: AXIS_REF; //Scorer 2 - axis variables
+	SLT1_P1_200_UG3		: AXIS_REF; //Scorer 3 - axis variables
+	SLT1_P1_200_UG4		: AXIS_REF; //Scorer 4 - axis variables
+	SLT1_P1_200_UG5		: AXIS_REF; //Scorer 5 - axis variables
+	SLT1_P1_200_UG6		: AXIS_REF; //Scorer 6 - axis variables
+	SLT1_P1_200_UG7		: AXIS_REF; //Scorer 7 - axis variables
+	SLT1_P1_200_UG8		: AXIS_REF; //Scorer 8 - axis variables
+	
+	SLT1_P1_050_DI01 	: FB_EL1809;
+	SLT1_P1_050_DI02 	: FB_EL1809;
+	SLT1_P1_050_DI03 	: FB_EL1809;
+	SLT1_P1_050_DI04 	: FB_EL1809;
+	SLT1_P1_050_DI05 	: FB_EL1809;
+	SLT1_P1_050_DI06 	: FB_EL1809;
+
+	SLT1_P1_050_DO01 	: FB_EL2809;
+	SLT1_P1_050_DO02 	: FB_EL2809;
+	SLT1_P1_050_DO03 	: FB_EL2809;
+	SLT1_P1_050_DO04 	: FB_EL2809;
+	SLT1_P1_050_DO05 	: FB_EL2809;
+	SLT1_P1_050_DO06 	: FB_EL2809;	
+
+	
+	ARK_P1_050_DI01     : FB_EL1809;        // Digital inputs card
+    ARK_P1_050_DO01     : FB_EL2809;        // Digital outputs card	
+    ARK_P1_050_DO02     : FB_EL2809;        // Digital outputs card			
+    ARK_P1_050_AI01     : FB_EL3002;        // Digital outputs card
+    ARK_P1_050_AO01     : FB_EL4004;        // Digital outputs card		
+    ARK_P1_050_AO02     : FB_EL4004;        // Digital outputs card		
+
+	STK_P2_050_AO1	: FB_EL4004;	
+	STK_P2_050_DI1	: FB_EL1809;	
+	STK_P2_050_DI2	: FB_EL1809;	
+	STK_P2_050_DO1	: FB_EL2809;	
+	STK_P2_050_DO2	: FB_EL2809;	
+	
+	
+	STK_P2_050_AO2	: FB_EL4004;	
+	STK_P2_050_AO3	: FB_EL4004;	
+	STK_P2_050_AO4	: FB_EL4004;	
+
+	STK_P2_050_ENC1 : FB_EL5152;
+	//Io-Link master
+	STK_050_BC2	: _FB_006B51;
+	//Io-Link Slaves
+	STKL_050_DIO1 : _FB_00BE31;	//Ch 0 - IO-Link IP67 Input/Output module
+	STKL_050_DIO2 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
+	STKL_100_B01 : _FB_DT35_B15251; //Ch 2 - IO-Link Pile height sensor	
+	
+	
+	statusWord AT %I* : UINT;
+	
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>

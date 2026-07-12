@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommandsFlaps_TypeStruct" Id="{313a551a-44b4-4e80-a358-8a7d3c6fd46f}">
+    <Declaration><![CDATA[TYPE hmiCommandsFlaps_TypeStruct :
+STRUCT
+		
+	upCmd	 :BOOL;
+	downCmd	: BOOL;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

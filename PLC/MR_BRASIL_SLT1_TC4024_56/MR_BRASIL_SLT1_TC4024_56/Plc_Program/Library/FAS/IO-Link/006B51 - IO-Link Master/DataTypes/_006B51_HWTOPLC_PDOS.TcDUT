@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_006B51_HWTOPLC_PDOS" Id="{7c176790-b851-4472-82ef-e1dfb638dac5}">
+    <Declaration><![CDATA[TYPE _006B51_HWTOPLC_PDOS :
+STRUCT
+	
+	inputPin4 	 			: BYTE;
+	inputPin2  				: BYTE;
+	deviceState  			: BYTE;
+	
+	ioLinkDeviceState_Port0 : USINT;
+	ioLinkDeviceState_Port1 : USINT;
+	ioLinkDeviceState_Port2 : USINT;
+	ioLinkDeviceState_Port3 : USINT;
+	ioLinkDeviceState_Port4 : USINT;
+	ioLinkDeviceState_Port5 : USINT;
+	ioLinkDeviceState_Port6 : USINT;
+	ioLinkDeviceState_Port7 : USINT;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

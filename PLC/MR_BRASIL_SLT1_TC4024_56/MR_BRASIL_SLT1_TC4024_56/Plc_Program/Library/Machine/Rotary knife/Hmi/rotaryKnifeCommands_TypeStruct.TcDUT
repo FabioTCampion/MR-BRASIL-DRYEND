@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeCommands_TypeStruct" Id="{618156c0-a6ec-43ee-8083-583feb9c004b}">
+    <Declaration><![CDATA[TYPE rotaryKnifeCommands_TypeStruct :
+STRUCT
+
+   	powerONCmd            : BOOL;
+    powerOFFCmd           : BOOL;
+  	jogFwCmd              : BOOL;
+    jogRevCmd             : BOOL;
+    cutCmd                : BOOL;
+ 
+	resetTotalOfCuts	 :BOOL;
+	
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

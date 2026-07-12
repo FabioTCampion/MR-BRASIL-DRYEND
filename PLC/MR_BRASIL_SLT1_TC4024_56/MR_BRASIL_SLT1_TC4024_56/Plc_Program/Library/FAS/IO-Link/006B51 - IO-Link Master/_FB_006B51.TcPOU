@@ -1,0 +1,397 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_006B51" Id="{deb7f2b3-fa9e-4c36-8860-21b39d97636c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_006B51
+VAR_INPUT
+	
+		
+END_VAR
+VAR_OUTPUT
+	
+	channel_0 : _006B51_Channel_State;
+	channel_1 : _006B51_Channel_State;
+	channel_2 : _006B51_Channel_State;
+	channel_3 : _006B51_Channel_State;
+	channel_4 : _006B51_Channel_State;
+	channel_5 : _006B51_Channel_State;
+	channel_6 : _006B51_Channel_State;
+	channel_7 : _006B51_Channel_State;
+	
+	HwToPlc	AT %I* 	: _006B51_HWTOPLC_PDOS;	
+			
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//============================================================
+// CHANNEL 0
+//============================================================
+channel_0.inputPin2   := HwToPlc.inputPin2.00;
+channel_0.inputPin4   := HwToPlc.inputPin4.00;
+channel_0.deviceState := HwToPlc.deviceState.00;
+
+// Reset port mode states
+channel_0.state_PortInNoDigitalInput        := FALSE;
+channel_0.state_PortInNcDigitalInput        := FALSE;
+channel_0.state_PortInDigitalOutput         := FALSE;
+channel_0.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_0.state_NoDeviceDetected            := FALSE;
+channel_0.state_IoLinkCommunicationStatus   := FALSE;
+channel_0.state_InvalidVendorId             := FALSE;
+channel_0.state_InvalidDeviceId             := FALSE;
+channel_0.state_InvalidSerialNumber         := FALSE;
+channel_0.state_InvalidCycleTime            := FALSE;
+channel_0.state_InvalidProcessDataInLength  := FALSE;
+channel_0.state_InvalidProcessDataOutLength := FALSE;
+channel_0.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port0 AND 16#0F) OF
+    16#0: channel_0.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_0.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_0.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_0.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port0 AND 16#F0), 4) OF
+    16#0: channel_0.state_NoDeviceDetected            := TRUE;
+    16#1: channel_0.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_0.state_InvalidVendorId             := TRUE;
+    16#3: channel_0.state_InvalidDeviceId             := TRUE;
+    16#4: channel_0.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_0.state_InvalidCycleTime            := TRUE;
+    16#9: channel_0.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_0.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_0.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 1
+//============================================================
+channel_1.inputPin2   := HwToPlc.inputPin2.01;
+channel_1.inputPin4   := HwToPlc.inputPin4.01;
+channel_1.deviceState := HwToPlc.deviceState.01;
+
+// Reset port mode states
+channel_1.state_PortInNoDigitalInput        := FALSE;
+channel_1.state_PortInNcDigitalInput        := FALSE;
+channel_1.state_PortInDigitalOutput         := FALSE;
+channel_1.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_1.state_NoDeviceDetected            := FALSE;
+channel_1.state_IoLinkCommunicationStatus   := FALSE;
+channel_1.state_InvalidVendorId             := FALSE;
+channel_1.state_InvalidDeviceId             := FALSE;
+channel_1.state_InvalidSerialNumber         := FALSE;
+channel_1.state_InvalidCycleTime            := FALSE;
+channel_1.state_InvalidProcessDataInLength  := FALSE;
+channel_1.state_InvalidProcessDataOutLength := FALSE;
+channel_1.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port1 AND 16#0F) OF
+    16#0: channel_1.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_1.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_1.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_1.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port1 AND 16#F0), 4) OF
+    16#0: channel_1.state_NoDeviceDetected            := TRUE;
+    16#1: channel_1.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_1.state_InvalidVendorId             := TRUE;
+    16#3: channel_1.state_InvalidDeviceId             := TRUE;
+    16#4: channel_1.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_1.state_InvalidCycleTime            := TRUE;
+    16#9: channel_1.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_1.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_1.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 2
+//============================================================
+channel_2.inputPin2   := HwToPlc.inputPin2.02;
+channel_2.inputPin4   := HwToPlc.inputPin4.02;
+channel_2.deviceState := HwToPlc.deviceState.02;
+
+// Reset port mode states
+channel_2.state_PortInNoDigitalInput        := FALSE;
+channel_2.state_PortInNcDigitalInput        := FALSE;
+channel_2.state_PortInDigitalOutput         := FALSE;
+channel_2.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_2.state_NoDeviceDetected            := FALSE;
+channel_2.state_IoLinkCommunicationStatus   := FALSE;
+channel_2.state_InvalidVendorId             := FALSE;
+channel_2.state_InvalidDeviceId             := FALSE;
+channel_2.state_InvalidSerialNumber         := FALSE;
+channel_2.state_InvalidCycleTime            := FALSE;
+channel_2.state_InvalidProcessDataInLength  := FALSE;
+channel_2.state_InvalidProcessDataOutLength := FALSE;
+channel_2.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port2 AND 16#0F) OF
+    16#0: channel_2.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_2.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_2.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_2.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port2 AND 16#F0), 4) OF
+    16#0: channel_2.state_NoDeviceDetected            := TRUE;
+    16#1: channel_2.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_2.state_InvalidVendorId             := TRUE;
+    16#3: channel_2.state_InvalidDeviceId             := TRUE;
+    16#4: channel_2.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_2.state_InvalidCycleTime            := TRUE;
+    16#9: channel_2.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_2.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_2.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 3
+//============================================================
+channel_3.inputPin2   := HwToPlc.inputPin2.03;
+channel_3.inputPin4   := HwToPlc.inputPin4.03;
+channel_3.deviceState := HwToPlc.deviceState.03;
+
+// Reset port mode states
+channel_3.state_PortInNoDigitalInput        := FALSE;
+channel_3.state_PortInNcDigitalInput        := FALSE;
+channel_3.state_PortInDigitalOutput         := FALSE;
+channel_3.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_3.state_NoDeviceDetected            := FALSE;
+channel_3.state_IoLinkCommunicationStatus   := FALSE;
+channel_3.state_InvalidVendorId             := FALSE;
+channel_3.state_InvalidDeviceId             := FALSE;
+channel_3.state_InvalidSerialNumber         := FALSE;
+channel_3.state_InvalidCycleTime            := FALSE;
+channel_3.state_InvalidProcessDataInLength  := FALSE;
+channel_3.state_InvalidProcessDataOutLength := FALSE;
+channel_3.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port3 AND 16#0F) OF
+    16#0: channel_3.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_3.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_3.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_3.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port3 AND 16#F0), 4) OF
+    16#0: channel_3.state_NoDeviceDetected            := TRUE;
+    16#1: channel_3.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_3.state_InvalidVendorId             := TRUE;
+    16#3: channel_3.state_InvalidDeviceId             := TRUE;
+    16#4: channel_3.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_3.state_InvalidCycleTime            := TRUE;
+    16#9: channel_3.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_3.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_3.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 4
+//============================================================
+channel_4.inputPin2   := HwToPlc.inputPin2.04;
+channel_4.inputPin4   := HwToPlc.inputPin4.04;
+channel_4.deviceState := HwToPlc.deviceState.04;
+
+// Reset port mode states
+channel_4.state_PortInNoDigitalInput        := FALSE;
+channel_4.state_PortInNcDigitalInput        := FALSE;
+channel_4.state_PortInDigitalOutput         := FALSE;
+channel_4.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_4.state_NoDeviceDetected            := FALSE;
+channel_4.state_IoLinkCommunicationStatus   := FALSE;
+channel_4.state_InvalidVendorId             := FALSE;
+channel_4.state_InvalidDeviceId             := FALSE;
+channel_4.state_InvalidSerialNumber         := FALSE;
+channel_4.state_InvalidCycleTime            := FALSE;
+channel_4.state_InvalidProcessDataInLength  := FALSE;
+channel_4.state_InvalidProcessDataOutLength := FALSE;
+channel_4.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port4 AND 16#0F) OF
+    16#0: channel_4.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_4.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_4.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_4.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port4 AND 16#F0), 4) OF
+    16#0: channel_4.state_NoDeviceDetected            := TRUE;
+    16#1: channel_4.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_4.state_InvalidVendorId             := TRUE;
+    16#3: channel_4.state_InvalidDeviceId             := TRUE;
+    16#4: channel_4.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_4.state_InvalidCycleTime            := TRUE;
+    16#9: channel_4.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_4.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_4.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 5
+//============================================================
+channel_5.inputPin2   := HwToPlc.inputPin2.05;
+channel_5.inputPin4   := HwToPlc.inputPin4.05;
+channel_5.deviceState := HwToPlc.deviceState.05;
+
+// Reset port mode states
+channel_5.state_PortInNoDigitalInput        := FALSE;
+channel_5.state_PortInNcDigitalInput        := FALSE;
+channel_5.state_PortInDigitalOutput         := FALSE;
+channel_5.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_5.state_NoDeviceDetected            := FALSE;
+channel_5.state_IoLinkCommunicationStatus   := FALSE;
+channel_5.state_InvalidVendorId             := FALSE;
+channel_5.state_InvalidDeviceId             := FALSE;
+channel_5.state_InvalidSerialNumber         := FALSE;
+channel_5.state_InvalidCycleTime            := FALSE;
+channel_5.state_InvalidProcessDataInLength  := FALSE;
+channel_5.state_InvalidProcessDataOutLength := FALSE;
+channel_5.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port5 AND 16#0F) OF
+    16#0: channel_5.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_5.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_5.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_5.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port5 AND 16#F0), 4) OF
+    16#0: channel_5.state_NoDeviceDetected            := TRUE;
+    16#1: channel_5.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_5.state_InvalidVendorId             := TRUE;
+    16#3: channel_5.state_InvalidDeviceId             := TRUE;
+    16#4: channel_5.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_5.state_InvalidCycleTime            := TRUE;
+    16#9: channel_5.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_5.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_5.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 6
+//============================================================
+channel_6.inputPin2   := HwToPlc.inputPin2.06;
+channel_6.inputPin4   := HwToPlc.inputPin4.06;
+channel_6.deviceState := HwToPlc.deviceState.06;
+
+// Reset port mode states
+channel_6.state_PortInNoDigitalInput        := FALSE;
+channel_6.state_PortInNcDigitalInput        := FALSE;
+channel_6.state_PortInDigitalOutput         := FALSE;
+channel_6.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_6.state_NoDeviceDetected            := FALSE;
+channel_6.state_IoLinkCommunicationStatus   := FALSE;
+channel_6.state_InvalidVendorId             := FALSE;
+channel_6.state_InvalidDeviceId             := FALSE;
+channel_6.state_InvalidSerialNumber         := FALSE;
+channel_6.state_InvalidCycleTime            := FALSE;
+channel_6.state_InvalidProcessDataInLength  := FALSE;
+channel_6.state_InvalidProcessDataOutLength := FALSE;
+channel_6.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port6 AND 16#0F) OF
+    16#0: channel_6.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_6.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_6.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_6.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port6 AND 16#F0), 4) OF
+    16#0: channel_6.state_NoDeviceDetected            := TRUE;
+    16#1: channel_6.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_6.state_InvalidVendorId             := TRUE;
+    16#3: channel_6.state_InvalidDeviceId             := TRUE;
+    16#4: channel_6.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_6.state_InvalidCycleTime            := TRUE;
+    16#9: channel_6.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_6.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_6.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;
+
+
+//============================================================
+// CHANNEL 7
+//============================================================
+channel_7.inputPin2   := HwToPlc.inputPin2.07;
+channel_7.inputPin4   := HwToPlc.inputPin4.07;
+channel_7.deviceState := HwToPlc.deviceState.07;
+
+// Reset port mode states
+channel_7.state_PortInNoDigitalInput        := FALSE;
+channel_7.state_PortInNcDigitalInput        := FALSE;
+channel_7.state_PortInDigitalOutput         := FALSE;
+channel_7.state_PortInIoLink                := FALSE;
+
+// Reset diagnostic / communication states
+channel_7.state_NoDeviceDetected            := FALSE;
+channel_7.state_IoLinkCommunicationStatus   := FALSE;
+channel_7.state_InvalidVendorId             := FALSE;
+channel_7.state_InvalidDeviceId             := FALSE;
+channel_7.state_InvalidSerialNumber         := FALSE;
+channel_7.state_InvalidCycleTime            := FALSE;
+channel_7.state_InvalidProcessDataInLength  := FALSE;
+channel_7.state_InvalidProcessDataOutLength := FALSE;
+channel_7.state_InvalidIoLinkVersion        := FALSE;
+
+// Low nibble = port mode
+CASE (HwToPlc.ioLinkDeviceState_Port7 AND 16#0F) OF
+    16#0: channel_7.state_PortInNoDigitalInput := TRUE;
+    16#1: channel_7.state_PortInNcDigitalInput := TRUE;
+    16#2: channel_7.state_PortInDigitalOutput  := TRUE;
+    16#3: channel_7.state_PortInIoLink         := TRUE;
+END_CASE;
+
+// High nibble = diagnostic / communication state
+CASE SHR((HwToPlc.ioLinkDeviceState_Port7 AND 16#F0), 4) OF
+    16#0: channel_7.state_NoDeviceDetected            := TRUE;
+    16#1: channel_7.state_IoLinkCommunicationStatus   := TRUE;
+    16#2: channel_7.state_InvalidVendorId             := TRUE;
+    16#3: channel_7.state_InvalidDeviceId             := TRUE;
+    16#4: channel_7.state_InvalidSerialNumber         := TRUE;
+    16#8: channel_7.state_InvalidCycleTime            := TRUE;
+    16#9: channel_7.state_InvalidProcessDataInLength  := TRUE;
+    16#A: channel_7.state_InvalidProcessDataOutLength := TRUE;
+    16#C: channel_7.state_InvalidIoLinkVersion        := TRUE;
+END_CASE;]]></ST>
+    </Implementation>
+    <LineIds Name="_FB_006B51">
+      <LineId Id="3" Count="364" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

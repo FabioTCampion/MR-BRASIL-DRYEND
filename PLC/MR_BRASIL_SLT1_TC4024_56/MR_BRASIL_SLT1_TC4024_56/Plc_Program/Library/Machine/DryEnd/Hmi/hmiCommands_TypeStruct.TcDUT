@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommands_TypeStruct" Id="{e9fcde45-7d62-44c1-a627-931f7dd406d1}">
+    <Declaration><![CDATA[TYPE hmiCommands_TypeStruct :
+STRUCT
+	
+	orderControl	: orderHmiCommands_TypeStruct;
+	lineControl		: lineControlHmiCommands_TypeStruct;	
+	slitter1		: slitterCommands_TypeStruct;
+	upperKnife		: rotaryKnifeCommands_TypeStruct;
+	lowerKnife		: rotaryKnifeCommands_TypeStruct;	
+	
+	lowerStacker	: hmiCommandsSimpleStacker_TypeStruct;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

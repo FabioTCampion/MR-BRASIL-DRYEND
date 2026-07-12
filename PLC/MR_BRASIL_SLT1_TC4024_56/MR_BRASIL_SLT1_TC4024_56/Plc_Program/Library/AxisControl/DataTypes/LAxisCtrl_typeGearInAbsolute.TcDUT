@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeGearInAbsolute" Id="{c958cbaf-0d95-4019-883d-d6180f5af464}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeGearInAbsolute :
+STRUCT
+
+	ratioNumerator			       	:DINT;	(*Gear ratio numerator*)
+	ratioDenominator			   	:DINT;	(*Gear ratio denominator*)
+	masterSyncPosition		        	:LREAL;	(*Synchronous position of leading axis*)
+	slaveSyncPosition		        	:LREAL;	(*Synchronous position of following axis*)
+	syncProfileReference	        		:DINT;	(*Type of synchronization (0: Synchronization using dynamic parameters; 1: Synchronization using leading value distance)*)
+	masterStartDistance	            	:LREAL;	(*Leading value distance (when "SyncProfileReference" = 1)*)
+	velocity					:LREAL;	(*Velocity for synchronization (when "SyncProfileReference" = 0; Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+	acceleration			  	:LREAL;	(*Acceleration for synchronization (when "SyncProfileReference" = 0; Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+	deceleration			    	:LREAL;	(*Deceleration for synchronization (when "SyncProfileReference" = 0; Value > 0.0: The specified value is used; Value = 0.0: Not permitted; Value < 0.0: Use of the default value configured in the technology object)*)
+	jerk						:LREAL;	(*Jerk for synchronization (when "SyncProfileReference" = 0; Value > 0.0: Smooth velocity profile, the specified value is used; Value = 0.0: Trapezoid velocity profile; Value < 0.0: Use of the default value configured in the technology object)*)
+	syncDirection			    	:DINT;	(*Direction for synchronization only in effect for axes with activated modulo setting (1: Forward direction; 2: Backward direction; 3: Shortest way)*)
+	ratioChangeOnTheFly	            	:BOOL;	(*TRUE: Changing gear ratio on-the-fly; FALSE: Ratio change requires a new rising edge at gearInAbsolute input*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

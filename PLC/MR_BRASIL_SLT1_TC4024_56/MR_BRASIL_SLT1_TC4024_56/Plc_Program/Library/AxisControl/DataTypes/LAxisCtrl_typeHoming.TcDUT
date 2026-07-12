@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typeHoming" Id="{4294cd70-dda5-4aa2-bfcb-4e62b4730c69}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typeHoming :
+STRUCT
+
+	position					: LREAL	:= 00.0;	(*The specified value is used according to the selected "Mode"*)
+	offsetPosition				: LREAL	:= 200;	(*Homing offset postion*)
+	offsetPositionVelocity			: LREAL	:= 100.0;	(*Homing offset execution velocicy*)
+	offsetPositionAcceleration		: LREAL	:= 100.0;	(*Homing offset execution acceleration*)
+	offsetPositonDeceleration		: LREAL	:= 100.0;	(*Homing offset execution deceleration*)
+	offsetPositionJerk			: LREAL	:= 100.0;	(*Homing offset execution Jerk*)
+	mode						: INT		:= 0;		(*-1: Standard homming using MC_HOME; Operation mode; 0: Direct homing (absolute); 1:Direct homing (relative); 2:Passive homing (without reset); 3:Active homing; 5:Active homing (Position parameter has no effect); 6:Absolute encoder adjustment (relative); 7:Absolute encoder adjustment (absolute); 8:Passive homing ; 9:Abort passive homing; 10: Passive homing (Position parameter has no effect)*)
+	extendedMode				: DINT	:= 0;		(*-1: No extended homing mode (parameter "mode" is effective); 0: Homing on fixed stop;*)
+	extendedModeTorqueLimit		: LREAL	:= 100.0;	(* Value of the torque/force for extended homing mode*)
+	homeExecutionTimeLimit		: TIME	:= T#2M;	(*Home execution maximum time*)
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

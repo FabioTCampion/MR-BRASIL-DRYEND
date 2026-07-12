@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_0AC001_DEV_CONFIG" Id="{d84767d7-e788-45fb-9bbe-d945d9cada90}">
+    <Declaration><![CDATA[TYPE _0AC001_DEV_CONFIG :
+STRUCT
+	
+    // Raw analog input scaling (16-bit: 0..65535)
+    analogInputLow   : REAL := 0.0;       // Minimum raw input value
+    analogInputHigh  : REAL := 65535.0;   // Maximum raw input value (2 bytes)
+
+    // Engineering-unit output scaling
+    analogOutputLow  : REAL := 0.0;       // Engineering value at minimum input
+    analogOutputHigh : REAL := 100.0;     // Engineering value at maximum input
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

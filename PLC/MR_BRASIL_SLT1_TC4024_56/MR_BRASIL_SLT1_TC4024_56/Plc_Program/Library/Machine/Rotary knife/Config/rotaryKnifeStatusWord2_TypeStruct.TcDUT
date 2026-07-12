@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeStatusWord2_TypeStruct" Id="{c5b4d17a-30f6-48a9-8373-26a40cdea4f8}">
+    <Declaration><![CDATA[TYPE rotaryKnifeStatusWord2_TypeStruct :
+STRUCT
+	
+    batchSingleShotStopInProgress   : BOOL;
+    registrationMarkMissed          : BOOL;
+    registrationWindowOpen          : BOOL;
+    registrationMarkAccepted        : BOOL;
+    onLastBatch                     : BOOL;
+    onLastCutOfLastBatch            : BOOL;
+    pls1Output                      : BOOL;
+    pls2Output                      : BOOL;
+    referenceEnabled                : BOOL;
+    driveHealthy                    : BOOL;
+    reserved10                      : BOOL;
+    reserved11                      : BOOL;
+    userDefinedStatusBit12          : BOOL;
+    userDefinedStatusBit13          : BOOL;
+    userDefinedStatusBit14          : BOOL;
+    userDefinedStatusBit15          : BOOL;
+
+END_STRUCT
+END_TYPE 
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

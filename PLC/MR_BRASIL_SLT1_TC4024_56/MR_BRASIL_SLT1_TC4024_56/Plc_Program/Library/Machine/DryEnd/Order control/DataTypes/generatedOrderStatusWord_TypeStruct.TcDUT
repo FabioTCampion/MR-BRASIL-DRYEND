@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="generatedOrderStatusWord_TypeStruct" Id="{66789238-01e2-45fc-83fa-d4546d93cfef}">
+    <Declaration><![CDATA[TYPE generatedOrderStatusWord_TypeStruct :
+STRUCT
+	
+
+	knifeOutOfRangeArr			: ARRAY [1..5] OF BOOL;
+	scorerOutOfRangeArr		: ARRAY [1..8] OF BOOL;
+
+
+	orderNotOk				: BOOL;	
+
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

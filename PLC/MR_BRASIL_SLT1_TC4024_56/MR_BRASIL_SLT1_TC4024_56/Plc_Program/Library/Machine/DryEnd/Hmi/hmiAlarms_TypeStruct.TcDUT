@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiAlarms_TypeStruct" Id="{155311ad-f558-4c7f-afed-ad26b5e924a8}">
+    <Declaration><![CDATA[TYPE hmiAlarms_TypeStruct :
+STRUCT
+
+	slitter : hmiAlarmsSlitter_TypeStruct;
+	rotaryKnife : hmiAlarmsRotaryKnife_TypeStruct;
+	lowerStacker	: hmiAlarmsSimpleStacker_TypeStruct;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

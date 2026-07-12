@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_KnifeLubrification" Id="{b2eb2a2c-f2eb-4f32-a26a-ab045ad708f3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_KnifeLubrification
+VAR_INPUT
+
+	machineRunning 				: BOOL;
+	manualLubrification 			: BOOL;
+	measuringWheelSensor 		: BOOL;
+	knifeEnabled 				: BOOL;
+	measuringWheelDiameter 		: REAL	:= 154.2;
+	lubrificationSetpoint 			: REAL	:= 100.0;
+	lubrificationTime				: INT 		:= 5000;
+
+END_VAR
+VAR_OUTPUT
+
+	lubrificationSolenoid 			: BOOL;
+	knifeRunningMeters 			: INT;
+
+
+END_VAR
+VAR
+
+	measuringWheelSensorOld		: BOOL;
+	sensorPulseCounter1 			: DINT;	(*This variable increases every pulse of the measuring wheel and resets every time the knife is shapened*)
+	sensorPulseCounter2 			: DINT;	(*This variable increases every pulse of the measuring wheel and resets manualy when the knife is replaced*)
+
+	instLubrificationTimeTON		: TON;
+	manualLubrificationOld			: BOOL;
+	knifeRunningMetersResetOld	: BOOL;
+
+END_VAR
+VAR
+
+END_VAR
+
+VAR CONSTANT
+
+	PI: REAL 					:= 3.14159265359;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+(*==============================================================================================================================
+CPNTeck - Automação industrial
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 2
+Restrictions: -
+Requirements: N/A
+Functionality: This function block is used to lubrificate the knifes in the disired interval.
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+
+Version  		| Date        			| Expert in charge  	| Changes applied
+01.00.01		| 18.04.2023  		| Fabio Campion            | First released version
+
+
+
+===============================================================================================================================*)
+
+
+(*Measuring wheel pulse counter*)
+IF measuringWheelSensor AND NOT measuringWheelSensorOld
+AND knifeEnabled  THEN
+
+	sensorPulseCounter1 := sensorPulseCounter1 + 1;
+	sensorPulseCounter2 := sensorPulseCounter2 + 1;
+
+
+END_IF
+
+measuringWheelSensorOld := measuringWheelSensor;
+
+
+(*Automatic / Manual shapening*)
+IF knifeRunningMeters >= lubrificationSetpoint AND machineRunning
+OR  manualLubrification AND NOT manualLubrificationOld  AND machineRunning THEN
+
+	sensorPulseCounter1 := 0; (*Reset the measuring wheel pulse counter*)
+	instLubrificationTimeTON.PT := DINT_TO_TIME(LubrificationTime); (*Set the timer setpoint*)
+	instLubrificationTimeTON.IN := TRUE; (*Enable the timer*)
+	lubrificationSolenoid := TRUE; (*Enable the sharpening solenoid*)
+
+END_IF
+
+ManualLubrificationOld := ManualLubrification;
+
+IF instLubrificationTimeTON.Q  THEN
+
+	lubrificationSolenoid := FALSE;
+	instLubrificationTimeTON.IN := FALSE;
+
+END_IF
+
+
+(*Measuring wheel meters calculation*)
+KnifeRunningMeters := TRUNC_INT((sensorPulseCounter1 * (MeasuringWheelDiameter * PI)) * 0.001);
+
+instLubrificationTimeTON();]]></ST>
+    </Implementation>
+    <LineIds Name="FB_KnifeLubrification">
+      <LineId Id="1" Count="61" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

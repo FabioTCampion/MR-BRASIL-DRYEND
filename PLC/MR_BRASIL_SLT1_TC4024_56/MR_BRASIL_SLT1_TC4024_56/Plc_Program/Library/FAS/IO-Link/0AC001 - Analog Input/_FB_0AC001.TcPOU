@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_0AC001" Id="{c5ec226b-169c-40c7-93b0-61570857e4f3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_0AC001
+
+VAR_INPUT PERSISTENT
+
+	deviceConfig    : _0AC001_DEV_CONFIG; // Configuration settings for the CT121F device
+	
+END_VAR
+VAR_INPUT 
+
+	  HwToPlc AT %I* : _0AC001_HWTOPLC_PDOS; // Process Data Objects for RWPT01D communication
+	
+END_VAR
+VAR_OUTPUT
+	
+	analogInput : REAL;
+	analogInputRaw : REAL;
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_AnalogInputs();]]></ST>
+    </Implementation>
+    <Method Name="_AnalogInputs" Id="{1f2b9976-d30d-4584-b1d9-09269ef53957}">
+      <Declaration><![CDATA[METHOD PRIVATE _AnalogInputs
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// Scale sensor distance
+analogInput := _Scale(
+    X := ((SHL(BYTE_TO_WORD(HwToPlc.inputByte_0),8) OR HwToPlc.inputByte_1)), 
+    I_LO := deviceConfig.analogInputLow, 
+    I_HI := deviceConfig.analogInputHigh, 
+    O_LO := deviceConfig.analogOutputLow, 
+    O_HI := deviceConfig.analogOutputHigh
+);
+
+
+// Sensor raw distance
+analogInputRaw := (SHL(BYTE_TO_WORD(HwToPlc.inputByte_0),8) OR HwToPlc.inputByte_1);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_Scale" Id="{aa06ca4c-1ac2-48f5-8970-219ce3ccdba7}">
+      <Declaration><![CDATA[METHOD PRIVATE _Scale : REAL
+VAR_INPUT
+	
+	X : REAL;
+	I_LO : REAL;
+	I_HI : REAL;
+	O_LO : REAL;
+	O_HI : REAL;
+	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF I_LO = I_HI THEN
+	_Scale := O_LO;
+ELSE
+	_Scale := (O_HI - O_LO) / (I_HI - I_LO) * (LIMIT(I_LO, X, I_HI) - I_LO) + O_LO;
+END_IF;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="_FB_0AC001">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="_FB_0AC001._AnalogInputs">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="_FB_0AC001._Scale">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

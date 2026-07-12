@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiSlitterAlarms_TypeStruct" Id="{1ffc18d2-e251-40db-9ed2-6058091a0978}">
+    <Declaration><![CDATA[TYPE hmiSlitterAlarms_TypeStruct :
+STRUCT
+	
+	(*Circuit Breaker Fault*)
+	(*_________________________________________________*)	
+	knifeRobotCircuitBreaker		: BOOL;
+	innerScorerRobotCircuitBreaker	: BOOL;
+	outerScorerRobotCircuitBreaker	: BOOL;
+	knifeTractionCircuitBreaker		: BOOL;
+	scorerTractionCircuitBreaker	: BOOL;
+	trimSuctionCircuitBreaker		: BOOL;
+	
+	(*Drive Fault*)
+	(*_________________________________________________*)
+	knifeRobotFault					: BOOL;
+	innerScorerRobotFault			: BOOL;
+	outerScorerRobotFault			: BOOL;
+	knifeTractionFault				: BOOL;
+	scorerTractionFault				: BOOL;
+	
+	(*Ethercat fault*)
+	(*_________________________________________________*)
+	ioLinkMasterEthercatFault		: BOOL;
+	knifeRobotEthercatFault			: BOOL;
+	innerScorerRobotEthercatFault	: BOOL;
+	outerScorerRobotEthercatFault	: BOOL;
+	knifeTractionEthercatFault		: BOOL;
+	scorerTractionEthercatFault		: BOOL;
+	
+	(*IO-Link Fault*)
+	(*_________________________________________________*)	
+	ioLinkPort0Fault				: BOOL;
+	ioLinkPort1Fault				: BOOL;
+	ioLinkPort2Fault				: BOOL;
+	ioLinkPort3Fault				: BOOL;
+	ioLinkPort4Fault				: BOOL;
+	ioLinkPort5Fault				: BOOL;
+	ioLinkPort6Fault				: BOOL;
+	ioLinkPort7Fault				: BOOL;
+	
+	(*Process fault*)	
+	(*_________________________________________________*)
+	(*Knife*)
+	knifeRobotNotHomed						: BOOL;
+	knifeRobotLimOP							: BOOL;
+	knifeRobotLimST							: BOOL;
+	knifeToolLimOP							: BOOL;
+	knifeToolLimST							: BOOL;
+	knifeNotFound							: BOOL;
+	knifePositionSetpointOutOfRange			: BOOL;
+	knifePositionLagExceeded				: BOOL;
+	
+	
+	(*Inner scorer fault*)
+	innerScorerRobotNotHomed				: BOOL;
+	innerScorerRobotLimOP					: BOOL;
+	innerScorerRobotLimST					: BOOL;
+	innerScorerToolLimOP					: BOOL;
+	innerScorerToolLimST					: BOOL;
+	innerScorerNotFound						: BOOL;
+	innerScorerPositionSetpointOutOfRange	: BOOL;
+	innerScorerPositionLagExceeded			: BOOL;
+
+
+	
+	(*Outer scorer fault*)
+	outerScorerRobotNotHomed				: BOOL;
+	outerScorerRobotLimOP					: BOOL;
+	outerScorerRobotLimST					: BOOL;
+	outerScorerToolLimOP					: BOOL;
+	outerScorerToolLimST					: BOOL;
+	outerScorerNotFound						: BOOL;
+	outerScorerPositionSetpointOutOfRange	: BOOL;
+	outerScorerPositionLagExceeded			: BOOL;
+
+
+
+	
+	(*Safety fault*)
+	(*_________________________________________________*)	
+	safetyRelayNotOK						: BOOL;
+	
+	
+	(*General faults*)
+	
+	notPossibleToExecutePositioning			: BOOL;		(*Not possible to execute automatic positioning while machine is in manual*)
+	generatedOrderError						: BOOL;
+	
+	
+	
+	
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

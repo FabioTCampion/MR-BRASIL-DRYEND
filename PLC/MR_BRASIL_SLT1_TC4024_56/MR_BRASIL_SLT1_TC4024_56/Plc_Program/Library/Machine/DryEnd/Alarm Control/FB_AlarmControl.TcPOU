@@ -1,0 +1,378 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_AlarmControl" Id="{9fd73fab-74c6-40d7-b430-b814672ecfa0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AlarmControl
+VAR_INPUT
+    reset                           : BOOL; // Reset alarms command
+    
+    // General Faults
+    safetyCircuitFault              : BOOL; // Alarm active - Safety circuit fault
+    slitterHomeNotCompleteFault     : BOOL; // Alarm active - Slitter homing not complete
+    slitterTractionNotEnabledFault  : BOOL; // Alarm active - Slitter traction not enabled
+    
+    // Knife Faults
+    knife01Fault                    : BOOL; // Alarm active - Knife 01 fault
+    knife02Fault                    : BOOL; // Alarm active - Knife 02 fault
+    knife03Fault                    : BOOL; // Alarm active - Knife 03 fault
+    knife04Fault                    : BOOL; // Alarm active - Knife 04 fault
+    knife05Fault                    : BOOL; // Alarm active - Knife 05 fault
+    knife06Fault                    : BOOL; // Alarm active - Knife 06 fault
+    knife07Fault                    : BOOL; // Alarm active - Knife 07 fault
+    
+    // Upper Scorer Faults
+    upperScorer01Fault              : BOOL; // Alarm active - Upper Scorer 01 fault
+    upperScorer02Fault              : BOOL; // Alarm active - Upper Scorer 02 fault
+    upperScorer03Fault              : BOOL; // Alarm active - Upper Scorer 03 fault
+    upperScorer04Fault              : BOOL; // Alarm active - Upper Scorer 04 fault
+    upperScorer05Fault              : BOOL; // Alarm active - Upper Scorer 05 fault
+    upperScorer06Fault              : BOOL; // Alarm active - Upper Scorer 06 fault
+    upperScorer07Fault              : BOOL; // Alarm active - Upper Scorer 07 fault
+    upperScorer08Fault              : BOOL; // Alarm active - Upper Scorer 08 fault
+    upperScorer09Fault              : BOOL; // Alarm active - Upper Scorer 09 fault
+    upperScorer10Fault              : BOOL; // Alarm active - Upper Scorer 10 fault
+    upperScorer11Fault              : BOOL; // Alarm active - Upper Scorer 11 fault
+    upperScorer12Fault              : BOOL; // Alarm active - Upper Scorer 12 fault
+    
+    // Lower Scorer Faults
+    lowerScorer01Fault              : BOOL; // Alarm active - Lower Scorer 01 fault
+    lowerScorer02Fault              : BOOL; // Alarm active - Lower Scorer 02 fault
+    lowerScorer03Fault              : BOOL; // Alarm active - Lower Scorer 03 fault
+    lowerScorer04Fault              : BOOL; // Alarm active - Lower Scorer 04 fault
+    lowerScorer05Fault              : BOOL; // Alarm active - Lower Scorer 05 fault
+    lowerScorer06Fault              : BOOL; // Alarm active - Lower Scorer 06 fault
+    lowerScorer07Fault              : BOOL; // Alarm active - Lower Scorer 07 fault
+    lowerScorer08Fault              : BOOL; // Alarm active - Lower Scorer 08 fault
+    lowerScorer09Fault              : BOOL; // Alarm active - Lower Scorer 09 fault
+    lowerScorer10Fault              : BOOL; // Alarm active - Lower Scorer 10 fault
+    lowerScorer11Fault              : BOOL; // Alarm active - Lower Scorer 11 fault
+    lowerScorer12Fault              : BOOL; // Alarm active - Lower Scorer 12 fault
+
+    // Traction and Axis Faults
+    scorerTractionFault             : BOOL; // Alarm active - Scorer traction fault
+    knifeTractionFault              : BOOL; // Alarm active - Knife traction fault
+    scorerHeightAxisFault           : BOOL; // Alarm active - Scorer height axis fault
+    scrapTrimOperatorSideFault      : BOOL; // Alarm active - Scrap trim operator side fault
+    scrapTrimDriveSideFault         : BOOL; // Alarm active - Scrap trim drive side fault
+    
+    // Rotary Knife Specific Alarms
+    exitGuardOpen                   : BOOL; // Alarm active - Exit guard open
+    infeedGuardOpen                 : BOOL; // Alarm active - Infeed guard open
+    exhaustDepressurized            : BOOL; // Alarm active - Exhaust system depressurized
+    upperKnifeGuardClosed           : BOOL; // Alarm active - Upper knife guard open (Low Active)
+    upperKnifeOilLevelLow           : BOOL; // Alarm active - Upper knife oil level low
+    upperKnifeJamDetected           : BOOL; // Alarm active - Upper knife jam detected
+    upperKnifeInfeedDrvOK           : BOOL; // Alarm active - Upper knife infeed drive fault (Low Active)
+    upperKnifeOutfeedDrvOK          : BOOL; // Alarm active - Upper knife outfeed drive fault (Low Active)
+    upperKnifeMainDrvOK             : BOOL; // Alarm active - Upper knife main drive fault (Low Active)
+    upperKnifeSlave1DrvOK           : BOOL; // Alarm active - Upper knife slave 1 drive fault (Low Active)
+    upperKnifeSlave2DrvOK           : BOOL; // Alarm active - Upper knife slave 2 drive fault (Low Active)
+	upperKnifeNotActive				: BOOL;
+	upperKnifeCutDisabled			: BOOL;
+
+    
+	lowerKnifeGuardClosed           : BOOL; // Alarm active - Lower knife guard open (Low Active)
+    lowerKnifeOilLevelLow           : BOOL; // Alarm active - Lower knife oil level low
+    lowerKnifeJamDetected           : BOOL; // Alarm active - Lower knife jam detected
+    lowerKnifeInfeedDrvOK           : BOOL; // Alarm active - Lower knife infeed drive fault (Low Active)
+    lowerKnifeOutfeedDrvOK          : BOOL; // Alarm active - Lower knife outfeed drive fault (Low Active)
+    lowerKnifeMainDrvOK             : BOOL; // Alarm active - Lower knife main drive fault (Low Active)
+    lowerKnifeSlave1DrvOK           : BOOL; // Alarm active - Lower knife slave 1 drive fault (Low Active)
+    lowerKnifeSlave2DrvOK           : BOOL; // Alarm active - Lower knife slave 2 drive fault (Low Active)
+	lowerKnifeNotActive				: BOOL;
+	lowerKnifeCutDisabled			: BOOL;
+	
+	
+	orderFault			:BOOL;
+
+	knife1OutOfRange	:BOOL;
+	knife2OutOfRange	:BOOL;
+	knife3OutOfRange	:BOOL;
+	knife4OutOfRange	:BOOL;
+	knife5OutOfRange	:BOOL;
+	
+	scorer1OutOfRange	:BOOL;
+	scorer2OutOfRange	:BOOL;
+	scorer3OutOfRange	:BOOL;
+	scorer4OutOfRange	:BOOL;
+	scorer5OutOfRange	:BOOL;
+	scorer6OutOfRange	:BOOL;
+	scorer7OutOfRange	:BOOL;
+	scorer8OutOfRange	:BOOL;
+		
+END_VAR
+
+VAR_OUTPUT
+    alarmsDisplay                   : hmiAlarms_TypeStruct; // Struct for HMI visualization
+    alarmIndication                 : BOOL;                 // Global alarm active indicator
+END_VAR
+
+VAR
+    alarmsVariables                 : hmiAlarms_TypeStruct; // Internal alarm latches
+    resetOld                        : BOOL;                 // Rising edge detection for reset
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_00_Reset();
+_01_DryEnd();
+_02_Slitter();
+_03_RotaryKnife();
+_08_AlarmIndication();]]></ST>
+    </Implementation>
+    <Method Name="_00_Reset" Id="{ba53e245-2dcb-41e0-8ad5-cfee590a0e92}">
+      <Declaration><![CDATA[METHOD _00_Reset
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF reset AND NOT resetOld THEN
+	
+	//Copy values from a holder variable with zero value to reset
+	alarmsDisplay := alarmsVariables;
+	
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_01_DryEnd" Id="{a3084b5c-1b08-40a1-ae8e-c7951ab9ea81}">
+      <Declaration><![CDATA[METHOD _01_DryEnd
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+IF safetyCircuitFault THEN alarmsDisplay.slitter.safetyCircuitFault := safetyCircuitFault; END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_02_Slitter" Id="{07bf1036-81d8-4558-bcc0-4302b5df20ee}">
+      <Declaration><![CDATA[METHOD _02_Slitter
+VAR_INPUT
+END_VAR
+(*
+
+	safetyCircuitFault							: BOOL;
+	slitterHomeNotCompleteFault							: BOOL;
+	slitterTractionNotEnabledFault					: BOOL;
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+
+// ─────────────── KNIVES ───────────────
+IF safetyCircuitFault THEN alarmsDisplay.slitter.knife01Fault := safetyCircuitFault; END_IF
+IF slitterHomeNotCompleteFault THEN alarmsDisplay.slitter.slitterHomeNotCompleteFault := slitterHomeNotCompleteFault; END_IF
+IF slitterTractionNotEnabledFault THEN alarmsDisplay.slitter.slitterTractionNotEnabledFault := slitterTractionNotEnabledFault; END_IF
+
+
+// ─────────────── KNIVES ───────────────
+IF knife01Fault THEN alarmsDisplay.slitter.knife01Fault := knife01Fault; END_IF
+IF knife02Fault THEN alarmsDisplay.slitter.knife02Fault := knife02Fault; END_IF
+IF knife03Fault THEN alarmsDisplay.slitter.knife03Fault := knife03Fault; END_IF
+IF knife04Fault THEN alarmsDisplay.slitter.knife04Fault := knife04Fault; END_IF
+IF knife05Fault THEN alarmsDisplay.slitter.knife05Fault := knife05Fault; END_IF
+IF knife06Fault THEN alarmsDisplay.slitter.knife06Fault := knife06Fault; END_IF
+IF knife07Fault THEN alarmsDisplay.slitter.knife07Fault := knife07Fault; END_IF
+
+// ─────────────── SCORERS (UPPER) ───────────────
+IF upperScorer01Fault THEN alarmsDisplay.slitter.upperScorer01Fault := upperScorer01Fault; END_IF
+IF upperScorer02Fault THEN alarmsDisplay.slitter.upperScorer02Fault := upperScorer02Fault; END_IF
+IF upperScorer03Fault THEN alarmsDisplay.slitter.upperScorer03Fault := upperScorer03Fault; END_IF
+IF upperScorer04Fault THEN alarmsDisplay.slitter.upperScorer04Fault := upperScorer04Fault; END_IF
+IF upperScorer05Fault THEN alarmsDisplay.slitter.upperScorer05Fault := upperScorer05Fault; END_IF
+IF upperScorer06Fault THEN alarmsDisplay.slitter.upperScorer06Fault := upperScorer06Fault; END_IF
+IF upperScorer07Fault THEN alarmsDisplay.slitter.upperScorer07Fault := upperScorer07Fault; END_IF
+IF upperScorer08Fault THEN alarmsDisplay.slitter.upperScorer08Fault := upperScorer08Fault; END_IF
+IF upperScorer09Fault THEN alarmsDisplay.slitter.upperScorer09Fault := upperScorer09Fault; END_IF
+IF upperScorer10Fault THEN alarmsDisplay.slitter.upperScorer10Fault := upperScorer10Fault; END_IF
+IF upperScorer11Fault THEN alarmsDisplay.slitter.upperScorer11Fault := upperScorer11Fault; END_IF
+IF upperScorer12Fault THEN alarmsDisplay.slitter.upperScorer12Fault := upperScorer12Fault; END_IF
+
+// ─────────────── SCORERS (LOWER) ───────────────
+IF lowerScorer01Fault THEN alarmsDisplay.slitter.lowerScorer01Fault := lowerScorer01Fault; END_IF
+IF lowerScorer02Fault THEN alarmsDisplay.slitter.lowerScorer02Fault := lowerScorer02Fault; END_IF
+IF lowerScorer03Fault THEN alarmsDisplay.slitter.lowerScorer03Fault := lowerScorer03Fault; END_IF
+IF lowerScorer04Fault THEN alarmsDisplay.slitter.lowerScorer04Fault := lowerScorer04Fault; END_IF
+IF lowerScorer05Fault THEN alarmsDisplay.slitter.lowerScorer05Fault := lowerScorer05Fault; END_IF
+IF lowerScorer06Fault THEN alarmsDisplay.slitter.lowerScorer06Fault := lowerScorer06Fault; END_IF
+IF lowerScorer07Fault THEN alarmsDisplay.slitter.lowerScorer07Fault := lowerScorer07Fault; END_IF
+IF lowerScorer08Fault THEN alarmsDisplay.slitter.lowerScorer08Fault := lowerScorer08Fault; END_IF
+IF lowerScorer09Fault THEN alarmsDisplay.slitter.lowerScorer09Fault := lowerScorer09Fault; END_IF
+IF lowerScorer10Fault THEN alarmsDisplay.slitter.lowerScorer10Fault := lowerScorer10Fault; END_IF
+IF lowerScorer11Fault THEN alarmsDisplay.slitter.lowerScorer11Fault := lowerScorer11Fault; END_IF
+IF lowerScorer12Fault THEN alarmsDisplay.slitter.lowerScorer12Fault := lowerScorer12Fault; END_IF
+
+// ─────────────── ORDER / OUT OF RANGE ALARMS ───────────────
+IF orderFault THEN alarmsDisplay.slitter.orderFault := orderFault; END_IF
+
+// ─────────────── KNIVES OUT OF RANGE ───────────────
+IF knife1OutOfRange THEN alarmsDisplay.slitter.knife1OutOfRange := knife1OutOfRange; END_IF
+IF knife2OutOfRange THEN alarmsDisplay.slitter.knife2OutOfRange := knife2OutOfRange; END_IF
+IF knife3OutOfRange THEN alarmsDisplay.slitter.knife3OutOfRange := knife3OutOfRange; END_IF
+IF knife4OutOfRange THEN alarmsDisplay.slitter.knife4OutOfRange := knife4OutOfRange; END_IF
+IF knife5OutOfRange THEN alarmsDisplay.slitter.knife5OutOfRange := knife5OutOfRange; END_IF
+
+// ─────────────── SCORERS OUT OF RANGE ───────────────
+IF scorer1OutOfRange THEN alarmsDisplay.slitter.scorer1OutOfRange := scorer1OutOfRange; END_IF
+IF scorer2OutOfRange THEN alarmsDisplay.slitter.scorer2OutOfRange := scorer2OutOfRange; END_IF
+IF scorer3OutOfRange THEN alarmsDisplay.slitter.scorer3OutOfRange := scorer3OutOfRange; END_IF
+IF scorer4OutOfRange THEN alarmsDisplay.slitter.scorer4OutOfRange := scorer4OutOfRange; END_IF
+IF scorer5OutOfRange THEN alarmsDisplay.slitter.scorer5OutOfRange := scorer5OutOfRange; END_IF
+IF scorer6OutOfRange THEN alarmsDisplay.slitter.scorer6OutOfRange := scorer6OutOfRange; END_IF
+IF scorer7OutOfRange THEN alarmsDisplay.slitter.scorer7OutOfRange := scorer7OutOfRange; END_IF
+IF scorer8OutOfRange THEN alarmsDisplay.slitter.scorer8OutOfRange := scorer8OutOfRange; END_IF
+
+// ─────────────── TRACTION / HEIGHT ───────────────
+IF scorerTractionFault THEN
+    alarmsDisplay.slitter.scorerTractionFault := scorerTractionFault;
+END_IF
+
+IF knifeTractionFault THEN
+    alarmsDisplay.slitter.knifeTractionFault := knifeTractionFault;
+END_IF
+
+IF scorerHeightAxisFault THEN
+    alarmsDisplay.slitter.scorerHeightAxisFault := scorerHeightAxisFault;
+END_IF
+
+// ─────────────── SCRAP TRIM ───────────────
+IF scrapTrimOperatorSideFault THEN
+    alarmsDisplay.slitter.scrapTrimOperatorSideFault := scrapTrimOperatorSideFault;
+END_IF
+
+IF scrapTrimDriveSideFault THEN
+    alarmsDisplay.slitter.scrapTrimDriveSideFault := scrapTrimDriveSideFault;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_03_RotaryKnife" Id="{e86fea79-cf71-49c1-bfab-8114fbd0a551}">
+      <Declaration><![CDATA[METHOD _03_RotaryKnife
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//────────────────────────────────────────────
+// SAFETY / GUARDS
+//────────────────────────────────────────────
+IF exitGuardOpen THEN alarmsDisplay.rotaryKnife.exitGuardOpen := exitGuardOpen; END_IF
+IF infeedGuardOpen THEN alarmsDisplay.rotaryKnife.infeedGuardOpen := infeedGuardOpen; END_IF
+IF exhaustDepressurized THEN alarmsDisplay.rotaryKnife.exhaustDepressurized := exhaustDepressurized; END_IF
+
+//────────────────────────────────────────────
+// UPPER KNIFE ALARMS
+//────────────────────────────────────────────
+IF upperKnifeGuardClosed THEN alarmsDisplay.rotaryKnife.upperKnifeGuardClosed := TRUE; END_IF
+IF upperKnifeOilLevelLow THEN alarmsDisplay.rotaryKnife.upperKnifeOilLevelLow := TRUE; END_IF
+IF upperKnifeJamDetected THEN alarmsDisplay.rotaryKnife.upperKnifeJamDetected := TRUE; END_IF
+IF upperKnifeInfeedDrvOK THEN alarmsDisplay.rotaryKnife.upperKnifeInfeedDrvOK := TRUE; END_IF
+IF upperKnifeOutfeedDrvOK THEN alarmsDisplay.rotaryKnife.upperKnifeOutfeedDrvOK := TRUE; END_IF
+IF upperKnifeMainDrvOK THEN alarmsDisplay.rotaryKnife.upperKnifeMainDrvOK := TRUE; END_IF
+IF upperKnifeSlave1DrvOK THEN alarmsDisplay.rotaryKnife.upperKnifeSlave1DrvOK := TRUE; END_IF
+IF upperKnifeSlave2DrvOK THEN alarmsDisplay.rotaryKnife.upperKnifeSlave2DrvOK := TRUE; END_IF
+IF upperKnifeNotActive THEN alarmsDisplay.rotaryKnife.upperKnifeNotActive := TRUE; END_IF
+IF upperKnifeCutDisabled THEN alarmsDisplay.rotaryKnife.upperKnifeCutDisabled := TRUE; END_IF
+
+//────────────────────────────────────────────
+// LOWER KNIFE ALARMS
+//────────────────────────────────────────────
+IF lowerKnifeGuardClosed THEN alarmsDisplay.rotaryKnife.lowerKnifeGuardClosed := TRUE; END_IF
+IF lowerKnifeOilLevelLow THEN alarmsDisplay.rotaryKnife.lowerKnifeOilLevelLow := TRUE; END_IF
+IF lowerKnifeJamDetected THEN alarmsDisplay.rotaryKnife.lowerKnifeJamDetected := TRUE; END_IF
+IF lowerKnifeInfeedDrvOK THEN alarmsDisplay.rotaryKnife.lowerKnifeInfeedDrvOK := TRUE; END_IF
+IF lowerKnifeOutfeedDrvOK THEN alarmsDisplay.rotaryKnife.lowerKnifeOutfeedDrvOK := TRUE; END_IF
+IF lowerKnifeMainDrvOK THEN alarmsDisplay.rotaryKnife.lowerKnifeMainDrvOK := TRUE; END_IF
+IF lowerKnifeSlave1DrvOK THEN alarmsDisplay.rotaryKnife.lowerKnifeSlave1DrvOK := TRUE; END_IF
+IF lowerKnifeSlave2DrvOK THEN alarmsDisplay.rotaryKnife.lowerKnifeSlave2DrvOK := TRUE; END_IF
+IF lowerKnifeNotActive THEN alarmsDisplay.rotaryKnife.lowerKnifeNotActive := TRUE; END_IF
+IF lowerKnifeCutDisabled THEN alarmsDisplay.rotaryKnife.lowerKnifeCutDisabled := TRUE; END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_08_AlarmIndication" Id="{819c32ea-9ce2-4de3-9c0d-95060ea30965}">
+      <Declaration><![CDATA[METHOD _08_AlarmIndication
+
+VAR
+	
+	alarmCompResult	: DINT;
+
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+alarmCompResult := MEMCMP(pBuf1:= ADR(alarmsVariables) , pBuf2:= ADR(alarmsDisplay) , n:= SIZEOF(alarmsDisplay));
+
+//alarmCompResult := alarmsVariables <> alarmsDisplay;
+
+IF alarmCompResult <> 0 THEN
+
+	alarmIndication := TRUE;
+ELSE
+	
+	alarmIndication := FALSE;
+	
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_AlarmControl">
+      <LineId Id="448" Count="0" />
+      <LineId Id="587" Count="0" />
+      <LineId Id="449" Count="0" />
+      <LineId Id="624" Count="0" />
+      <LineId Id="189" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmControl._00_Reset">
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="6" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_AlarmControl._01_DryEnd">
+      <LineId Id="7" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmControl._02_Slitter">
+      <LineId Id="125" Count="2" />
+      <LineId Id="135" Count="2" />
+      <LineId Id="128" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="67" Count="36" />
+      <LineId Id="148" Count="18" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="104" Count="4" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="121" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="110" Count="10" />
+      <LineId Id="63" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmControl._03_RotaryKnife">
+      <LineId Id="6" Count="17" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="24" Count="11" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmControl._08_AlarmIndication">
+      <LineId Id="8" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

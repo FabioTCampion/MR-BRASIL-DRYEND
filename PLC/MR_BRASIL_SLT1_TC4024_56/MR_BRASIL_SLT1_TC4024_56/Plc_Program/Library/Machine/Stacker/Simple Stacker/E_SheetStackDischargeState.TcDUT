@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="E_SheetStackDischargeState" Id="{1c70675c-5a5f-406d-b48b-f7f34c510f05}">
+    <Declaration><![CDATA[{attribute 'qualified_only' := ''}
+{attribute 'strict' := ''}
+TYPE E_SheetStackDischargeState :
+(
+	IDLE := 0,
+	WAIT_SEPARATION := 5,
+	START_POSITIONING := 10,
+	WAIT_BACKSTOP_POSITION := 20,
+	DISCHARGING := 30,
+	START_RETURN := 40,
+	WAIT_BACKSTOP_RETURN := 50,
+	FINISH := 60
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

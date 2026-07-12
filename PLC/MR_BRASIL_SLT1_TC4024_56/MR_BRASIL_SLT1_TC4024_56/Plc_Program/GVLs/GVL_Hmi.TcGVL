@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <GVL Name="GVL_Hmi" Id="{0d0e23b5-50f6-0f2c-0de3-febac740c63e}">
+    <Declaration><![CDATA[{attribute 'Tc2GvlVarNames'}
+VAR_GLOBAL
+
+	hmiCommands			: hmiCommands_TypeStruct;
+	hmiStatus			: hmiStatus_TypeStruct;
+	hmiAlarms			: hmiAlarms_TypeStruct;	
+
+	
+	
+END_VAR
+
+VAR_GLOBAL PERSISTENT
+
+	machineConfig						: machineConfig_TypeStruct;
+	currentOrder						: Order_TypeStruct;
+	nextOrder							: Order_TypeStruct;
+	hmiOrderStatus						: orderHmiStatus_TypeStruct;
+	hmiOrderConfig						: orderConfig_TypeStruct;
+
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

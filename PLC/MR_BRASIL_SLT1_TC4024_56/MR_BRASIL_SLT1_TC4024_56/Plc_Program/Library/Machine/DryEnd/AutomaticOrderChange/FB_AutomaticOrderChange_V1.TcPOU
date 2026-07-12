@@ -1,0 +1,705 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_AutomaticOrderChange_V1" Id="{4e49ec55-b265-4603-868c-78b4091a054a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AutomaticOrderChange_V1
+VAR_INPUT
+    // ==============================
+    // CONTROL
+    // ==============================
+    enable                      : BOOL;
+    executeAOC                  : BOOL;     // Start automatic order change (level trigger)
+
+    // ==============================
+    // SENSORS
+    // ==============================
+    rotaryShearCutSensor        : BOOL;     // Rotary shear cut sensor
+    measuringWheelPaperSensor   : BOOL;     // Measuring wheel sensor
+    slitterPaperPresenceSensor  : BOOL;     // Slitter paper presence
+    rotaryKnifePaperSensor      : BOOL;     // Rotary knife paper presence
+
+    // ==============================
+    // PROCESS VALUES
+    // ==============================
+    lineSpeedMPM                : REAL;     // Line speed [m/min]
+    configuration               : aocConfig_TypeStruct; // AOC configuration parameters
+END_VAR
+
+VAR_IN_OUT
+    currentOrder                : Order_TypeStruct;     // Current order details
+    nextOrder                   : Order_TypeStruct;     // Next order details
+END_VAR
+
+VAR_OUTPUT
+    // ==============================
+    // STATUS
+    // ==============================
+    error                       : BOOL;
+    aocRunning                  : BOOL;
+    aocTimeOut                  : BOOL;
+    statusDisplay               : STRING;
+
+	
+	rotaryShearCutX1Timeout		: BOOL;
+	measuringWheelClearTimeout	: BOOL;
+	slitterClearTimeout			: BOOL;
+	rotaryKnifeClarTimeout		: BOOL;
+	
+    // ==============================
+    // MACHINE COMMANDS
+    // ==============================
+    referenceSwitch             : BOOL;     // Switch between double facer and AOC ramp reference
+    doubleFacerSpeedUP          : BOOL;
+    doubleFacerSpeedDown        : BOOL;
+
+    // ==============================
+    // TRIGGERS / PULSES
+    // ==============================
+    rotaryShearCutX1            : BOOL;
+    executePositioning          : BOOL;
+    topStackerDischarge         : BOOL;
+    bottomStackerDischarge      : BOOL;
+
+    // ==============================
+    // SPEED REFERENCES
+    // ==============================
+    rotaryKnifeSpeedRef         : LREAL;
+    slitterKnifeSpeedRef        : LREAL;
+    slitterScorerSpeedRef       : REAL;
+END_VAR
+
+VAR
+    // ==============================
+    // STATE MACHINE
+    // ==============================
+    stateMachine                : WORD;
+
+    // ==============================
+    // EDGE / INTERNAL LATCHES
+    // ==============================
+    enableOld                   : BOOL;
+    executeAOC_Old              : BOOL;
+    rExecuteAOC                 : BOOL;      // rising edge of executeAOC
+
+    // ==============================
+    // REQUESTS (drive FB inputs)
+    // ==============================
+    reqTpRotaryShear            : BOOL;
+    reqTpExecutePositioning     : BOOL;
+    reqTpStackerTop             : BOOL;
+    reqTpStackerBottom          : BOOL;
+
+    reqTonSlitterDelay          : BOOL;
+    reqTonStackerDelay          : BOOL;
+    reqTonChangeSheetLength     : BOOL;
+
+    // ==============================
+    // FUNCTION BLOCK INSTANCES
+    // ==============================
+    tpRotaryShear               : TP;
+    tpExecutePositioning        : TP;
+    tpStackerTop                : TP;
+    tpStackerBottom             : TP;
+
+    tonSlitterPresenceDelay     : TON;
+    tonStackerDischargeDelay    : TON;
+    tonChangeSheetLength        : TON;
+
+    tonAocTimeout               : TON;
+
+    instFB_Gen_SRamp            : FB_Gen_SRamp;
+    instGEN_PULSESpeedCtrl      : GEN_PULSE;
+
+    lineSpeedMPMRamp            : REAL;
+
+    // ==============================
+    // INTERNAL (optional)
+    // ==============================
+    aocSpeedTarget              : REAL;      // target line speed during AOC (m/min)
+	
+
+    // ------------------------------
+    // Timeout supervision (max times)
+    // ------------------------------
+    reqTonShearCutMax           : BOOL;
+    reqTonMeasWheelClearMax     : BOOL;
+    reqTonSlitterClearMax       : BOOL;
+    reqTonRotaryKnifeClearMax   : BOOL;
+
+    tonShearCutMax              : TON;
+    tonMeasWheelClearMax        : TON;
+    tonSlitterClearMax          : TON;
+    tonRotaryKnifeClearMax      : TON;
+
+    // ------------------------------
+    // Error pulse management (2s)
+    // ------------------------------
+    faultCode                   : USINT;   // 0=none, 1=shear, 2=measwheel, 3=slitter, 4=rotaryknife
+    reqTpFaultPulse             : BOOL;
+    tpFaultPulse                : TP;	
+	
+END_VAR
+
+VAR CONSTANT
+    // ==============================
+    // LIFE CYCLE
+    // ==============================
+    STATUS_NO_CALL                  : WORD := 16#7000;
+    STATUS_FB_FIRST_CALL            : WORD := 16#7001;
+
+    // ==============================
+    // AOC STATES
+    // ==============================
+    STATUS_CHECK_CONDITIONS         : WORD := 16#8000;
+    STATUS_SAVE_DF_SPEED            : WORD := 16#8001;
+    STATUS_REDUCE_DF_SPEED          : WORD := 16#8002;
+
+    STATUS_ROTARY_SHEAR_CUT_X1      : WORD := 16#8003;
+    STATUS_WAIT_ROTARY_SHEAR_CUT_X1 : WORD := 16#8103;
+
+    STATUS_INCREASE_DRYEND_SPEED    : WORD := 16#8004;
+    STATUS_CHANGE_SLT_ORDER         : WORD := 16#8005;
+    STATUS_CHANGE_RK_SHEET_LENGTH   : WORD := 16#8006;
+    STATUS_STK_DISCHARGE            : WORD := 16#8007;
+
+    STATUS_AOC_FINISHED             : WORD := 16#8010;
+    STATUS_ERROR                : WORD := 16#8FFF;	
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// =================================================================================================
+// CPNTeck - Automação ind.
+// (c)Copyright 2022 All Rights Reserved
+// -------------------------------------------------------------------------------------------------
+// Purpose: Automatic Order Change (AOC) sequence controller.
+// Steps (high-level):
+//   1) Check material presence
+//   2) Reduce double facer speed down to AOC speed
+//   3) Execute single cut (rotary shear X1)
+//   4) Switch reference to AOC ramp and clear dry-end/slitter
+//   5) Update slitter parameters from nextOrder
+//   6) Change rotary knife sheet length (delay / clearance window)
+//   7) Discharge stacker
+//   8) Finish and reset
+//
+// Notes (important):
+// - TP/TON instances are called once per scan at the end of the FB.
+// - Requests (reqTp*/reqTon*) are set inside the state machine.
+// - This avoids conflicting multi-calls to the same FB instance.
+// =================================================================================================
+
+
+// =================================================================================================
+// 1) EDGE HANDLING / DISABLE RESET
+// =================================================================================================
+rExecuteAOC := executeAOC AND NOT executeAOC_Old;
+executeAOC_Old := executeAOC;
+
+// Falling edge of enable => hard reset (safe state)
+IF (NOT enable) AND enableOld THEN
+    // ---- outputs ----
+    error := FALSE;
+    aocRunning := FALSE;
+    aocTimeOut := FALSE;
+    statusDisplay := 'Not running...';
+
+    referenceSwitch := FALSE;
+    doubleFacerSpeedUP := FALSE;
+    doubleFacerSpeedDown := FALSE;
+
+    rotaryShearCutX1 := FALSE;
+    executePositioning := FALSE;
+    topStackerDischarge := FALSE;
+    bottomStackerDischarge := FALSE;
+
+    rotaryKnifeSpeedRef := 0.0;
+    slitterKnifeSpeedRef := 0.0;
+    slitterScorerSpeedRef := 0.0;
+
+    // ---- fault outputs ----
+    rotaryShearCutX1Timeout := FALSE;
+    measuringWheelClearTimeout := FALSE;
+    slitterClearTimeout := FALSE;
+    rotaryKnifeClarTimeout := FALSE;
+
+    // ---- state ----
+    stateMachine := STATUS_NO_CALL;
+
+    // ---- reset requests ----
+    reqTpRotaryShear := FALSE;
+    reqTpExecutePositioning := FALSE;
+    reqTpStackerTop := FALSE;
+    reqTpStackerBottom := FALSE;
+
+    reqTonSlitterDelay := FALSE;
+    reqTonStackerDelay := FALSE;
+    reqTonChangeSheetLength := FALSE;
+
+    reqTonShearCutMax := FALSE;
+    reqTonMeasWheelClearMax := FALSE;
+    reqTonSlitterClearMax := FALSE;
+    reqTonRotaryKnifeClearMax := FALSE;
+
+    // ---- stop timeout ----
+    tonAocTimeout.IN := FALSE;
+
+    // ---- error pulse ----
+    faultCode := 0;
+    reqTpFaultPulse := FALSE;
+
+    enableOld := enable;
+    RETURN;
+END_IF
+
+// Rising edge of enable => initialize
+IF enable AND (NOT enableOld) THEN
+    stateMachine := STATUS_FB_FIRST_CALL;
+
+    // Keep outputs in safe defaults
+    error := FALSE;
+    aocRunning := FALSE;
+    aocTimeOut := FALSE;
+    statusDisplay := 'Initialized';
+
+    // fault outputs default
+    rotaryShearCutX1Timeout := FALSE;
+    measuringWheelClearTimeout := FALSE;
+    slitterClearTimeout := FALSE;
+    rotaryKnifeClarTimeout := FALSE;
+
+    faultCode := 0;
+    reqTpFaultPulse := FALSE;
+
+    enableOld := enable;
+    RETURN;
+END_IF
+
+// If not enabled, do nothing
+IF NOT enable THEN
+    enableOld := enable;
+    RETURN;
+END_IF
+
+enableOld := enable;
+
+
+// =================================================================================================
+// 2) DEFAULTS EACH SCAN (avoid latching unwanted outputs)
+// =================================================================================================
+rotaryShearCutX1 := FALSE;
+executePositioning := FALSE;
+topStackerDischarge := FALSE;
+bottomStackerDischarge := FALSE;
+
+doubleFacerSpeedUP := FALSE;
+doubleFacerSpeedDown := FALSE;
+
+// Fault outputs: pulse-managed in STATUS_ERROR only
+rotaryShearCutX1Timeout := FALSE;
+measuringWheelClearTimeout := FALSE;
+slitterClearTimeout := FALSE;
+rotaryKnifeClarTimeout := FALSE;
+
+// Requests default OFF; states will enable them as needed
+reqTpRotaryShear := FALSE;
+reqTpExecutePositioning := FALSE;
+reqTpStackerTop := FALSE;
+reqTpStackerBottom := FALSE;
+
+reqTonSlitterDelay := FALSE;
+reqTonStackerDelay := FALSE;
+reqTonChangeSheetLength := FALSE;
+
+// timeout requests
+reqTonShearCutMax := FALSE;
+reqTonMeasWheelClearMax := FALSE;
+reqTonSlitterClearMax := FALSE;
+reqTonRotaryKnifeClearMax := FALSE;
+
+// error pulse request
+reqTpFaultPulse := FALSE;
+
+
+// =================================================================================================
+// 3) TRIGGER AOC (rising edge)
+// =================================================================================================
+IF rExecuteAOC THEN
+    aocTimeOut := FALSE;
+    faultCode := 0;
+    stateMachine := STATUS_CHECK_CONDITIONS;
+END_IF
+
+
+// =================================================================================================
+// 4) STATE MACHINE
+// =================================================================================================
+CASE stateMachine OF
+
+    STATUS_FB_FIRST_CALL:
+        statusDisplay := 'FB first call';
+        stateMachine := STATUS_NO_CALL;
+
+    STATUS_NO_CALL:
+        statusDisplay := 'Idle';
+        aocRunning := FALSE;
+        referenceSwitch := FALSE;
+        tonAocTimeout.IN := FALSE;
+        faultCode := 0;
+		//Write the line speed
+        instFB_Gen_SRamp.X          := lineSpeedMPM;
+        instFB_Gen_SRamp.LIMIT_LOW  := lineSpeedMPM;     // don’t ramp below current
+        instFB_Gen_SRamp.LIMIT_HIGH := lineSpeedMPM;		
+		
+
+    STATUS_CHECK_CONDITIONS:
+        statusDisplay := 'Checking conditions';
+
+        // Must have paper present everywhere to proceed
+        IF (NOT measuringWheelPaperSensor)
+           OR (NOT slitterPaperPresenceSensor)
+           OR (NOT rotaryKnifePaperSensor) THEN
+
+            // Not safe to run AOC, finish immediately
+            stateMachine := STATUS_AOC_FINISHED;
+        ELSE
+            // Start timeout supervision (global AOC timeout)
+            tonAocTimeout.IN := TRUE;
+            tonAocTimeout.PT := configuration.aocTimeout;
+
+            stateMachine := STATUS_SAVE_DF_SPEED;
+        END_IF
+
+
+    STATUS_SAVE_DF_SPEED:
+        statusDisplay := 'STATUS_SAVE_DF_SPEED';
+        aocRunning := TRUE;
+
+        // Compute AOC target speed (m/min)
+        aocSpeedTarget := configuration.automaticOrderChangeSpeed * configuration.automaticOrderChangeSpeedMult;
+
+        stateMachine := STATUS_REDUCE_DF_SPEED;
+
+
+    STATUS_REDUCE_DF_SPEED:
+        statusDisplay := 'STATUS_REDUCE_DF_SPEED';
+
+        // While above AOC speed => pulse DF speed down
+        IF lineSpeedMPM > configuration.automaticOrderChangeSpeed THEN
+            doubleFacerSpeedDown := instGEN_PULSESpeedCtrl.Q;
+        ELSE
+            // Reached speed => go cut
+            stateMachine := STATUS_ROTARY_SHEAR_CUT_X1;
+        END_IF
+
+        // Freeze ramp output to current speed (no AOC ramp yet)
+        instFB_Gen_SRamp.X          := lineSpeedMPM;
+        instFB_Gen_SRamp.LIMIT_LOW  := lineSpeedMPM;
+        instFB_Gen_SRamp.LIMIT_HIGH := lineSpeedMPM;
+
+
+    STATUS_ROTARY_SHEAR_CUT_X1:
+        statusDisplay := 'Cutting web (X1)';
+        // Generate a 1s pulse to the shear output
+        reqTpRotaryShear := TRUE;
+
+        // Start max-time supervision for shear confirmation
+        reqTonShearCutMax := TRUE;
+
+        stateMachine := STATUS_WAIT_ROTARY_SHEAR_CUT_X1;
+
+
+    STATUS_WAIT_ROTARY_SHEAR_CUT_X1:
+        statusDisplay := 'Waiting shear sensor';
+
+        // Keep supervising max time while waiting
+        reqTonShearCutMax := TRUE;
+
+        IF rotaryShearCutSensor THEN
+            // Stop supervision timer
+            reqTonShearCutMax := FALSE;
+
+            // Switch reference to AOC ramp
+            referenceSwitch := TRUE;
+            stateMachine := STATUS_INCREASE_DRYEND_SPEED;
+
+        ELSIF tonShearCutMax.Q THEN
+            // Timeout => go error, pulse output 2s, then idle
+            reqTonShearCutMax := FALSE;
+            faultCode := 1; // shear timeout
+            stateMachine := STATUS_ERROR;
+        END_IF
+
+
+    STATUS_INCREASE_DRYEND_SPEED:
+        statusDisplay := 'Clearing dry-end / slitter';
+
+        // Start max-time supervision while waiting for measuring wheel to clear
+        reqTonMeasWheelClearMax := TRUE;
+
+        // Wait until measuring wheel area clears
+        IF NOT measuringWheelPaperSensor THEN
+            reqTonMeasWheelClearMax := FALSE;
+            stateMachine := STATUS_CHANGE_SLT_ORDER;
+
+        ELSIF tonMeasWheelClearMax.Q THEN
+            reqTonMeasWheelClearMax := FALSE;
+            faultCode := 2; // measuring wheel clear timeout
+            stateMachine := STATUS_ERROR;
+        END_IF
+
+        // Apply AOC speed ramp (raise limit high to target)
+        instFB_Gen_SRamp.X          := aocSpeedTarget;
+        instFB_Gen_SRamp.LIMIT_LOW  := lineSpeedMPM;     // don’t ramp below current
+        instFB_Gen_SRamp.LIMIT_HIGH := aocSpeedTarget;
+
+
+    STATUS_CHANGE_SLT_ORDER:
+        statusDisplay := 'Changing slitter order (when clear)';
+
+        // Start max-time supervision for "slitter clear + delay window"
+        reqTonSlitterClearMax := TRUE;
+
+        // Copy only the parameters that need to switch during AOC
+        currentOrder.fluteType     := nextOrder.fluteType;
+        currentOrder.levelSelector := nextOrder.levelSelector;
+
+        currentOrder.order1.sheetType     := nextOrder.order1.sheetType;
+        currentOrder.order1.sheetQuantity := nextOrder.order1.sheetQuantity;
+        currentOrder.order1.sheetM1       := nextOrder.order1.sheetM1;
+        currentOrder.order1.sheetM2       := nextOrder.order1.sheetM2;
+        currentOrder.order1.sheetM3       := nextOrder.order1.sheetM3;
+        currentOrder.order1.sheetM4       := nextOrder.order1.sheetM4;
+        currentOrder.order1.sheetM5       := nextOrder.order1.sheetM5;
+
+        currentOrder.order2.sheetType     := nextOrder.order2.sheetType;
+        currentOrder.order2.sheetQuantity := nextOrder.order2.sheetQuantity;
+        currentOrder.order2.sheetM1       := nextOrder.order2.sheetM1;
+        currentOrder.order2.sheetM2       := nextOrder.order2.sheetM2;
+        currentOrder.order2.sheetM3       := nextOrder.order2.sheetM3;
+        currentOrder.order2.sheetM4       := nextOrder.order2.sheetM4;
+        currentOrder.order2.sheetM5       := nextOrder.order2.sheetM5;
+
+        // Start delay only after slitter area becomes clear
+        IF NOT slitterPaperPresenceSensor THEN
+            reqTonSlitterDelay := TRUE;
+            tonSlitterPresenceDelay.PT := configuration.slitterPaperPresenceDelay;
+        END_IF
+
+        IF tonSlitterPresenceDelay.Q THEN
+            // Success => stop max-time supervision
+            reqTonSlitterClearMax := FALSE;
+
+            // Pulse executePositioning
+            reqTpExecutePositioning := TRUE;
+
+            // stop delay timer (will reset by IN=FALSE)
+            reqTonSlitterDelay := FALSE;
+
+            stateMachine := STATUS_CHANGE_RK_SHEET_LENGTH;
+
+        ELSIF tonSlitterClearMax.Q THEN
+            // Timeout => error
+            reqTonSlitterClearMax := FALSE;
+            reqTonSlitterDelay := FALSE;
+            faultCode := 3; // slitter clear timeout
+            stateMachine := STATUS_ERROR;
+        END_IF
+
+
+    STATUS_CHANGE_RK_SHEET_LENGTH:
+        statusDisplay := 'Changing rotary knife sheet length';
+
+        // Start max-time supervision for rotary knife clear
+        reqTonRotaryKnifeClearMax := TRUE;
+
+        // Allow a clearance window for RK sheet length change (time-based + sensor-based)
+        reqTonChangeSheetLength := TRUE;
+        tonChangeSheetLength.PT := configuration.changeSheetLengthTime;
+
+        // When RK is clear OR changeSheetLength window elapsed => proceed
+        IF (NOT rotaryKnifePaperSensor) OR tonChangeSheetLength.Q THEN
+            reqTonRotaryKnifeClearMax := FALSE;
+            reqTonChangeSheetLength := FALSE;
+
+            stateMachine := STATUS_STK_DISCHARGE;
+
+        ELSIF tonRotaryKnifeClearMax.Q THEN
+            // Timeout => error
+            reqTonRotaryKnifeClearMax := FALSE;
+            reqTonChangeSheetLength := FALSE;
+            faultCode := 4; // rotary knife clear timeout
+            stateMachine := STATUS_ERROR;
+        END_IF
+
+
+    STATUS_STK_DISCHARGE:
+        statusDisplay := 'Discharging stacker';
+
+        // Delay before discharge
+        reqTonStackerDelay := TRUE;
+        tonStackerDischargeDelay.PT := configuration.stackerDischargeDelay;
+
+        IF tonStackerDischargeDelay.Q THEN
+            // Pulse discharge commands
+            currentOrder.changeOrderRequest := TRUE;
+
+            reqTpStackerTop := TRUE;
+            reqTpStackerBottom := TRUE;
+
+            stateMachine := STATUS_AOC_FINISHED;
+        END_IF
+
+
+    STATUS_ERROR:
+        // Error state: pulse the corresponding timeout output for 2 seconds, then go Idle (NO_CALL)
+        aocRunning := FALSE;
+        referenceSwitch := FALSE;
+        doubleFacerSpeedUP := FALSE;
+        doubleFacerSpeedDown := FALSE;
+
+        // Stop AOC timeout supervision
+        tonAocTimeout.IN := FALSE;
+
+        // Request 2s fault pulse
+        reqTpFaultPulse := TRUE;
+
+        CASE faultCode OF
+            1: statusDisplay := 'ERROR: rotaryShearCutX1 timeout';
+            2: statusDisplay := 'ERROR: measuringWheel clear timeout';
+            3: statusDisplay := 'ERROR: slitter clear timeout';
+            4: statusDisplay := 'ERROR: rotaryKnife clear timeout';
+        ELSE
+            statusDisplay := 'ERROR: unknown';
+        END_CASE
+
+        // After pulse ends, return to idle (no reset required)
+        IF NOT tpFaultPulse.Q THEN
+            // tpFaultPulse.Q will go TRUE only after call; so this "end" check must be done with tpFaultPulse.IN logic:
+            // We handle it by checking tpFaultPulse.Q and tpFaultPulse.IN in the FB call section below via tpFaultPulse output.
+        END_IF
+        // NOTE: actual transition to Idle is handled below after TP call (see section 7)
+
+
+    STATUS_AOC_FINISHED:
+        statusDisplay := 'AOC Finished';
+
+        aocRunning := FALSE;
+        referenceSwitch := FALSE;
+        doubleFacerSpeedUP := FALSE;
+        doubleFacerSpeedDown := FALSE;
+
+        // Stop timeout monitoring
+        tonAocTimeout.IN := FALSE;
+
+        // Return to idle
+        stateMachine := STATUS_NO_CALL;
+
+END_CASE
+
+
+// =================================================================================================
+// 5) GLOBAL FUNCTION BLOCK CALLS (call once per scan)
+// =================================================================================================
+
+// Pulse generator for DF speed up/down buttons
+instGEN_PULSESpeedCtrl(
+    ENQ := TRUE,
+    PTH := configuration.speedControlPulseONTime,
+    PTL := configuration.speedControlPulseOFFTime
+);
+
+// Ramp block (driven by instFB_Gen_SRamp.X and limits set in states)
+instFB_Gen_SRamp(
+    A_UP    := configuration.rampUpTimeSec,
+    A_DN    := configuration.rampDownTimeSec,
+    VU_MAX  := 1000.0,
+    VD_MAX  := -1000.0,
+    Y       => lineSpeedMPMRamp
+);
+
+// Timers (existing)
+tonSlitterPresenceDelay(IN := reqTonSlitterDelay);
+tonStackerDischargeDelay(IN := reqTonStackerDelay);
+tonChangeSheetLength(IN := reqTonChangeSheetLength);
+
+tonAocTimeout(IN := tonAocTimeout.IN, PT := configuration.aocTimeout);
+
+// Timers (new max-time supervision)
+tonShearCutMax(IN := reqTonShearCutMax, PT := configuration.rotaryShearCutX1MaxTime);
+tonMeasWheelClearMax(IN := reqTonMeasWheelClearMax, PT := configuration.measuringWheelClearMaxTime);
+tonSlitterClearMax(IN := reqTonSlitterClearMax, PT := configuration.slitterClearMaxTime);
+tonRotaryKnifeClearMax(IN := reqTonRotaryKnifeClearMax, PT := configuration.rotaryKnifeClearMaxTime);
+
+// Pulses (existing)
+tpRotaryShear(IN := reqTpRotaryShear, PT := T#1S, Q => rotaryShearCutX1);
+tpExecutePositioning(IN := reqTpExecutePositioning, PT := T#1S, Q => executePositioning);
+tpStackerTop(IN := reqTpStackerTop, PT := T#1S, Q => topStackerDischarge);
+tpStackerBottom(IN := reqTpStackerBottom, PT := T#1S, Q => bottomStackerDischarge);
+
+// Fault pulse (new)
+tpFaultPulse(IN := reqTpFaultPulse, PT := T#2S);
+
+
+// =================================================================================================
+// 6) REFERENCES (derived from ramp output)
+// =================================================================================================
+rotaryKnifeSpeedRef   := lineSpeedMPMRamp * configuration.rotaryKnifeSpeedMult;
+slitterKnifeSpeedRef  := lineSpeedMPMRamp * configuration.slitterSpeedMult;
+slitterScorerSpeedRef := lineSpeedMPMRamp * configuration.slitterSpeedMult;
+
+
+// =================================================================================================
+// 7) ERROR OUTPUT PULSE + AUTO-RETURN TO IDLE (no reset required)
+// =================================================================================================
+IF stateMachine = STATUS_ERROR THEN
+    // Pulse the selected fault output for 2s
+    CASE faultCode OF
+        1: rotaryShearCutX1Timeout := tpFaultPulse.Q;
+        2: measuringWheelClearTimeout := tpFaultPulse.Q;
+        3: slitterClearTimeout := tpFaultPulse.Q;
+        4: rotaryKnifeClarTimeout := tpFaultPulse.Q;
+    END_CASE
+
+    // When TP finishes, return to idle
+    IF (NOT tpFaultPulse.Q) AND (NOT reqTpFaultPulse) THEN
+        // no action
+    END_IF
+
+    // Better end condition: TP done when IN went TRUE and Q returned FALSE.
+    // We detect end by: reqTpFaultPulse is TRUE only inside STATUS_ERROR,
+    // so after first scan it stays TRUE; we must drop it once TP is running.
+    // Do that here:
+    reqTpFaultPulse := FALSE;
+
+    // Once TP has finished (Q=FALSE after being TRUE), go idle.
+    // Easiest: if TP is not active anymore and we already dropped IN:
+    IF (NOT tpFaultPulse.Q) THEN
+        faultCode := 0;
+        stateMachine := STATUS_NO_CALL;
+    END_IF
+END_IF
+
+
+// =================================================================================================
+// 8) TIMEOUT HANDLING (global AOC timeout)
+// =================================================================================================
+IF tonAocTimeout.Q THEN
+    tonAocTimeout.IN := FALSE;
+    aocTimeOut := TRUE;
+    stateMachine := STATUS_AOC_FINISHED;
+END_IF
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_AutomaticOrderChange_V1">
+      <LineId Id="9626" Count="177" />
+      <LineId Id="10311" Count="0" />
+      <LineId Id="10309" Count="1" />
+      <LineId Id="10307" Count="1" />
+      <LineId Id="9804" Count="170" />
+      <LineId Id="9976" Count="19" />
+      <LineId Id="10306" Count="0" />
+      <LineId Id="10305" Count="0" />
+      <LineId Id="9996" Count="144" />
+      <LineId Id="8106" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

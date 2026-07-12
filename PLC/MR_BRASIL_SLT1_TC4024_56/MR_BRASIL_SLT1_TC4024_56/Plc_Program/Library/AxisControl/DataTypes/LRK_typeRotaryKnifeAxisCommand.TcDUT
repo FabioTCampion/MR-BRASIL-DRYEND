@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LRK_typeRotaryKnifeAxisCommand" Id="{27a9cc28-e7f4-4090-a675-18a8a0480891}">
+    <Declaration><![CDATA[TYPE LRK_typeRotaryKnifeAxisCommand :
+STRUCT
+
+	enable 			: BOOL;
+      	resetAxis 			: BOOL;
+  	enableAxis 		: BOOL;
+	jogForward 		: BOOL;
+      	jogBackward 		: BOOL;
+      	moveVelocity 		: BOOL;
+      	posAbsolute 		: BOOL;
+      	posRelative 		: BOOL;
+      	posSuperimposed 	: BOOL;
+      	homing 			: BOOL;
+      	stop 				: BOOL;
+      	fastStop 			: BOOL;
+      	torqueLimiting 		: BOOL;
+      	gearInRelative 		: BOOL;
+      	gearInAbsolute 		: BOOL;
+      	camIn 			: BOOL;
+      	phasing 			: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

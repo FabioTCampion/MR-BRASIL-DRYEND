@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_PLCTOHW_PDOS" Id="{bc4943eb-77ce-407d-b7f4-9e3e8053a317}">
+    <Declaration><![CDATA[TYPE EL5152_PLCTOHW_PDOS :
+	STRUCT
+		
+		control					 : EL5152_CONTROL;
+		setCounterValue			 : UDINT; // Sets the encoder counter value
+		
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

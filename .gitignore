@@ -1,0 +1,37 @@
+# Visual Studio / TcXaeShell
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build outputs
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.pdb
+*.cache
+*.tlog
+
+# NuGet packages (restored from packages.config)
+packages/
+!**/packages/build/
+
+# TwinCAT generated files
+_Boot/
+_CompileInfo/
+*.tpy
+*.tclrs
+*.tmc
+*.compileinfo
+
+# Local backups and temporary files
+*.bak
+*.tmp
+*.temp
+~$*
+Thumbs.db
+Desktop.ini

@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL3002_HWTOPLC_PDOS" Id="{bad867cf-9e39-4d3d-a83a-8c58e8b102b0}">
+    <Declaration><![CDATA[TYPE EL3002_HWTOPLC_PDOS :
+	STRUCT
+		
+	
+	Channel1 	AT %I* : EL3002_CHANNEL;
+	Channel2 	AT %I* : EL3002_CHANNEL;
+
+
+
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

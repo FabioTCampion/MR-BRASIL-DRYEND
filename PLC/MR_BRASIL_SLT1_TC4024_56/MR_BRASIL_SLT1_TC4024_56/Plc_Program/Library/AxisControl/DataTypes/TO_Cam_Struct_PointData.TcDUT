@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="TO_Cam_Struct_PointData" Id="{b824af2f-2b79-4445-858a-f88b06b9c75e}">
+    <Declaration><![CDATA[TYPE TO_Cam_Struct_PointData :
+STRUCT
+	x: LREAL;
+	y:LREAL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

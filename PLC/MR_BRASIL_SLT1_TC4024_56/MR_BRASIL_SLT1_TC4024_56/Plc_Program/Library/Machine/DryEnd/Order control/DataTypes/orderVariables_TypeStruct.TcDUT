@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="orderVariables_TypeStruct" Id="{cf2010c5-488e-07cf-0923-fdd249499b5b}">
+    <Declaration><![CDATA[TYPE orderVariables_TypeStruct :
+STRUCT
+    // ========================================================================
+    // CUSTOMER & LOGISTICS DATA
+    // ========================================================================
+    id                      : DINT;             ///< Unique Order Identification Number
+    product                 : STRING;           ///< Product name or internal SKU description
+    client                  : STRING;           ///< Customer / Client name
+    
+    // ========================================================================
+    // GEOMETRY & TOOLING CONFIGURATION
+    // ========================================================================
+    sheetType               : INT := 1;         ///< Scorer config: 0=None, 1=Two Scorers, 2=Four Scorers
+    sheetQuantity           : INT := 2;         ///< Number of sheets/outs across the web width
+    sheetLength             : INT := 1200;      ///< Cut-off length of each sheet [mm]
+    
+    // ========================================================================
+    // SCORER / CREASER POSITIONS [mm]
+    // ========================================================================
+    sheetM1                 : INT := 100;       ///< Position of Scorer 1 [mm]
+    sheetM2                 : INT := 100;       ///< Position of Scorer 2 [mm]
+    sheetM3                 : INT := 100;       ///< Position of Scorer 3 [mm]
+    sheetM4                 : INT := 0;         ///< Position of Scorer 4 [mm]
+    sheetM5                 : INT := 0;         ///< Position of Scorer 5 [mm]
+    
+    // ========================================================================
+    // PRODUCTION COUNTERS (CUTS)
+    // ========================================================================
+    numberOfCuts            : DINT;             ///< Total quantity of cuts required for order
+    numberOfCutsProduced    : DINT;             ///< Successfully produced cut count
+    numberOfCutsRemaining   : DINT;             ///< Calculated: (numberOfCuts - numberOfCutsProduced)
+    
+    // ========================================================================
+    // STACKING & PILE MANAGEMENT
+    // ========================================================================
+    pileQuantity            : INT := 25;        ///< Target sheet count per finished stack (pile)
+    pileQuantityProduced    : INT;              ///< Number of completed piles dispatched
+    pileQuantityRemaining   : INT;              ///< Number of piles left to complete the order
+    pileCounter             : INT;              ///< Current sheet count in the active pile (resets after pileQuantity)
+    
+    // ========================================================================
+    // QUALITY & WASTE TRACKING
+    // ========================================================================
+    scrapCounter            : INT;              ///< Count of rejected or wasted sheets
+   	counterReset			: BOOL;				///< Counter reset command
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

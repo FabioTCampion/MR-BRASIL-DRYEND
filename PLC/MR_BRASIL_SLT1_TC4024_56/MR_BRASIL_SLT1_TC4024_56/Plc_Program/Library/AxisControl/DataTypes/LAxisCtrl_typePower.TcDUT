@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="LAxisCtrl_typePower" Id="{a0505766-0308-4618-8084-69b9bbb5d0f4}">
+    <Declaration><![CDATA[TYPE LAxisCtrl_typePower :
+STRUCT
+
+	startMode			: DINT;
+	stopMode			: INT;
+	syncMotionSimulation	: BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="aocConfig_TypeStruct" Id="{5fe27167-a568-49fa-807c-0521a4438e53}">
+    <Declaration><![CDATA[TYPE aocConfig_TypeStruct :
+STRUCT
+
+	automaticOrderChangeSpeed			: REAL	:= 50.0;		(*Automatic order change double facer speed*)
+
+	automaticOrderChangeSpeedMult		: REAL 	:= 2;			(*Automatic order change speed multiplier*)
+	rotaryKnifeSpeedMult				: REAL	:= 1;			(*Rotary knife speed multiplier this speed is going to be used to increase the dryend speed*)
+	slitterSpeedMult					: REAL	:= 1;			(*slitter speed multiplier this speed is going to be used to reduce the sliiter speed *)
+
+	rampUpTimeSec						: REAL	:= 5.0;		(*Ramp velocity in unit/s, with which the output is changed from a lower value to a higher one.*)
+	rampDownTimeSec						: REAL 	:= -5.0;		(*Ramp velocity in unit/s, with which the output is changed from a higher value to a lower one.*)
+
+	aocTimeout							: TIME	:= T#1M;		(*Maximum time to execute the AOC*)
+	stackerDischargeDelay				: TIME 	:= T#10S;		(*Small  amout of time that the system  waits after the rotary knife sensor is clear to discharge the stacker*)
+	changeSheetLengthTime				: TIME := T#10S;
+
+	
+	slitterPaperPresenceDelay					: TIME := T#5S;	
+	
+	
+	speedControlPulseONTime				: TIME := T#1S;
+	speedControlPulseOFFTime				: TIME := T#1S;
+
+	
+	rotaryShearCutX1MaxTime				: TIME := T#30S;
+	measuringWheelClearMaxTime			: TIME := T#30S;	
+	slitterClearMaxTime					: TIME := T#30S;	
+	rotaryKnifeClearMaxTime				: TIME := T#30S;
+	
+	
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

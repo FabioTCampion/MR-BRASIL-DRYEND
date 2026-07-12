@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_00BH11" Id="{1852a519-7f49-4440-b6a6-5dc4140e0526}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_00BH11
+VAR_INPUT
+	
+	digitalOutput_01 : BOOL;
+	digitalOutput_02 : BOOL;
+	digitalOutput_03 : BOOL;
+	digitalOutput_04 : BOOL;
+	digitalOutput_05 : BOOL;
+	digitalOutput_06 : BOOL;
+	digitalOutput_07 : BOOL;
+	digitalOutput_08 : BOOL;
+	digitalOutput_09 : BOOL;
+	digitalOutput_10 : BOOL;
+	digitalOutput_11 : BOOL;
+	digitalOutput_12 : BOOL;
+	digitalOutput_13 : BOOL;
+	digitalOutput_14 : BOOL;
+	digitalOutput_15 : BOOL;
+	digitalOutput_16 : BOOL;
+	
+	PlcToHw	AT %Q* 	: _00BH11_PLCTOHW_PDOS;	
+		
+END_VAR
+VAR_OUTPUT
+	
+	digitalInput_01  : BOOL;
+	digitalInput_02  : BOOL;
+	digitalInput_03  : BOOL;
+	digitalInput_04  : BOOL;
+	digitalInput_05  : BOOL;
+	digitalInput_06  : BOOL;
+	digitalInput_07  : BOOL;
+	digitalInput_08  : BOOL;
+	digitalInput_09  : BOOL;
+	digitalInput_10  : BOOL;
+	digitalInput_11  : BOOL;
+	digitalInput_12  : BOOL;
+	digitalInput_13  : BOOL;
+	digitalInput_14  : BOOL;
+	digitalInput_15  : BOOL;
+	digitalInput_16  : BOOL;
+	
+	
+	HwToPlc	AT %I* 	: _00BH11_HWTOPLC_PDOS;	
+	
+			
+END_VAR
+VAR
+
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[//==============================================================
+// Digital Inputs
+//==============================================================
+
+digitalInput_01 := HwToPlc.inputByte_0.0;
+digitalInput_02 := HwToPlc.inputByte_0.1;
+digitalInput_03 := HwToPlc.inputByte_0.2;
+digitalInput_04 := HwToPlc.inputByte_0.3;
+digitalInput_05 := HwToPlc.inputByte_0.4;
+digitalInput_06 := HwToPlc.inputByte_0.5;
+digitalInput_07 := HwToPlc.inputByte_0.6;
+digitalInput_08 := HwToPlc.inputByte_0.7;
+
+digitalInput_09 := HwToPlc.inputByte_1.0;
+digitalInput_10 := HwToPlc.inputByte_1.1;
+digitalInput_11 := HwToPlc.inputByte_1.2;
+digitalInput_12 := HwToPlc.inputByte_1.3;
+digitalInput_13 := HwToPlc.inputByte_1.4;
+digitalInput_14 := HwToPlc.inputByte_1.5;
+digitalInput_15 := HwToPlc.inputByte_1.6;
+digitalInput_16 := HwToPlc.inputByte_1.7;
+
+
+//==============================================================
+// Digital Outputs
+//==============================================================
+
+PlcToHw.outputByte_0.0 := digitalOutput_01;
+PlcToHw.outputByte_0.1 := digitalOutput_02;
+PlcToHw.outputByte_0.2 := digitalOutput_03;
+PlcToHw.outputByte_0.3 := digitalOutput_04;
+PlcToHw.outputByte_0.4 := digitalOutput_05;
+PlcToHw.outputByte_0.5 := digitalOutput_06;
+PlcToHw.outputByte_0.6 := digitalOutput_07;
+PlcToHw.outputByte_0.7 := digitalOutput_08;
+
+PlcToHw.outputByte_1.0 := digitalOutput_09;
+PlcToHw.outputByte_1.1 := digitalOutput_10;
+PlcToHw.outputByte_1.2 := digitalOutput_11;
+PlcToHw.outputByte_1.3 := digitalOutput_12;
+PlcToHw.outputByte_1.4 := digitalOutput_13;
+PlcToHw.outputByte_1.5 := digitalOutput_14;
+PlcToHw.outputByte_1.6 := digitalOutput_15;
+PlcToHw.outputByte_1.7 := digitalOutput_16;]]></ST>
+    </Implementation>
+    <LineIds Name="_FB_00BH11">
+      <LineId Id="3" Count="42" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

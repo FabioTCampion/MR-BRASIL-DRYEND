@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="order_TypeStruct" Id="{af836b07-2282-0425-1b9a-c3c141858d93}">
+    <Declaration><![CDATA[TYPE order_TypeStruct :
+STRUCT
+    // ========================================================================
+    // DATABASE & TRACKING LOGISTICS
+    // ========================================================================
+    startedAt               : STRING := '2026-01-11 13:07:00.000'; ///< Timestamp of order initiation
+    tableID                 : DINT;                     ///< SQL Database Unique Index/Primary Key
+    productionListNumber    : DINT := 92482;            ///< Production Planning System (ERP/MES) ID
+    aocRequest      		: BOOL;                     ///< Trigger signal for order transition	
+    changeOrderRequest      : BOOL;                     ///< Trigger signal for order transition
+    saveSQLFinished         : BOOL;                     ///< Feedback: Database write operation successful
+    saveSQLTimeOut          : BOOL;                     ///< Feedback: Database connection/write failure
+   	plcWatchDog				: BOOL;
+ 
+    // ========================================================================
+    // BOARD SPECIFICATIONS (GRADE & COMPOSITION)
+    // ========================================================================
+    paperComposition        : STRING := 'KF3MF3K/BC 670G/M²'; ///< Board grade and total weight description
+    fluteType               : STRING := 'BC';           ///< Corrugation profile (e.g., Single/Double Wall)
+    paperWidth              : INT := 1810;              ///< Raw paper web width [mm]
+    
+    // ========================================================================
+    // PAPER LAYER DEFINITIONS (LINERS & MEDIUMS)
+    // ========================================================================
+    paper1                  : STRING := 'KRAFT-90';     ///< Layer 1: Top Liner (Face)
+    paper2                  : STRING := 'MIOLO F-130';  ///< Layer 2: Fluting 1 (Medium)
+    paper3                  : STRING := 'MIOLO-90';     ///< Layer 3: Center Liner
+    paper4                  : STRING := 'MIOLO-90';     ///< Layer 4: Fluting 2 (Medium)
+    paper5                  : STRING := 'MIOLO-90';     ///< Layer 5: Bottom Liner (Back)
+    
+    // ========================================================================
+    // PRODUCTION METRICS & KPI TRACKING
+    // ========================================================================
+    lineSpeed               : REAL;                     ///< Current machine velocity [m/min]
+    linearMeters            : REAL := 2208.0;           ///< Total target length for the order [m]
+    linearMetersProduced    : REAL;                     ///< Actual quantity processed [m]
+    linearMetersRemaining   : REAL;                     ///< Calculated distance until completion [m]
+    
+    // ========================================================================
+    // TOOLING & EXECUTION CONTROL
+    // ========================================================================
+    scorerHeightMM          : REAL := 0.5;              ///< Target penetration depth for slitter-scorer tools [mm]
+    levelSelector           : E_LevelSelector := 1;     ///< Active Level: 1=Upper, 2=Lower, 3=Both
+    invertOrderLevel        : BOOL;                     ///< Flag to swap logic between physical machine levels
+    invertOrderSide         : BOOL;                     ///< Flag to swap order data between Order 1 and Order 2
+ 
+    // ========================================================================
+    // CHILD STRUCTURES (DETAILED PARAMETERS)
+    // ========================================================================
+    order1                  : OrderVariables_TypeStruct; ///< Config parameters for Upper Knife station
+    order2                  : OrderVariables_TypeStruct; ///< Config parameters for Lower Knife station
+    generatedOrder          : GeneratedOrder_TypeStruct; ///< Resultant set calculated for machine execution
+    
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

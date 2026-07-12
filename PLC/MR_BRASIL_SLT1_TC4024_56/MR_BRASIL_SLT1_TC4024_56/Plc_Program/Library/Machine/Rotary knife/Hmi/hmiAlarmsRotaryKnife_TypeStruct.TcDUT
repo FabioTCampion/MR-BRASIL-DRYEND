@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiAlarmsRotaryKnife_TypeStruct" Id="{d71370d8-fe40-4dbd-ad15-d3bd5453188a}">
+    <Declaration><![CDATA[TYPE hmiAlarmsRotaryKnife_TypeStruct :
+STRUCT
+    // Rotary Knife Specific Alarms
+    exitGuardOpen                   : BOOL; // Alarm active - Exit guard open
+    infeedGuardOpen                 : BOOL; // Alarm active - Infeed guard open
+    exhaustDepressurized            : BOOL; // Alarm active - Exhaust system depressurized
+    upperKnifeGuardClosed           : BOOL; // Alarm active - Upper knife guard open (Low Active)
+    upperKnifeOilLevelLow           : BOOL; // Alarm active - Upper knife oil level low
+    upperKnifeJamDetected           : BOOL; // Alarm active - Upper knife jam detected
+    upperKnifeInfeedDrvOK           : BOOL; // Alarm active - Upper knife infeed drive fault (Low Active)
+    upperKnifeOutfeedDrvOK          : BOOL; // Alarm active - Upper knife outfeed drive fault (Low Active)
+    upperKnifeMainDrvOK             : BOOL; // Alarm active - Upper knife main drive fault (Low Active)
+    upperKnifeSlave1DrvOK           : BOOL; // Alarm active - Upper knife slave 1 drive fault (Low Active)
+    upperKnifeSlave2DrvOK           : BOOL; // Alarm active - Upper knife slave 2 drive fault (Low Active)
+	upperKnifeNotActive				: BOOL;
+	upperKnifeCutDisabled			: BOOL;
+
+    
+	lowerKnifeGuardClosed           : BOOL; // Alarm active - Lower knife guard open (Low Active)
+    lowerKnifeOilLevelLow           : BOOL; // Alarm active - Lower knife oil level low
+    lowerKnifeJamDetected           : BOOL; // Alarm active - Lower knife jam detected
+    lowerKnifeInfeedDrvOK           : BOOL; // Alarm active - Lower knife infeed drive fault (Low Active)
+    lowerKnifeOutfeedDrvOK          : BOOL; // Alarm active - Lower knife outfeed drive fault (Low Active)
+    lowerKnifeMainDrvOK             : BOOL; // Alarm active - Lower knife main drive fault (Low Active)
+    lowerKnifeSlave1DrvOK           : BOOL; // Alarm active - Lower knife slave 1 drive fault (Low Active)
+    lowerKnifeSlave2DrvOK           : BOOL; // Alarm active - Lower knife slave 2 drive fault (Low Active)
+	lowerKnifeNotActive				: BOOL;
+	lowerKnifeCutDisabled			: BOOL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

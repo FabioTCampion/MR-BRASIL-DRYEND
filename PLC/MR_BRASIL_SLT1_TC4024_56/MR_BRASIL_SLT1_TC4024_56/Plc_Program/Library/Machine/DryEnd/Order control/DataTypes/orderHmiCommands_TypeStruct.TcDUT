@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="orderHmiCommands_TypeStruct" Id="{d5da5354-4b4f-4785-aaaf-c533bf2b051a}">
+    <Declaration><![CDATA[TYPE orderHmiCommands_TypeStruct :
+STRUCT
+	
+	changeOrder				: BOOL;
+	resetUpperLevelCounter	: BOOL;	(*Reset upper level sheet counter*)
+	resetLowerLevelCounter	: BOOL;	(*Reset lower level sheet counter*)
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

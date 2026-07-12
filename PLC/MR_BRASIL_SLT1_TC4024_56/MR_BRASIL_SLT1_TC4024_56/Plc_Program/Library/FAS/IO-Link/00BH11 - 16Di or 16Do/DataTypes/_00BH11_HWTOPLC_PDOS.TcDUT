@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="_00BH11_HWTOPLC_PDOS" Id="{e274d0a8-db70-42fc-9800-15e95f957ff6}">
+    <Declaration><![CDATA[TYPE _00BH11_HWTOPLC_PDOS :
+STRUCT
+	
+	inputByte_0 	 : BYTE;
+	inputByte_1  : BYTE;
+
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

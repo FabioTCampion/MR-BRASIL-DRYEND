@@ -1,0 +1,3441 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_SimpleAxisControl" Id="{328dc453-22b9-457d-9085-11ee225bae12}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SimpleAxisControl
+VAR_INPUT
+
+	enable							: BOOL   := FALSE;		(* TRUE: Enable functionality of FB *)
+	enableAxis						: BOOL   := FALSE;		(* TRUE: Set axis enable; FALSE: Remove axis enable *)
+	resetAxis						: BOOL   := FALSE;		(* Rising edge: Acknowledgement of technology alarms or restart of the axis (depending on configuration) *)
+	jogForward						: BOOL   := FALSE;		(* Rising edge: Move an axis in jog mode (forward); Falling edge: Stop jogging *)
+	jogBackward						: BOOL   := FALSE;	          (* Rising edge: Move an axis in jog mode (backward); Falling edge: Stop jogging *)
+	moveVelocity					: BOOL   := FALSE;	          (* Rising edge: Move an axis at constant velocity/speed *)
+	stop							: BOOL   := FALSE;	          (* Rising edge: Brake an axis until it comes to a standstill *)
+	fastStop						: BOOL   := FALSE;	          (* Rising edge: Brake an axis until it comes to a standstill (with fastStop dynamics) *)
+	torqueLimiting					: BOOL   := FALSE;	          (* TRUE: Enable force/torque limiting *)
+	homing							: BOOL   := FALSE;	          (* Rising edge: Home axis *)
+	homingSensor					: BOOL   := FALSE;	          (* Rising edge: Home sensor input singnal *)
+	posRelative						: BOOL   := FALSE;	          (* Rising edge: Move an axis relative to its position when execution of the job began *)
+	posAbsolute						: BOOL   := FALSE;	          (* Rising edge: Move an axis to an absolute position *)
+	posSuperimposed					: BOOL   := FALSE;	          (* Rising edge: Start a superimposed positioning *)
+	gearInRelative					: BOOL   := FALSE;	          (* Rising edge: Start a gearing operation (relative) *)
+	gearInAbsolute					: BOOL   := FALSE;	          (* Rising edge: Start a gearing operation (absolute) *)
+	camIn							: BOOL   := FALSE;	          (* Rising edge: Start a camming operation *)
+	phasing							: BOOL   := FALSE;	          (* Rising edge: Start a phasing operation *)
+
+END_VAR
+
+VAR_OUTPUT
+
+	valid							: BOOL   := FALSE;	          (* TRUE: Valid set of output values available at the FB *)
+	busy							: BOOL   := FALSE;	          (* TRUE: FB is working and new output values can be expected *)
+	error							: BOOL   := FALSE;	          (* TRUE: An error occurred while processing the FB *)
+	status							: WORD   := STATUS_NO_CALL;	 (* Current status of FB *)
+	axisEnabled						: BOOL   := FALSE;	          (* TRUE: The technology object is enabled. Motion commands can be executed *)
+	resetActive						: BOOL   := FALSE;	          (* TRUE: Reset/Restart of the axis is active *)
+	commandBusy						: BOOL   := FALSE;	          (* TRUE: The selected basic motion command is being executed *)
+	commandDone						: BOOL   := FALSE;	          (* TRUE: The selected basic motion command has completed without error *)
+	commandAborted					: BOOL   := FALSE;	          (* TRUE: The selected basic motion command has been aborted *)
+	inVelocity						: BOOL   := FALSE;	          (* TRUE: The setpoint velocity/speed was reached and will be maintained *)
+	inLimitation					: BOOL   := FALSE;	          (* TRUE: The drive is operating at the force/torque limit *)
+	homingCommandBusy				: BOOL   := FALSE;	          (* TRUE: Homing command is being executed *)
+	homingCommandDone				: BOOL   := FALSE;	          (* TRUE: Homing command has completed without error *)
+	homingCommandAborted			: BOOL   := FALSE;	          (* TRUE: Homing command has been aborted *)
+	superimposedBusy				: BOOL   := FALSE;	          (* TRUE: The selected superimposed motion command is being executed *)
+	superimposedDone				: BOOL   := FALSE;	          (* TRUE: The selected superimposed motion command  has completed without error *)
+	superimposedAborted				: BOOL   := FALSE;	          (* TRUE: The selected superimposed motion command has been aborted *)
+	inClamping						: BOOL   := FALSE;	          (* TRUE: The drive is kept at the fixed stop (clamping), the axis position is within the positioning tolerance *)
+	startSync						: BOOL   := FALSE;	          (* TRUE: The axis is synchronizing to the leading axis *)
+	inSync							: BOOL   := FALSE;	          (* TRUE: The axis is synchronized to the leading axis *)
+	inSimulation					: BOOL   := FALSE;	          (* TRUE: Synchronous operation is being simulated *)
+	jogSelected						: BOOL   := FALSE;	          (* TRUE: Jogging is active *)
+	moveVelocitySelected			: BOOL   := FALSE;	          (* TRUE: Moving with constant velocity/speed is active *)
+	stopSelected					: BOOL   := FALSE;	          (* TRUE: Stopping is active *)
+	fastStopSelected				: BOOL   := FALSE;	          (* TRUE: Stopping is active (with fastStop dynamics) *)
+	torqueLimitingSelected			: BOOL   := FALSE;	          (* TRUE: Force/Torque limiting is active *)
+	homingSelected					: BOOL   := FALSE;	          (* TRUE: Homing is active *)
+	posRelativeSelected				: BOOL   := FALSE;	          (* TRUE: Relative positioning is active *)
+	posAbsoluteSelected				: BOOL   := FALSE;	          (* TRUE: Absolute positioning is active *)
+	posSuperimposedSelected			: BOOL   := FALSE;	          (* TRUE: Superimposed positioning is active *)
+	gearInRelativeSelected			: BOOL   := FALSE;	          (* TRUE: Relative gearing is active *)
+	gearInAbsoluteSelected			: BOOL   := FALSE;	          (* TRUE: Absolute gearing is active *)
+	camInSelected					: BOOL   := FALSE;	          (* TRUE: Camming is active *)
+	phasingSelected					: BOOL   := FALSE;	          (* TRUE: Phasing is active *)
+	diagnostics						: LAxisCtrl_typeDiagnostics;	(* Diagnostics structure *)
+
+END_VAR
+
+VAR_IN_OUT
+
+	axis							: AXIS_REF;		  (* Reference to axis to be controlled *)
+	master							: AXIS_REF;		  (* Reference to leading axis for synchronous motion *)
+	configuration					: LAxisCtrl_typeAxisConfig;	 (* Structure for parameters *)
+
+END_VAR
+
+VAR
+	statErrorUserCleared			: BOOL   := FALSE;	          (* Error occurred that can only be solved by user; rising edge at enable input necessary *)
+	statErrorAutoCleared			: BOOL   := FALSE;	          (* Error occurred that can be acknowledged by FB *)
+	statStatus						: WORD   := STATUS_NO_CALL;	 (* Internal variable for status *)
+	statDiagnostics					: LAxisCtrl_typeDiagnostics;	(* Internal variable for diagnostics *)
+	statEnableOld					: BOOL   := FALSE;	          (* Old value of enable for edge detection *)
+	statFBState						: SINT   := AXIS_MOTION;	    (* State of FB (function block state machine) *)
+	statFirstCycleReset				: BOOL   := TRUE;	           (* TRUE: First cycle of reset command *)
+	statPowerErrorOld				: BOOL   := FALSE;	          (* Old value of MC_Power.error *)
+	statResetState					: INT    := CMD_IDLE;	       (* State of reset command *)
+	statFirstCycleResetError		: BOOL   := FALSE;	          (* TRUE: First cycle of error in reset command *)
+	statExtendedCommand				: DWORD  := CMD_NO_SELECTION;              (* Variable for requested extended command (e.g. resetAxis, torquelimiting, homing) *)
+	statExtendedCommandOld			: DWORD  := CMD_NO_SELECTION;              (* Old value of variable for requested extended command *)
+	statEnableAxisOld				: BOOL   := FALSE;	          (* Old value of enableAxis for edge detection *)
+	statEmptyDiagnostics			: LAxisCtrl_typeDiagnostics;	(* Internal empty diagnostic structure *)
+	statHomingOld					: BOOL   := FALSE;	          (* Old value of variable for homing command input *)
+	statFirstCycleHoming			: BOOL   := TRUE;	           (* TRUE: First cycle in homing command *)
+	statPassiveHomingState			: DINT   := NO_HOMING_ACTIVE;              (* Current selected passive homing mode *)
+	statExeOfHoming					: INT    := CMD_BUSY;	       (* Current state of execution of homing command *)
+	statBasicCommand				: DWORD  := CMD_NO_SELECTION;              (* Variable for requested basic motion command *)
+	statBasicCommandOld				: DWORD  := CMD_NO_SELECTION;              (* Old value of variable for requested basic motion command *)
+	statBasicMotionState			: DINT   := NO_SELECTION;	   (* State of selected basic motion command *)
+	statExeOfBasicMotion			: INT    := CMD_BUSY;	       (* State of execution of current state of basic motion *)
+	statFirstCycleBasicMotion		: BOOL   := TRUE;	           (* TRUE: First cycle in respective state fo basic motion functionality *)
+	statApplicativeBasicMotionError	: BOOL   := FALSE;	          (* TRUE: applicative error occurred (e.g. invalid direction configured) *)
+	statVelocityChangeOnTheFly		: BOOL   := FALSE;	          (* Velocity change on the fly is active *)
+	statVelocity					: LREAL  := 0.0;	            (* Internal variable for velocity *)
+	statAcceleration				: LREAL  := 0.0;	            (* Internal variable for acceleration *)
+	statAbortAcceleration			: BOOL   := FALSE;	          (* FALSE: The current acceleration at the start of the job is reduced using the configured jerk. Afterwards, the deceleration builds up; TRUE: The acceleration is set to 0.0 at the start of the job, and the deceleration immediately builds up. *)
+	statDeceleration				: LREAL  := 0.0;	            (* Internal variable for deceleration *)
+	statJerk						: LREAL  := 0.0;	            (* Internal variable for jerk *)
+	statPositionControlled			: BOOL   := TRUE;	           (* FALSE: Non position-controlled operation; TRUE: Position-controlled operation *)
+	statFirstCycleDone				: BOOL   := FALSE;	          (* TRUE: First cycle of done at fastStop *)
+	statTorqueLimitingState			: SINT   := NO_TORQUE_LIMITING_ACTIVE;     (* Current executed state for torquelimiting functionality *)
+	statTorqueLimitingErrorOld		: BOOL   := FALSE;	          (* TRUE: Error at Torquelimiting occurred last cycle *)
+	statTorqueLimit					: LREAL  := -1.0;	           (* Value of force/torque limiting (in the configured unit of measurement) *)
+	statJogMode						: DINT   := JOG_MODE_CONTINUOUS;           (* Current selected jog mode *)
+	statDirection					: INT    := SPECIFIED_DIR;	  (* Internal variable for direction of rotation of the axis *)
+	statHomingPosition				: LREAL  := 0.0;	            (* The specified value is used according to the selected "Mode". *)
+	statHomingSubState				: SINT   := HOMING_IDLE;	    (* Current subState of execution of homing functionality *)
+	statIncJogSubState				: SINT   := INC_JOG_IDLE;	   (* Current subState of execution of jog incremental functionality *)
+	statIncJogStartPosition			: LREAL  := 0.0;	            (* Last stored axis position (for incremental jogging) *)
+	statIncJogDirectionOld			: INT    := 0;	              (* Old value of direction of executing incremental jogging *)
+	statIncrement					: LREAL  := 0.0;	            (* Jog Incremental: distance of Increment (positive or negative) *)
+	statIncJogDistance				: LREAL  := 0.0;	            (* Jog Incremental: current distance to destination position *)
+	statResetIncJog					: BOOL   := TRUE;	           (* TRUE: First cycle in incremental jogging state (detection of new increment) *)
+	statPosition					: LREAL  := 0.0;	            (* Internal variable for position *)
+	statPositionChangeOnTheFly		: BOOL   := FALSE;	          (* Position change on the fly is active *)
+	statHomingMode					: INT    := DIRECT_HOMING;	  (* Operating Mode of MC_HOME command *)
+	statActiveHomingState			: DINT   := NO_HOMING_ACTIVE;              (* Current selected active homing mode *)
+	statSupImpCommand				: DWORD  := CMD_NO_SELECTION;              (* Variable for requested superimposed motion command *)
+	statSupImpCommandOld			: DWORD  := CMD_NO_SELECTION;              (* Old value of variable for requested superimposed motion command *)
+	statSupImpMotionState	        : DINT   := NO_SELECTION;	   (* Current selected superimposed motion functionality *)
+	statExeOfSupImpMotionState		: INT    := CMD_BUSY;	       (* Current state of execution of superimposed basic motion *)
+	statFirstCycleSupImpMotion			: BOOL   := TRUE;	           (* TRUE: First cycle in positioning (superimposed) functionality *)
+	statSupImpMotionPosition			: LREAL  := 0.0;	            (* Position setpoint (for posSuperimposed command) *)
+	statApplicativeSupImpMotionError		: BOOL   := FALSE;	          (* TRUE: applicative error occurred (e.g. invalid direction configured) *)
+	statRatioChangeOnTheFly			: BOOL   := FALSE;	          (* Ratio change on the fly is active *)
+	statChangePhaseShiftOnTheFly	: BOOL   := FALSE;	          (* Phase shift change on the fly is active *)
+	statPhaseShift					: LREAL  := 0.0;	            (* Relative/Absolute master value shift *)
+	statPhaseAbsolute				: BOOL   := TRUE;	           (* Indicates the type of phase shift (TRUE: The phase shift is taken over as an absolute value; FALSE: The phase shift is added to an existing offset) *)
+	statRatioNumerator				: DINT   := 1;	              (* Gear ratio numerator *)
+	statRatioDenominator			: DINT   := 1;	              (* Gear ratio denominator *)
+	statEnableAxis					: BOOL   := FALSE;	          (* Internal variable for enabling axis *)
+	statSyncMotionSimulationState	: SINT   := AXIS_NOT_IN_SIM;	(* Current executed state for synchronized motion simulation *)
+	statSynchronizedMotionErrorOld	: BOOL   := FALSE;	          (* Old value of MC_SynchronizedMotionSimulation.error *)
+	statMainSelectionState			: INT    := 0;	              (* Current executed State for execution of basic motion commands or reset of waiting gearing / camming commands *)
+	statMasterSyncPosition			: LREAL  := 0.0;	            (* Synchronous position of leading axis. Position of the following axis starting from which the leading and following axes move synchronously *)
+	statSlaveSyncPosition			: LREAL  := 0.0;	            (* Synchronous position of leading axis. Position of the leading axis starting from which the leading and following axes move synchronously *)
+	statSyncDirection				: DINT   := FORWARD_DIR;	    (* Direction of synchronization *)
+	statMasterStartDistance			: LREAL  := 0.0;	            (* Master value distance (when "SyncProfileReference" = 1) *)
+	statSyncProfileReference		: DINT   := 0;	              (* Type of synchronization *)
+	statApplicationMode				: DINT   := 0;	              (* Application of cam *)
+
+	instPower						: MC_Power;		  (* Instance of MC_Power *)
+	instReset						: MC_Reset;		  (* Instance of MC_Reset *)
+	instHome						: MC_Home;		   (* Instance of MC_Home *)
+	instHalt						: MC_Halt;		   (* Instance of MC_Halt *)
+	instMoveJog						: MC_Jog;		    (* Instance of MC_MoveJog *)
+	instTorqueLimiting				: MC_TORQUELIMITING;	        (* Instance of MC_TorqueLimiting *)
+	instMoveVelocity				: MC_MoveVelocity;	          (* Instance of MC_MoveVelocity *)
+	instMoveRelative				: MC_MoveRelative;	          (* Instance of MC_MoveRelative *)
+	instMoveAbsolute				: MC_MoveAbsolute;	          (* Instance of MC_MoveAbsolute *)
+	instMoveSuperimposed			: MC_MoveSuperImposed;	      (* Instance of MC_MoveSuperimposed *)
+	instGearIn						: MC_GearIn;		 (* Instance of MC_GearIn *)
+	instPhasingAbsolute				: MC_PhasingAbsolute;	       (* Instance of MC_PhasingAbsolute *)
+	instPhasingRelative				: MC_PhasingRelative;	       (* Instance of MC_PhasingRelative *)
+	instGearInPos					: MC_GearInDyn;	             (* Instance of MC_GearInPos *)
+//	instCamIn						: MC_CamIn;		  (* Instance of MC_CamIn *)
+	instSyncMotionSimulation		: MC_SYNCHRONIZEDMOTIONSIMULATION;         (* Instance of MC_SynchronizedMotionSimulation *)
+	instTimerTON					: TON;
+	StatusWord						: INT;
+
+END_VAR
+
+VAR
+
+	tempNewExtendedCmd				: DINT;		      (* Temporary variable for extended command *)
+	tempEnableAxis					: BOOL;		      (* Temporary variable for enableAxis *)
+	tempErrorInCmd					: BOOL;		      (* Temporary variable for error in actual command *)
+	tempRisingCmd					: DWORD;		     (* Temporary DWord which indicates all rising edges of command word *)
+	tempStopCmdSelected				: BOOL;		      (* TRUE: Stop or faststop selected in current cycle *)
+	tempDword						: DWORD;		     (* Temporary DWord for evaluation of rising edges of basic command word *)
+	tempIndex						: INT;		       (* Temporary index *)
+	tempCountRisEdges				: USINT;		     (* Temporary counter for rising edges in command word *)
+	tempNewBasicMotionCmd			: DINT;		      (* Temporary variable for basic motion command *)
+	tempStateChangeActive			: BOOL;		      (* TRUE: State change is active, stay in loop for one more cycle *)
+	tempStatusWord					: DWORD;		     (* Temporary variable for statusword of axis *)
+	tempNewSupImpCmd				: DINT;		      (* Temporary variable for superimposed motion command *)
+	tempHoming						: BOOL;		      (* Temporary variable for homing command *)
+	tempFalse						: BOOL;
+
+END_VAR
+
+VAR CONSTANT
+
+	AXIS_MOTION								: SINT   := 1;	              (* State of FB: MotionState, new commands are evaluated *)
+	FB_ERROR								: SINT   := 5;	              (* State of FB: Error, falling edge at FB_ENABLE required *)
+	CMD_NO_SELECTION						: DWORD  := 16#0000_0000;	   (* No command is selected *)
+	NO_SELECTION							: INT    := 0;	              (* State of basicMotion/superimposedMotion: No execution of a command *)
+	AXIS_FAST_STOPPING						: SINT   := 2;	              (* State of FB: StoppingState, MC_HALT is executed, new commands are not evaluated *)
+	AXIS_STOP_ON_ERROR_SELECTION			: SINT   := 3;	              (* State of FB: ErrorState: Selection if StopOnError must be executed (depending on configuration) *)
+	AXIS_STOP_ON_ERROR_EXECUTION			: SINT   := 4;	              (* State of FB: ErrorState: Execution of StopOnError *)
+	FAST_STOP_SELECTED						: INT    := 1;	              (* State of basicMotion: Execution of fast stop command *)
+	STOP_SELECTED							: INT    := 2;	              (* State of basicMotion: Execution of stop command *)
+	JOG_FORWARD_SELECTED					: INT    := 4;	              (* State of basicMotion: Execution of jog forward command *)
+	JOG_BACKWARD_SELECTED					: INT    := 8;	              (* State of basicMotion: Execution of jog backward command *)
+	JOG_FW_AND_BW_SELECTED					: INT    := 12;	             (* State of basicMotion: Execution of jog command if forward and backward are selected *)
+	MOVE_VELOCITY_SELECTED					: INT    := 16;	             (* State of basicMotion: Execution of move velocity command *)
+	ACTIVE_HOMING_SELECTED					: INT    := 1024;	           (* State of basicMotion: Execution of active homing command *)
+	POS_RELATIVE_SELECTED					: INT    := 32;	             (* State of basicMotion: Execution of position command (relative) *)
+	POS_ABSOLUTE_SELECTED					: INT    := 64;	             (* State of basicMotion: Execution of position command (absolute) *)
+	GEAR_IN_RELATIVE_SELECTED				: INT    := 128;	            (* State of basicMotion: Execution of gearIn command *)
+	GEAR_IN_ABSOLUTE_SELECTED				: INT    := 256;	            (* State of basicMotion: Execution of gearInPos command *)
+	CAM_IN_SELECTED							: INT    := 512;	            (* State of basicMotion: Execution of camIn command *)
+	POS_SUPERIMPOSED_SELECTED				: INT    := 1;	              (* State of superimposedMotion: Execution of posSuperimposed command *)
+	PHASING_SELECTED							: INT    := 2;	              (* State of superimposedMotion: Execution of phasing command *)
+	CMD_IDLE									: INT    := 0;	              (* State of basicMotion command: No execution *)
+	CMD_BUSY								: INT 	   := 1;	              (* State of basicMotion command: Subsequent call *)
+	CMD_DONE								: INT 	   := 2;	              (* State of basicMotion command: Finished with "DONE" *)
+	CMD_ABORTED								: INT    := 4;	              (* State of basicMotion command: Finished with "ABORTED" *)
+	CMD_ERROR								: INT    := 8;	              (* State of basicMotion command: Finished with "ERROR" *)
+	CMD_END_PROCESS							: INT    := 16;	             (* State of basicMotion command: Finished with other reason *)
+	JOG_MODE_CONTINUOUS						: INT    := 0;	              (* Jogmode continuous selected (MC_MOVEJOG) *)
+	NO_TORQUE_LIMITING_ACTIVE				: SINT   := 0;	              (* State of torquelimiting command: Not enabled *)
+	TORQUE_LIMTING_SELECTED					: SINT   := 1;	              (* State of torquelimiting command: Torquelimiting is active *)
+	TORQUE_LIMITING_DISABLE					: SINT   := 10;	             (* State of torquelimiting command: Torquelimiting is disabling *)
+	BITPOSITION_BASIC_MOTION_CMD			: SINT   := 4;	              (* First bitposition for detecting rising edges at basic motion command word *)
+	BIT_POS_LAST								: SINT   := 15;	             (* Last bitposition for detecting rising edges at command word *)
+	SPECIFIED_DIR								: INT    := 0;	              (* The sign of the velocity specified at the "Velocity" parameter defines the direction of rotation. *)
+	NO_HOMING_ACTIVE							: SINT   := -10;	            (* State of homing command: No homing active *)
+	STANDARD_HOMING							: SINT   := -1;	             (* State of homing command: (Standard) homing with MC_HOME *)
+	BITPOSITION_SUPERIMPOSED_MOTION_CMD           	: SINT   := 0;	              (* First bitposition for detecting rising edges at superimposed motion command word *)
+	FIXED_STOP_DETECTION_ACTIVE				: SINT   := 2;	              (* State of torquelimiting command: Homing on fixed stop is active *)
+	FIXED_STOP_DETECTION_FINISHED				: SINT   := 3;	              (* State of torquelimiting command: Homing on fixed stop is finished *)
+	AUTOMATIC_MODE_CHANGE					: SINT   := 4;	              (* State of torquelimiting command: automatic mode change is active (form 1 to 0) *)
+	FIXED_STOP_DETECTION_ERROR_IN_CLAMPING		: SINT   := 5;	              (* State of torquelimiting command: Error occurred at homing on fixed stop process, axis is in clamping *)
+	FIXED_STOP_DETECTION_ERROR_NOT_IN_CLAMPING	: SINT   := 6;	              (* State of torquelimiting command: Error occurred at homing on fixed stop process, axis is not in clamping *)
+	HOMING_ON_FIXED_STOP						: SINT   := 0;	              (* State of homing command: Applicative homing on fixed stop process active *)
+	MODE_FIXED_STOP_DETECTION					: INT    := 1;	              (* Fixed stop detection (Mode for MC_TORQUELIMITING) *)
+	FORWARD_DIR								: INT    := 1;	              (* Positive/Forward direction of rotation *)
+	BACKWARD_DIR								: INT    := 2;	              (* Negative/Backward direction of rotation *)
+	SHORTEST_WAY_DIR							: INT    := 3;	              (* Shortest path *)
+	DIRECT_HOMING							: INT    := 0;	              (* Direct homing (absolute). Parameter "position" at MC_HOME is effective *)
+	ACTIVE_HOMING							: INT    := 3;	              (* Active homing. Parameter "position" at MC_HOME is effective *)
+	ACTIVE_HOMING_TO_DEF_VALUE				: INT    := 5;	              (* Active homing. The configured home position value in technology object is effective *)
+	ABSOLUTE_ENCODER_ADJUSTMENT				: INT    := 7;	              (* Absolute encoder adjustment (absolute) *)
+	INCREMENTAL_ENCODER						: INT    := 0;	              (* Encodertype INCREMENTAL *)
+	HOMING_IDLE								: SINT   := 0;	              (* SubState of homing on fixed stop process: Idle *)
+	HOMING_FIXED_STOP_DETECTION				: SINT   := 1;	              (* SubState of homing on fixed stop process: Detecting fixed stop *)
+	HOMING_PROCESS							: SINT   := 2;	              (* SubState of homing on fixed stop process: Homeprocess (MC_HOME) *)
+	HOMING_POSITION							: SINT   := 3;	              (* SubState of homing on fixed stop process: Positioning to homeposition *)
+	INC_JOG_IDLE								: SINT   := 0;	              (* Substate of incremental jog process: Idle *)
+	INC_JOG_START							: SINT   := 1;	              (* Substate of incremental jog process: Start moving *)
+	INC_JOG_STOP								: SINT   := 3;	              (* Substate of incremental jog process: Stop moving *)
+	JOG_MODE_NEW_INCREMENT					: INT    := 1;	              (* Jogmode incremental selected - start always with new increment when command is selected *)
+	JOG_MODE_CONTINUE_INCREMENT				: INT    := 2;	              (* Jogmode incremental selected - continue with increment when command is selected again *)
+	APPLICATION_MODE_ONCE					: INT    := 0;	              (* Application of the cam: Once/not cyclic (MC_CAMIN) *)
+	CALL_BASIC_MOTION							: INT    := 0;	              (* State of MainSelectionState: Regular execution of basic motion commands *)
+	RESET_GEARING							: INT    := 1;	              (* State of MainSelectionState:Reset of waiting synchronous commands *)
+	AXIS_NOT_IN_SIM							: SINT   := 0;	              (* State of motionSimulation: Axis is not in simulation *)
+	AXIS_STATE_SET_SIM						: SINT   := 1;	              (* State of motionSimulation: Setting axis in simulation *)
+	AXIS_DISABLE								: SINT   := 2;	              (* State of motionSimulation: Disable axis *)
+	AXIS_STATE_IN_SIM							: SINT   := 3;	              (* State of motionSimulation: Axis is in simulation *)
+	AXIS_ENABLE								: SINT   := 4;	              (* State of motionSimulation: Enable axis *)
+	AXIS_STATE_RESET_SIM						: SINT   := 5;	              (* State of motionSimulation: Resetting axis simulation *)
+	STATUS_NO_CALL							: WORD   := 16#7000;	        (* No call of FB *)
+	STATUS_FB_FIRST_CALL						: WORD   := 16#7001;	        (* First cycle of FB after enabling *)
+	STATUS_SUBSEQUENT_CALL					: WORD   := 16#7002;	        (* FB enabled *)
+	ERR_INVALID_BASIC_MOTION_CMD				: WORD   := 16#8001;	        (* Invalid basic command selected (rising edge at 2 or more basic motion command inputs) *)
+	ERR_INVALID_EXTENDED_CMD					: WORD   := 16#8002;	        (* Invalid extended command selected (rising edge at torque limiting and homing on fixed stop) *)
+	ERR_INVALID_SUPERIMPOSED_MOTION_CMD		: WORD   := 16#8003;	        (* Invalid superimposed command selected (rising edge at 2 or more superimposed motion command inputs) *)
+	ERR_INVALID_CAM							: WORD   := 16#8200;	        (* Error occurred during camIn command (invalid cam connected at cam input) *)
+	ERR_INVALID_JOG_MODE						: WORD   := 16#8201;	        (* Invalid jog mode selected *)
+	ERR_INVALID_HOMING_EXTENDED_MODE			: WORD   := 16#8202;	        (* Command Error: Invalid extended homing mode selected *)
+	ERR_TORQUE_LIMITING_NOT_ALLOWED			: WORD   := 16#8203;	        (* Error during extended homing command - torque limiting not allowed during homing on fixed stop is active or axis in clamping *)
+	ERR_INVALID_JOG_DIR						: WORD   := 16#8204;	        (* Invalid direction selected (jog forward and jog backward) *)
+	ERR_INVALID_POS_RELATIVE_DIR				: WORD   := 16#8205;	        (* Invalid direction is set for relative positioning command *)
+	ERR_INVALID_POS_SUPERIMPOSED_DIR			: WORD   := 16#8206;	        (* Invalid direction is set for superimposed positioning command *)
+	ERR_HOMING_MODE_NOT_ALLOWED				: WORD   := 16#8207;	        (* Passive/Direct homing is not allowed during extended homing mode (homing on fixed stop process) is active *)
+	ERR_MODULO_NOT_ALLOWED					: WORD   := 16#8208;	        (* Extended homing mode (homing on fixed stop process) is not allowed with modulo axis *)
+	ERR_INVALID_TORQUE_LIMIT					: WORD   := 16#8209;	        (* Configured torque limit value for extended homing mode (homing on fixed stop process)     = 0 *)
+	ERR_INVALID_VELOCITY						: WORD   := 16#820A;	        (* Configured velocity (in technology object) for active homing		= 0 *)
+	ERR_MC_POWER							: WORD   := 16#8600;	        (* Error occurred during MC_POWER command *)
+	ERR_MC_RESET							: WORD   := 16#8601;	        (* Error occurred during MC_RESET command *)
+	ERR_MC_HOME								: WORD   := 16#8602;	        (* Error occurred during MC_HOME command *)
+	ERR_MC_TORQUELIMITING						: WORD   := 16#8603;	        (* Error occurred during MC_TORQUELIMITING command *)
+	ERR_MC_HALT								: WORD   := 16#8604;	        (* Error occurred during MC_HALT command *)
+	ERR_MC_MOVEJOG							: WORD   := 16#8605;	        (* Error occurred during MC_MOVEJOG command (continuous jogging) *)
+	ERR_MC_MOVEVELOCITY						: WORD   := 16#8606;	        (* Error occurred during MC_MOVEVELOCITY command *)
+	ERR_MC_MOVERELATIVE						: WORD   := 16#8607;	        (* Error occurred during MC_MOVERELATIVE command *)
+	ERR_MC_MOVEABSOLUTE						: WORD   := 16#8608;	        (* Error occurred during MC_MOVEABSOLUTE command *)
+	ERR_MC_MOVESUPERIMPOSED					: WORD   := 16#8609;	        (* Error occurred during MC_MOVESUPERIMPOSED command *)
+	ERR_MC_GEARIN							: WORD   := 16#860A;	        (* Error occurred during MC_GEARIN command *)
+	ERR_MC_PHASINGABSOLUTE					: WORD   := 16#860B;	        (* Error occurred during MC_PHASINGABSOLUTE command *)
+	ERR_MC_PHASINGRELATIVE					: WORD   := 16#860C;	        (* Error occurred during MC_PHASINGRELATIVE command *)
+	ERR_MC_CAMIN								: WORD   := 16#860D;	        (* Error occurred during MC_CAMIN command *)
+	ERR_MC_GEARINPOS							: WORD   := 16#860E;	        (* Error occurred during MC_GEARINPOS command *)
+	ERR_MC_SYNCHRONIZEDMOTIONSIMULATION		: WORD   := 16#860F;	        (* Error occurred during MC_SYNCHRONIZEDMOTIONSIMULATION command *)
+	ERR_UNDEFINED_FB_STATE					: WORD   := 16#8700;	        (* Error due to an undefined FB state *)
+	ERR_UNDEFINED_RESET_STATE				: WORD   := 16#8701;	        (* Error due to an undefined reset state *)
+	ERR_UNDEFINED_BASIC_MOTION_STATE			: WORD   := 16#8702;	        (* Error due to an undefined basic motion state *)
+	ERR_UNDEFINED_TORQUE_LIMITING_STATE		: WORD   := 16#8703;	        (* Error due to an undefined torque limiting state *)
+	ERR_UNDEFINED_INCREMENTAL_JOG_STATE		: WORD   := 16#8704;	        (* Error due to an undefined incremental jog state *)
+	ERR_UNDEFINED_INCREMENTAL_JOG_SUBSTATE	: WORD   := 16#8705;	        (* Error due to an undefined incremental jog substate *)
+	ERR_UNDEFINED_EXTENDED_HOMING_STATE		: WORD   := 16#8706;	        (* Error due to an undefined homing state *)
+	ERR_UNDEFINED_EXTENDED_HOMING_SUBSTATE	: WORD   := 16#8707;	        (* Error due to an undefined homing substate *)
+	ERR_UNDEFINED_SUPERIMPOSED_MOTION_STATE	: WORD   := 16#8708;	        (* Error due to an undefined superimposed motion state *)
+	ERR_UNDEFINED_MOTION_SIMULATION_STATE		: WORD   := 16#8709;	        (* Error due to an undefined synchronized motion simulation state *)
+	ERR_UNDEFINED_MAIN_SELECTION_STATE		: WORD   := 16#870A;	        (* Error due to an undefined main selection state *)
+
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+(*================================================================================
+CPNTeck - Automação ind.
+(c)Copyright 2022 All Rights Reserved
+_______________________________________________________________________________________________________________________________
+Library: N/A 
+Tested with: CX5140
+Engineering: Twincat 3
+Restrictions: -
+Requirements: N/A
+Functionality: This function block offers basic functionalities for axis control
+Support: fabio@cpnteck.com.br
+Note: Parameter comments are only available in language 'English (United States)'
+_______________________________________________________________________________________________________________________________
+Change log table:
+Version  		| Date        		| Expert in charge  		| Changes applied
+
+01.00.01		| 12.10.2016  		| Fabio Campion                | First released version
+
+
+
+================================================================================*)
+
+
+
+(*----------------------------------------------------------------------------------------------*)
+(* Enable / disable FB									*)
+(*----------------------------------------------------------------------------------------------*)
+
+{REGION "ENABLE_FB"}
+IF NOT enable AND statEnableOld THEN
+    {REGION "FALLING_EDGE_AT_ENABLE_FB"}
+
+    (* Reset outputs									   *)
+    (*==========================================================*)
+    (* Error and valid outputs are reset with falling edge of enable input	   *)
+	
+    error  := FALSE;
+    valid  := FALSE;
+    status := STATUS_NO_CALL;
+
+
+   (* Reset status outputs *)
+    axisEnabled := FALSE;
+    resetActive := FALSE;
+
+   (* Reset outputs for homing commands *)
+    homingCommandBusy := FALSE;
+    homingCommandDone := FALSE;
+    homingCommandAborted := FALSE;
+    homingSelected := FALSE;
+
+   (* Reset outputs for torquelimiting command *)
+    torqueLimitingSelected := FALSE;
+    inLimitation           := FALSE;
+
+   (* Reset outputs for basic motion commands *)
+    commandDone := FALSE;
+    commandBusy := FALSE;
+    commandAborted := FALSE;
+    inVelocity := FALSE;
+    fastStopSelected := FALSE;
+    stopSelected := FALSE;
+    jogSelected := FALSE;
+    moveVelocitySelected := FALSE;
+   (* Outputs for for up to LAxisCtrl_PosAxis *)
+    posRelativeSelected := FALSE;
+    posAbsoluteSelected := FALSE;
+    inClamping := FALSE;
+
+   (* Reset outputs for superimposed motion commands *)
+    superimposedBusy := FALSE;
+    superimposedDone := FALSE;
+    superimposedAborted := FALSE;
+    posSuperimposedSelected := FALSE;
+    startSync := FALSE;
+    inSync := FALSE;
+    gearInRelativeSelected := FALSE;
+    inSimulation := FALSE;
+    gearInAbsoluteSelected := FALSE;
+    phasingSelected := FALSE;
+    camInSelected := FALSE;
+
+    (* Reset internal variables								   *)
+    (*==========================================================*)
+
+
+    statErrorUserCleared := FALSE;
+    statErrorAutoCleared := FALSE;
+    statStatus := STATUS_NO_CALL;
+    statDiagnostics := statEmptyDiagnostics;
+
+    statFBState := AXIS_MOTION;
+    statFirstCycleReset := FALSE;
+    statPowerErrorOld := FALSE;
+    statResetState := CMD_IDLE;
+    statFirstCycleResetError := FALSE;
+
+    statExtendedCommand := CMD_NO_SELECTION;
+    statExtendedCommandOld := CMD_NO_SELECTION;
+    statEnableAxisOld := FALSE;
+    statHomingOld := FALSE;
+    statFirstCycleHoming := FALSE;
+    statPassiveHomingState := NO_HOMING_ACTIVE;
+    statExeOfHoming := CMD_BUSY;
+    statBasicCommand := CMD_NO_SELECTION;
+    statBasicCommandOld := CMD_NO_SELECTION;
+    statBasicMotionState := NO_SELECTION;
+    statExeOfBasicMotion := CMD_BUSY;
+    statFirstCycleBasicMotion := FALSE;
+    statApplicativeBasicMotionError := FALSE;
+    statVelocityChangeOnTheFly := FALSE;
+    statVelocity := 0.0;
+    statAcceleration := 0.0;
+    statAbortAcceleration := FALSE;
+    statDeceleration := 0.0;
+    statJerk := 0.0;
+
+    statPositionControlled := TRUE;
+    statFirstCycleDone := FALSE;
+
+    statTorqueLimitingState := NO_TORQUE_LIMITING_ACTIVE;
+    statTorqueLimitingErrorOld := FALSE;
+    statTorqueLimit := -1.0;
+    statJogMode := JOG_MODE_CONTINUOUS;
+    statDirection := SPECIFIED_DIR;
+    statHomingPosition         := 0.0;
+    statHomingSubState         := HOMING_IDLE;
+    statIncJogSubState         := INC_JOG_IDLE;
+    statIncJogStartPosition    := 0.0;
+    statIncJogDirectionOld     := 0;
+    statIncrement              := 0.0;
+    statIncJogDistance         := 0.0;
+    statResetIncJog            := TRUE;
+    statPosition               := 0.0;
+    statPositionChangeOnTheFly := FALSE;
+
+    statHomingMode                   := DIRECT_HOMING;
+    statActiveHomingState            := NO_HOMING_ACTIVE;
+    statSupImpCommand                := CMD_NO_SELECTION;
+    statSupImpCommandOld             := CMD_NO_SELECTION;
+    statSupImpMotionState            := NO_SELECTION;
+    statExeOfSupImpMotionState       := CMD_BUSY;
+    statFirstCycleSupImpMotion       := FALSE;
+    statSupImpMotionPosition         := 0.0;
+    statApplicativeSupImpMotionError := FALSE;
+    statRatioChangeOnTheFly          := FALSE;
+    statChangePhaseShiftOnTheFly     := FALSE;
+    statPhaseShift                   := 0.0;
+    statPhaseAbsolute                := TRUE;
+    statRatioNumerator               := 0;
+    statRatioDenominator             := 0;
+
+   (* Tags for synchronized motion simulation*)
+    statEnableAxis := FALSE;
+    statSyncMotionSimulationState  := AXIS_NOT_IN_SIM;
+    statSynchronizedMotionErrorOld := FALSE;
+    statMainSelectionState := 0;
+    statMasterSyncPosition := 0.0;
+    statSlaveSyncPosition := 0.0;
+    statSyncDirection := FORWARD_DIR;
+    statMasterStartDistance := 0.0;
+    statSyncProfileReference := 0;
+    statApplicationMode := 0;
+
+   (* ===========================================================*)
+   (* Disable Axis*)
+    IF (instPower.Busy = TRUE) THEN
+        instPower(Axis := axis,
+                  Enable := FALSE,
+                  Enable_Positive := FALSE,
+                  Enable_Negative := FALSE,
+        (*StartMode :=  configuration.power.startMode,
+	                   StopMode :=  configuration.power.stopMode*) );
+
+       (* Check if error occurred*)
+        IF (instPower.Error = TRUE) THEN
+           (*Write only diagnostics IF error occurred AT falling edge OF MC_POWER*)
+            diagnostics.status                  := ERR_MC_POWER;
+            diagnostics.subfunctionStatus       := instPower.ErrorId;
+            diagnostics.basicMotionState        := statBasicMotionState;
+            diagnostics.superimposedMotionState := statSupImpMotionState;
+        END_IF;
+    END_IF;
+
+   (* Set old value of enable for edge detection and end execution*)
+    statEnableOld := enable;
+    RETURN;
+    {END_REGION}
+
+   (* Check if FB is enabled - first cycle*)
+ELSIF enable AND NOT statEnableOld THEN
+    {REGION "FB_RISING_EDGE_AT_ENABLE_FB"}
+   (* Busy is set at rising edge of enable input*)
+    busy   := TRUE;
+    status := STATUS_FB_FIRST_CALL;
+   (* StatStatus will be written in next cycle*)
+    statStatus := STATUS_SUBSEQUENT_CALL;
+
+   (* Reset error and diagnostics outputs*)
+    statErrorUserCleared := FALSE;
+    statErrorAutoCleared := FALSE;
+    diagnostics          := statEmptyDiagnostics;
+    statDiagnostics      := statEmptyDiagnostics;
+
+   (* Copy inputs*)
+    statExtendedCommand.0 := resetAxis;
+    statBasicCommand.8    := gearInAbsolute;
+    statBasicCommand.9    := camIn;
+    statSupImpCommand.1   := phasing;
+    statBasicCommand.7    := gearInRelative;
+    statBasicCommand.5    := posRelative;
+    statBasicCommand.6    := posAbsolute;
+    statSupImpCommand.0   := posSuperimposed;
+    statSupImpCommandOld  := statSupImpCommand;
+   (*  statExtendedCommand.1 :=  torqueLimiting;  // V1.0.2 Removed for activation at FB Enable *)
+
+    statBasicCommand.0  := fastStop;
+    statBasicCommand.1  := stop;
+    statBasicCommand.2  := jogForward;
+    statBasicCommand.3  := jogBackward;
+    statBasicCommand.4  := moveVelocity;
+    statBasicCommandOld := statBasicCommand;
+   (* Set old value of homing input*)
+    statHomingOld := homing;
+
+    statExtendedCommandOld := statExtendedCommand;
+   (* Set old value of enable for edge detection and end execution*)
+    statEnableOld := enable;
+    RETURN;
+    {END_REGION}
+
+   (* Check if function block is disabled or UserClearedError is present*)
+ELSIF NOT enable OR statErrorUserCleared THEN
+    {REGION "FB_DISABLED"}
+    IF (enable = FALSE) THEN
+        status := STATUS_NO_CALL;
+    END_IF;
+
+   (* Disable Axis*)
+    IF (instPower.Busy = TRUE) THEN
+        instPower(Axis := axis,
+                  Enable := FALSE,
+                  Enable_Positive := TRUE,
+                  Enable_Negative := TRUE,
+        (*StartMode :=  configuration.power.startMode,
+	                   StopMode :=  configuration.power.stopMode*) );
+
+       (* Check if error occurred*)
+        IF (instPower.Error = TRUE) THEN
+            diagnostics.status                  := ERR_MC_POWER;
+            diagnostics.subfunctionStatus       := instPower.ErrorId;
+            diagnostics.basicMotionState        := statBasicMotionState;
+            diagnostics.superimposedMotionState := statSupImpMotionState;
+        END_IF;
+    ELSE
+       (* V1.00.03 Reset if torque limiting is busy and axis is disabled *)
+        IF (instTorqueLimiting.Busy = TRUE) THEN
+            instTorqueLimiting(Axis := axis,
+                               Enable := FALSE);
+        ELSE
+            busy := FALSE;
+        END_IF;
+    END_IF;
+
+    statEnableOld := enable;
+    RETURN;
+    {END_REGION}
+
+ELSE
+    {REGION "FB_ENABLED"}
+   (* Copy extended inputs*)
+    statExtendedCommand.0 := resetAxis;
+    tempEnableAxis        := enableAxis;
+    statExtendedCommand.1 := torqueLimiting;
+    statBasicCommand.0    := fastStop;
+    statBasicCommand.1    := stop;
+    statBasicCommand.2    := jogForward;
+    statBasicCommand.3    := jogBackward;
+    statBasicCommand.4    := moveVelocity;
+    statBasicCommand.5    := posRelative;
+    statBasicCommand.6    := posAbsolute;
+    statSupImpCommand.0   := posSuperimposed;
+    tempHoming            := homing;
+    IF (tempHoming = TRUE) AND (statHomingOld = FALSE)
+        THEN
+       (* Rising edge on homing input*)
+        statExtendedCommand.2 := TRUE;
+        IF (configuration.homing.extendedMode = HOMING_ON_FIXED_STOP) OR(* Extended Homing mode (active)*)
+            (configuration.homing.extendedMode = -1) AND
+            ((configuration.homing.mode = ACTIVE_HOMING) OR (configuration.homing.mode = ACTIVE_HOMING_TO_DEF_VALUE))
+            THEN
+            ;                             (* Active Homing selected*)
+            statBasicCommand.10   := TRUE;(* Cmd is BasicMotionCmd*)
+            statExtendedCommand.2 := FALSE;
+        ELSE
+            ;(* Passive Homing selected*)
+           (* Bit in extended cmd already written*)
+        END_IF;
+
+    ELSIF (tempHoming = FALSE) AND (statHomingOld = TRUE)
+        THEN
+       (* Falling edge on homing input*)
+        statExtendedCommand.2 := FALSE;
+        statBasicCommand.10   := FALSE;
+
+    ELSE
+        ;(* Do nothing - wait for rising / Falling edge*)
+    END_IF;
+
+    statBasicCommand.7  := gearInRelative;
+    statBasicCommand.8  := gearInAbsolute;
+    statBasicCommand.9  := camIn;
+    statSupImpCommand.1 := phasing;
+
+   (* Statemachine for synchronized motion simulation*)
+    {REGION "SYNCHRONIZED_MOTION_SIMULATION"}
+    REPEAT
+        tempStateChangeActive := FALSE;
+        CASE statSyncMotionSimulationState OF
+            AXIS_NOT_IN_SIM:
+
+                (* Axis NOT in simulation*)
+                (* ----------------------------------------------------------*)
+                (* Enable SynchronizedMotionSimulation*)
+                (*  instSyncMotionSimulation(Slave :=  axis, // V01.00.03 Dont Call synchronizedmotionSimulation if not active*)
+                (*                           Enable := FALSE);*)
+                (* ----------------------------------------------------------*)
+
+                IF (configuration.power.syncMotionSimulation = TRUE) THEN
+                   (* SynchroniziedMotionSimulation is set*)
+                    IF (tempEnableAxis = FALSE) AND (statEnableAxisOld = TRUE) THEN
+                       (* Falling edge at enableAxis --> set simulation*)
+                        statSyncMotionSimulationState := AXIS_STATE_SET_SIM;
+                        statEnableAxis                := TRUE;
+                        tempStateChangeActive         := TRUE;
+                    ELSE
+                       (* FALSE or rising edge at input enableAxis*)
+                        statEnableAxis := tempEnableAxis;
+                    END_IF;
+
+                ELSE
+                   (* SynchroniziedMotionSimulation not set*)
+                   (* MC_POWER is only controlled by enableAxis input*)
+                    statEnableAxis := tempEnableAxis;
+                END_IF;
+
+            AXIS_STATE_SET_SIM:
+				(*
+                (* Set the axis in simulation*)
+                (*----------------------------------------------------------*)
+                (* Enable SynchronizedMotionSimulation*)
+				*)
+                instSyncMotionSimulation(Slave := axis,
+                                         Enable := TRUE);
+				(*
+                (*----------------------------------------------------------*)
+				*)
+				
+                IF (instSyncMotionSimulation.InSimulation = TRUE) THEN
+                    statEnableAxis := FALSE;
+                   (* Axis in Simulation - Change state*)
+                    statSyncMotionSimulationState := AXIS_DISABLE;
+
+                ELSIF (instSyncMotionSimulation.Error = TRUE) THEN
+                   (* Error occurred - Disable Axis immediately*)
+                    statEnableAxis                := FALSE;
+                    statSyncMotionSimulationState := AXIS_STATE_RESET_SIM;
+
+                ELSE
+                    ;(* Wait for Axis is in simulation*)
+                END_IF;
+
+            AXIS_DISABLE:
+
+                (* Disable axis*)
+                (*----------------------------------------------------------*)
+                (* Enable SynchronizedMotionSimulation*)
+
+                instSyncMotionSimulation(Slave := axis,
+                                         Enable := TRUE);
+
+                (*----------------------------------------------------------*)
+
+
+                IF (instPower.Error = TRUE) THEN
+                    statSyncMotionSimulationState := AXIS_STATE_RESET_SIM;
+                ELSIF (instPower.Status = FALSE) THEN
+                   (* Axis disabled*)
+                    statSyncMotionSimulationState := AXIS_STATE_IN_SIM;
+                ELSE
+                    ;(* Wait for Axis is disabled*)
+                END_IF;
+
+            AXIS_STATE_IN_SIM:
+
+                (* Axis is in simulation*)
+                (*----------------------------------------------------------*)
+                (* Enable SynchronizedMotionSimulation*)
+
+                instSyncMotionSimulation(Slave := axis,
+                                         Enable := TRUE);
+
+                (*----------------------------------------------------------*)
+
+				
+                IF (tempEnableAxis = TRUE) AND (statEnableAxisOld = FALSE) THEN
+                   (* Rising edge at enableAxis --> reset simulation*)
+                    statSyncMotionSimulationState := AXIS_ENABLE;
+                    statEnableAxis                := TRUE;
+                    tempStateChangeActive         := TRUE;
+                ELSIF (configuration.power.syncMotionSimulation = FALSE) THEN
+                   (* End of synchronizedMotionSimulation by configuration without starting Axis*)
+                    statSyncMotionSimulationState := AXIS_STATE_RESET_SIM;
+                    tempStateChangeActive         := TRUE;
+
+                ELSE
+                    ;(* Wait for rising egde at enableAxis*)
+                END_IF;
+
+            AXIS_ENABLE:
+
+                (* Enable Axis*)
+                (*----------------------------------------------------------*)
+                (* Enable SynchronizedMotionSimulation while axis is enabling*)
+				
+                instSyncMotionSimulation(Slave := axis,
+                                         Enable := TRUE);
+
+
+                (*----------------------------------------------------------*)
+                (* Read Statusword only when not already read out*)
+
+                IF (tempStatusWord = 16#0)
+                    THEN
+
+                    (*tempStatusWord :=  axis.StatusWord;*)
+                    tempStatusWord := axis.NcToPlc.StateDWord;
+
+                END_IF;
+
+                IF (tempEnableAxis = FALSE) AND (statEnableAxisOld = TRUE) THEN
+                    statSyncMotionSimulationState := AXIS_STATE_RESET_SIM;
+                    statEnableAxis                := FALSE;
+
+                ELSIF (tempStatusWord.0 = TRUE) OR (instPower.Error = TRUE)
+               (* Reset simulation if axis is enabled or MC_POWER.STATUS = FALSE (Axis Error)*)
+                    THEN
+                   (* FALSE on enable input*)
+                    statSyncMotionSimulationState := AXIS_STATE_RESET_SIM;
+                    tempStateChangeActive         := TRUE;
+
+                ELSE
+                    ;(* Wait for Axis is Enabled*)
+                END_IF;
+
+            AXIS_STATE_RESET_SIM:
+
+                (* Reset the axis simulation*)
+                (*----------------------------------------------------------*)
+                (*Enable SynchronizedMotionSimulation*)
+				
+
+                instSyncMotionSimulation(Slave := axis,
+                                         Enable := FALSE);
+
+                (*----------------------------------------------------------*)
+
+				
+                IF (instSyncMotionSimulation.InSimulation = FALSE) AND
+                    (instSyncMotionSimulation.Busy = FALSE)
+                    THEN
+                   (* Axis simulation is disabled*)
+                    statSyncMotionSimulationState := AXIS_NOT_IN_SIM;
+
+                ELSE
+                    ;(* Wait for axis simulation is disabled*)
+                END_IF;
+
+                IF (tempEnableAxis = FALSE) AND (statEnableAxisOld = TRUE) THEN
+                    statEnableAxis := FALSE;
+                END_IF;
+
+        ELSE
+           (* Errorhandling*)
+            statStatus                          := ERR_UNDEFINED_MOTION_SIMULATION_STATE;
+            statErrorUserCleared                := TRUE;
+            diagnostics.subfunctionStatus       := 0;
+            diagnostics.basicMotionState        := statBasicMotionState;
+            diagnostics.superimposedMotionState := statSupImpMotionState;
+           (* Set error state*)
+            statFBState := FB_ERROR;
+        END_CASE;
+    UNTIL (tempStateChangeActive = FALSE)
+    END_REPEAT;
+
+   (* Evaluation of MC_Command*)
+    IF (instSyncMotionSimulation.Error = TRUE) AND (statSynchronizedMotionErrorOld = FALSE) THEN
+       (* Errorhandling - Set error only at rising edge*)
+        statErrorAutoCleared                := TRUE;
+        statStatus                          := ERR_MC_SYNCHRONIZEDMOTIONSIMULATION;
+        diagnostics.basicMotionState        := statBasicMotionState;
+        diagnostics.superimposedMotionState := statSupImpMotionState;
+        diagnostics.subfunctionStatus       := instSyncMotionSimulation.ErrorId;
+
+    ELSIF (instSyncMotionSimulation.Error = FALSE) AND (statStatus = ERR_MC_SYNCHRONIZEDMOTIONSIMULATION)
+        THEN
+       (* Reset error if error gone at respective Status*)
+        statErrorAutoCleared := FALSE;
+        statStatus           := STATUS_SUBSEQUENT_CALL;
+    ELSE
+        ;
+    END_IF;
+
+    statSynchronizedMotionErrorOld := instSyncMotionSimulation.Error;
+    tempEnableAxis                 := statEnableAxis;
+    {END_REGION}
+
+   (* Enable and disable axis*)
+    {REGION "POWER"}
+   (* Call MC_POWER*)
+    instPower(Axis := axis,
+              	Enable := tempEnableAxis,
+              	Enable_Positive := TRUE,
+            	Enable_Negative := TRUE,
+    		(*StartMode :=  configuration.power.startMode,
+	         StopMode :=  configuration.power.stopMode*) );
+
+   (* Set and Reset of Error*)
+    IF (instPower.Error = TRUE) AND
+        ((statStatus = STATUS_SUBSEQUENT_CALL) OR (statPowerErrorOld = FALSE))
+        THEN
+       (* Error is set at rising edge of MC_POWER.Error*)
+       (* Errorhandling*)
+        statStatus                              := ERR_MC_POWER;
+        statErrorAutoCleared                    := TRUE;
+        statDiagnostics.basicMotionState        := statBasicMotionState;
+        statDiagnostics.superimposedMotionState := statSupImpMotionState;
+        statDiagnostics.subfunctionStatus       := instPower.ErrorId;
+        diagnostics                             := statDiagnostics;
+
+    ELSIF (statStatus = ERR_MC_POWER) AND (instPower.Error = FALSE)
+        THEN
+       (* Reset Error*)
+        statStatus           := STATUS_SUBSEQUENT_CALL;
+        statErrorAutoCleared := FALSE;
+
+    ELSIF (tempEnableAxis = TRUE) AND (statEnableAxisOld = FALSE) THEN
+       (* Reset Error*)
+        statStatus           := STATUS_SUBSEQUENT_CALL;
+        statErrorAutoCleared := FALSE;
+        diagnostics          := statEmptyDiagnostics;
+        statDiagnostics      := statEmptyDiagnostics;
+
+    ELSE
+        ;(* Do nothing*)
+    END_IF;
+    {END_REGION}
+    {END_REGION}
+END_IF;
+
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(*FB Statemachine *)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "FB_STATEMACHINE"}
+CASE statFBState OF
+    AXIS_MOTION:
+       (* Check command inputs*)
+        IF (statExtendedCommand = CMD_NO_SELECTION) AND (statBasicCommand = CMD_NO_SELECTION) AND (statSupImpCommand = CMD_NO_SELECTION)
+            THEN
+           (* Command is reset*)
+            IF (instPower.Error = TRUE) THEN
+               (* Errorhandling*)
+                statStatus           := ERR_MC_POWER;
+                statErrorAutoCleared := TRUE;
+                diagnostics          := statDiagnostics;
+            ELSIF (instSyncMotionSimulation.Error = TRUE) THEN
+                ;(* Do nothing*)
+
+            ELSIF (instTorqueLimiting.Error = TRUE) THEN
+                ;(* Do nothing. V1.00.03 dont reset IF torque limiting  error is pending *)
+
+            ELSE
+               (* Reset Error only if no Error at MC_POWER is present*)
+                statStatus           := STATUS_SUBSEQUENT_CALL;
+                statErrorAutoCleared := FALSE;
+            END_IF;
+
+        ELSIF (statExtendedCommand = statExtendedCommandOld) AND
+            (statBasicCommand = statBasicCommandOld) AND
+            (statSupImpCommand = statSupImpCommandOld)
+            THEN
+            ;(* No change at command - do nothing*)
+
+        ELSE
+           (* Command changed*)
+            tempNewExtendedCmd    := NO_SELECTION;
+            tempNewBasicMotionCmd := NO_SELECTION;
+            tempNewSupImpCmd      := NO_SELECTION;
+            tempErrorInCmd        := FALSE;
+
+            {REGION "CHECK BASIC_MOTION_CMD"}
+           (* Check basic motion command*)
+            IF (statBasicCommand = statBasicCommandOld) THEN
+                ;(* Do nothing*)
+            ELSE
+               (* Evaluate rising edges for basic motion command word - all rising edges of basic command word saved in tempRisingBasicCmd*)
+                tempRisingCmd     := ((statBasicCommand XOR statBasicCommandOld) AND statBasicCommand);
+                tempCountRisEdges := 0;(* Initialize counter for rising edges*)
+               (* Count rising edges in tempRisingBasicCmd*)
+                FOR tempIndex := BITPOSITION_BASIC_MOTION_CMD TO BIT_POS_LAST DO
+                    tempDword := SHR(tempRisingCmd, INT_TO_USINT(tempIndex));
+                   (* Check for rising edge*)
+                    IF (tempDword.0 = TRUE) THEN
+                        tempCountRisEdges := tempCountRisEdges + 1;(* Increment at rising edge*)
+                    END_IF;
+                END_FOR;
+
+                IF (tempRisingCmd.2 = TRUE) OR (tempRisingCmd.3 = TRUE) THEN
+                    tempCountRisEdges := tempCountRisEdges + 1;(* jogForward AND/OR jogBackward is standing for 1 Command/rising edge*)
+                END_IF;
+
+               (* Check Basic motion command*)
+                IF (tempCountRisEdges = 1) OR
+                    (tempRisingCmd.0 = TRUE)(* fastStop selected*)
+                    OR
+                    (tempRisingCmd.1 = TRUE)(* Stop selected*)
+                    THEN
+                   (* Valid basic motion command selected*)
+                    IF (tempRisingCmd.0 = TRUE)
+                        THEN
+                       (* FastStop selected*)
+                        statFBState           := AXIS_FAST_STOPPING;
+                        tempNewBasicMotionCmd := FAST_STOP_SELECTED;
+                        tempStopCmdSelected   := TRUE;
+                    ELSIF (tempRisingCmd.1 = TRUE)
+                        THEN
+                       (* Stop selected*)
+                        tempNewBasicMotionCmd := STOP_SELECTED;
+                        tempStopCmdSelected   := TRUE;
+                    ELSE
+                       (* Valid basic command priority 3 selected*)
+                       (* Set basic motion state*)
+                        tempNewBasicMotionCmd := DWORD_TO_DINT(tempRisingCmd);
+                    END_IF;
+
+                ELSIF (tempCountRisEdges > 1) THEN
+                   (* Errorhandling - Invalid command *)
+                    statStatus     := ERR_INVALID_BASIC_MOTION_CMD;
+                    tempErrorInCmd := TRUE;
+
+                ELSE
+                    ;(* Falling edge detection*)
+                END_IF;
+            END_IF;
+
+            {END_REGION}
+            {REGION "CHECK_SUP_IMP_CMD"}
+           (* Check superimposed motion command*)
+            IF (statSupImpCommand = statSupImpCommandOld) THEN
+                ;(* Do nothing*)
+            ELSE
+               (* Superimposed motion command selected *) 
+                IF (tempErrorInCmd = FALSE) AND(* No Stop command selected in current cycle*)
+                    (tempStopCmdSelected = FALSE)
+                    THEN
+                    tempRisingCmd     := ((statSupImpCommand XOR statSupImpCommandOld) AND statSupImpCommand);
+                    tempCountRisEdges := 0;(* Initialize counter for rising edges*)
+                   (* Count rising edges in tempRisingSupImpCmd*)
+                    FOR tempIndex := BITPOSITION_SUPERIMPOSED_MOTION_CMD TO BIT_POS_LAST DO
+                        tempDword := SHR(tempRisingCmd, INT_TO_USINT(tempIndex));
+                       (* Check for rising edge*)
+                        IF (tempDword.0 = TRUE) THEN
+                            tempCountRisEdges := tempCountRisEdges + 1;
+                        END_IF;
+                    END_FOR;
+
+                    IF (tempCountRisEdges = 1) THEN
+                       (* Valid superimposed motion command*)
+                        tempNewSupImpCmd := DWORD_TO_DINT(tempRisingCmd);
+
+                    ELSIF (tempCountRisEdges > 1) THEN
+                       (* Invalid Superimposed motion command*)
+                        statStatus     := ERR_INVALID_SUPERIMPOSED_MOTION_CMD;
+                        tempErrorInCmd := TRUE;
+
+                    ELSE
+                        ;(* Falling edge detection*)
+                    END_IF;
+
+                ELSE
+                    ;(* Stop or Faststop command selected OR error in BasicCommand*)
+                END_IF;
+            END_IF;
+
+            {END_REGION}
+            {REGION "CHECK_EXT_CMD"}
+           (* Check extended command (reset, homing, torquelimiting)*)
+            IF (statExtendedCommand = statExtendedCommandOld) THEN
+                ;(* Do nothing*)
+            ELSE
+               (* Extended command selected*)
+                IF (tempErrorInCmd = FALSE)
+                    THEN
+                    tempRisingCmd := ((statExtendedCommand XOR statExtendedCommandOld) AND statExtendedCommand);
+                   (* Rising edge on torquelimiting command*)
+                    IF (tempRisingCmd.1 = TRUE)
+                        THEN
+                        tempNewExtendedCmd.1 := TRUE;
+                       (* Rising Edge at Homing on Fixed Stop and Torquelimiting*)
+                        IF (tempNewBasicMotionCmd.10 = TRUE) AND (configuration.homing.extendedMode = 0) THEN
+                            ;(* Errorhandling*)
+                            statStatus           := ERR_INVALID_EXTENDED_CMD;
+                            tempErrorInCmd       := TRUE;
+                            tempNewExtendedCmd.1 := FALSE;
+
+                           (* Check if torquelimiting is not for use in homing on fixed stop function*)
+                        ELSIF (statTorqueLimitingState = TORQUE_LIMTING_SELECTED)
+                       (* OR ( statTorqueLimitingState =  AUTOMATIC_MODE_CHANGE) V1.00.03 Not required anymore*)
+                            THEN
+                            ;(* Torquelimiting already busy no need of restart*)
+                           (* tempNewExtendedCmd.1 := FALSE; // V1.0.4 Initialize Diagnostics at rising edge of torquelimiting*)
+
+                        ELSIF (statTorqueLimitingState = FIXED_STOP_DETECTION_ACTIVE)
+                            THEN
+                            ;(* Torquelimiting rejected because MC_Torquelimiting is used during homing on fixed stop functionality*)
+                            statStatus           := ERR_TORQUE_LIMITING_NOT_ALLOWED;
+                            tempErrorInCmd       := TRUE;
+                            tempNewExtendedCmd.1 := FALSE;
+
+                        ELSE
+                            ;(* Start torquelimiting functionality*)
+                        END_IF;
+                    END_IF;
+
+                   (* Rising edge on passive homing command*)
+                    IF (tempRisingCmd.2 = TRUE)
+                        THEN
+                        tempNewExtendedCmd.2 := TRUE;
+                        IF (statBasicMotionState = ACTIVE_HOMING_SELECTED) AND
+                            (statActiveHomingState = HOMING_ON_FIXED_STOP) AND
+                            (statExeOfBasicMotion = CMD_BUSY)
+                            THEN
+                           (* Passive Homing selected at homing on fixed stop *)
+                            statStatus           := ERR_HOMING_MODE_NOT_ALLOWED;
+                            tempErrorInCmd       := TRUE;
+                            tempNewExtendedCmd.2 := FALSE;
+                        ELSE
+                            ;(* No error occurred*)
+                        END_IF;
+                    END_IF;
+                ELSE
+                    ;(* Error in basic motion command or superimposed motion command *)
+                END_IF;
+            END_IF;
+
+            {END_REGION}
+           (* Enable commands*)
+            IF (tempErrorInCmd = TRUE) AND (tempStopCmdSelected = FALSE)
+                THEN
+               (* Error in current command - No Execution*)
+                statErrorAutoCleared          := TRUE;
+                diagnostics.subfunctionStatus := 0;
+               (* Write diagnostics*)
+                statDiagnostics.basicMotionState        := statBasicMotionState;
+                statDiagnostics.superimposedMotionState := statSupImpMotionState;
+                statResetIncJog                         := TRUE;
+               (* Set next state*)
+                statFBState := AXIS_STOP_ON_ERROR_SELECTION;
+            ELSE
+               (* No Error in command occurred*)
+                IF (
+                    (tempNewExtendedCmd <> NO_SELECTION) OR (tempNewBasicMotionCmd <> NO_SELECTION) OR (tempNewSupImpCmd <> NO_SELECTION)
+                    ) OR
+                    (tempStopCmdSelected = TRUE)
+                    THEN
+                    {REGION "ENABLE_BASIC_MOTION_CMD"}
+                   (* New valid command selected*)
+                   (* Basic motion commands*)
+                    IF (tempNewBasicMotionCmd <> NO_SELECTION) THEN
+                       (* Reset of waiting Gearin / camIn command*)
+                        IF (configuration.generalSettings.abortWaitingSyncCmd = TRUE) AND
+                            (((statBasicMotionState = GEAR_IN_ABSOLUTE_SELECTED) AND (statExeOfBasicMotion = CMD_BUSY))(* GearInAbsolute waiting*)
+                            OR
+                            ((statBasicMotionState = CAM_IN_SELECTED) AND (statExeOfBasicMotion = CMD_BUSY)))(* CamIn waiting*)
+                            THEN
+                            statMainSelectionState := RESET_GEARING;(* Reset waiting absolute gearing / camIn command *)
+                            instGearIn(Master := master,
+                                       Slave := axis,
+                                       Execute := FALSE);
+                        ELSE
+                            statMainSelectionState := CALL_BASIC_MOTION;
+                        END_IF;
+
+                        statFirstCycleBasicMotion := TRUE;
+                       (* Evaluate if Jog command is set*)
+                        IF (tempNewBasicMotionCmd.2 = TRUE) OR (tempNewBasicMotionCmd.3 = TRUE)
+                            THEN
+                            statExeOfBasicMotion := CMD_BUSY;
+                           (* Select Jogmode*)
+                            IF ((statBasicCommand.2 = FALSE) AND (tempNewBasicMotionCmd.3 = TRUE)
+                                ) OR(* Rising edge at JogBackward and JogForward = FALSE*)
+                                ((statBasicCommand.3 = FALSE) AND (tempNewBasicMotionCmd.2 = TRUE)
+                                ) OR(* Only rising edge at JogForward and Jogbackward = FALSE*)
+                                ((tempNewBasicMotionCmd.2 = TRUE) AND (tempNewBasicMotionCmd.3 = TRUE)
+                                )(* Rising edge at FW and BW*)
+                                THEN
+                               (* One Input direction = False, other is rising edge, or both rising edge --> Start jog*)
+                                IF (statJogMode <> configuration.jog.mode) THEN
+                                    statResetIncJog := TRUE;
+                                END_IF;
+
+                                statJogMode := configuration.jog.mode;
+                            ELSE
+                                ;(* Rising edge at one input, the other is already TRUE - Dont Change Jogmode*)
+                                IF ((statBasicMotionState = JOG_BACKWARD_SELECTED) OR (statBasicMotionState = JOG_FORWARD_SELECTED)) AND
+                                    (statJogMode <> JOG_MODE_CONTINUOUS)
+                                    THEN
+                                    statFirstCycleBasicMotion := FALSE;
+                                END_IF;
+                            END_IF;
+
+                        ELSE
+                            ;(* Reset jog increment if other command than jog selected*)
+                            statResetIncJog := TRUE;
+                        END_IF;
+
+                       (* Set new basic motion state*)
+                        statBasicMotionState := tempNewBasicMotionCmd;
+                    END_IF;
+
+                    {END_REGION}
+                    {REGION "ENABLE_SUP_IMP_CMD"}
+                   (* Superimposed motion commands*)
+                    IF (tempNewSupImpCmd <> NO_SELECTION) THEN
+                        statSupImpMotionState      := tempNewSupImpCmd;
+                        statFirstCycleSupImpMotion := TRUE;
+                        statResetIncJog            := TRUE;
+                    END_IF;
+
+                    {END_REGION}
+                   (* Extended commands*)
+                    {REGION "ENABLE_EXT_CMD"}
+                    IF (tempNewExtendedCmd <> NO_SELECTION) THEN
+                        IF (tempNewExtendedCmd.1 = TRUE) THEN
+                           (* Rising edge on torquelimiting command*)
+                            IF (statTorqueLimitingState = NO_TORQUE_LIMITING_ACTIVE)
+                                THEN
+                               (* No torquelimiting active --> Enable torquelimiting*)
+                                statTorqueLimitingState := TORQUE_LIMTING_SELECTED;
+                            ELSE
+                                ;(* Torquelimiting already active*)
+                               (* statTorqueLimitingState :=  AUTOMATIC_MODE_CHANGE; V1.00.03 Not required anymore *)
+                            END_IF;
+                        END_IF;
+
+                       (* Homing command*)
+                        IF (tempNewExtendedCmd.2 = TRUE) THEN
+                            statPassiveHomingState := configuration.homing.extendedMode;
+                            statFirstCycleHoming   := TRUE;
+                            statResetIncJog        := TRUE;
+                        END_IF;
+                    END_IF;
+
+                    {END_REGION}
+                   (* Reset error*)
+                    statStatus           := STATUS_SUBSEQUENT_CALL;
+                    statErrorAutoCleared := FALSE;
+                    diagnostics          := statEmptyDiagnostics;
+                    statDiagnostics      := statEmptyDiagnostics;
+
+                ELSE
+                    ;(* No rising edge at commands*)
+                END_IF;
+            END_IF;
+        END_IF;
+
+    AXIS_FAST_STOPPING:
+        IF (configuration.fastStop.replaceStopPossible = FALSE) THEN
+            ;(* Fast stop command can not be interrupted by another command*)
+           (* State change is executed in FastStop implementation if command finished *)
+        ELSE
+            statFBState := AXIS_MOTION;
+        END_IF;
+
+    AXIS_STOP_ON_ERROR_SELECTION,
+        AXIS_STOP_ON_ERROR_EXECUTION:
+        ;    (* Wait for stopping axis if StopOnError is configured*)
+    FB_ERROR:(* Error state*)
+        ;    (* Do nothing, status already set*)
+
+ELSE
+   (* Errorhandling*)
+    statStatus                          := ERR_UNDEFINED_FB_STATE;
+    statErrorUserCleared                := TRUE;
+    diagnostics.subfunctionStatus       := 0;
+    diagnostics.basicMotionState        := statBasicMotionState;
+    diagnostics.superimposedMotionState := statSupImpMotionState;
+   (* Set error state*)
+    statFBState := FB_ERROR;
+END_CASE;
+
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(*Execution of reset functionality*)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "EXECUTION_OF_RESET_COMMAND"}
+(* Firstcycle of command*)
+
+IF (statExtendedCommand.0 = TRUE) AND (statExtendedCommandOld.0 = FALSE) THEN
+    statFirstCycleReset := TRUE;
+   (* Reset MC_RESET command*)
+    instReset(Axis := axis,
+              Execute := FALSE);
+
+    statFirstCycleResetError := FALSE;
+    statResetState           := CMD_BUSY;
+END_IF;
+
+CASE statResetState OF
+    CMD_IDLE:
+        ;(* Do nothing*)
+
+    CMD_BUSY:
+       (* Call MC_Command*)
+        instReset(Axis := axis,
+                  Execute := statExtendedCommand.0,
+        (*Restart :=  configuration.generalSettings.resetWithRestart*) );
+
+       (* Evaluate MC_Command*)
+        IF (instReset.Error = TRUE) THEN
+           (* Errorhandling*)
+            IF (statFirstCycleResetError = FALSE) THEN
+                statErrorAutoCleared                := TRUE;
+                diagnostics.status                  := ERR_MC_RESET;
+                statStatus                          := ERR_MC_RESET;
+                diagnostics.basicMotionState        := statBasicMotionState;
+                diagnostics.superimposedMotionState := statSupImpMotionState;
+                diagnostics.subfunctionStatus       := instReset.ErrorId;
+                statFirstCycleResetError            := TRUE;
+               (* Set next state*)
+                statResetState := CMD_IDLE;
+                IF (statFBState = AXIS_MOTION) THEN
+                   (* Set TO_STOP_ON_ERROR State only if the current state is TO_MOTION*)
+                    statFBState := AXIS_STOP_ON_ERROR_SELECTION;
+                END_IF;
+            END_IF;
+
+        ELSIF (instReset.Busy = FALSE) THEN
+           (* Set next state*)
+            statResetState := CMD_IDLE;
+        ELSE
+            ;(* Command selected*)
+        END_IF;
+
+ELSE
+   (* Errorhandling  *)  
+    statStatus                              := ERR_UNDEFINED_RESET_STATE;
+    statErrorUserCleared                    := TRUE;
+    diagnostics                             := statDiagnostics;
+    diagnostics.subfunctionStatus           := 0;
+    statDiagnostics.basicMotionState        := statBasicMotionState;
+    statDiagnostics.superimposedMotionState := statSupImpMotionState;
+END_CASE;
+
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(* Execution of functionalities of basic coordinate system*)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "EXECUTION_OF_BASIC_MOTION_COMMANDS"}
+(*Statemachine for basic motion commands*)
+
+(*Write diagnostics*)
+statDiagnostics.basicMotionState        := statBasicMotionState;
+statDiagnostics.superimposedMotionState := statSupImpMotionState;
+REPEAT
+    tempStateChangeActive := FALSE;
+   (* Statemachine for main selection state*)
+    CASE statMainSelectionState OF
+        CALL_BASIC_MOTION:
+            CASE statBasicMotionState OF
+                NO_SELECTION:
+                    ;(* No execution*)
+
+                FAST_STOP_SELECTED:
+                    ;(* Implementation at end of code*)
+
+                STOP_SELECTED:
+                   (* No additional features*)
+                    {REGION "STOP_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Reset HALT command*)
+                        instHalt(Axis := axis,
+                                 Execute := FALSE);
+                    END_IF;
+
+                   (* Call MC_Command*)
+                    instHalt(Axis := axis,
+                             Execute := statBasicCommand.1 OR statFirstCycleBasicMotion,
+                             Deceleration := configuration.stop.deceleration,
+                             (*AbortAcceleration :=  configuration.stop.abortAcceleration,*)
+                             Jerk := configuration.stop.jerk);
+
+                   (* Evaluate MC_Command*)
+                    IF (instHalt.Busy = FALSE) AND
+                        (instHalt.Error = FALSE) AND
+                        (instHalt.Done = FALSE) AND
+                        (instHalt.CommandAborted = FALSE)
+                        THEN
+                       (* Return to NO_SELECTION if command finished*)
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSIF (instHalt.Error = TRUE)
+                        THEN
+                       (* Errorhandling*)
+                        statStatus                    := ERR_MC_HALT;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := instHalt.ErrorId;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+                    ELSE
+                        ;(* Command selected*)
+                    END_IF;
+
+                   (* Write MC_Command outputs to internal variable*)
+                    statExeOfBasicMotion   := 16#0;
+                    statExeOfBasicMotion.0 := instHalt.Busy;
+                    statExeOfBasicMotion.1 := instHalt.Done;
+                    statExeOfBasicMotion.2 := instHalt.CommandAborted;
+                    statExeOfBasicMotion.3 := instHalt.Error;
+                {END_REGION}
+
+                JOG_FORWARD_SELECTED, JOG_BACKWARD_SELECTED, JOG_FW_AND_BW_SELECTED:
+                   (* Additional features (applicative): Jog mode incremental*)
+                    {REGION "JOG_SELECTED"}
+                    CASE statJogMode OF
+                        JOG_MODE_CONTINUOUS:
+                            {REGION "JOG_MODE_CONTINUOUS"}
+                           (* No additional feature*)
+                           (* Firstcycle of command*)
+                            IF (statFirstCycleBasicMotion = TRUE) THEN
+                               (* No of dynmics into static variables because changes are accepted by MC_JOG immetiately (enable)*)
+                                instMoveJog(Axis := axis,
+                                            JogForward := FALSE,
+                                            JogBackwards := FALSE);
+                            END_IF;
+
+                           (* Call MC_Command*)
+                            instMoveJog(Axis := axis,
+                                        JogForward := statBasicCommand.2,
+                                        JogBackwards := statBasicCommand.3,
+                                        Velocity := configuration.jog.velocity,
+                                        Acceleration := configuration.jog.acceleration,
+                                        Deceleration := configuration.jog.deceleration,
+                                        (*PositionControlled :=  configuration.jog.positionControlled,*)
+				Mode := 2,
+                                        Jerk := configuration.jog.jerk);
+
+                           (* Evaluate MC_Command*)
+                            IF (instMoveJog.Busy = FALSE) AND
+                                (instMoveJog.Error = FALSE) AND
+                                (instMoveJog.CommandAborted = FALSE) (*AND
+	                      ( instMoveJog.InVelocity = FALSE)*)
+                                THEN
+                               (* Return to NO_SELECTION if command finished*)
+                                statBasicMotionState := NO_SELECTION;
+
+                            ELSIF (instMoveJog.Error = TRUE)
+                                THEN
+                               (* Errorhandling*)
+                                statStatus                    := ERR_MC_MOVEJOG;
+                                statErrorAutoCleared          := TRUE;
+                                diagnostics                   := statDiagnostics;
+                                diagnostics.subfunctionStatus := instMoveJog.ErrorId;
+                               (* Set next state*)
+                                statBasicMotionState := NO_SELECTION;
+                                statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+
+                            ELSE
+                                ;(* Command selected*)
+                            END_IF;
+
+                           (* Write MC_Command outputs to internal variable*)
+                            statExeOfBasicMotion   := 16#0;
+                            statExeOfBasicMotion.0 := instMoveJog.Busy;
+                            statExeOfBasicMotion.2 := instMoveJog.CommandAborted;
+                            statExeOfBasicMotion.3 := instMoveJog.Error;
+                            (*statExeOfBasicMotion.4 := instAxisStatus.stAxisStatus.ConstantVelocity; (*####*)*)
+				  statExeOfBasicMotion.4 := axis.Status.ConstantVelocity;
+                        {END_REGION}
+
+                        JOG_MODE_CONTINUE_INCREMENT, JOG_MODE_NEW_INCREMENT:
+                            {REGION "JOG_MODE_INCREMENTAL"}
+                           (* This case is additional feature (MC_MOVERELATIVE and MC_HALT internal used)*)
+                            CASE statExeOfBasicMotion OF
+                                CMD_BUSY:
+                                   (* Firstcycle of command*)
+                                    IF (statFirstCycleBasicMotion = TRUE) THEN(*New rising edge at JogForward or JogBackard*)
+                                       (* Check for only one Jog direction selected (Forward OR Backward)*)
+                                        IF (statBasicCommand.2 XOR statBasicCommand.3)(* Only one direction selected*)
+                                            THEN
+                                           (* Reset MOVERELATIVE command*)
+                                            instMoveRelative(Axis := axis,
+                                                             Execute := FALSE);
+
+                                           (* Reset HALT command*)
+                                            instHalt(Axis := axis,
+                                                     Execute := FALSE);
+
+                                           (* Set new Increment if direction changed neccesary*)
+                                            IF (statResetIncJog = FALSE) THEN
+                                                IF ((statIncJogDirectionOld = FORWARD_DIR) AND (statBasicCommand.2 = TRUE)) OR
+                                                    ((statIncJogDirectionOld = BACKWARD_DIR) AND (statBasicCommand.3 = TRUE))
+                                                    THEN
+                                                    ;(* Direction of last jog process same as current --> continue Jog*)
+                                                ELSE
+                                                    statResetIncJog := TRUE;
+                                                END_IF;
+                                            END_IF;
+
+                                           (* Determine distance for positioning command (relative)*)
+                                            IF (configuration.jog.mode = JOG_MODE_NEW_INCREMENT)(* In this mode a new increment is always set*)
+                                                OR
+                                                ((configuration.jog.mode = JOG_MODE_CONTINUE_INCREMENT) AND (statResetIncJog = TRUE))
+                                                THEN
+                                                statResetIncJog := FALSE;
+                                               (* New increment*)
+                                                (*statIncJogStartPosition :=  axis.Position;*)              (* Targetposition for increment*)
+                                                statIncJogStartPosition := axis.NcToPlc.ActPos;             (* Targetposition for increment*)
+                                                statIncrement           := ABS(configuration.jog.increment);(* absolut Distance for increment*)
+                                                IF (statBasicCommand.2 = TRUE) THEN
+                                                   (* JogForward selected*)
+                                                    statPosition           := ABS(configuration.jog.increment);
+                                                    statIncrement          := statPosition;
+                                                    statIncJogDirectionOld := FORWARD_DIR;
+                                                ELSIF (statBasicCommand.3 = TRUE) THEN
+                                                   (* JogBackward selected*)
+                                                    statPosition           := -ABS(configuration.jog.increment);
+                                                    statIncrement          := statPosition;
+                                                    statIncJogDirectionOld := BACKWARD_DIR;
+                                                ELSE
+                                                   (* Normal not possible to reach ELSE-branch*)
+                                                    statIncJogDirectionOld := 0;
+                                                END_IF;
+
+                                            ELSE
+                                               (* Check for modulo axis*)
+                                                (*IF ( axis.Modulo.Enable = FALSE) THEN*)
+                                                IF (tempFalse = TRUE) THEN
+                                                   (* No Modulo enabled*)
+                                                   (* Continue increment*)
+
+                                                    statPosition := (statIncJogStartPosition + statIncrement) - axis.NcToPlc.ActPos;
+                                                   (* Distance   :=            setpoint                         - actualvalue*)
+                                                ELSE
+                                                   (* Modulo enabled*)
+                                                    statPosition := statIncJogDistance;
+                                                END_IF;
+
+                                            END_IF;
+
+                                            statIncJogSubState := INC_JOG_START;
+
+                                           (* Store Dynamics*)
+                                            statVelocity     := ABS(configuration.jog.velocity);
+                                            statAcceleration := configuration.jog.acceleration;
+                                            statDeceleration := configuration.jog.deceleration;
+                                            statJerk         := configuration.jog.jerk;
+
+                                        ELSE
+                                           (* Errorhandling - Invalid direction (forward and backward selected)*)
+                                            statStatus                    := ERR_INVALID_JOG_DIR;
+                                            statErrorAutoCleared          := TRUE;
+                                            diagnostics.subfunctionStatus := 0;
+                                            diagnostics.basicMotionState  := statBasicMotionState;
+                                           (* Set next state*)
+                                            statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                                            statBasicMotionState := NO_SELECTION;
+                                            statExeOfBasicMotion := CMD_ERROR;
+                                            statIncJogSubState   := INC_JOG_IDLE;
+                                        END_IF;
+
+                                    ELSIF ((statBasicCommand.2 = FALSE) AND (statBasicCommand.3 = FALSE))(* No jog input selected --> Stop moving*)
+                                        AND
+                                        (statIncJogSubState <> INC_JOG_STOP)
+                                        THEN
+                                       (* Reset HALT command*)
+                                        instHalt(Axis := axis,
+                                                 Execute := FALSE);
+
+                                        statIncJogSubState := INC_JOG_STOP;
+                                        (*statIncJogDistance :=  axis.StatusPositioning.Distance;*)
+
+                                    ELSIF (statBasicCommand.2 = TRUE) AND (statBasicCommand.3 = TRUE)(* jogForward and jogBackward selected - Error*)
+                                        THEN
+                                       (* Reset HALT command*)
+                                        instHalt(Axis := axis,
+                                                 Execute := FALSE);
+
+                                        statIncJogSubState := INC_JOG_STOP;
+                                       (* Errorhandling*)
+                                        statStatus                    := ERR_INVALID_JOG_DIR;
+                                        statErrorAutoCleared          := TRUE;
+                                        diagnostics                   := statDiagnostics;
+                                        diagnostics.subfunctionStatus := 0;
+                                       (* Set next state*)
+                                        statExeOfBasicMotion := CMD_ERROR;
+                                        statBasicMotionState := NO_SELECTION;
+                                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                                    ELSE
+                                        ;(* Command running*)
+                                    END_IF;
+
+                                   (* Select motion*)
+                                    CASE statIncJogSubState OF
+                                        INC_JOG_IDLE:
+                                            ;(* Do nothing - Error occurred (jogforward and jogbackward are set in firstCycle of operation)*)
+
+                                        INC_JOG_START:(* Run jog operation --> Motion stops automatically if increment complete*)
+                                            instMoveRelative(Axis := axis,
+                                                             Execute := TRUE,
+                                                             Distance := statPosition,
+                                                             Velocity := statVelocity,
+                                                             Acceleration := statAcceleration,
+                                                             Deceleration := statDeceleration,
+                                                             Jerk := statJerk);
+
+                                           (* Evaluate MC_Command*)
+                                            IF (instMoveRelative.Done = TRUE) THEN
+                                               (* Increment completed*)
+                                                statResetIncJog := TRUE;
+                                               (* Set next state*)
+                                                statExeOfBasicMotion := CMD_DONE;
+                                                statIncJogSubState   := INC_JOG_IDLE;
+
+                                            ELSIF (instMoveRelative.Error = TRUE) THEN
+                                                statResetIncJog := TRUE;
+                                               (* Errorhandling*)
+                                                statStatus                    := ERR_MC_MOVERELATIVE;
+                                                statErrorAutoCleared          := TRUE;
+                                                diagnostics                   := statDiagnostics;
+                                                diagnostics.subfunctionStatus := instMoveRelative.ErrorId;
+                                               (* Set next state*)
+                                                statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                                                statBasicMotionState := NO_SELECTION;
+                                                statExeOfBasicMotion := CMD_ERROR;
+                                                statIncJogSubState   := INC_JOG_IDLE;
+
+                                            ELSIF (instMoveRelative.CommandAborted = TRUE) THEN
+                                                statResetIncJog      := TRUE;
+                                                statExeOfBasicMotion := CMD_ABORTED;
+                                                statIncJogSubState   := INC_JOG_IDLE;
+
+                                            ELSE
+                                               (* statJogDistance :=  axis.StatusPositioning.Distance;*)
+                                                ;(* Wait for next state*)
+                                            END_IF;
+
+                                        INC_JOG_STOP:(* Executed if inputs are reset --> Stop jog operation OR if jogForward and jogBackward are set --> Error and stop axis*)
+                                            instHalt(Axis := axis,
+                                                     Execute := TRUE,
+                                                     Deceleration := statDeceleration,
+                                                     (*AbortAcceleration := FALSE,*)
+                                                     Jerk := statJerk);
+
+                                           (* Evaluate MC_Command*)
+                                            IF (instHalt.Done = TRUE) THEN
+                                               (* Set next state*)
+                                                statExeOfBasicMotion := CMD_END_PROCESS;
+                                                statIncJogSubState   := INC_JOG_IDLE;
+
+                                            ELSIF (instHalt.Error = TRUE) THEN
+                                                statResetIncJog := TRUE;
+                                               (* Errorhandling*)
+                                                statStatus                    := ERR_MC_HALT;
+                                                statErrorAutoCleared          := TRUE;
+                                                diagnostics                   := statDiagnostics;
+                                                diagnostics.subfunctionStatus := instHalt.ErrorId;
+                                               (* Set next state*)
+                                                statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                                                statBasicMotionState := NO_SELECTION;
+                                                statExeOfBasicMotion := CMD_ERROR;
+                                                statIncJogSubState   := INC_JOG_IDLE;
+
+                                            ELSIF (instHalt.CommandAborted = TRUE) THEN
+                                                statResetIncJog := TRUE;
+                                               (* Set next state*)
+                                                statIncJogSubState   := INC_JOG_IDLE;
+                                                statExeOfBasicMotion := CMD_ABORTED;
+
+                                            ELSE
+                                                ;(* Wait for stopping axis*)
+                                            END_IF;
+
+                                    ELSE
+                                       (* Errorhandling*)
+                                        statStatus                    := ERR_UNDEFINED_INCREMENTAL_JOG_SUBSTATE;
+                                        statErrorUserCleared          := TRUE;
+                                        diagnostics                   := statDiagnostics;
+                                        diagnostics.subfunctionStatus := 0;
+                                       (* Set errorstate*)
+                                        statFBState := FB_ERROR;
+                                    END_CASE;
+
+                                CMD_DONE,
+                                    CMD_ABORTED,
+                                    CMD_ERROR,
+                                    CMD_END_PROCESS:
+                                   (* Return to NO_SELECTION if command finished*)
+                                    IF (statBasicCommand.2 = FALSE) AND (statBasicCommand.3 = FALSE)
+                                        THEN
+                                       (* jogForward and jogbackward inputs are reset*)
+                                        statExeOfBasicMotion := CMD_BUSY;
+                                        statBasicMotionState := NO_SELECTION;
+                                    ELSE
+                                        ;(* Wait for falling edge at inputs for jog*)
+                                    END_IF;
+
+                            ELSE
+                               (* Errorhandling*)
+                                statStatus                    := ERR_UNDEFINED_INCREMENTAL_JOG_STATE;
+                                statErrorUserCleared          := TRUE;
+                                diagnostics.subfunctionStatus := 0;
+                                diagnostics.basicMotionState  := statBasicMotionState;
+                               (* Set errorstate*)
+                                statFBState := FB_ERROR;
+                            END_CASE;
+                    {END_REGION}
+
+                    ELSE
+                       (* Errorhandling - Invalid jog state*)
+                        statStatus                    := ERR_INVALID_JOG_MODE;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := 0;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+                    END_CASE;
+                {END_REGION}
+
+                MOVE_VELOCITY_SELECTED:
+                   (* Additional features (applicative): Change setpoint on the fly (Velocity) *)
+                    {REGION "MOVEVELOCITY_SELECTED"}
+
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Reset MC_MOVEVELOCITY command*)
+                        instMoveVelocity(Axis := axis,
+                                         Execute := FALSE);
+
+                        statVelocityChangeOnTheFly := configuration.moveVelocity.velocityChangeOnTheFly;
+                        statVelocity               := configuration.moveVelocity.velocity;          (* Store the last adjusted velocity value*)
+                        statAcceleration           := configuration.moveVelocity.acceleration;      (* Store the last adjusted acceleration value*)
+                        statDeceleration           := configuration.moveVelocity.deceleration;      (* Store the last adjusted deceleration value*)
+                        statJerk                   := configuration.moveVelocity.jerk;              (* Store the last adjusted jerk value*)
+                        statDirection              := configuration.moveVelocity.direction;         (* Store the last adjusted axis direction*)
+                        statPositionControlled     := configuration.moveVelocity.positionControlled;(* Store the last adjusted motion mode*)
+
+                    ELSIF (statVelocityChangeOnTheFly = TRUE) AND
+                        (configuration.moveVelocity.velocity <> statVelocity)(* Velocity changed*)
+                        AND
+                        (instMoveVelocity.CommandAborted = FALSE)
+                        THEN
+                       (* Reset MC_MOVEVELOCITY command*)
+                        instMoveVelocity(Axis := axis,
+                                         Execute := FALSE);
+
+                        statVelocity := configuration.moveVelocity.velocity;(* Store the last adjusted velocity value*)
+                    END_IF;
+
+                   (* Call MC_Command*)
+                    instMoveVelocity(Axis := axis,
+                                     Execute := statBasicCommand.4 OR statFirstCycleBasicMotion,(* Input: moveVelocity*)
+                                     Velocity := statVelocity,
+                                     Acceleration := statAcceleration,
+                                     Deceleration := statDeceleration,
+                                     Jerk := statJerk,
+                                     Direction := statDirection,
+                    (*PositionControlled :=  statPositionControlled,*)
+                    (*Current := FALSE*) );
+
+                   (* Evaluate MC_Command*)
+                    IF (instMoveVelocity.Busy = FALSE) AND
+                        (instMoveVelocity.Error = FALSE) AND
+                        (instMoveVelocity.CommandAborted = FALSE) AND
+                        (instMoveVelocity.InVelocity = FALSE)
+                        THEN
+                       (* Return to NO_SELECTION if command finished*)
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSIF (instMoveVelocity.Error = TRUE)
+                        THEN
+                       (* Errorhandling*)
+                        statStatus                    := ERR_MC_MOVEVELOCITY;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := instMoveVelocity.ErrorId;
+                        statVelocityChangeOnTheFly    := FALSE;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSE
+                        ;(* Command selected*)
+                    END_IF;
+
+                   (* Write MC_Command outputs to internal variable*)
+                    statExeOfBasicMotion   := 16#0;
+                    statExeOfBasicMotion.0 := instMoveVelocity.Busy;
+                    statExeOfBasicMotion.2 := instMoveVelocity.CommandAborted;
+                    statExeOfBasicMotion.3 := instMoveVelocity.Error;
+                    statExeOfBasicMotion.4 := instMoveVelocity.InVelocity;
+                {END_REGION}
+
+                POS_RELATIVE_SELECTED:
+                   (* Additional features (applicative): Specified direction*)
+                    {REGION "POS_RELATIVE_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Configurate the direction of rotation*)
+                       (* *)
+                        IF ((configuration.posRelative.direction = 0) AND (configuration.posRelative.distance >= 0.0)
+                            )(* Sign of distance is evaluated*)
+                            OR
+                            (configuration.posRelative.direction = FORWARD_DIR)(* Forward direction*)
+                            THEN
+                            statPosition := ABS(configuration.posRelative.distance);
+                           (* Reset MC_MOVERELATIVE command*)
+                            instMoveRelative(Axis := axis,
+                                             Execute := FALSE);
+
+                            statApplicativeBasicMotionError := FALSE;
+
+                        ELSIF ((configuration.posRelative.direction = 0) AND (configuration.posRelative.distance < 0.0)
+                            )(* Sign of distance is evaluated*)
+                            OR
+                            (configuration.posRelative.direction = BACKWARD_DIR)(* Backward direction*)
+                            THEN
+                            statPosition := -ABS(configuration.posRelative.distance);
+                           (* Reset MC_MOVERELATIVE command*)
+                            instMoveRelative(Axis := axis,
+                                             Execute := FALSE);
+
+                            statApplicativeBasicMotionError := FALSE;
+
+                        ELSE
+                           (* Errorhandling - Invalid direction*)
+                            statStatus                      := ERR_INVALID_POS_RELATIVE_DIR;
+                            statErrorAutoCleared            := TRUE;
+                            diagnostics.subfunctionStatus   := 0;
+                            diagnostics                     := statDiagnostics;
+                            statApplicativeBasicMotionError := TRUE;
+                           (* Set next state*)
+                            statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                            statBasicMotionState := NO_SELECTION;
+                        END_IF;
+                    END_IF;
+
+                    IF (statApplicativeBasicMotionError = FALSE) THEN
+                       (* Call MC_Command*)
+                        instMoveRelative(Axis := axis,
+                                         Execute := statBasicCommand.5 OR statFirstCycleBasicMotion,(* Input: posRelative*)
+                                         Distance := statPosition,
+                                         Velocity := configuration.posRelative.velocity,
+                                         Acceleration := configuration.posRelative.acceleration,
+                                         Deceleration := configuration.posRelative.deceleration,
+                                         Jerk := configuration.posRelative.jerk);
+
+                       (* Evaluate MC_Command*)
+                        IF (instMoveRelative.Busy = FALSE) AND
+                            (instMoveRelative.Error = FALSE) AND
+                            (instMoveRelative.Done = FALSE) AND
+                            (instMoveRelative.CommandAborted = FALSE)
+                            THEN
+                           (* Return to NO_SELECTION if command finished*)
+                            statBasicMotionState := NO_SELECTION;
+
+                        ELSIF (instMoveRelative.Error = TRUE) THEN
+                           (* Errorhandling*)
+                            statStatus                    := ERR_MC_MOVERELATIVE;
+                            statErrorAutoCleared          := TRUE;
+                            diagnostics                   := statDiagnostics;
+                            diagnostics.subfunctionStatus := instMoveRelative.ErrorId;
+                           (* Set next state*)
+                            statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                            statBasicMotionState := NO_SELECTION;
+                        ELSE
+                            ;(* Command selected*)
+                        END_IF;
+
+                       (* Write MC_Command outputs to internal variable*)
+                        statExeOfBasicMotion   := 16#0;
+                        statExeOfBasicMotion.0 := instMoveRelative.Busy;
+                        statExeOfBasicMotion.1 := instMoveRelative.Done;
+                        statExeOfBasicMotion.2 := instMoveRelative.CommandAborted;
+                        statExeOfBasicMotion.3 := instMoveRelative.Error;
+
+                    ELSE
+                        ;(* Direction not valid*)
+                    END_IF;
+                {END_REGION}
+
+                POS_ABSOLUTE_SELECTED:
+                   (* Additional features (applicative): Change setpoint on the fly (Velocity and Position)*)
+                    {REGION "POS_ABSOLUTE_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Reset MC_MOVEABSOLUTE command*)
+                        instMoveAbsolute(Axis := axis,
+                                         Execute := FALSE);
+
+                        statPosition     := configuration.posAbsolute.position;
+                        statVelocity     := configuration.posAbsolute.velocity;    (* Store the last adjusted velocity value*)
+                        statAcceleration := configuration.posAbsolute.acceleration;(* Store the last adjusted accerlation value*)
+                        statDeceleration := configuration.posAbsolute.deceleration;(* Store the last adjusted deceleration value*)
+                        statJerk         := configuration.posAbsolute.jerk;        (* Store the last adjusted jerk value*)
+                        statDirection    := configuration.posAbsolute.direction;
+
+                        statVelocityChangeOnTheFly := configuration.posAbsolute.velocityChangeOnTheFly;
+                        statPositionChangeOnTheFly := configuration.posAbsolute.positionChangeOnTheFly;
+
+                    ELSIF (((statVelocityChangeOnTheFly = TRUE) AND (configuration.posAbsolute.velocity <> statVelocity)) OR
+                        ((statPositionChangeOnTheFly = TRUE) AND (configuration.posAbsolute.position <> statPosition))) AND
+                        (instMoveAbsolute.CommandAborted = FALSE)
+                        THEN
+                        instMoveAbsolute(Axis := axis,
+                                         Execute := FALSE);
+
+                        IF (statVelocityChangeOnTheFly = TRUE) THEN(* Apply the new velocity value*)
+                            statVelocity := configuration.posAbsolute.velocity;
+                        END_IF;
+
+                        IF (statPositionChangeOnTheFly = TRUE) THEN(* Apply the new position value*)
+                            statPosition := configuration.posAbsolute.position;
+                        END_IF;
+
+                       (* Reset MC_MOVEABSOLUTE command*)
+                        instMoveAbsolute(Axis := axis,
+                                         Execute := FALSE);
+                    END_IF;
+
+                    instMoveAbsolute(Axis := axis,
+                                     Execute := statBasicCommand.6 OR statFirstCycleBasicMotion,(* Input: posAbsolute*)
+                                     Position := statPosition,
+                                     Velocity := statVelocity,
+                                     Acceleration := statAcceleration,
+                                     Deceleration := statDeceleration,
+                                     Jerk := statJerk,
+                    (*Direction :=  statDirection*) );
+
+                   (* Evaluate MC_Command*)
+                    IF (instMoveAbsolute.Busy = FALSE) AND
+                        (instMoveAbsolute.Error = FALSE) AND
+                        (instMoveAbsolute.Done = FALSE) AND
+                        (instMoveAbsolute.CommandAborted = FALSE)
+                        THEN
+                       (* Return to NO_SELECTION if command finished*)
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSIF (instMoveAbsolute.Error = TRUE) THEN
+                       (* Errorhandling*)
+                        statStatus                    := ERR_MC_MOVEABSOLUTE;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := instMoveAbsolute.ErrorId;
+                        statVelocityChangeOnTheFly    := FALSE;
+                        statPositionChangeOnTheFly    := FALSE;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSE
+                        ;(* Command selected*)
+                    END_IF;
+
+                   (* Write MC_Command outputs to internal variable*)
+                    statExeOfBasicMotion   := 16#0;
+                    statExeOfBasicMotion.0 := instMoveAbsolute.Busy;
+                    statExeOfBasicMotion.1 := instMoveAbsolute.Done;
+                    statExeOfBasicMotion.2 := instMoveAbsolute.CommandAborted;
+                    statExeOfBasicMotion.3 := instMoveAbsolute.Error;
+                {END_REGION}
+
+                ACTIVE_HOMING_SELECTED:
+                   (* Additional fearure (applicative): homing on fixed stop*)
+                    {REGION "ACTIVE_HOMING_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                        statActiveHomingState  := configuration.homing.extendedMode;
+                        statExeOfBasicMotion   := CMD_BUSY;
+                        statPassiveHomingState := NO_HOMING_ACTIVE;
+                    END_IF;
+
+                   (* Selection of extended homing mode  *)
+                    CASE statActiveHomingState OF
+                        STANDARD_HOMING:
+                           (* No additional features*)
+                            {REGION "STANDARD_HOMING"}
+                           (* Firstcycle of command*)
+                            IF (statFirstCycleBasicMotion = TRUE) THEN
+                               (* Reset MC_HOME command*)
+                                instHome(Axis := axis,
+                                         bCalibrationCam := homingSensor,
+                                         Execute := FALSE);
+
+                               (* Reset TON command*)
+                                instTimerTON(IN := FALSE,
+                                             PT := configuration.homing.homeExecutionTimeLimit);
+                            END_IF;
+
+                           (* Call MC_Command*)
+                            instHome(Axis := axis,
+                                     bCalibrationCam := homingSensor,
+                                     Execute := statBasicCommand.10 OR statFirstCycleBasicMotion,(* Input: homing*)
+                                     Position := configuration.homing.position,
+                            (*Mode :=  configuration.homing.mode*) );
+
+                           (*Call TON*)
+                            instTimerTON(IN := TRUE,
+                                         PT := configuration.homing.homeExecutionTimeLimit);
+
+                           (* Evaluate MC_Command*)
+                            IF (instHome.Busy = FALSE) AND
+                                (instHome.Done = FALSE) AND
+                                (instHome.CommandAborted = FALSE) AND
+                                (instHome.Error = FALSE)
+                                THEN
+                               (* Return to NO_SELECTION if command finished*)
+                                statActiveHomingState := STANDARD_HOMING;
+                                statBasicMotionState  := NO_SELECTION;
+
+                            ELSIF (instHome.Error = TRUE OR instTimerTON.Q) THEN
+                               (* Errorhandling*)
+                                statStatus                    := ERR_MC_HOME;
+                                statErrorAutoCleared          := TRUE;
+                                diagnostics                   := statDiagnostics;
+                                diagnostics.subfunctionStatus := instHome.ErrorId;
+                                statFBState                   := AXIS_STOP_ON_ERROR_SELECTION;
+                                statBasicMotionState          := NO_SELECTION;
+
+                            ELSE
+                                ;(* Command selected*)
+
+                            END_IF;
+
+                            statExeOfBasicMotion   := 16#0;
+                            statExeOfBasicMotion.0 := instHome.Busy;
+                            statExeOfBasicMotion.1 := instHome.Done;
+                            statExeOfBasicMotion.2 := instHome.CommandAborted;
+                            statExeOfBasicMotion.3 := instHome.Error;
+                        {END_REGION}
+                        HOMING_ON_FIXED_STOP:
+                           (* This case is additional feature (MC_MOVEVELOCITY and MC_HOME internal used)*)
+                            {REGION "REFERENCE_TO_FIXED_STOP"}
+                            CASE statExeOfBasicMotion OF
+                                CMD_BUSY:
+                                   (* Firstcycle of command*)
+                                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                                       (* Check if homing on fixed stop is allowed  *)
+                                        (*IF ( axis.Modulo.Enable = TRUE) THEN*)
+                                        IF (tempFalse = TRUE) THEN
+                                           (* Modulo enabled - Errorhandling*)
+                                            statStatus                    := ERR_MODULO_NOT_ALLOWED;
+                                            statErrorAutoCleared          := TRUE;
+                                            diagnostics.subfunctionStatus := 0;
+                                            diagnostics.basicMotionState  := statBasicMotionState;
+                                           (* Set next state*)
+                                            statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                                            statBasicMotionState  := NO_SELECTION;
+                                            statActiveHomingState := STANDARD_HOMING;
+                                            statHomingSubState    := HOMING_IDLE;
+
+                                        ELSIF (configuration.homing.extendedModeTorqueLimit = 0)(* Torqueliming 0 in configuration *)
+                                            THEN
+                                           (* Errorhandling -  Torquevalue 0 configured*)
+                                            statStatus                    := ERR_INVALID_TORQUE_LIMIT;
+                                            statErrorAutoCleared          := TRUE;
+                                            diagnostics.subfunctionStatus := 0;
+                                            diagnostics.basicMotionState  := statBasicMotionState;
+                                           (* Set next state*)
+                                            statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                                            statBasicMotionState  := NO_SELECTION;
+                                            statActiveHomingState := STANDARD_HOMING;
+                                            statHomingSubState    := HOMING_IDLE;
+
+                                            (*ELSIF ( axis.Homing.ReferencingVelocity = 0)*)
+                                        ELSIF (configuration.homing.offsetPositionVelocity = 0)
+                                            THEN
+                                           (* Errorhandling -  Velocity 0 configured*)
+                                            statStatus                    := ERR_INVALID_VELOCITY;
+                                            statErrorAutoCleared          := TRUE;
+                                            diagnostics.subfunctionStatus := 0;
+                                            diagnostics.basicMotionState  := statBasicMotionState;
+                                           (* Set next state*)
+                                            statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                                            statBasicMotionState  := NO_SELECTION;
+                                            statActiveHomingState := STANDARD_HOMING;
+                                            statHomingSubState    := HOMING_IDLE;
+
+                                        ELSE
+                                           (* Store dynamic values*)
+                                            (*statHomingPosition :=  configuration.homing.position;
+	                             statVelocity :=  axis.Homing.ReferencingVelocity;
+	                             statAcceleration :=  axis.DynamicDefaults.Acceleration;
+	                             statDeceleration :=  axis.DynamicDefaults.Deceleration;
+	                             statJerk :=  axis.DynamicDefaults.Jerk;
+	                             statTorqueLimit :=  configuration.homing.extendedModeTorqueLimit;*)
+                                            statHomingPosition := configuration.homing.position;
+                                            statVelocity       := configuration.homing.offsetPositionVelocity;
+                                            statAcceleration   := configuration.homing.offsetPositionAcceleration;
+                                            statDeceleration   := configuration.homing.offsetPositonDeceleration;
+                                            statJerk           := configuration.homing.offsetPositionJerk;
+                                            statTorqueLimit    := configuration.homing.extendedModeTorqueLimit;
+
+                                           (* Detecting operating sensor*)
+                                            (*
+								FOR  tempIndex := 1 TO 4 DO
+	                              IF  axis.StatusSensor[ tempIndex].Control = TRUE
+	                              THEN
+	                                EXIT;
+	                              END_IF;
+	                            END_FOR;
+	                            *)
+                                            (*IF ( axis.Sensor[ tempIndex].ActiveHoming.Direction = 0)(* Positve direction configured*)
+	                            THEN*)
+                                           (* Positive direction*)
+                                            statDirection := FORWARD_DIR;
+                                            (* ELSE
+	                             (* Negative direction*)
+	                               statDirection :=  BACKWARD_DIR;
+	                            END_IF;
+	                            *)
+                                            (*statTorqueLimitingState :=  FIXED_STOP_DETECTION_ACTIVE;*)
+                                           (* Reset MC_Commands*)
+                                            instHome(Axis := axis,
+                                                     bCalibrationCam := homingSensor,
+                                                     Execute := FALSE);
+
+                                            instMoveVelocity(Axis := axis,
+                                                             Execute := FALSE);
+
+                                            instMoveAbsolute(Axis := axis,
+                                                             Execute := FALSE);
+
+                                           (* Reset TON*)
+                                            instTimerTON(IN := FALSE,
+                                                         PT := configuration.homing.homeExecutionTimeLimit);
+
+                                           (* Determine the encoder type*)
+                                            (* tempIndex := 1;
+	                             tempIndex := UDINT_TO_INT( axis.OperativeSensor);
+	                            IF ( axis.Sensor[ tempIndex].Type =  INCREMENTAL_ENCODER) THEN
+	                               statHomingMode :=  DIRECT_HOMING; // Direct homing (absolute)
+	                            ELSE
+	                               statHomingMode :=  ABSOLUTE_ENCODER_ADJUSTMENT;
+	                            END_IF;
+								*)
+                                           (* Use always direct homing*)
+                                           (* statHomingMode :=  DIRECT_HOMING; // Direct homing (absolute)*)
+                                           (* Set next state*)
+                                            (*statHomingSubState :=  HOMING_FIXED_STOP_DETECTION;*)
+                                            statHomingSubState := HOMING_PROCESS;
+                                        END_IF;
+                                    END_IF;
+
+                                   (* Call OF subStateMachine*)
+                                    REPEAT
+                                        CASE statHomingSubState OF
+                                            HOMING_IDLE:
+                                                tempStateChangeActive := FALSE;
+                                                ;(* Do nothing, inserted no exectution of homing if error occurred in first cycle*)
+
+                                            HOMING_FIXED_STOP_DETECTION:
+                                                tempStateChangeActive := FALSE;
+
+                                               (* Start axis to detect fixed stop*)
+                                                instMoveVelocity(Axis := axis,
+                                                                 Execute := TRUE,
+                                                                 Velocity := statVelocity,
+                                                                 Acceleration := statAcceleration,
+                                                                 Deceleration := statDeceleration,
+                                                                 Jerk := statJerk,
+                                                (*PositionControlled := TRUE,*)
+                                                (*Direction :=  statDirection*) );
+
+                                               (* Read Statusword only when not already read out*)
+                                                IF (tempStatusWord = 16#0)
+                                                    THEN
+                                                    (*tempStatusWord :=  axis.StatusWord;*)
+                                                    tempStatusWord := axis.NcToPlc.StateDWord;
+                                                END_IF;
+
+                                               (* Evaluate MC_Command*)
+                                                IF (tempStatusWord.30 = TRUE) THEN(* inClamping = TRUE*)
+                                                   (* Fixed stop detected --> start homing process*)
+                                                    statHomingSubState    := HOMING_PROCESS;
+                                                    tempStateChangeActive := TRUE;
+
+                                                ELSIF (instMoveVelocity.Error = TRUE) THEN
+                                                   (* Errorhandling*)
+                                                    statStatus                    := ERR_MC_MOVEVELOCITY;
+                                                    statErrorAutoCleared          := TRUE;
+                                                    diagnostics                   := statDiagnostics;
+                                                    diagnostics.subfunctionStatus := instMoveVelocity.ErrorId;
+                                                   (* Set next state*)
+                                                    statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                                                    statBasicMotionState  := NO_SELECTION;
+                                                    statActiveHomingState := STANDARD_HOMING;
+                                                    statExeOfBasicMotion  := CMD_ERROR;
+                                                    statHomingSubState    := HOMING_IDLE;
+
+                                                ELSIF (instMoveVelocity.CommandAborted = TRUE) THEN
+                                                   (* Set next state*)
+                                                    statExeOfBasicMotion := CMD_ABORTED;
+                                                    statHomingSubState   := HOMING_IDLE;
+
+                                                ELSE
+                                                    ;(* Wait for detecting fixed stop*)
+                                                END_IF;
+
+                                            HOMING_PROCESS:
+                                                tempStateChangeActive := FALSE;
+                                               (* Execute MC_HOME*)
+                                                instHome(Axis := axis,
+                                                         bCalibrationCam := homingSensor,
+                                                         Execute := TRUE,
+                                                         Position := statHomingPosition,
+                                                (*Mode :=  statHomingMode*) );
+
+                                               (*Call TON*)
+                                                instTimerTON(IN := TRUE,
+                                                             PT := configuration.homing.homeExecutionTimeLimit);
+
+                                               (* Evaluate MC_Command*)
+                                                IF (instHome.Done = TRUE) THEN
+                                                   (* MC_HOME finished - Set next state*)
+                                                    statHomingSubState    := HOMING_POSITION;
+                                                    tempStateChangeActive := TRUE;
+                                                    instTimerTON.IN       := FALSE;
+
+                                                ELSIF (instHome.Error = TRUE OR instTimerTON.Q) THEN
+                                                   (* Errorhandling*)
+                                                    statStatus                    := ERR_MC_HOME;
+                                                    statErrorAutoCleared          := TRUE;
+                                                    diagnostics                   := statDiagnostics;
+                                                    diagnostics.subfunctionStatus := instHome.ErrorId;
+                                                   (* Set next state*)
+                                                    statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                                                    statExeOfBasicMotion := CMD_ERROR;
+                                                    statHomingSubState   := HOMING_IDLE;
+
+                                                ELSIF (instHome.CommandAborted = TRUE) THEN
+                                                   (* Set next state*)
+                                                    statExeOfBasicMotion := CMD_ABORTED;
+                                                    statHomingSubState   := HOMING_IDLE;
+                                                ELSE
+                                                    ;(* Wait for finish homing process*)
+                                                END_IF;
+
+                                            HOMING_POSITION:
+                                                tempStateChangeActive := FALSE;
+
+                                                statHomingPosition := configuration.homing.offsetPosition;
+                                                statVelocity       := configuration.homing.offsetPositionVelocity;
+                                                statAcceleration   := configuration.homing.offsetPositionAcceleration;
+                                                statDeceleration   := configuration.homing.offsetPositonDeceleration;
+                                                statJerk           := configuration.homing.offsetPositionJerk;
+
+                                               (* Execute moving to homeposition*)
+                                                instMoveAbsolute(Axis := axis,
+                                                                 Execute := TRUE,
+                                                                 (*Position :=  statHomingPosition,*)
+                                                                 Position := configuration.homing.offsetPosition,
+                                                                 Velocity := ABS(statVelocity),
+                                                                 Acceleration := statAcceleration,
+                                                                 Deceleration := statDeceleration,
+                                                                 Jerk := statJerk,
+                                                (*Direction :=  SHORTEST_WAY_DIR*) );
+
+                                               (* Evaluate MC_Command*)
+                                                IF (instMoveAbsolute.Done = TRUE) THEN
+                                                   (* Homeposition reached - Set next state*)
+                                                    statExeOfBasicMotion := CMD_DONE;
+                                                    statHomingSubState   := HOMING_IDLE;
+
+                                                ELSIF (instMoveAbsolute.Error = TRUE) THEN
+                                                   (* Errorhandling*)
+                                                    statStatus                    := ERR_MC_MOVEABSOLUTE;
+                                                    statErrorAutoCleared          := TRUE;
+                                                    diagnostics                   := statDiagnostics;
+                                                    diagnostics.subfunctionStatus := instMoveAbsolute.ErrorId;
+                                                   (* Set next state*)
+                                                    statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                                                    statBasicMotionState  := CMD_BUSY;
+                                                    statActiveHomingState := STANDARD_HOMING;
+                                                    statExeOfBasicMotion  := CMD_ERROR;
+                                                    statHomingSubState    := HOMING_IDLE;
+
+                                                ELSIF (instMoveAbsolute.CommandAborted = TRUE) THEN
+                                                   (* Set next state*)
+                                                    statExeOfBasicMotion := CMD_ABORTED;
+                                                    statHomingSubState   := HOMING_IDLE;
+
+                                                ELSE
+                                                    ;(* Wait for reaching homeposition*)
+                                                END_IF;
+
+                                        ELSE
+                                           (* Errorhandling *)
+                                            statStatus                    := ERR_UNDEFINED_EXTENDED_HOMING_SUBSTATE;
+                                            statErrorUserCleared          := TRUE;
+                                            diagnostics                   := statDiagnostics;
+                                            diagnostics.subfunctionStatus := 0;
+                                           (* Set errorstate*)
+                                            statFBState           := FB_ERROR;
+                                            tempStateChangeActive := FALSE;
+                                        END_CASE;
+
+                                    UNTIL (tempStateChangeActive = FALSE)(* Repeat execution if a state is changing*)
+                                    END_REPEAT;
+
+                                CMD_DONE,
+                                    CMD_ABORTED,
+                                    CMD_ERROR:
+                                   (* Return to NO_SELECTION if command finished*)
+                                    IF (statBasicCommand.10 = FALSE)(* homing = FALSE*)
+                                        THEN
+                                       (* Return to NO_HOMING_ACTIVE if command finished*)
+                                        statBasicMotionState  := NO_SELECTION;
+                                        statActiveHomingState := STANDARD_HOMING;
+                                        statExeOfBasicMotion  := CMD_BUSY;
+                                        statHomingSubState    := HOMING_IDLE;
+                                    ELSE
+                                        ;(* Wait for falling edge at homing command*)
+                                    END_IF;
+
+                            ELSE
+                               (* Errorhandling*)
+                                statStatus                    := ERR_UNDEFINED_EXTENDED_HOMING_STATE;
+                                statErrorUserCleared          := TRUE;
+                                diagnostics                   := statDiagnostics;
+                                diagnostics.subfunctionStatus := 0;
+                               (* Set errorstate*)
+                                statFBState := FB_ERROR;
+                            END_CASE;
+                    {END_REGION}
+
+                    ELSE
+                       (* Errorhandling*)
+                        statStatus                    := ERR_INVALID_HOMING_EXTENDED_MODE;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := 0;
+                       (* Set next state*)
+                        statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState  := NO_SELECTION;
+                        statActiveHomingState := STANDARD_HOMING;
+                        statBasicMotionState  := NO_SELECTION;
+                    END_CASE;
+                {END_REGION}
+
+                GEAR_IN_RELATIVE_SELECTED:
+                   (* Additional features (applicative): Change setpoint on the fly (gear ratio)*)
+                    {REGION "GEAR_IN_RELATIVE_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Reset GEAR_IN command *)
+                        instGearIn(Master := master,
+                                   Slave := axis,
+                                   Execute := FALSE);
+
+                        (*statRatioNumerator :=  configuration.gearInRelative.ratioNumerator;*)
+                        statRatioNumerator      := configuration.gearInRelative.ratioDenominator;
+                        statRatioDenominator    := configuration.gearInRelative.ratioDenominator;
+                        statAcceleration        := configuration.gearInRelative.acceleration;
+                        statDeceleration        := configuration.gearInRelative.deceleration;
+                        statJerk                := configuration.gearInRelative.jerk;
+                        statRatioChangeOnTheFly := configuration.gearInRelative.ratioChangeOnTheFly;
+
+                    ELSIF ((statRatioChangeOnTheFly = TRUE)(* Flying change of ratio numerator*)
+                    (*AND (( configuration.gearInRelative.ratioNumerator <>  statRatioNumerator)*)
+                        AND
+                        ((configuration.gearInRelative.ratioDenominator <> statRatioNumerator) OR
+                        (configuration.gearInRelative.ratioDenominator <> statRatioDenominator))) AND
+                        (instGearIn.CommandAborted = FALSE)
+                        THEN
+                        instGearIn(Master := master,
+                                   Slave := axis,
+                                   Execute := FALSE);
+
+                        statRatioNumerator   := configuration.gearInRelative.ratioDenominator;(* Apply the new gear ratio numerator*)
+                        statRatioDenominator := configuration.gearInRelative.ratioDenominator;(* Apply the new gear ratio denominator*)
+                    END_IF;
+
+                   (* Call MC_Command*)
+                    instGearIn(Master := master,
+                               Slave := axis,
+                               Execute := statBasicCommand.7 OR statFirstCycleBasicMotion,(* Input: gearInRelative*)
+                               RatioNumerator := statRatioNumerator,
+                               RatioDenominator := DINT_TO_UINT(statRatioDenominator),
+                               Acceleration := statAcceleration,
+                               Deceleration := statDeceleration,
+                               Jerk := statJerk);
+
+                   (* Evaluate MC_Command*)
+                    IF (instGearIn.Busy = FALSE) AND
+                        (instGearIn.Error = FALSE) AND
+                        (instGearIn.CommandAborted = FALSE) AND
+                        (instGearIn.InGear = FALSE)
+                        THEN
+                       (* Return to NO_SELECTION if command finished*)
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSIF (instGearIn.Error = TRUE) THEN
+                       (* Errorhandling*)
+                        statStatus                    := ERR_MC_GEARIN;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := instGearIn.ErrorId;
+                        statRatioChangeOnTheFly       := FALSE;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSE
+                        ;(* Command selected*)
+                    END_IF;
+
+                   (* Read Statusword only when not already read out*)
+                    IF ( tempStatusWord = 16#0)
+                    THEN
+
+                       tempStatusWord :=  axis.NcToPlc.StateDWord;
+
+                    END_IF;
+
+                   (* Write MC_Command outputs to internal variable*)
+                    statExeOfBasicMotion   := 16#0;
+                    statExeOfBasicMotion.0 := instGearIn.Busy;
+                    statExeOfBasicMotion.2 := instGearIn.CommandAborted;
+                    statExeOfBasicMotion.3 := instGearIn.Error;
+                   (* statExeOfBasicMotion.6 :=  tempStatusWord.21 AND NOT  instGearIn.InGear; // write Synchronizing only when bit of instance of MC_GearIn.InGear = FALSE*)
+                    statExeOfBasicMotion.7 := instGearIn.InGear;
+                {END_REGION}
+
+                GEAR_IN_ABSOLUTE_SELECTED:
+                   (* Additional features (applicative): Change setpoint on the fly (gear ratio)*)
+                    {REGION "GEAR_IN_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                       (* Reset GEAR_IN_POS command *)
+                        instGearInPos(Master := master,
+                                      Slave := axis,
+                        (*Execute := FALSE*) );
+
+                        statRatioNumerator       := configuration.gearInAbsolute.ratioNumerator;
+                        statRatioDenominator     := configuration.gearInAbsolute.ratioDenominator;
+                        statMasterSyncPosition   := configuration.gearInAbsolute.masterSyncPosition;
+                        statSlaveSyncPosition    := configuration.gearInAbsolute.slaveSyncPosition;
+                        statSyncProfileReference := configuration.gearInAbsolute.syncProfileReference;
+                        statMasterStartDistance  := configuration.gearInAbsolute.masterStartDistance;
+                        statVelocity             := configuration.gearInAbsolute.velocity;
+                        statAcceleration         := configuration.gearInAbsolute.acceleration;
+                        statDeceleration         := configuration.gearInAbsolute.deceleration;
+                        statJerk                 := configuration.gearInAbsolute.jerk;
+                        statSyncDirection        := configuration.gearInAbsolute.syncDirection;
+                        statRatioChangeOnTheFly  := configuration.gearInAbsolute.ratioChangeOnTheFly;
+
+                    ELSIF (((statRatioChangeOnTheFly = TRUE) AND (configuration.gearInAbsolute.ratioNumerator <> statRatioNumerator)) OR
+                        ((statRatioChangeOnTheFly = TRUE) AND (configuration.gearInAbsolute.ratioDenominator <> statRatioDenominator))) AND
+                        (instGearInPos.CommandAborted = FALSE)
+                        THEN
+                        instGearInPos(Master := master,
+                                      Slave := axis,
+                        			Enable := FALSE );
+
+                        statRatioNumerator   := configuration.gearInAbsolute.ratioNumerator;  (* Apply the new gear ratio numerator*)
+                        statRatioDenominator := configuration.gearInAbsolute.ratioDenominator;(* Apply the new gear ratio denominator*)
+                    END_IF;
+
+                   (* Call MC_Command*)
+                    instGearInPos(Master := master,
+                                  Slave := axis,
+                                  Enable := statBasicCommand.8 OR statFirstCycleBasicMotion,(* Input: gearInAbsolute*)
+                                  GearRatio := statRatioNumerator,
+                                  (*RatioDenominator :=  statRatioDenominator,*)
+                                  (*MasterSyncPosition :=  statMasterSyncPosition,*)
+                                  (*SlaveSyncPosition :=  statSlaveSyncPosition,*)
+                                  (*SyncProfileReference :=  statSyncProfileReference,*)
+                                  (*MasterStartDistance :=  statMasterStartDistance,*)
+
+                                  Acceleration :=  statAcceleration,
+                                  Deceleration :=  statDeceleration,
+                                  Jerk := statJerk,
+                    (*SyncDirection :=  statSyncDirection*) );
+
+
+                   (* Evaluate MC_Command*)
+                    IF (instGearInPos.Busy = FALSE) AND
+                        (instGearInPos.Error = FALSE) AND
+                        (instGearInPos.CommandAborted = FALSE) AND
+                    (*( instGearInPos.StartSync = FALSE) AND*)
+                        (instGearInPos.InGear = FALSE)
+                        THEN
+                       (* Return to NO_SELECTION if command finished*)
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSIF (instGearInPos.Error = TRUE) THEN
+                       (* Errorhandling*)
+                        statStatus                    := ERR_MC_GEARINPOS;
+                        statErrorAutoCleared          := TRUE;
+                        diagnostics                   := statDiagnostics;
+                        diagnostics.subfunctionStatus := instGearInPos.ErrorId;
+                        statRatioChangeOnTheFly       := FALSE;
+                       (* Set next state*)
+                        statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                        statBasicMotionState := NO_SELECTION;
+
+                    ELSE
+                        ;(* Command selected*)
+                    END_IF;
+
+                   (* Write MC_Command outputs to internal variable*)
+                    statExeOfBasicMotion   := 16#0;
+                    statExeOfBasicMotion.0 := instGearInPos.Busy;
+                    statExeOfBasicMotion.2 := instGearInPos.CommandAborted;
+                    statExeOfBasicMotion.3 := instGearInPos.Error;
+                    (*statExeOfBasicMotion.6 :=  instGearInPos.StartSync;*)
+                    (*statExeOfBasicMotion.6 :=  instGearInPos.StartSync;*)
+                    statExeOfBasicMotion.7 := instGearInPos.InGear;
+                {END_REGION}
+
+                CAM_IN_SELECTED:
+                   (* Additional feature (applicative): Check DB of Cam *)
+                    {REGION "CAM_IN_SELECTED"}
+                   (* Firstcycle of command*)
+                    IF (statFirstCycleBasicMotion = TRUE) THEN
+                        (*IF TypeOfDB( cam) = TO_Cam*)
+                        IF tempFalse = FALSE
+                            THEN
+                            (*statCam :=  cam;*)
+                           (* Reset CAM_IN command *)
+(*                            instCamIn(Master := master,
+                                      Slave := axis,
+                                      (*Cam :=  statCam,*)
+                                      Execute := FALSE);
+*)
+                            statApplicativeBasicMotionError := FALSE;
+                            statApplicationMode             := configuration.camIn.applicationMode;
+                        ELSE
+                           (* Errorhandling - Invalid cam*)
+                            statStatus                      := ERR_INVALID_CAM;
+                            statErrorAutoCleared            := TRUE;
+                            diagnostics.subfunctionStatus   := 0;
+                            diagnostics                     := statDiagnostics;
+                            statApplicativeBasicMotionError := TRUE;
+                           (* Set next state*)
+                            statFBState          := AXIS_STOP_ON_ERROR_SELECTION;
+                            statBasicMotionState := NO_SELECTION;
+                        END_IF;
+                    END_IF;
+
+                    IF (statApplicativeBasicMotionError = FALSE) THEN
+
+                       (* Write MC Parameters*)
+(*                        instCamIn.CamTableID                 := configuration.camIn.tableID;
+                        instCamIn.StartMode                  := configuration.camIn.startMode;
+                        instCamIn.MasterOffset               := configuration.camIn.masterOffset;
+                        instCamIn.SlaveOffset                := configuration.camIn.slaveOffset;
+                        instCamIn.MasterScaling              := configuration.camIn.masterScaling;
+                        instCamIn.SlaveScaling               := configuration.camIn.slaveScaling;
+						instCamIn.StartMode     			 := configuration.camIn.startMode;
+                        instCamIn.Options.ActivationMode     := configuration.camIn.ActivationMode;
+                        instCamIn.Options.ActivationPosition := configuration.camIn.ActivationPosition;
+*)
+                       (* Call MC_Command*)
+(*                        instCamIn(Master := master,
+                                  Slave := axis,
+*)  //                                Execute := statBasicCommand.9 OR statFirstCycleBasicMotion);
+(*
+                       (* Evaluate MC_Command*)
+                        IF ((instCamIn.Busy = FALSE) AND
+                            (instCamIn.Error = FALSE) AND
+                            (instCamIn.CommandAborted = FALSE) AND
+                            (instCamIn.InSync = FALSE) AND
+                        (*( instCamIn.StartSync = FALSE) AND*)
+                            (statBasicCommand.9 = FALSE)
+                            ) AND(* V1.0.2 Wait for one cycle EndOfProfile (--> Done) before function is finished at applicationMode ONCE*)
+                            ((statApplicationMode <> APPLICATION_MODE_ONCE) OR
+                            ((statApplicationMode = APPLICATION_MODE_ONCE) (*AND ( instCamIn.EndOfProfile = FALSE)*) ))
+                            THEN
+                           (* Return to NO_SELECTION if command finished*)
+                            statBasicMotionState := NO_SELECTION;
+
+                        ELSIF (instCamIn.Error = TRUE) THEN
+                           (* Errorhandling*)
+                            statStatus                    := ERR_MC_CAMIN;
+                            statErrorAutoCleared          := TRUE;
+                            diagnostics.subfunctionStatus := instCamIn.ErrorId;
+                            diagnostics.basicMotionState  := statBasicMotionState;
+                            statFBState                   := AXIS_STOP_ON_ERROR_SELECTION;
+                            statBasicMotionState          := NO_SELECTION;
+
+                        ELSE
+                            ;(* Command selected*)
+                        END_IF;
+*)
+                       (* Write MC_Command outputs to internal variable*)
+                        statExeOfBasicMotion   := 16#0;
+//                        statExeOfBasicMotion.0 := instCamIn.Busy;
+                        IF (statApplicationMode = APPLICATION_MODE_ONCE)
+                            THEN
+                            ; (*statExeOfBasicMotion.1 :=  instCamIn.EndOfProfile;*)
+                        END_IF;
+
+ //                       statExeOfBasicMotion.2 := instCamIn.CommandAborted;
+ //                       statExeOfBasicMotion.3 := instCamIn.Error;
+                        (*statExeOfBasicMotion.6 :=  instCamIn.StartSync;*)
+//                        statExeOfBasicMotion.7 := instCamIn.InSync;
+
+                    ELSE
+                        ;(* InValid cam*)
+                    END_IF;
+            {END_REGION}
+
+            ELSE
+               (* Errorhandling*)
+                statStatus                    := ERR_UNDEFINED_BASIC_MOTION_STATE;
+                statErrorUserCleared          := TRUE;
+                diagnostics                   := statDiagnostics;
+                diagnostics.subfunctionStatus := 0;
+               (* Set errorstate*)
+                statFBState := FB_ERROR;
+            END_CASE;
+
+        RESET_GEARING:
+           (* Abort waiting absolute gearing / camIn job if new basic motion job is selected (configuration.generalSettings.abortWaitingSyncCmd = TRUE)*)
+            instGearIn(Master := master,
+                       Slave := axis,
+                       Execute := TRUE,
+                       RatioNumerator := 1,
+                       RatioDenominator := 1);(* Lowest possible gear ratio*)
+
+            IF (instGearIn.InGear = TRUE) OR (instGearIn.CommandAborted = TRUE)
+                THEN                                           (* Relative gearing command has aborted waiting absolute gearing job*)
+                statMainSelectionState    := CALL_BASIC_MOTION;(* Execute new basic motion command*)
+                tempStateChangeActive     := TRUE;
+                statFirstCycleBasicMotion := TRUE;
+
+            ELSIF (instGearIn.Error = TRUE)
+                THEN
+                statStatus                    := ERR_MC_GEARIN;
+                diagnostics.subfunctionStatus := instGearIn.ErrorId;
+               (*Errorhandling*)
+                statErrorAutoCleared := TRUE;
+                diagnostics          := statDiagnostics;
+               (*Set next state*)
+                statFBState            := AXIS_STOP_ON_ERROR_SELECTION;
+                statMainSelectionState := CALL_BASIC_MOTION;
+                statBasicMotionState   := NO_SELECTION;
+
+            ELSE
+                ;(* Command running*)
+            END_IF;
+
+           (* Write MC_Command outputs to internal variable*)
+            statExeOfBasicMotion   := 16#0;
+            statExeOfBasicMotion.0 := instGearIn.Busy;
+    ELSE
+       (* Errorhandling*)
+        statStatus                    := ERR_UNDEFINED_MAIN_SELECTION_STATE;
+        statErrorUserCleared          := TRUE;
+        diagnostics                   := statDiagnostics;
+        diagnostics.subfunctionStatus := 0;
+       (* Set errorstate*)
+        statFBState := FB_ERROR;
+    END_CASE;
+
+UNTIL (tempStateChangeActive = FALSE)
+END_REPEAT;
+
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(*Execution of homing functionality *)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "EXECUTION_OF_PASSIVE_HOMING"}
+(*Statemachine for homing functionality*)
+CASE statPassiveHomingState OF
+   (* Selection of extended homing mode *) 
+    NO_HOMING_ACTIVE:
+        ;(* Do nothing*)
+
+    STANDARD_HOMING:
+       (* No additional features*)
+        {REGION "STANDARD_HOMING"}
+       (* Firstcycle of command*)
+        IF (statFirstCycleHoming = TRUE) THEN
+           (* Reset MC_HOME command*)
+            instHome(Axis := axis,
+                     bCalibrationCam := homingSensor,
+                     Execute := FALSE);
+
+            IF (statBasicMotionState = ACTIVE_HOMING_SELECTED) THEN
+                statBasicMotionState := NO_SELECTION;
+            END_IF;
+        END_IF;
+
+       (* Call MC_Command*)
+        instHome(Axis := axis,
+                 bCalibrationCam := homingSensor,
+                 Execute := statExtendedCommand.2,(* Input: homing*)
+                 Position := configuration.homing.position,
+        (*Mode :=  configuration.homing.mode*) );
+
+       (* Evaluate MC_Command*)
+        IF (instHome.Busy = FALSE) AND
+            (instHome.Done = FALSE) AND
+            (instHome.CommandAborted = FALSE) AND
+            (instHome.Error = FALSE)
+            THEN
+           (* Return to NO_SELECTION if command finished*)
+            statPassiveHomingState := NO_HOMING_ACTIVE;
+
+        ELSIF (instHome.Error = TRUE) THEN
+           (* Errorhandling*)
+            statStatus                    := ERR_MC_HOME;
+            statErrorAutoCleared          := TRUE;
+            diagnostics                   := statDiagnostics;
+            diagnostics.subfunctionStatus := instHome.ErrorId;
+            statPassiveHomingState        := NO_HOMING_ACTIVE;
+           (* Set next state*)
+            statFBState := AXIS_STOP_ON_ERROR_SELECTION;
+        ELSE
+            ;(* Command selected*)
+
+        END_IF;
+
+        statExeOfHoming   := 16#0;
+        statExeOfHoming.0 := instHome.Busy;
+        statExeOfHoming.1 := instHome.Done;
+        statExeOfHoming.2 := instHome.CommandAborted;
+        statExeOfHoming.3 := instHome.Error;
+{END_REGION}
+
+ELSE
+   (* Errorhandling*)
+    statStatus                              := ERR_INVALID_HOMING_EXTENDED_MODE;
+    statErrorAutoCleared                    := TRUE;
+    diagnostics                             := statDiagnostics;
+    diagnostics.subfunctionStatus           := 0;
+    statDiagnostics.basicMotionState        := statBasicMotionState;
+    statDiagnostics.superimposedMotionState := statSupImpMotionState;
+   (* Set next state*)
+    statFBState            := AXIS_STOP_ON_ERROR_SELECTION;
+    statBasicMotionState   := NO_SELECTION;
+    statPassiveHomingState := NO_HOMING_ACTIVE;
+END_CASE;
+
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(*Execution of functionalities of superimposed coordinate system*)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "EXECUTION_OF_SUPERIMPOSED_COMMANDS"}
+(*Statemachine for superimposed motion commands*)
+(*Write diagnostics*)
+
+statDiagnostics.basicMotionState        := statBasicMotionState;
+statDiagnostics.superimposedMotionState := statSupImpMotionState;
+
+CASE statSupImpMotionState OF
+    NO_SELECTION:
+        ;(* Do nothing*)
+
+    POS_SUPERIMPOSED_SELECTED:
+       (* Additional features (applicative) : Specified direction*)
+        {REGION "POS_SUPERIMPOSED_SELECTED;"}
+       (* Firstcycle of command*)
+        IF (statFirstCycleSupImpMotion = TRUE) THEN
+           (* Configurate the direction of rotation*)
+            IF ((configuration.posSuperimposed.direction = 0) AND (configuration.posSuperimposed.distance >= 0.0))(* Sign of distance is evaluated*)
+                OR
+                (configuration.posSuperimposed.direction = FORWARD_DIR)(* Positive direction*)
+                THEN
+                statSupImpMotionPosition := ABS(configuration.posSuperimposed.distance);
+               (* Reset MC_MOVESUPERIMPOSED command*)
+                instMoveSuperimposed(Axis := axis,
+                                     Execute := FALSE);
+
+                statApplicativeSupImpMotionError := FALSE;
+            ELSIF ((configuration.posSuperimposed.direction = 0) AND (configuration.posSuperimposed.distance < 0.0))(* Sign of distance is evaluated*)
+                OR
+                (configuration.posSuperimposed.direction = BACKWARD_DIR)(* Negative direction *)
+                THEN
+                statSupImpMotionPosition := -ABS(configuration.posSuperimposed.distance);
+               (* Reset MC_MOVESUPERIMPOSED command*)
+                instMoveSuperimposed(Axis := axis,
+                                     Execute := FALSE);
+
+                statApplicativeSupImpMotionError := FALSE;
+
+            ELSE
+               (* Errorhandling - Invalid direction*)
+                statStatus                       := ERR_INVALID_POS_SUPERIMPOSED_DIR;
+                statErrorAutoCleared             := TRUE;
+                diagnostics                      := statDiagnostics;
+                diagnostics.subfunctionStatus    := 0;
+                statApplicativeSupImpMotionError := TRUE;
+               (* Set next state*)
+                statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                statSupImpMotionState := NO_SELECTION;
+            END_IF;
+        END_IF;
+
+        IF (statApplicativeSupImpMotionError = FALSE) THEN
+           (* Call MC_Command*)
+            instMoveSuperimposed(Axis := axis,
+                                 Execute := statSupImpCommand.0,(* Input: posSuperimposed*)
+                                 Distance := statSupImpMotionPosition,
+                                 VelocityDiff := configuration.posSuperimposed.velocityDiff,
+                                 Acceleration := configuration.posSuperimposed.acceleration,
+                                 Deceleration := configuration.posSuperimposed.deceleration,
+                                 Jerk := configuration.posSuperimposed.jerk);
+
+           (* Evaluate MC_Command*)
+            IF (instMoveSuperimposed.Busy = FALSE) AND
+                (instMoveSuperimposed.Error = FALSE) AND
+                (instMoveSuperimposed.Done = FALSE) AND
+                (instMoveSuperimposed.CommandAborted = FALSE)
+                THEN
+               (* Return to NO_SELECTION if command finished*)
+                statSupImpMotionState := NO_SELECTION;
+
+            ELSIF (instMoveSuperimposed.Error = TRUE) THEN
+               (* Errorhandling*)
+                statStatus                    := ERR_MC_MOVESUPERIMPOSED;
+                statErrorAutoCleared          := TRUE;
+                diagnostics                   := statDiagnostics;
+                diagnostics.subfunctionStatus := instMoveSuperimposed.ErrorId;
+               (* Set next state*)
+                statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                statSupImpMotionState := NO_SELECTION;
+
+            ELSE
+                ;(* command selected*)
+            END_IF;
+
+            statExeOfSupImpMotionState   := 16#0;
+            statExeOfSupImpMotionState.0 := instMoveSuperimposed.Busy;
+            statExeOfSupImpMotionState.1 := instMoveSuperimposed.Done;
+            statExeOfSupImpMotionState.2 := instMoveSuperimposed.CommandAborted;
+            statExeOfSupImpMotionState.3 := instMoveSuperimposed.Error;
+        END_IF;
+    {END_REGION}
+
+    PHASING_SELECTED:
+       (* Additional features (applicative) : Change setpoint on the fly (phaseShift)*)
+        {REGION "PHASING_SELECTED"}
+       (* Firstcycle of command*)
+        IF (statFirstCycleSupImpMotion = TRUE) THEN
+           (* Reset MC_PHASING_ABSOLUTE command*)
+            instPhasingAbsolute(Master := master,
+                                Slave := axis,
+                                Execute := FALSE);
+
+           (* Reset MC_PHASING_RELATIVE command*)
+            instPhasingRelative(Master := master,
+                                Slave := axis,
+                                Execute := FALSE);
+
+            statPhaseShift               := configuration.phasing.phaseShift;
+            statVelocity                 := configuration.phasing.velocity;
+            statAcceleration             := configuration.phasing.acceleration;
+            statDeceleration             := configuration.phasing.deceleration;
+            statJerk                     := configuration.phasing.jerk;
+            statPhaseAbsolute            := configuration.phasing.phaseAbsolute;
+            statChangePhaseShiftOnTheFly := configuration.phasing.phaseShiftChangeOnTheFly;
+
+        ELSIF ((statChangePhaseShiftOnTheFly = TRUE) AND
+            (configuration.phasing.phaseShift <> statPhaseShift)) AND
+            (statPhaseAbsolute = TRUE) AND
+            (instPhasingAbsolute.CommandAborted = FALSE)
+            THEN
+           (* Reset MC_PHASING_ABSOLUTE command - Phaseshift on the fly is only possible at phasing absolut*)
+            instPhasingAbsolute(Master := master,
+                                Slave := axis,
+                                Execute := FALSE);
+
+            statPhaseShift := configuration.phasing.phaseShift;
+        END_IF;
+
+       (* Select phasing absolut or relative *)
+        IF (statPhaseAbsolute = TRUE) THEN
+           (* Absolute phasing*)
+           (* Call MC_Command*)
+            instPhasingAbsolute(Master := master,
+                                Slave := axis,
+                                Execute := statSupImpCommand.1,(* Input: phasing*)
+                                PhaseShift := statPhaseShift,
+                                Velocity := statVelocity,
+                                Acceleration := statAcceleration,
+                                Deceleration := statDeceleration,
+                                Jerk := statJerk);
+
+           (* Evaluate MC_Command*)
+            IF (instPhasingAbsolute.Busy = FALSE) AND
+                (instPhasingAbsolute.Error = FALSE) AND
+                (instPhasingAbsolute.Done = FALSE) AND
+                (instPhasingAbsolute.CommandAborted = FALSE)
+                THEN
+               (* Return to NO_SELECTION if command finished*)
+                statSupImpMotionState := NO_SELECTION;
+
+            ELSIF (instPhasingAbsolute.Error = TRUE) THEN
+               (* Errorhandling*)
+                statStatus                    := ERR_MC_PHASINGABSOLUTE;
+                statErrorAutoCleared          := TRUE;
+                diagnostics                   := statDiagnostics;
+                diagnostics.subfunctionStatus := instPhasingAbsolute.ErrorId;
+                statChangePhaseShiftOnTheFly  := FALSE;
+               (* Set next state*)
+                statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                statSupImpMotionState := NO_SELECTION;
+
+            ELSE
+                ;(* Command busy*)
+            END_IF;
+
+            statExeOfSupImpMotionState   := 16#0;
+            statExeOfSupImpMotionState.0 := instPhasingAbsolute.Busy;
+            statExeOfSupImpMotionState.1 := instPhasingAbsolute.Done;
+            statExeOfSupImpMotionState.2 := instPhasingAbsolute.CommandAborted;
+            statExeOfSupImpMotionState.3 := instPhasingAbsolute.Error;
+
+        ELSE
+           (* Relative phasing  *)
+           (* Call MC_Command*)
+            instPhasingRelative(Master := master,
+                                Slave := axis,
+                                Execute := statSupImpCommand.1,(* Input: phasing*)
+                                PhaseShift := statPhaseShift,
+                                Velocity := statVelocity,
+                                Acceleration := statAcceleration,
+                                Deceleration := statDeceleration,
+                                Jerk := statJerk);
+
+           (* Evaluate MC_Command*)
+            IF (instPhasingRelative.Busy = FALSE) AND
+                (instPhasingRelative.Error = FALSE) AND
+                (instPhasingRelative.Done = FALSE) AND
+                (instPhasingRelative.CommandAborted = FALSE)
+                THEN
+               (* Return to NO_SELECTION if command finished*)
+                statSupImpMotionState := NO_SELECTION;
+
+            ELSIF (instPhasingRelative.Error = TRUE) THEN
+               (* Errorhandling*)
+                statStatus                    := ERR_MC_PHASINGRELATIVE;
+                statErrorAutoCleared          := TRUE;
+                diagnostics                   := statDiagnostics;
+                diagnostics.subfunctionStatus := instPhasingRelative.ErrorId;
+                statChangePhaseShiftOnTheFly  := FALSE;
+               (* Set next state*)
+                statFBState           := AXIS_STOP_ON_ERROR_SELECTION;
+                statSupImpMotionState := NO_SELECTION;
+            ELSE
+                ;(* Command selected*)
+            END_IF;
+
+            statExeOfSupImpMotionState   := 16#0;
+            statExeOfSupImpMotionState.0 := instPhasingRelative.Busy;
+            statExeOfSupImpMotionState.1 := instPhasingRelative.Done;
+            statExeOfSupImpMotionState.2 := instPhasingRelative.CommandAborted;
+            statExeOfSupImpMotionState.3 := instPhasingRelative.Error;
+        END_IF;
+{END_REGION}
+
+ELSE
+   (* Errorhandling*)
+    statStatus                    := ERR_UNDEFINED_SUPERIMPOSED_MOTION_STATE;
+    statErrorUserCleared          := TRUE;
+    diagnostics                   := statDiagnostics;
+    diagnostics.subfunctionStatus := 0;
+   (* Set errorstate*)
+    statFBState := FB_ERROR;
+END_CASE;
+
+{END_REGION}
+
+(*----------------------------------------------------------------------------------------------*)
+(*Execution of torquelimiting functionality*)
+(*----------------------------------------------------------------------------------------------*)
+
+
+{REGION "EXECUTION_OF_TORQUELIMTING"}
+(*Statemachine for torquelimiting *)
+REPEAT
+    tempStateChangeActive := FALSE;
+    CASE statTorqueLimitingState OF
+        NO_TORQUE_LIMITING_ACTIVE:
+            ;(* Torquelimiting disable*)
+       (*  instTorqueLimiting(Axis :=  axis, V01.00.03 Dont Call MC_TORQUELIMITING if disabled*)
+       (*                     Enable := FALSE);*)
+
+        TORQUE_LIMITING_DISABLE:
+           (* Torquelimiting disable*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := FALSE);
+
+           (* Check state of torque limting*)
+            IF (instTorqueLimiting.Busy = FALSE)
+                THEN
+               (* set next state*)
+                statTorqueLimitingState := NO_TORQUE_LIMITING_ACTIVE;
+            ELSE
+                ;(* Waiting for MC_Torquelimiting is not busy*)
+            END_IF;
+
+        TORQUE_LIMTING_SELECTED:
+           (* No extended homing function active*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := statExtendedCommand.1,
+                               TLimit := configuration.torqueLimiting.TorqueLimit,
+                               Mode := configuration.torqueLimiting.mode);
+
+            IF (instTorqueLimiting.Busy = FALSE) THEN
+               (* Reset state*)
+                statTorqueLimitingState := NO_TORQUE_LIMITING_ACTIVE;
+            END_IF;
+
+        (*
+	        V1.00.03 Not required anymore
+	       AUTOMATIC_MODE_CHANGE:
+	        // In this state the torquelimiting function is operating with Mode 1 (Fixed stop detection) until inClamping = FALSE
+	         instTorqueLimiting(Axis :=  axis,
+	                            Enable := TRUE,
+	                            Limit :=  configuration.homing.extendedModeTorqueLimit); // V01.00.03 Always use configured value
+	        
+	        IF ( configuration.torqueLimiting.mode =  MODE_FIXED_STOP_DETECTION)
+	          OR ( instTorqueLimiting.InClamping = FALSE)
+	        THEN
+	          // Change state
+	           statTorqueLimitingState :=  TORQUE_LIMTING_SELECTED;
+	           tempStateChangeActive := TRUE;
+	        ELSE
+	          ; // Wait for InClamping = FALSE
+	        END_IF;
+	        *)
+
+        FIXED_STOP_DETECTION_ACTIVE:
+           (* Extended homing function active*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := TRUE,
+                               TLimit := configuration.homing.extendedModeTorqueLimit,(* V01.00.03 Always use configured value*)
+                               Mode := MODE_FIXED_STOP_DETECTION);
+
+            IF ((statHomingSubState = HOMING_IDLE) AND (statBasicMotionState = ACTIVE_HOMING_SELECTED))
+                THEN
+               (* Fixed stop process has finished - Axis is still in clamping*)
+                statTorqueLimitingState := FIXED_STOP_DETECTION_FINISHED;
+                tempStateChangeActive   := TRUE;
+
+            ELSIF (statBasicMotionState <> ACTIVE_HOMING_SELECTED)
+                THEN
+               (* Error occurred - change state depending on inClamping*)
+                IF (instTorqueLimiting.InClamping = TRUE)
+                    THEN
+                   (* Axis is in clamping*)
+                    statTorqueLimitingState := FIXED_STOP_DETECTION_ERROR_IN_CLAMPING;
+                    tempStateChangeActive   := TRUE;
+                ELSE
+                   (* Axis is in not clamping*)
+                    statTorqueLimitingState := FIXED_STOP_DETECTION_ERROR_NOT_IN_CLAMPING;
+                    tempStateChangeActive   := TRUE;
+                END_IF;
+
+            ELSE
+                ;(* Fixed stop detection is running*)
+            END_IF;
+
+        FIXED_STOP_DETECTION_FINISHED:
+           (* Homing on fixed stop process has finished*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := TRUE,
+                               TLimit := configuration.homing.extendedModeTorqueLimit,(* V01.00.03 Always use configured value*)
+                               Mode := MODE_FIXED_STOP_DETECTION);
+
+            IF (instTorqueLimiting.InClamping = FALSE)
+                THEN
+               (* InClamping = FALSE*)
+                IF (statExtendedCommand.1 = TRUE)(* Torquelimiting*)
+                    THEN
+                    statTorqueLimitingState := TORQUE_LIMTING_SELECTED;
+                ELSE
+                    statTorqueLimitingState := TORQUE_LIMITING_DISABLE;
+                END_IF;
+
+                tempStateChangeActive := TRUE;
+            ELSE
+               (* InClamping = TRUE*)
+                IF (statExtendedCommand.1 = TRUE)(* Torquelimiting*)
+                    AND
+                    (configuration.torqueLimiting.mode = MODE_FIXED_STOP_DETECTION)
+                    THEN
+                   (* Change State*)
+                    statTorqueLimitingState := TORQUE_LIMTING_SELECTED;
+                    tempStateChangeActive   := TRUE;
+                ELSE
+                    ;(* Wait for inClamping = FALSE*)
+                END_IF;
+            END_IF;
+
+        FIXED_STOP_DETECTION_ERROR_IN_CLAMPING:
+           (* Errorstate, torquelimiting is still active and axis not in clamping*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := TRUE,
+                               TLimit := configuration.homing.extendedModeTorqueLimit,(* V01.00.03 Always use configured value*)
+                               Mode := MODE_FIXED_STOP_DETECTION);
+
+            IF (instTorqueLimiting.InClamping = FALSE)
+                THEN
+               (* InClamping = FALSE -> reset torque limiting state*)
+                statTorqueLimitingState := TORQUE_LIMITING_DISABLE;
+               (* Torquelimiting disable*)
+                tempStateChangeActive := TRUE;
+            END_IF;
+
+        FIXED_STOP_DETECTION_ERROR_NOT_IN_CLAMPING:
+           (* Errorstate, torquelimiting is still active and axis in clamping*)
+            instTorqueLimiting(Axis := axis,
+                               Enable := TRUE,
+                               TLimit := configuration.homing.extendedModeTorqueLimit,(* V01.00.03 Always use configured value*)
+                               Mode := MODE_FIXED_STOP_DETECTION);
+
+            IF (instTorqueLimiting.InClamping = TRUE)
+                THEN
+               (* InClamping = TRUE -> change state*)
+                statTorqueLimitingState := FIXED_STOP_DETECTION_ERROR_IN_CLAMPING;
+                tempStateChangeActive   := TRUE;
+
+            ELSIF (statBasicMotionState <> NO_SELECTION) OR (statSupImpMotionState <> NO_SELECTION) OR (statPassiveHomingState <> NO_HOMING_ACTIVE)
+                THEN
+               (* New valid command is set -> reset error state*)
+                statTorqueLimitingState := TORQUE_LIMITING_DISABLE;
+                tempStateChangeActive   := TRUE;
+
+            ELSE
+                ;(* Waiting for new command or axis is getting in clamping*)
+            END_IF;
+    ELSE
+       (* Errorhandling*)
+        statStatus                          := ERR_UNDEFINED_TORQUE_LIMITING_STATE;
+        statErrorUserCleared                := TRUE;
+        diagnostics.basicMotionState        := statBasicMotionState;
+        diagnostics.superimposedMotionState := statSupImpMotionState;
+        diagnostics.subfunctionStatus       := 0;
+       (* Set errorstate*)
+        statFBState := FB_ERROR;
+    END_CASE;
+UNTIL (tempStateChangeActive = FALSE)
+END_REPEAT;
+
+(* Evaluate MC_Command*)
+IF (instTorqueLimiting.Error = TRUE) AND ((statTorqueLimitingErrorOld = FALSE) OR (statStatus = STATUS_SUBSEQUENT_CALL)) THEN
+   (* Errorhandling*)
+    statStatus                          := ERR_MC_TORQUELIMITING;
+    statErrorAutoCleared                := TRUE;
+    diagnostics.basicMotionState        := statBasicMotionState;
+    diagnostics.superimposedMotionState := statSupImpMotionState;
+    diagnostics.subfunctionStatus       := instTorqueLimiting.ErrorId;
+    statFBState                         := AXIS_STOP_ON_ERROR_SELECTION;
+
+ELSIF (instTorqueLimiting.Error = FALSE) AND ((statTorqueLimitingErrorOld = TRUE) AND (statStatus = ERR_MC_TORQUELIMITING)) THEN
+    statStatus           := STATUS_SUBSEQUENT_CALL;
+    statErrorAutoCleared := FALSE;
+ELSE
+    ;
+END_IF;
+
+statTorqueLimitingErrorOld := instTorqueLimiting.Error;
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(* Selection of StopOnError / implementation of fastStop*)
+(*----------------------------------------------------------------------------------------------*)
+
+{REGION "STOP_ON_ERROR"}
+
+(*Check for stopping if error occurred during execution of motion commands*)
+
+IF (statFBState = AXIS_STOP_ON_ERROR_SELECTION)
+    THEN
+    statBasicMotionState   := NO_SELECTION;
+    statSupImpMotionState  := NO_SELECTION;
+    statPassiveHomingState := NO_HOMING_ACTIVE;
+
+    IF (configuration.generalSettings.stopOnError = TRUE)
+        THEN
+       (* Read Statusword only when not already read out*)
+        IF (tempStatusWord = 16#0)
+            THEN
+            tempStatusWord := axis.NcToPlc.StateDWord;
+        END_IF;
+
+       (* Evaluate error*)
+        IF tempStatusWord.0 THEN
+            ;(* Axis enabled*)
+            IF (tempStatusWord.1 = TRUE) THEN
+                ;(* TO Alarm present*)
+                statFBState := AXIS_MOTION;
+            ELSE
+               (* No TO alarm present, set fastStop*)
+                statBasicMotionState      := FAST_STOP_SELECTED;
+                statFirstCycleBasicMotion := TRUE;
+                statFBState               := AXIS_STOP_ON_ERROR_EXECUTION;
+            END_IF;
+
+        ELSE
+            ;(* Axis disabled*)
+            statFBState := AXIS_MOTION;
+        END_IF;
+
+    ELSE
+       (* Dont StopOnError*)
+        statFBState := AXIS_MOTION;
+    END_IF;
+END_IF;
+
+(*Implementation of fastStop*)
+IF (statBasicMotionState = FAST_STOP_SELECTED) THEN
+   (* Additional feature: Load emergency stop dynamics (TO) if no valid dynamics are configured for fastStop*)
+    {REGION "FASTSTOP SELECTED"}
+   (* Firstcycle of command*)
+    IF (statFirstCycleBasicMotion = TRUE) THEN
+       (* Reset HALT command*)
+        instHalt(Axis := axis,
+                 Execute := FALSE);
+
+        statFirstCycleDone := TRUE;
+       (* Check dynamics for fastStop*)
+       (* Load TO emergency Stop dynamics if value <=0 for deceleration is configured*)
+        IF (configuration.fastStop.deceleration <= 0)(* V1.0.2 Read TO emergencyStop deceleration only IF fastStop.deceleration <= 0*)
+            THEN
+           (* Invalid fastStop dynamics configured - read emergency stop dynamics from TO*)
+            (*statDeceleration :=  axis.DynamicDefaults.EmergencyDeceleration;*)
+            statDeceleration := configuration.fastStop.deceleration;
+        ELSE
+           (* Valid fastStop dynamics configured*)
+            statDeceleration := configuration.fastStop.deceleration;
+        END_IF;
+
+        statJerk              := configuration.fastStop.jerk;             (* V1.0.2 Use always configuration for jerk value*)
+        statAbortAcceleration := configuration.fastStop.abortAcceleration;(* V1.0.2 Use always configuration*)
+    END_IF;
+
+   (* Call of MC_Command*)
+    instHalt(Axis := axis,
+             Execute := (statBasicCommand.0 OR statFirstCycleBasicMotion),
+             Deceleration := statDeceleration,
+             (*AbortAcceleration :=  statAbortAcceleration,*)
+             Jerk := statJerk);
+
+   (* Evaluate MC_Command*)
+    IF (instHalt.Busy = FALSE) AND
+        (instHalt.Error = FALSE) AND
+        (instHalt.Done = FALSE) AND
+        (instHalt.CommandAborted = FALSE)
+        THEN
+       (* Return to NO_SELECTION if command finished*)
+        statFBState          := AXIS_MOTION;
+        statBasicMotionState := NO_SELECTION;
+
+    ELSIF (instHalt.Done = TRUE)
+        THEN
+        IF (statFirstCycleDone = TRUE)
+            THEN
+           (* Command is reset*)
+            IF (instTorqueLimiting.Error = FALSE)(* V1.00.03 Dont reset error is pending*)
+                THEN
+               (* Reset status not if torquelimiting error is pending*)
+                statStatus           := STATUS_SUBSEQUENT_CALL;
+                statErrorAutoCleared := FALSE;
+            END_IF;
+
+            statFirstCycleDone := FALSE;
+        END_IF;
+
+    ELSIF (instHalt.Error = TRUE)
+        THEN
+       (* Errorhandling*)
+        statStatus                          := ERR_MC_HALT;
+        statErrorAutoCleared                := TRUE;
+        diagnostics                         := statDiagnostics;
+        diagnostics.basicMotionState        := statBasicMotionState;
+        diagnostics.superimposedMotionState := statSupImpMotionState;
+        diagnostics.subfunctionStatus       := instHalt.ErrorId;
+
+    ELSE
+        ;(* Command selected*)
+    END_IF;
+
+   (* Write MC_Command outputs to internal variable*)
+    statExeOfBasicMotion   := 0;
+    statExeOfBasicMotion.0 := instHalt.Busy;
+    statExeOfBasicMotion.1 := instHalt.Done;
+    statExeOfBasicMotion.2 := instHalt.CommandAborted;
+    statExeOfBasicMotion.3 := instHalt.Error;
+    {END_REGION}
+END_IF;
+
+{END_REGION}
+
+(*----------------------------------------------------------------------------------------------*)
+(*Store values and reset variables										*)
+(*----------------------------------------------------------------------------------------------*)
+
+{REGION "STORE_AND_RESET"}
+(*Reset variables to determine first cycle of a new command*)
+IF (statFirstCycleReset = TRUE) THEN
+    statFirstCycleReset := FALSE;
+END_IF;
+
+IF (statFirstCycleHoming = TRUE) THEN
+    statFirstCycleHoming := FALSE;
+END_IF;
+
+statHomingOld := tempHoming;
+
+IF (statFirstCycleBasicMotion = TRUE) THEN
+    statFirstCycleBasicMotion := FALSE;
+END_IF;
+
+statBasicCommandOld := statBasicCommand;
+
+IF (statFirstCycleSupImpMotion = TRUE) THEN
+    statFirstCycleSupImpMotion := FALSE;
+END_IF;
+
+statSupImpCommandOld := statSupImpCommand;
+
+(*Store last values for edge detection*)
+statEnableOld          := enable;
+statEnableAxisOld      := enableAxis;
+statExtendedCommandOld := statExtendedCommand;
+statPowerErrorOld      := instPower.Error;
+{END_REGION}
+
+
+(*----------------------------------------------------------------------------------------------*)
+(*Writing outputs													*)
+(*----------------------------------------------------------------------------------------------*)
+
+{REGION "WRITING_OF_OUTPUTS"}
+(*Writing status outputs*)
+resetActive := (statResetState = CMD_BUSY);
+
+IF (statErrorUserCleared = TRUE) THEN
+    ;(* Reset variables at ErrorUserCleared*)
+    statBasicMotionState       := NO_SELECTION;
+    statExeOfBasicMotion       := NO_SELECTION;
+    statSupImpMotionState      := NO_SELECTION;
+    statExeOfSupImpMotionState := NO_SELECTION;
+    statExeOfHoming            := NO_SELECTION;
+END_IF;
+
+IF (instPower.Status = TRUE)
+    THEN
+   (* Axis enabled*)
+    axisEnabled := TRUE;
+
+ELSIF (instPower.Error = TRUE) AND (instPower.Status = FALSE)
+    THEN
+   (* Reset status if error occurred*)
+    axisEnabled := FALSE;
+
+ELSIF (instPower.Busy = FALSE)
+    THEN
+   (* Reset if MC_Power is not busy*)
+    axisEnabled := FALSE;
+ELSE
+    ;
+END_IF;
+
+{REGION "WRITING_BASICMOTION_OUTPUTS"}
+(*Writing Busy, Done and Aborted outputs for basic motion commands*)
+IF (statBasicMotionState > NO_SELECTION) AND (statBasicMotionState < ACTIVE_HOMING_SELECTED)
+    THEN
+    commandBusy    := statExeOfBasicMotion.0;
+    commandDone    := statExeOfBasicMotion.1;
+    commandAborted := statExeOfBasicMotion.2;
+    inVelocity     := statExeOfBasicMotion.4;
+    inSync         := statExeOfBasicMotion.7;
+    startSync      := statExeOfBasicMotion.6;
+ELSE
+    commandBusy    := FALSE;
+    commandDone    := FALSE;
+    commandAborted := FALSE;
+    inVelocity     := FALSE;
+    inSync         := FALSE;
+    startSync      := FALSE;
+END_IF;
+
+(*Writing outputs up to LAxisCtrl_SpeedAxis*)
+IF (statTorqueLimitingState = TORQUE_LIMTING_SELECTED)
+(*OR ( statTorqueLimitingState =  AUTOMATIC_MODE_CHANGE) V1.0.3 TorqueLimtinig = TRUE, only when respective value used *)
+    THEN
+    torqueLimitingSelected := TRUE;
+ELSE
+    torqueLimitingSelected := FALSE;
+END_IF;
+
+inLimitation         := instTorqueLimiting.InLimitation;
+fastStopSelected     := statBasicMotionState.0;
+stopSelected         := statBasicMotionState.1;
+jogSelected          := statBasicMotionState.2 OR statBasicMotionState.3;
+moveVelocitySelected := statBasicMotionState.4;
+(* Writing outputs up to LAxisCtrl_PosAxis*)
+inClamping          := instTorqueLimiting.InClamping;
+posRelativeSelected := statBasicMotionState.5;
+posAbsoluteSelected := statBasicMotionState.6;
+(* Writing outputs up to LAxisCtrl_SyncAxisRelGearing*)
+gearInRelativeSelected := statBasicMotionState.7;
+(* Writing outputs up to LAxisCtrl_SyncAxisCamming*)
+gearInAbsoluteSelected := statBasicMotionState.8;
+camInSelected          := statBasicMotionState.9;
+inSimulation           := instSyncMotionSimulation.InSimulation;
+{END_REGION}
+{REGION "WRITING_HOMING_OUTPUTS"}
+
+(* Writing Busy, Done and Aborted outputs for homing*)
+IF (statPassiveHomingState = STANDARD_HOMING)
+    THEN
+    homingSelected       := TRUE;
+    homingCommandBusy    := statExeOfHoming.0;
+    homingCommandDone    := statExeOfHoming.1;
+    homingCommandAborted := statExeOfHoming.2;
+ELSE
+    IF (statBasicMotionState = ACTIVE_HOMING_SELECTED)
+        THEN
+        homingSelected       := TRUE;
+        homingCommandBusy    := statExeOfBasicMotion.0;
+        homingCommandDone    := statExeOfBasicMotion.1;
+        homingCommandAborted := statExeOfBasicMotion.2;
+    ELSE
+        homingSelected       := FALSE;
+        homingCommandBusy    := FALSE;
+        homingCommandDone    := FALSE;
+        homingCommandAborted := FALSE;
+    END_IF;
+END_IF;
+
+{END_REGION}
+{REGION "WRITING_SUPERIMPOSED_OUTPUTS"}
+
+(*Writing outputs for superimposed motion commands*)
+IF (statSupImpMotionState <> NO_SELECTION)
+    THEN
+    superimposedBusy    := statExeOfSupImpMotionState.0;
+    superimposedDone    := statExeOfSupImpMotionState.1;
+    superimposedAborted := statExeOfSupImpMotionState.2;
+ELSE
+    superimposedBusy    := FALSE;
+    superimposedDone    := FALSE;
+    superimposedAborted := FALSE;
+END_IF;
+
+posSuperimposedSelected := statSupImpMotionState.0;
+phasingSelected         := statSupImpMotionState.1;
+{END_REGION}
+{END_REGION}
+
+(*----------------------------------------------------------------------------------------------*)
+(*Error handling 													*)
+(*----------------------------------------------------------------------------------------------*)
+
+{REGION "ERROR_HANDLING"}
+IF statErrorUserCleared THEN
+    valid              := FALSE;
+    busy               := TRUE;
+    error              := TRUE;
+    status             := statStatus;
+    diagnostics.status := statStatus;
+
+ELSIF statErrorAutoCleared THEN
+    valid              := FALSE;
+    busy               := TRUE;
+    error              := TRUE;
+    status             := statStatus;
+    diagnostics.status := statStatus;
+
+ELSE
+   (* Process normal output values*)
+    valid  := TRUE;
+    error  := FALSE;
+    status := statStatus;
+END_IF;
+
+{END_REGION}
+
+(*Axis status function block call*)
+(*instAxisStatus(stAxis := Axis.NcToPlc);*)
+]]></ST>
+    </Implementation>
+    <LineIds Name="FB_SimpleAxisControl">
+      <LineId Id="1" Count="3126" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

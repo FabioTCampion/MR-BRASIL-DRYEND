@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="TO_Cam_Struct_SegmentData" Id="{8dbac625-b856-4e46-a467-fb8a0e401876}">
+    <Declaration><![CDATA[TYPE TO_Cam_Struct_SegmentData :
+STRUCT
+
+	xmin:LREAL;
+	xmax:LREAL;
+
+	a0:LREAL;
+
+	a1:LREAL;
+
+	a2:LREAL;
+
+	a3:LREAL;
+
+	a4:LREAL;
+
+	a5:LREAL;
+
+	a6:LREAL;
+
+	sineAmplitude:LREAL;
+
+	sinePeriod:LREAL;
+
+	sinePhase:LREAL;
+
+
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

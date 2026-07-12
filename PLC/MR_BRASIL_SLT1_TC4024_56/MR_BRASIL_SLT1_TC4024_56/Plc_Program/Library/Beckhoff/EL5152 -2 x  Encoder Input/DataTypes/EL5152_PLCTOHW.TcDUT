@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL5152_PLCTOHW" Id="{13a1f1b5-ca7f-4c8c-9d7a-bd78ad25b2a6}">
+    <Declaration><![CDATA[TYPE EL5152_PLCTOHW :
+	STRUCT
+		
+			channel1 : EL5152_PLCTOHW_PDOS;
+			channel2 : EL5152_PLCTOHW_PDOS;
+
+	END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="MC_SYNCHRONIZEDMOTIONSIMULATION" Id="{87beaf09-5f58-4e05-893d-0a3efd88253d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK MC_SYNCHRONIZEDMOTIONSIMULATION
+
+VAR_IN_OUT
+	Slave	: AXIS_REF;	(* B *)
+END_VAR
+
+
+VAR_INPUT
+
+
+	Enable : BOOL;
+
+END_VAR
+VAR_OUTPUT
+
+	InSimulation	:BOOL;
+
+Busy	:BOOL;
+
+	Error	:BOOL;
+
+ErrorId	:WORD;
+
+END_VAR
+VAR
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[;]]></ST>
+    </Implementation>
+    <LineIds Name="MC_SYNCHRONIZEDMOTIONSIMULATION">
+      <LineId Id="1" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

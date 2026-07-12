@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="rotaryKnifeStatusWord1_TypeStruct" Id="{bbbb9481-51aa-4443-819d-6e1a385d2c54}">
+    <Declaration><![CDATA[TYPE rotaryKnifeStatusWord1_TypeStruct :
+STRUCT
+	
+   	knifeAtHomeParkPos1             : BOOL;
+    homingInProgress                : BOOL;
+    homingComplete                  : BOOL;
+    knifeInspectionMotionInProgress : BOOL;
+    knifeInspectionMotionComplete   : BOOL;
+    returnHomeMotionInProgress      : BOOL;
+    returnHomeMotionComplete        : BOOL;
+    jogForwardInProgress            : BOOL;
+    jogReverseInProgress            : BOOL;
+    knifeGearingOut                 : BOOL;
+    knifeRunningEngaged             : BOOL;
+    knifeStoppedDisengaged          : BOOL;
+    maxLineSpeedLimitCalculated     : BOOL;
+    batchMaxLineSpeedCalcInProgress : BOOL;
+    batchMaxLineSpeedCalculated     : BOOL;
+    watchdogClockOut                : BOOL;
+
+END_STRUCT
+END_TYPE 
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

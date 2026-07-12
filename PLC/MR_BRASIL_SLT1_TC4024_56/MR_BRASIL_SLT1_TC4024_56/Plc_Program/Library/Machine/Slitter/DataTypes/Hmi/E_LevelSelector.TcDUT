@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="E_LevelSelector" Id="{1b042426-21a5-4cd1-ac46-1d49e42fca74}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE E_LevelSelector : (
+	
+    eUpperOnly := 1,   // Only upper level enabled
+    eLowerOnly := 2,   // Only lower level enabled
+    eBoth      := 3    // Upper + Lower enabled
+);
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

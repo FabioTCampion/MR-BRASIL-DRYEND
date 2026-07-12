@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="_FB_00BW1" Id="{7a7a2001-d82d-4a02-b5cb-f549d23c20cc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK _FB_00BW1
+VAR_INPUT
+	
+	solenoid_01 : BOOL;
+	solenoid_02 : BOOL;
+	solenoid_03 : BOOL;
+	solenoid_04 : BOOL;
+	solenoid_05 : BOOL;
+	solenoid_06 : BOOL;
+	solenoid_07 : BOOL;
+	solenoid_08 : BOOL;
+	solenoid_09 : BOOL;
+	solenoid_10 : BOOL;
+	solenoid_11 : BOOL;
+	solenoid_12 : BOOL;
+	solenoid_13 : BOOL;
+	solenoid_14 : BOOL;
+	solenoid_15 : BOOL;
+	solenoid_16 : BOOL;
+	solenoid_17 : BOOL;
+	solenoid_18 : BOOL;
+	solenoid_19 : BOOL;
+	solenoid_20 : BOOL;
+	solenoid_21 : BOOL;
+	solenoid_22 : BOOL;
+	solenoid_23 : BOOL;
+	solenoid_24 : BOOL;
+	solenoid_25 : BOOL;
+	solenoid_26 : BOOL;
+	solenoid_27 : BOOL;
+	solenoid_28 : BOOL;
+	solenoid_29 : BOOL;
+	solenoid_30 : BOOL;
+	solenoid_31 : BOOL;
+	solenoid_32 : BOOL;
+	
+	PlcToHw AT %Q* : _00BW12_PLCTOHW_PDOS;	
+		
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+PlcToHw.outputByte_0.0 := solenoid_01;
+PlcToHw.outputByte_0.1 := solenoid_02;
+PlcToHw.outputByte_0.2 := solenoid_03;
+PlcToHw.outputByte_0.3 := solenoid_04;
+PlcToHw.outputByte_0.4 := solenoid_05;
+PlcToHw.outputByte_0.5 := solenoid_06;
+PlcToHw.outputByte_0.6 := solenoid_07;
+PlcToHw.outputByte_0.7 := solenoid_08;
+
+PlcToHw.outputByte_1.0 := solenoid_09;
+PlcToHw.outputByte_1.1 := solenoid_10;
+PlcToHw.outputByte_1.2 := solenoid_11;
+PlcToHw.outputByte_1.3 := solenoid_12;
+PlcToHw.outputByte_1.4 := solenoid_13;
+PlcToHw.outputByte_1.5 := solenoid_14;
+PlcToHw.outputByte_1.6 := solenoid_15;
+PlcToHw.outputByte_1.7 := solenoid_16;
+
+PlcToHw.outputByte_2.0 := solenoid_17;
+PlcToHw.outputByte_2.1 := solenoid_18;
+PlcToHw.outputByte_2.2 := solenoid_19;
+PlcToHw.outputByte_2.3 := solenoid_20;
+PlcToHw.outputByte_2.4 := solenoid_21;
+PlcToHw.outputByte_2.5 := solenoid_22;
+PlcToHw.outputByte_2.6 := solenoid_23;
+PlcToHw.outputByte_2.7 := solenoid_24;
+
+PlcToHw.outputByte_3.0 := solenoid_25;
+PlcToHw.outputByte_3.1 := solenoid_26;
+PlcToHw.outputByte_3.2 := solenoid_27;
+PlcToHw.outputByte_3.3 := solenoid_28;
+PlcToHw.outputByte_3.4 := solenoid_29;
+PlcToHw.outputByte_3.5 := solenoid_30;
+PlcToHw.outputByte_3.6 := solenoid_31;
+PlcToHw.outputByte_3.7 := solenoid_32;]]></ST>
+    </Implementation>
+    <LineIds Name="_FB_00BW1">
+      <LineId Id="3" Count="34" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
