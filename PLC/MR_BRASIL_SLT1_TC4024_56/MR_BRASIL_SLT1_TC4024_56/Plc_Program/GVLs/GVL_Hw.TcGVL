@@ -61,6 +61,9 @@ VAR_GLOBAL
 	STKL_050_DIO2 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
 	STKL_100_B01 : _FB_DT35_B15251; //Ch 2 - IO-Link Pile height sensor	
 	
+	STKU_050_DIO1 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
+	STKU_050_DIO2 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
+	STKU_050_DIO3 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
 	
 	STKL_P2_100_UG8 : FB_IS620P_CO; //Backstop servo drive
 	STKL_P2_100_UG9 : FB_IS620P_CO; //Lift servo drive

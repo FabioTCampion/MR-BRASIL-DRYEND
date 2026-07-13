@@ -9,6 +9,7 @@ STRUCT
 	lowerKnife	: rotaryKnifeConfig_TypeStruct;	
 	automaticOrderChange : aocConfig_TypeStruct;	
 	lowerStacker	: SimpleStackerConfig_TypeStruct;
+	upperStacker	: ComplexStackerConfig_TypeStruct;
 
 END_STRUCT
 END_TYPE

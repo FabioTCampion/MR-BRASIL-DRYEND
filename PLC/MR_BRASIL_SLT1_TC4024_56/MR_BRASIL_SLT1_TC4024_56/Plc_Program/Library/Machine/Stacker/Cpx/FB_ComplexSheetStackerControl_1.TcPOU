@@ -1,0 +1,4040 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <POU Name="FB_ComplexSheetStackerControl_1" Id="{e08739c9-c0f8-48d5-8bb0-68f7f3197b0c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ComplexSheetStackerControl_1
+VAR_INPUT
+
+    //==============================================================
+    // Group command inputs
+    //==============================================================
+    startCmd                            : BOOL;
+    stopCmd                             : BOOL;
+    resetCmd                            : BOOL;
+
+
+    //==============================================================
+    // Speed reference inputs
+    //==============================================================
+    lineSpeedMPM                        : REAL;
+
+    // EN: Current sheet length [mm].
+    // PT: Comprimento atual da chapa [mm].
+    sheetLengthMm                       : REAL;
+
+
+    //==============================================================
+    // Package command input
+    //==============================================================
+    // EN: Rising edge starts package separation cycle.
+    // PT: Borda de subida inicia o ciclo de separação do pacote.
+    packageCompleteCmd                  : BOOL;
+	sheetConveyorsSpeedUpCmd : BOOL;
+
+    //==============================================================
+    // Machine configuration
+    //==============================================================
+    machineConfig                       : ComplexStackerConfig_TypeStruct;
+
+
+    //==============================================================
+    // Safety input
+    //==============================================================
+    safetyCircuitOk                     : BOOL;
+
+
+    //==============================================================
+    // Synchronized conveyor drive status inputs
+    //==============================================================
+    sheetConveyor1DriveOk               : BOOL;
+    sheetConveyor2DriveOk               : BOOL;
+    sheetConveyor3DriveOk               : BOOL;
+    sheetConveyor4DriveOk               : BOOL;
+    elevatorDriveOk              : BOOL;
+
+
+    //==============================================================
+    // Auxiliary drive status inputs
+    //==============================================================
+    backstopDriveOk                     : BOOL;
+
+	//==============================================================
+	// Sheet stack discharge conveyor drive status input
+	//==============================================================
+    sheetStackDischargeConveyorDriveOk                 : BOOL;
+
+	//==============================================================
+	// EN: Stack buffer conveyor drive status inputs
+	// PT: Entradas de estado dos acionamentos das esteiras buffer
+	//==============================================================
+	stackBufferConveyor1DriveOk            : BOOL;
+	stackBufferConveyor2DriveOk            : BOOL;
+	stackBufferConveyor3DriveOk            : BOOL;
+
+	//==============================================================
+	// EN: Stack detection sensors
+	// PT: Sensores de detecção das pilhas
+	//==============================================================
+	stackBufferConveyor1StackPresentSensor : BOOL;
+	stackBufferConveyor2StackPresentSensor : BOOL;
+	stackBufferConveyor3StackPresentSensor : BOOL;
+	elevatorStackPresentSensor             : BOOL;
+	elevatorStackExitClearSensor           : BOOL;
+	backstopMaterialInterlockSensor         : BOOL;
+	backstopStackLevelSensor                : BOOL;
+
+	
+    //==============================================================
+    // Position / measurement inputs
+    //==============================================================
+    stackHeightMm                       : REAL;
+    backstopPositionMm                  : REAL;
+    elevatorPositionMm           : REAL;
+
+
+	//==============================================================
+	// Elevator command inputs
+	//==============================================================
+	// EN: Starts elevator homing cycle.
+	// PT: Inicia o ciclo de homing do elevador.
+	elevatorHomeCmd              : BOOL;
+	
+	// EN: Enables automatic leveling according to stack height.
+	// PT: Habilita nivelamento automático conforme altura da pilha.
+	elevatorAutoCmd              : BOOL;
+	
+	// EN: Manual up command.
+	// PT: Comando manual para subir.
+	elevatorUpCmd                : BOOL;
+	
+	// EN: Manual down command.
+	// PT: Comando manual para descer.
+	elevatorDownCmd              : BOOL;
+
+
+    //==============================================================
+    // Elevator limit inputs
+    //==============================================================
+    elevatorUpperSafetyLimit     : BOOL;
+    elevatorLowerSafetyLimit     : BOOL;
+
+    elevatorUpperLimit           : BOOL;
+    elevatorLowerLimit           : BOOL;
+
+
+    //==============================================================
+    // Backstop command inputs
+    //==============================================================
+    // EN: Starts the backstop homing cycle.
+    // PT: Inicia o ciclo de homing do backstop.
+    backstopHomeCmd                     : BOOL;
+	
+    // EN: Starts the backstop homing cycle.
+    // PT: Inicia o ciclo de homing do backstop.
+    backstopExecutePositioningCmd			 : BOOL;
+    // EN: Enables automatic positioning according to sheet length.
+    // PT: Habilita posicionamento automático conforme comprimento da chapa.
+    backstopAutoCmd                     : BOOL;
+
+    // EN: Manual open command.
+    // PT: Comando manual para abrir.
+    backstopOpenCmd                     : BOOL;
+
+    // EN: Manual close command.
+    // PT: Comando manual para fechar.
+    backstopCloseCmd                    : BOOL;
+
+
+    //==============================================================
+    // Backstop limit inputs
+    //==============================================================
+    backstopSafeMaxLimit                    : BOOL;	
+    backstopMaxLimit                 	   	: BOOL;
+    backstopMinLimit                   		: BOOL;
+    backstopSafeMinLimit                    : BOOL;
+
+
+    //==============================================================
+    // Sheet handling command inputs
+    //==============================================================
+	sheetStackDischargeConveyorManualRunCmd : BOOL;
+    noCrushRollersDownCmd                 	: BOOL;
+
+	// EN: Runs all three stack buffer conveyors.
+	// PT: Aciona as três esteiras buffer de pilhas.
+	stackBufferConveyorsRunCmd               : BOOL;
+
+END_VAR
+
+
+VAR_OUTPUT
+
+	hmiAlarms : hmiAlarmsComplexStacker_TypeStruct;
+	hmiStatus : hmiStatusComplexStacker_TypeStruct;
+	stackerRunning : BOOL;
+	alarmActive	: BOOL;
+	stopMachinePulse : BOOL;
+	reset 	: BOOL;
+    //==============================================================
+    // Synchronized conveyor drive outputs
+    //==============================================================
+    sheetConveyor1Run                   : BOOL;
+    sheetConveyor2Run                   : BOOL;
+    sheetConveyor3Run                   : BOOL;
+    sheetConveyor4Run                   : BOOL;
+	
+	//==============================================================
+	// Elevator drive outputs
+	//==============================================================
+	// EN: Elevator up run command.
+	// PT: Comando para subir o elevador.
+	elevatorRunUp                : BOOL;
+	
+	// EN: Elevator down run command.
+	// PT: Comando para descer o elevador.
+	elevatorRunDown              : BOOL;
+	
+	//==============================================================
+	// Elevator magnetic brake output
+	//==============================================================
+	// EN: Magnetic brake release output. TRUE = brake released.
+	// PT: Saída de liberação do freio magnético. TRUE = freio liberado.
+	elevatorBrakeRelease         : BOOL;	
+
+    //==============================================================
+    // Backstop drive outputs
+    //==============================================================
+    // EN: Backstop forward run command. Positive/opening direction.
+    // PT: Comando frente do backstop. Direção positiva/abrir.
+    backstopRunFw                       : BOOL;
+
+    // EN: Backstop reverse run command. Negative/closing direction.
+    // PT: Comando reverso do backstop. Direção negativa/fechar.
+    backstopRunRev                      : BOOL;
+
+    // EN: Enables the backstop servo together with the stacker control.
+    // PT: Habilita o servo do backstop junto com o controle do stacker.
+    backstopDriveEnable                 : BOOL;
+
+	//==============================================================
+	// Sheet stack discharge conveyor outputs
+	//==============================================================
+	// EN: Sheet stack discharge conveyor run command.
+	// PT: Comando de giro da esteira de descarga da pilha.
+	sheetStackDischargeConveyorRun          : BOOL;
+
+	//==============================================================
+	// EN: Stack buffer conveyor run outputs
+	// PT: Saídas de acionamento das esteiras buffer de pilhas
+	//==============================================================
+	stackBufferConveyor1Run                 : BOOL;
+	stackBufferConveyor2Run                 : BOOL;
+	stackBufferConveyor3Run                 : BOOL;
+
+
+
+
+    //==============================================================
+    // Synchronized conveyor speed reference outputs
+    //==============================================================
+    sheetConveyor1SpeedRefMPM           : REAL;
+    sheetConveyor2SpeedRefMPM           : REAL;
+    sheetConveyor3SpeedRefMPM           : REAL;
+    sheetConveyor4SpeedRefMPM           : REAL;
+    elevatorSpeedRefMmps          : REAL;
+	// EN: Sheet stack discharge conveyor speed reference [m/min].
+	// PT: Referência de velocidade da esteira de descarga da pilha [m/min].
+	sheetStackDischargeConveyorSpeedRefMPM  : REAL;
+
+	// EN: Stack buffer conveyor speed references [m/min].
+	// PT: Referências de velocidade das esteiras buffer [m/min].
+	stackBufferConveyor1SpeedRefMPM         : REAL;
+	stackBufferConveyor2SpeedRefMPM         : REAL;
+	stackBufferConveyor3SpeedRefMPM         : REAL;
+
+    //==============================================================
+    // Backstop speed reference output
+    //==============================================================
+    // EN: Signed backstop speed reference [mm/s]. Positive opens and negative closes.
+    // PT: Referência de velocidade com sinal do backstop [mm/s]. Positivo abre e negativo fecha.
+    backstopSpeedRefMmps                : REAL;
+	
+	
+	
+    backstopPlateUpSolenoid                : BOOL;
+
+
+    //==============================================================
+    // Backstop encoder set outputs
+    //==============================================================
+    // EN: Pulse output to set/reset backstop encoder position.
+    // PT: Pulso de saída para setar/resetar a posição do encoder do backstop.
+    backstopSetEncoderPosition          : BOOL;
+
+    // EN: Position value to set in the encoder block [mm].
+    // PT: Valor de posição a ser gravado no bloco do encoder [mm].
+    backstopSetEncoderPositionMm        : REAL;
+
+
+    //==============================================================
+    // Pneumatic valve outputs
+    //==============================================================
+    brakeValve                          : BOOL;
+
+    sheetBrush1Valve                    : BOOL;
+    sheetBrush2Valve                    : BOOL;
+    sheetBrush3Valve                    : BOOL;
+
+    brakeBrushValve                     : BOOL;
+    backstopUpValve                     : BOOL;
+    noCrushRollersUpDownValve               : BOOL;
+
+
+    //==============================================================
+    // General status outputs
+    //==============================================================
+    deviceState                         : STRING(30);
+
+    faultActive                         : BOOL;
+    synchronizedConveyorsRunning        : BOOL;
+
+
+    //==============================================================
+    // Sheet stack separation status outputs
+    //==============================================================
+    sheetStackSeparationState           : STRING(30);
+    sheetStackSeparationStateCode       : INT;
+
+    sheetStackSeparationReady           : BOOL;
+    sheetStackSeparationActive          : BOOL;
+
+    // EN: One-scan pulse when sheet stack separation starts.
+    // PT: Pulso de um ciclo quando inicia a separação da pilha de chapas.
+    sheetStackSeparationStarted         : BOOL;
+
+    // EN: One-scan pulse when sheet stack separation finishes.
+    // PT: Pulso de um ciclo quando finaliza a separação da pilha de chapas.
+    sheetStackSeparationFinished        : BOOL;
+
+    // EN: Brake active during sheet stack separation.
+    // PT: Freio ativo durante a separação da pilha de chapas.
+    sheetStackBrakeActive               : BOOL;
+
+
+    //==============================================================
+    // Sheet conveyor 2 separation status outputs
+    //==============================================================
+    sheetConveyor2SeparationActive      : BOOL;
+
+    // EN: One-scan pulse when conveyor 2 separation tracking starts.
+    // PT: Pulso de um ciclo quando inicia o rastreamento de separação da esteira 2.
+    sheetConveyor2SeparationStarted     : BOOL;
+
+    // EN: One-scan pulse when conveyor 2 separation tracking finishes.
+    // PT: Pulso de um ciclo quando finaliza o rastreamento de separação da esteira 2.
+    sheetConveyor2SeparationFinished    : BOOL;
+
+    sheetConveyor2HighSpeedActive       : BOOL;
+
+    // EN: Current conveyor 2 separation tracking distance [m].
+    // PT: Distância atual rastreada na separação da esteira 2 [m].
+    sheetConveyor2TrackingDistanceM     : REAL;
+
+    // EN: Conveyor 2 separation target distance [m].
+    // PT: Distância alvo de separação da esteira 2 [m].
+    sheetConveyor2TargetDistanceM       : REAL;
+
+
+    //==============================================================
+    // Sheet conveyor 3 separation status outputs
+    //==============================================================
+    sheetConveyor3SeparationActive      : BOOL;
+
+    // EN: One-scan pulse when conveyor 3 separation tracking starts.
+    // PT: Pulso de um ciclo quando inicia o rastreamento de separação da esteira 3.
+    sheetConveyor3SeparationStarted     : BOOL;
+
+    // EN: One-scan pulse when conveyor 3 separation tracking finishes.
+    // PT: Pulso de um ciclo quando finaliza o rastreamento de separação da esteira 3.
+    sheetConveyor3SeparationFinished    : BOOL;
+
+    sheetConveyor3HighSpeedActive       : BOOL;
+
+    // EN: Current conveyor 3 separation tracking distance [m].
+    // PT: Distância atual rastreada na separação da esteira 3 [m].
+    sheetConveyor3TrackingDistanceM     : REAL;
+
+    // EN: Conveyor 3 separation target distance [m].
+    // PT: Distância alvo de separação da esteira 3 [m].
+    sheetConveyor3TargetDistanceM       : REAL;
+
+    //==============================================================
+    // Sheet conveyor 4 separation status outputs
+    //==============================================================
+    sheetConveyor4SeparationActive      : BOOL;
+    sheetConveyor4SeparationStarted     : BOOL;
+    sheetConveyor4SeparationFinished    : BOOL;
+    sheetConveyor4HighSpeedActive       : BOOL;
+    sheetConveyor4TrackingDistanceM     : REAL;
+    sheetConveyor4TargetDistanceM       : REAL;
+
+	//==============================================================
+	// Elevator encoder set outputs
+	//==============================================================
+	// EN: Pulse output to set/reset elevator encoder position.
+	// PT: Pulso de saída para setar/resetar a posição do encoder do elevador.
+	elevatorSetEncoderPosition   : BOOL;
+	
+	// EN: Position value to set in the elevator encoder block [mm].
+	// PT: Valor de posição a ser gravado no bloco do encoder do elevador [mm].
+	elevatorSetEncoderPositionMm : REAL;
+	
+	
+	//==============================================================
+	// Elevator status outputs
+	//==============================================================
+	elevatorState                : STRING(30);
+	
+	elevatorHomed                : BOOL;
+	elevatorInPosition           : BOOL;
+	elevatorFault                : BOOL;
+	elevatorFaultCode            : INT;
+	
+	// EN: Current calculated elevator target position [mm].
+	// PT: Posição alvo calculada atual do elevador [mm].
+	elevatorTargetPositionMm     : REAL;
+	
+	// EN: Current elevator position error [mm].
+	// PT: Erro atual de posição do elevador [mm].
+	elevatorPositionErrorMm      : REAL;
+
+    //==============================================================
+    // Backstop status outputs
+    //==============================================================
+    backstopState                       : STRING(30);
+
+    backstopHomed                       : BOOL;
+    backstopInPosition                  : BOOL;
+    backstopFault                       : BOOL;
+    backstopFaultCode                   : INT;
+
+    // EN: Current calculated target position [mm].
+    // PT: Posição alvo calculada atualmente [mm].
+    backstopTargetPositionMm            : REAL;
+
+    // EN: Current position error [mm].
+    // PT: Erro atual de posição [mm].
+    backstopPositionErrorMm             : REAL;
+	
+	//==============================================================
+	// Sheet stack discharge conveyor control state
+	//==============================================================
+	sheetStackDischargeConveyorState               : STRING(30);
+	sheetStackDischargeConveyorFault               : BOOL;
+	sheetStackDischargeConveyorFaultCode           : INT;
+	
+	//==============================================================
+	// Sheet stack discharge sequence status outputs
+	//==============================================================
+	sheetStackDischargeState                : STRING(30);
+	sheetStackDischargeStateCode            : INT;
+	
+	sheetStackDischargePending              : BOOL;
+	sheetStackDischargeActive               : BOOL;
+	sheetStackDischargeStarted              : BOOL;
+	sheetStackDischargeFinished             : BOOL;
+	
+	sheetStackDischargeFault                : BOOL;
+	sheetStackDischargeFaultCode            : INT;
+	
+	//==============================================================
+	// Sheet stack discharge last cycle diagnostic outputs
+	//==============================================================
+	sheetStackDischargeLastCycleOk          : BOOL;
+	sheetStackDischargeLastResultCode       : INT;
+	sheetStackDischargeLastFaultStepCode    : INT;
+	sheetStackDischargeLastFaultCode        : INT;	
+
+END_VAR
+
+VAR
+	
+	//==============================================================
+	// Stop machine pulse control
+	//==============================================================
+	stopMachineFaultCondition     : BOOL;
+	stopMachineFaultConditionOld  : BOOL;
+	rStopMachineFaultCondition    : BOOL;
+	
+	tpStopMachinePulse            : TP;
+	
+	//==============================================================
+	// Backstop manual intervention memory
+	//==============================================================
+	backstopManualInterventionActive     : BOOL;
+	backstopManualInterventionPositionMm : REAL;
+	
+	//==============================================================
+	// Sheet stack discharge backstop latched targets
+	//==============================================================
+	backstopProgrammedDischargeTargetMm : REAL;
+	backstopDischargeOpenBasePositionMm : REAL;
+	backstopDischargeOpenTargetMm       : REAL;
+	
+	//==============================================================
+	// Backstop automatic positioning command control
+	//==============================================================
+	backstopExecutePositioningCmdOld    : BOOL;
+	rBackstopExecutePositioning         : BOOL;
+	
+	backstopTargetOverrideOld           : BOOL;
+	backstopTargetOverrideFallingEdge   : BOOL;
+	
+	backstopPositioningRequestActive    : BOOL;
+	backstopLatchedTargetPositionMm     : REAL;
+	backstopProgrammedTargetPositionMm  : REAL;
+	
+	//==============================================================
+	// Backstop manual intervention memory
+	//==============================================================
+	// EN: Used by automatic discharge sequence to avoid closing onto material
+	//     after operator manual intervention.
+
+	//==============================================================
+	// Backstop encoder set pulse
+	//==============================================================
+	backstopSetEncoderPositionTrigger  : BOOL;
+	tpBackstopSetEncoderPosition       : TP;
+
+	//==============================================================
+	// Sheet stack discharge backstop latched targets
+	//==============================================================
+
+    //==============================================================
+    // Group state machine
+    //==============================================================
+    syncConveyorsState                  : INT;
+
+
+    //==============================================================
+    // Package separation state machine
+    //==============================================================
+    packageSeparationState              : INT;
+
+
+    //==============================================================
+    // Backstop state machine
+    //==============================================================
+    backstopControlState                : INT;
+
+
+    //==============================================================
+    // Edge detection
+    //==============================================================
+    startCmdOld                         : BOOL;
+    stopCmdOld                          : BOOL;
+    packageCompleteCmdOld               : BOOL;
+
+    backstopHomeCmdOld                  : BOOL;
+
+
+    //==============================================================
+    // Internal conditions
+    //==============================================================
+    allSynchronizedDrivesOk             : BOOL;
+    anyFault                            : BOOL;
+    speedControlEnabled                 : BOOL;
+    rampReset                           : BOOL;
+
+
+    //==============================================================
+    // Sheet length conversion
+    //==============================================================
+    // EN: Internal sheet length converted from mm to m.
+    // PT: Comprimento interno da chapa convertido de mm para m.
+    sheetLengthM                        : REAL;
+
+
+    //==============================================================
+    // Normal speed calculation
+    //==============================================================
+    normalStackerSpeedMPM               : REAL;
+
+    sheetConveyor1NormalSpeedMPM        : REAL;
+    sheetConveyor2NormalSpeedMPM        : REAL;
+    sheetConveyor3NormalSpeedMPM        : REAL;
+    sheetConveyor4NormalSpeedMPM        : REAL;
+    elevatorNormalSpeedMPM       : REAL;
+
+
+    //==============================================================
+    // Package gap speed calculation
+    //==============================================================
+    sheetConveyor2GapSpeedMPM           : REAL;
+    sheetConveyor3GapSpeedMPM           : REAL;
+    sheetConveyor4GapSpeedMPM           : REAL;
+
+
+    //==============================================================
+    // Speed targets
+    //==============================================================
+    sheetConveyor1TargetSpeedMPM        : REAL;
+    sheetConveyor2TargetSpeedMPM        : REAL;
+    sheetConveyor3TargetSpeedMPM        : REAL;
+    sheetConveyor4TargetSpeedMPM        : REAL;
+    elevatorTargetSpeedMPM       : REAL;
+
+
+    //==============================================================
+    // Package gap distance calculation
+    //==============================================================
+    packageGapDistanceTargetM           : REAL;
+
+    sheetConveyor2OpeningSpeedMPM       : REAL;
+    sheetConveyor3OpeningSpeedMPM       : REAL;
+    sheetConveyor4OpeningSpeedMPM       : REAL;
+
+    sheetConveyor2OpeningDistanceM      : REAL;
+    sheetConveyor3OpeningDistanceM      : REAL;
+    sheetConveyor4OpeningDistanceM      : REAL;
+
+
+	//==============================================================
+	// Elevator state machine
+	//==============================================================
+	elevatorControlState         : INT;
+	
+	
+	//==============================================================
+	// Elevator edge detection
+	//==============================================================
+	elevatorHomeCmdOld           : BOOL;
+	rElevatorHome                : BOOL;
+	
+	
+	//==============================================================
+	// Elevator encoder set pulse
+	//==============================================================
+	elevatorSetEncoderPositionTrigger   : BOOL;
+	tpElevatorSetEncoderPosition        : TP;
+	
+	
+	//==============================================================
+	// Elevator control calculation
+	//==============================================================
+	elevatorAutoTargetPositionMm        : REAL;
+	elevatorRawSpeedRefMmps             : REAL;
+	
+	// EN: Internal signed speed command. Positive = up, negative = down.
+	// PT: Comando interno de velocidade com sinal. Positivo = subir, negativo = descer.
+	elevatorSignedSpeedRefMmps          : REAL;
+	
+	elevatorAbsPositionErrorMm          : REAL;
+	
+	
+	//==============================================================
+	// Elevator movement permissions
+	//==============================================================
+	elevatorUpAllowed                   : BOOL;
+	elevatorDownAllowed                 : BOOL;
+	
+	elevatorMoveRequest                 : BOOL;
+	elevatorBrakeReleaseRequest         : BOOL;
+	
+	
+	//==============================================================
+	// Elevator homing
+	//==============================================================
+	elevatorHomeLimitReached            : BOOL;
+	elevatorHomeMoveAllowed             : BOOL;
+	
+	
+	//==============================================================
+	// Elevator timers
+	//==============================================================
+	tonElevatorHomingTimeout            : TON;
+	
+	// EN: Delay after brake release before motor movement.
+	// PT: Atraso após liberar o freio antes de movimentar o motor.
+	tonElevatorBrakeReleaseDelay        : TON;
+	
+	// EN: Keeps brake released for a short time after movement stops.
+	// PT: Mantém o freio liberado por um tempo após parar o movimento.
+	tonElevatorBrakeHoldDelay           : TON;
+	
+	
+	//==============================================================
+	// Elevator speed ramp instance
+	//==============================================================
+	// EN: Ramp used for elevator vertical speed [mm/s].
+	// PT: Rampa usada para velocidade vertical do elevador [mm/s].
+	instRampElevator                    : FB_Gen_SRamp;
+	
+
+    //==============================================================
+    // Backstop control calculation
+    //==============================================================
+    backstopAutoTargetPositionMm        : REAL;
+    backstopRawSpeedRefMmps             : REAL;
+    backstopAbsPositionErrorMm          : REAL;
+
+    backstopHomeLimitReached            : BOOL;
+    backstopOpenAllowed                 : BOOL;
+    backstopCloseAllowed                : BOOL;
+
+    rBackstopHome                       : BOOL;
+
+
+	//==============================================================
+	// Backstop homing edge detection
+	//==============================================================
+	backstopHomeLimitOld                 : BOOL;
+	backstopHomeLimitFallingEdge         : BOOL;
+	backstopHomeMoveAllowed              : BOOL;
+	
+	
+	
+	//==============================================================
+	// Backstop timers
+	//==============================================================
+	tonBackstopHomeSettleDelay           : TON;
+
+
+
+    //==============================================================
+    // Backstop timers
+    //==============================================================
+    tonBackstopHomingTimeout            : TON;
+
+
+    //==============================================================
+    // Speed ramp instances
+    //==============================================================
+    instRampSheetConveyor1              : FB_Gen_SRamp;
+    instRampSheetConveyor2              : FB_Gen_SRamp;
+    instRampSheetConveyor3              : FB_Gen_SRamp;
+    instRampSheetConveyor4              : FB_Gen_SRamp;
+
+
+    //==============================================================
+    // PLC scan time measurement
+    //==============================================================
+    instCycleTime                       : CYCLE_TIME;
+    scanTimeS                           : REAL;
+    scanTimeMs                          : REAL;
+
+	backstopSignedSpeedRefMmps: REAL;
+	
+	//==============================================================
+	// Sheet stack discharge state machine
+	//==============================================================
+	sheetStackDischargeControlState         : INT;
+	
+	
+	//==============================================================
+	// Sheet stack discharge edge detection
+	//==============================================================
+	packageCompleteCmdOldDischarge          : BOOL;
+	rPackageCompleteDischarge               : BOOL;
+	
+	
+	//==============================================================
+	// Sheet stack discharge timers
+	//==============================================================
+	tonSheetStackDischarge                  : TON;
+	
+	
+	//==============================================================
+	// Sheet stack discharge internal conditions
+	//==============================================================
+	sheetStackDischargeFaultCondition       : BOOL;
+	
+	
+	//==============================================================
+	// Backstop target override
+	//==============================================================
+	backstopTargetOverrideActive            : BOOL;
+	backstopTargetOverridePositionMm        : REAL;
+	
+	
+	//==============================================================
+	// Elevator target override
+	//==============================================================
+	elevatorTargetOverrideActive     : BOOL;
+	elevatorTargetOverridePositionMm : REAL;	
+	
+	
+	sheetStackDischargeConveyorRunRequest: BOOL;
+	instTONBackstopDownDelay: TON;
+	
+	//==============================================================
+	// Sheet stack discharge step timeout
+	//==============================================================
+	tonSheetStackDischargeStepTimeout       : TON;
+	
+	sheetStackDischargeCycleHasManualSkip   : BOOL;
+	sheetStackDischargeCycleHasTimeout      : BOOL;	
+	
+	
+	//==============================================================
+	// Elevator homing edge detection
+	//==============================================================
+	elevatorHomeLimitOld                 : BOOL;
+	elevatorHomeLimitFallingEdge         : BOOL;	
+
+	//==============================================================
+	// System master run control
+	//==============================================================
+	systemRunEnable : BOOL;
+	
+	rStartCmd : BOOL;
+	rStopCmd  : BOOL;
+	
+	//==============================================================
+	// Automatic homing requests generated by master start
+	//==============================================================
+	backstopAutoHomeRequest        : BOOL;
+	elevatorAutoHomeRequest : BOOL;
+	
+	//==============================================================
+	// Elevator home request command control
+	//==============================================================
+	elevatorHomeRequestCombined    : BOOL;
+	elevatorHomeRequestCombinedOld : BOOL;
+	backstopHomeRunning: BOOL;
+	//==============================================================
+	// Backstop home request command control
+	//==============================================================
+	backstopHomeRequestCombined    : BOOL;
+	backstopHomeRequestCombinedOld : BOOL;
+	
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[_SystemControl();
+
+_SheetConveyorGroupControl();
+_ConveyorSpeedControl();
+
+_SheetStackDischargeControl();
+
+_BackstopControl();
+_SheetStackDischargeConveyorControl();
+_MachineAuxilary();
+_HmiStatus();
+_AlarmControl();]]></ST>
+    </Implementation>
+    <Method Name="_AlarmControl" Id="{ff32a998-2dca-48d4-a6d9-7390cf93207e}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — ALARM CONTROL
+// EN: Maps internal faults and status conditions to HMI alarm structure.
+//==============================================================
+METHOD _AlarmControl
+
+VAR
+	hmiAlarmsNotActive: hmiAlarmsComplexStacker_TypeStruct;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//==============================================================
+// HMI alarms reset / latch logic
+//==============================================================
+
+IF resetCmd THEN
+
+    // Reset geral dos alarmes
+    hmiAlarms := hmiAlarmsNotActive;
+
+ELSE
+
+    //==============================================================
+    // 1) General / system alarms
+    //==============================================================
+    hmiAlarms.safetyCircuitNotOk :=
+        hmiAlarms.safetyCircuitNotOk OR
+        NOT safetyCircuitOk;
+
+    hmiAlarms.systemFaultActive :=
+        hmiAlarms.systemFaultActive OR
+        faultActive OR
+        backstopFault OR
+        elevatorFault OR
+        sheetStackDischargeFault OR
+        sheetStackDischargeConveyorFault;
+
+    hmiAlarms.systemNotEnabled :=
+        hmiAlarms.systemNotEnabled OR
+        NOT systemRunEnable;
+
+
+    //==============================================================
+    // 2) Sheet conveyor group alarms
+    //==============================================================
+    hmiAlarms.sheetConveyor1DriveNotOk :=
+        hmiAlarms.sheetConveyor1DriveNotOk OR
+        NOT sheetConveyor1DriveOk;
+
+    hmiAlarms.sheetConveyor2DriveNotOk :=
+        hmiAlarms.sheetConveyor2DriveNotOk OR
+        NOT sheetConveyor2DriveOk;
+
+    hmiAlarms.sheetConveyor3DriveNotOk :=
+        hmiAlarms.sheetConveyor3DriveNotOk OR
+        NOT sheetConveyor3DriveOk;
+
+    hmiAlarms.sheetConveyor4DriveNotOk :=
+        hmiAlarms.sheetConveyor4DriveNotOk OR
+        NOT sheetConveyor4DriveOk;
+
+    hmiAlarms.sheetConveyorGroupFault :=
+        hmiAlarms.sheetConveyorGroupFault OR
+        NOT safetyCircuitOk OR
+        NOT sheetConveyor1DriveOk OR
+        NOT sheetConveyor2DriveOk OR
+        NOT sheetConveyor3DriveOk OR
+        NOT sheetConveyor4DriveOk;
+
+ //   hmiAlarms.synchronizedConveyorsNotRunning :=
+ //       hmiAlarms.synchronizedConveyorsNotRunning OR
+ //       (
+ //           systemRunEnable AND
+ //           NOT synchronizedConveyorsRunning
+ //       );
+
+
+    //==============================================================
+    // 3) Sheet stack separation alarms / indications
+    //==============================================================
+    // Mantido comentado conforme lógica original.
+    // Se quiser ativar como latch, use o mesmo padrão:
+    //
+    // hmiAlarms.sheetStackSeparationNotReady :=
+    //     hmiAlarms.sheetStackSeparationNotReady OR
+    //     (
+    //         systemRunEnable AND
+    //         synchronizedConveyorsRunning AND
+    //         NOT sheetStackSeparationReady
+    //     );
+    //
+    // hmiAlarms.sheetStackSeparationActive :=
+    //     hmiAlarms.sheetStackSeparationActive OR
+    //     sheetStackSeparationActive;
+    //
+    // hmiAlarms.sheetStackBrakeActive :=
+    //     hmiAlarms.sheetStackBrakeActive OR
+    //     sheetStackBrakeActive;
+
+
+    //==============================================================
+    // 4) Sheet stack discharge sequence alarms / indications
+    //==============================================================
+    hmiAlarms.sheetStackDischargeFault :=
+        hmiAlarms.sheetStackDischargeFault OR
+        sheetStackDischargeFault;
+
+    hmiAlarms.sheetStackDischargeLastCycleNotOk :=
+        hmiAlarms.sheetStackDischargeLastCycleNotOk OR
+        (
+            NOT sheetStackDischargeLastCycleOk AND
+            sheetStackDischargeLastResultCode <> 0
+        );
+
+    hmiAlarms.sheetStackDischargeTimeout :=
+        hmiAlarms.sheetStackDischargeTimeout OR
+        sheetStackDischargeLastResultCode = 3;
+
+    hmiAlarms.sheetStackDischargeManualSkip :=
+        hmiAlarms.sheetStackDischargeManualSkip OR
+        sheetStackDischargeLastResultCode = 2;
+
+
+    //==============================================================
+    // 5) Sheet stack discharge conveyor alarms
+    //==============================================================
+    hmiAlarms.sheetStackDischargeConveyorDriveNotOk :=
+        hmiAlarms.sheetStackDischargeConveyorDriveNotOk OR
+        NOT sheetStackDischargeConveyorDriveOk;
+
+    hmiAlarms.sheetStackDischargeConveyorFault :=
+        hmiAlarms.sheetStackDischargeConveyorFault OR
+        sheetStackDischargeConveyorFault;
+
+
+    //==============================================================
+    // 6) Backstop alarms / indications
+    //==============================================================
+    hmiAlarms.backstopDriveNotOk :=
+        hmiAlarms.backstopDriveNotOk OR
+        NOT backstopDriveOk;
+
+    hmiAlarms.backstopFault :=
+        hmiAlarms.backstopFault OR
+        backstopFault;
+
+    hmiAlarms.backstopNotHomed :=
+        hmiAlarms.backstopNotHomed OR
+        (
+            backstopAutoCmd AND
+            NOT backstopHomed
+        );
+
+    (*
+    hmiAlarms.backstopNotInPosition :=
+        hmiAlarms.backstopNotInPosition OR
+        (
+            systemRunEnable AND
+            backstopAutoCmd AND
+            backstopHomed AND
+            NOT backstopInPosition AND
+            NOT backstopTargetOverrideActive
+        );
+    *)
+
+    hmiAlarms.backstopSafeMaxLimitActive :=
+        hmiAlarms.backstopSafeMaxLimitActive OR
+        backstopSafeMaxLimit;
+
+    hmiAlarms.backstopSafeMinLimitActive :=
+        hmiAlarms.backstopSafeMinLimitActive OR
+        backstopSafeMinLimit;
+
+    (*
+    hmiAlarms.backstopMaxLimitActive :=
+        hmiAlarms.backstopMaxLimitActive OR
+        backstopMaxLimit;
+
+    hmiAlarms.backstopMinLimitActive :=
+        hmiAlarms.backstopMinLimitActive OR
+        backstopMinLimit;
+
+    hmiAlarms.backstopManualInterventionActive :=
+        hmiAlarms.backstopManualInterventionActive OR
+        backstopManualInterventionActive;
+    *)
+
+
+    //==============================================================
+    // 7) Elevator alarms / indications
+    //==============================================================
+    hmiAlarms.elevatorDriveNotOk :=
+        hmiAlarms.elevatorDriveNotOk OR
+        NOT elevatorDriveOk;
+
+    hmiAlarms.elevatorFault :=
+        hmiAlarms.elevatorFault OR
+        elevatorFault;
+
+    hmiAlarms.elevatorNotHomed :=
+        hmiAlarms.elevatorNotHomed OR
+        (
+            elevatorAutoCmd AND
+            NOT elevatorHomed
+        );
+
+//    hmiAlarms.elevatorNotInPosition :=
+//        hmiAlarms.elevatorNotInPosition OR
+//        (
+//            systemRunEnable AND
+//            elevatorAutoCmd AND
+//            elevatorHomed AND
+//            NOT elevatorInPosition
+//        );
+
+    hmiAlarms.elevatorUpperSafetyLimitActive :=
+        hmiAlarms.elevatorUpperSafetyLimitActive OR
+        elevatorUpperSafetyLimit;
+
+    hmiAlarms.elevatorLowerSafetyLimitActive :=
+        hmiAlarms.elevatorLowerSafetyLimitActive OR
+        elevatorLowerSafetyLimit;
+
+    (*
+    hmiAlarms.elevatorUpperLimitActive :=
+        hmiAlarms.elevatorUpperLimitActive OR
+        elevatorUpperLimit;
+
+    hmiAlarms.elevatorLowerLimitActive :=
+        hmiAlarms.elevatorLowerLimitActive OR
+        elevatorLowerLimit;
+    *)
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_BackstopControl" Id="{86494fd2-2791-467b-93bd-9f84de3691b5}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — BACKSTOP CONTROL
+// EN: Controls the backstop axis with homing, manual movement,
+//     automatic positioning, override positioning and protections.
+//
+// Signed speed convention:
+// Positive = open
+// Negative = close
+//
+// State code:
+// 0  = STOP
+// 10 = HOME_FAST_SEARCH
+// 11 = HOME_SLOW_EXIT_SENSOR
+// 12 = HOME_SET_ENCODER
+// 13 = HOME_WAIT_AFTER_SET
+// 14 = HOME_MOVE_TO_TARGET
+// 20 = MANUAL
+// 30 = AUTO_POSITION
+// 40 = FAULT
+//==============================================================
+METHOD _BackstopControl]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+//==============================================================
+// 1) Default internal commands
+//==============================================================
+// EN: Internal signed speed is reset every scan and set by the active state.
+//     Positive = open, negative = close.
+backstopSignedSpeedRefMmps := 0.0;
+
+// EN: Internal trigger for encoder set pulse.
+backstopSetEncoderPositionTrigger := FALSE;
+
+
+//==============================================================
+// 2) Edge detection
+//==============================================================
+// EN: Home can be requested manually by HMI or automatically by _SystemControl.
+//     Automatic home is accepted only when backstopAutoCmd is enabled.
+//     Movement is allowed only when master system run is enabled.
+backstopHomeRequestCombined :=
+    systemRunEnable AND
+    (
+        backstopHomeCmd OR
+        (
+            backstopAutoCmd AND
+            backstopAutoHomeRequest
+        )
+    );
+
+rBackstopHome :=
+    backstopHomeRequestCombined AND
+    NOT backstopHomeRequestCombinedOld;
+
+backstopHomeRequestCombinedOld :=
+    backstopHomeRequestCombined;
+
+
+// EN: Execute positioning command edge.
+//     This command only generates movement when system is enabled and backstop auto is enabled.
+rBackstopExecutePositioning :=
+    systemRunEnable AND
+    backstopExecutePositioningCmd AND
+    NOT backstopExecutePositioningCmdOld;
+
+backstopExecutePositioningCmdOld := backstopExecutePositioningCmd;
+
+
+// EN: Override falling edge.
+//     Used as fallback to return to programmed position if override is released.
+backstopTargetOverrideFallingEdge :=
+    backstopTargetOverrideOld AND NOT backstopTargetOverrideActive;
+
+backstopTargetOverrideOld := backstopTargetOverrideActive;
+
+
+//==============================================================
+// 3) Home limit selection and edge detection
+//==============================================================
+// EN: Home limit depends on configured homing direction.
+IF machineConfig.backstopHomeDirection > 0 THEN
+
+    backstopHomeLimitReached := backstopMaxLimit;
+
+ELSIF machineConfig.backstopHomeDirection < 0 THEN
+
+    backstopHomeLimitReached := backstopMinLimit;
+
+ELSE
+
+    backstopHomeLimitReached := FALSE;
+
+END_IF;
+
+
+// EN: Falling edge is used after the home limit has been reached.
+backstopHomeLimitFallingEdge :=
+    backstopHomeLimitOld AND NOT backstopHomeLimitReached;
+
+backstopHomeLimitOld := backstopHomeLimitReached;
+
+
+//==============================================================
+// 4) Movement permissions
+//==============================================================
+backstopOpenAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    backstopDriveOk AND
+    NOT backstopMaxLimit AND
+    NOT backstopSafeMaxLimit AND
+    (
+        (NOT backstopHomed) OR
+        (backstopPositionMm < machineConfig.backstopMaxPositionMm)
+    );
+
+backstopCloseAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    backstopDriveOk AND
+    NOT backstopMinLimit AND
+    NOT backstopSafeMinLimit AND
+    (
+        (NOT backstopHomed) OR
+        (backstopPositionMm > machineConfig.backstopMinPositionMm)
+    );
+
+
+// EN: During homing, the normal home limit is allowed.
+//     Only the safe limit blocks movement.
+IF machineConfig.backstopHomeDirection > 0 THEN
+
+    backstopHomeMoveAllowed :=
+        systemRunEnable AND
+        safetyCircuitOk AND
+        backstopDriveOk AND
+        NOT backstopSafeMaxLimit;
+
+ELSIF machineConfig.backstopHomeDirection < 0 THEN
+
+    backstopHomeMoveAllowed :=
+        systemRunEnable AND
+        safetyCircuitOk AND
+        backstopDriveOk AND
+        NOT backstopSafeMinLimit;
+
+ELSE
+
+    backstopHomeMoveAllowed := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 5) Programmed / override target calculation
+//==============================================================
+// EN: Programmed target follows sheet length plus mechanical offset.
+//     This value can change, but it does not move the backstop by itself.
+backstopProgrammedTargetPositionMm :=
+    LIMIT(
+        machineConfig.backstopMinPositionMm,
+        MAX(0.0, sheetLengthMm) + machineConfig.backstopSheetLengthOffsetMm,
+        machineConfig.backstopMaxPositionMm
+    );
+
+
+// EN: Before homing, keep the latched target updated with programmed target.
+//     This avoids an invalid old target after power-up.
+IF NOT backstopHomed THEN
+
+    backstopLatchedTargetPositionMm := backstopProgrammedTargetPositionMm;
+
+END_IF;
+
+
+//==============================================================
+// 5.1) Automatic positioning request handling
+//==============================================================
+// EN: Auto mode only enables positioning. It does not execute positioning.
+//     Normal positioning must be requested by backstopExecutePositioningCmd.
+//     Override positioning is requested by the automatic cycle.
+IF NOT systemRunEnable THEN
+
+    backstopPositioningRequestActive := FALSE;
+
+
+ELSIF NOT backstopAutoCmd THEN
+
+    backstopPositioningRequestActive := FALSE;
+
+
+ELSIF backstopTargetOverrideActive THEN
+
+    // EN: Override has priority. Clear normal positioning request.
+    backstopPositioningRequestActive := FALSE;
+
+
+ELSIF rBackstopExecutePositioning THEN
+
+    // EN: Latch current programmed target only when execute command is received.
+    backstopLatchedTargetPositionMm := backstopProgrammedTargetPositionMm;
+    backstopPositioningRequestActive := TRUE;
+
+
+ELSIF backstopTargetOverrideFallingEdge THEN
+
+    // EN: Fallback after override release.
+    //     The discharge sequence should normally keep override active
+    //     during return. If override is released unexpectedly, return to
+    //     programmed position automatically.
+    backstopLatchedTargetPositionMm := backstopProgrammedTargetPositionMm;
+    backstopPositioningRequestActive := TRUE;
+
+END_IF;
+
+
+//==============================================================
+// 5.2) Active target selection
+//==============================================================
+// EN: Override target is accepted only when automatic mode is enabled.
+//     Without override or positioning request, target remains latched,
+//     but the axis does not move.
+IF systemRunEnable AND backstopAutoCmd AND backstopTargetOverrideActive THEN
+
+    backstopTargetPositionMm :=
+        LIMIT(
+            machineConfig.backstopMinPositionMm,
+            backstopTargetOverridePositionMm,
+            machineConfig.backstopMaxPositionMm
+        );
+
+ELSE
+
+    backstopTargetPositionMm :=
+        LIMIT(
+            machineConfig.backstopMinPositionMm,
+            backstopLatchedTargetPositionMm,
+            machineConfig.backstopMaxPositionMm
+        );
+
+END_IF;
+
+
+//==============================================================
+// 5.4) Home running flag
+//==============================================================
+IF (backstopControlState = 10) OR
+   (backstopControlState = 11) OR
+   (backstopControlState = 12) OR
+   (backstopControlState = 13) OR
+   (backstopControlState = 14) THEN
+
+    backstopHomeRunning := TRUE;
+
+ELSE
+
+    backstopHomeRunning := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 6) Position error calculation
+//==============================================================
+backstopPositionErrorMm :=
+    backstopTargetPositionMm - backstopPositionMm;
+
+backstopAbsPositionErrorMm :=
+    ABS(backstopPositionErrorMm);
+
+backstopInPosition :=
+    backstopHomed AND
+    (backstopAbsPositionErrorMm <= machineConfig.backstopPositionToleranceMm);
+
+
+//==============================================================
+// 7) Reset fault command
+//==============================================================
+IF resetCmd THEN
+
+    IF safetyCircuitOk AND
+       backstopDriveOk AND
+       NOT backstopSafeMaxLimit AND
+       NOT backstopSafeMinLimit THEN
+
+        backstopFault := FALSE;
+        backstopFaultCode := 0;
+
+        IF backstopControlState = 40 THEN
+            backstopControlState := 0;
+        END_IF
+
+    END_IF
+
+END_IF;
+
+
+//==============================================================
+// 8) General protection
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    backstopState := 'SAFETY_OFF';
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopFault := TRUE;
+    backstopFaultCode := 2;
+    backstopControlState := 40;
+
+
+ELSIF NOT backstopDriveOk THEN
+
+    backstopState := 'DRIVE_NOT_OK';
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopFault := TRUE;
+    backstopFaultCode := 1;
+    backstopControlState := 40;
+
+
+ELSIF backstopSafeMaxLimit THEN
+
+    backstopState := 'SAFE_MAX_LIMIT';
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopFault := TRUE;
+    backstopFaultCode := 6;
+    backstopControlState := 40;
+
+
+ELSIF backstopSafeMinLimit THEN
+
+    backstopState := 'SAFE_MIN_LIMIT';
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopFault := TRUE;
+    backstopFaultCode := 7;
+    backstopControlState := 40;
+
+
+ELSIF machineConfig.backstopHomeDirection = 0 THEN
+
+    backstopState := 'INVALID_HOME_DIR';
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopFault := TRUE;
+    backstopFaultCode := 5;
+    backstopControlState := 40;
+
+
+ELSIF NOT systemRunEnable THEN
+
+    // EN: Master stop disables movement without generating an axis fault.
+    backstopState := 'SYSTEM_DISABLED';
+
+    backstopSignedSpeedRefMmps := 0.0;
+
+    tonBackstopHomingTimeout(IN := FALSE);
+    tonBackstopHomeSettleDelay(IN := FALSE);
+
+    backstopPositioningRequestActive := FALSE;
+
+    IF backstopControlState <> 40 THEN
+        backstopControlState := 0;
+    END_IF
+
+
+ELSE
+
+    //==============================================================
+    // 9) Mode selection
+    //==============================================================
+    // EN: Homing has priority over manual and automatic positioning.
+    IF rBackstopHome AND NOT backstopFault THEN
+        backstopControlState := 10;
+    END_IF;
+
+
+    //==============================================================
+    // 10) Backstop state machine
+    //==============================================================
+    CASE backstopControlState OF
+
+        0: // STOP
+            backstopState := 'STOP';
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            // EN: Manual is allowed even with auto enabled,
+            //     but not during automatic cycle override.
+            IF (backstopOpenCmd OR backstopCloseCmd) AND
+               NOT backstopTargetOverrideActive THEN
+
+                backstopControlState := 20;
+
+
+            ELSIF backstopAutoCmd AND
+                  (
+                      backstopTargetOverrideActive OR
+                      backstopPositioningRequestActive
+                  ) THEN
+
+                backstopControlState := 30;
+
+            END_IF
+
+
+        10: // HOME_FAST_SEARCH
+            backstopState := 'HOME_FAST';
+
+            backstopHomed := FALSE;
+            backstopInPosition := FALSE;
+
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            tonBackstopHomingTimeout(
+                IN := TRUE,
+                PT := machineConfig.backstopHomingTimeout
+            );
+
+            IF tonBackstopHomingTimeout.Q THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                tonBackstopHomingTimeout(IN := FALSE);
+
+                backstopFault := TRUE;
+                backstopFaultCode := 3;
+
+                backstopState := 'HOME_TIMEOUT';
+                backstopControlState := 40;
+
+
+            ELSIF backstopHomeLimitReached THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                backstopControlState := 11;
+
+
+            ELSE
+
+                IF backstopHomeMoveAllowed THEN
+
+                    IF machineConfig.backstopHomeDirection > 0 THEN
+
+                        backstopSignedSpeedRefMmps :=
+                            ABS(machineConfig.backstopHomingSpeedMmps);
+
+                    ELSE
+
+                        backstopSignedSpeedRefMmps :=
+                            -ABS(machineConfig.backstopHomingSpeedMmps);
+
+                    END_IF
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+            END_IF
+
+
+        11: // HOME_SLOW_EXIT_SENSOR
+            backstopState := 'HOME_SLOW_EXIT';
+
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            tonBackstopHomingTimeout(
+                IN := TRUE,
+                PT := machineConfig.backstopHomingTimeout
+            );
+
+            IF tonBackstopHomingTimeout.Q THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                tonBackstopHomingTimeout(IN := FALSE);
+
+                backstopFault := TRUE;
+                backstopFaultCode := 3;
+
+                backstopState := 'HOME_TIMEOUT';
+                backstopControlState := 40;
+
+
+            ELSIF backstopHomeLimitFallingEdge THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                tonBackstopHomingTimeout(IN := FALSE);
+
+                backstopControlState := 12;
+
+
+            ELSE
+
+                IF backstopHomeMoveAllowed THEN
+
+                    IF machineConfig.backstopHomeDirection > 0 THEN
+
+                        backstopSignedSpeedRefMmps :=
+                            -ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    ELSE
+
+                        backstopSignedSpeedRefMmps :=
+                            ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    END_IF
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+            END_IF
+
+
+        12: // HOME_SET_ENCODER
+            backstopState := 'HOME_SET_ENCODER';
+
+            backstopSignedSpeedRefMmps := 0.0;
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            // EN: Set encoder to configured known home position.
+            backstopSetEncoderPositionTrigger := TRUE;
+            backstopSetEncoderPositionMm := machineConfig.backstopHomePositionMm;
+
+            backstopHomed := TRUE;
+            backstopFault := FALSE;
+            backstopFaultCode := 0;
+
+            // EN: After homing, latch current programmed target for home move.
+            backstopLatchedTargetPositionMm := backstopProgrammedTargetPositionMm;
+            backstopPositioningRequestActive := TRUE;
+
+            // EN: Homing cancels previous manual intervention memory.
+            backstopManualInterventionActive := FALSE;
+            backstopManualInterventionPositionMm := 0.0;
+
+            backstopControlState := 13;
+
+
+        13: // HOME_WAIT_AFTER_SET
+            backstopState := 'HOME_WAIT';
+
+            backstopSignedSpeedRefMmps := 0.0;
+
+            tonBackstopHomingTimeout(IN := FALSE);
+
+            // EN: Fixed wait after encoder set.
+            tonBackstopHomeSettleDelay(
+                IN := TRUE,
+                PT := T#5S
+            );
+
+            IF tonBackstopHomeSettleDelay.Q THEN
+
+                tonBackstopHomeSettleDelay(IN := FALSE);
+
+                backstopControlState := 14;
+
+            END_IF
+
+
+        14: // HOME_MOVE_TO_TARGET
+            backstopState := 'HOME_TO_TARGET';
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            // EN: Move to the latched programmed target after homing.
+            IF backstopInPosition THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                backstopPositioningRequestActive := FALSE;
+
+                // EN: Home positioning completed, no manual intervention pending.
+                backstopManualInterventionActive := FALSE;
+                backstopManualInterventionPositionMm := 0.0;
+
+                backstopControlState := 0;
+
+
+            ELSE
+
+                backstopRawSpeedRefMmps :=
+                    backstopPositionErrorMm * machineConfig.backstopPositionKp;
+
+                backstopRawSpeedRefMmps :=
+                    LIMIT(
+                        -ABS(machineConfig.backstopAutoMaxSpeedMmps),
+                        backstopRawSpeedRefMmps,
+                        ABS(machineConfig.backstopAutoMaxSpeedMmps)
+                    );
+
+                IF ABS(backstopRawSpeedRefMmps) <
+                   ABS(machineConfig.backstopMinMoveSpeedMmps) THEN
+
+                    IF backstopPositionErrorMm > 0.0 THEN
+
+                        backstopRawSpeedRefMmps :=
+                            ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    ELSE
+
+                        backstopRawSpeedRefMmps :=
+                            -ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    END_IF
+
+                END_IF
+
+                IF (backstopRawSpeedRefMmps > 0.0) AND backstopOpenAllowed THEN
+
+                    backstopSignedSpeedRefMmps := backstopRawSpeedRefMmps;
+
+                ELSIF (backstopRawSpeedRefMmps < 0.0) AND backstopCloseAllowed THEN
+
+                    backstopSignedSpeedRefMmps := backstopRawSpeedRefMmps;
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+            END_IF
+
+
+        20: // MANUAL
+            backstopState := 'MANUAL';
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            // EN: If automatic override starts, manual is cancelled.
+            IF backstopAutoCmd AND backstopTargetOverrideActive THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+                backstopControlState := 30;
+
+
+            ELSIF backstopOpenCmd AND backstopCloseCmd THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+
+            ELSIF backstopOpenCmd THEN
+
+                IF backstopOpenAllowed THEN
+
+                    backstopSignedSpeedRefMmps :=
+                        ABS(machineConfig.backstopManualSpeedMmps);
+
+                    // EN: Store last manual intervention position.
+                    //     This is updated while the operator holds the manual command.
+                    backstopManualInterventionActive := TRUE;
+                    backstopManualInterventionPositionMm := backstopPositionMm;
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+
+            ELSIF backstopCloseCmd THEN
+
+                IF backstopCloseAllowed THEN
+
+                    backstopSignedSpeedRefMmps :=
+                        -ABS(machineConfig.backstopManualSpeedMmps);
+
+                    // EN: Store last manual intervention position.
+                    //     Even if operator closes, the discharge sequence will use
+                    //     MAX(programmed position, manual position), so it remains safe.
+                    backstopManualInterventionActive := TRUE;
+                    backstopManualInterventionPositionMm := backstopPositionMm;
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+
+            ELSE
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                // EN: After manual command release, do not automatically return
+                //     to programmed position. Wait for execute positioning command.
+                backstopPositioningRequestActive := FALSE;
+
+                backstopControlState := 0;
+
+            END_IF
+
+
+        30: // AUTO_POSITION
+            backstopState := 'AUTO_POSITION';
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            IF NOT backstopAutoCmd THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+                backstopPositioningRequestActive := FALSE;
+                backstopControlState := 0;
+
+
+            ELSIF NOT backstopHomed THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+                backstopState := 'AUTO_NO_HOME';
+
+
+            ELSIF (backstopOpenCmd OR backstopCloseCmd) AND
+                  NOT backstopTargetOverrideActive THEN
+
+                // EN: Manual has priority only outside automatic cycle override.
+                backstopSignedSpeedRefMmps := 0.0;
+                backstopPositioningRequestActive := FALSE;
+                backstopControlState := 20;
+
+
+            ELSIF NOT backstopTargetOverrideActive AND
+                  NOT backstopPositioningRequestActive THEN
+
+                // EN: Auto enabled but no positioning command active.
+                backstopSignedSpeedRefMmps := 0.0;
+                backstopControlState := 0;
+
+
+            ELSIF backstopInPosition THEN
+
+                backstopSignedSpeedRefMmps := 0.0;
+
+                // EN: Normal positioning command ends when target is reached.
+                //     Override remains controlled by the automatic cycle.
+                IF NOT backstopTargetOverrideActive THEN
+
+                    backstopPositioningRequestActive := FALSE;
+
+                    // EN: If the backstop returned to programmed target,
+                    //     clear previous manual intervention memory.
+                    backstopManualInterventionActive := FALSE;
+                    backstopManualInterventionPositionMm := 0.0;
+
+                    backstopControlState := 0;
+
+                END_IF
+
+
+            ELSE
+
+                backstopRawSpeedRefMmps :=
+                    backstopPositionErrorMm * machineConfig.backstopPositionKp;
+
+                backstopRawSpeedRefMmps :=
+                    LIMIT(
+                        -ABS(machineConfig.backstopAutoMaxSpeedMmps),
+                        backstopRawSpeedRefMmps,
+                        ABS(machineConfig.backstopAutoMaxSpeedMmps)
+                    );
+
+                IF ABS(backstopRawSpeedRefMmps) <
+                   ABS(machineConfig.backstopMinMoveSpeedMmps) THEN
+
+                    IF backstopPositionErrorMm > 0.0 THEN
+
+                        backstopRawSpeedRefMmps :=
+                            ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    ELSE
+
+                        backstopRawSpeedRefMmps :=
+                            -ABS(machineConfig.backstopMinMoveSpeedMmps);
+
+                    END_IF
+
+                END_IF
+
+                IF (backstopRawSpeedRefMmps > 0.0) AND backstopOpenAllowed THEN
+
+                    backstopSignedSpeedRefMmps := backstopRawSpeedRefMmps;
+
+                ELSIF (backstopRawSpeedRefMmps < 0.0) AND backstopCloseAllowed THEN
+
+                    backstopSignedSpeedRefMmps := backstopRawSpeedRefMmps;
+
+                ELSE
+
+                    backstopSignedSpeedRefMmps := 0.0;
+
+                END_IF
+
+            END_IF
+
+
+        40: // FAULT
+            backstopState := 'FAULT';
+
+            backstopSignedSpeedRefMmps := 0.0;
+
+            tonBackstopHomingTimeout(IN := FALSE);
+            tonBackstopHomeSettleDelay(IN := FALSE);
+
+            backstopPositioningRequestActive := FALSE;
+
+            IF resetCmd AND
+               safetyCircuitOk AND
+               backstopDriveOk AND
+               NOT backstopSafeMaxLimit AND
+               NOT backstopSafeMinLimit THEN
+
+                backstopFault := FALSE;
+                backstopFaultCode := 0;
+                backstopControlState := 0;
+
+            END_IF
+
+
+    ELSE
+
+        backstopControlState := 0;
+
+    END_CASE;
+
+END_IF;
+
+
+//==============================================================
+// 11) Encoder set pulse
+//==============================================================
+// EN: Extend encoder set command to ensure the encoder block sees it.
+tpBackstopSetEncoderPosition(
+    IN := backstopSetEncoderPositionTrigger,
+    PT := machineConfig.backstopSetEncoderPulseTime
+);
+
+backstopSetEncoderPosition := tpBackstopSetEncoderPosition.Q;
+
+
+//==============================================================
+// 12) Backstop drive direction and speed outputs
+//==============================================================
+// EN: Convert signed internal speed command into direction outputs
+//     and positive speed reference.
+IF systemRunEnable AND
+   safetyCircuitOk AND
+   backstopDriveOk AND
+   NOT backstopFault AND
+   (ABS(backstopSignedSpeedRefMmps) >= machineConfig.backstopRunMinSpeedMmps) THEN
+
+    // EN: The servo receives the signed speed reference directly.
+    // PT: O servo recebe diretamente a referência de velocidade com sinal.
+    backstopSpeedRefMmps := backstopSignedSpeedRefMmps;
+
+    backstopRunFw :=
+        backstopSignedSpeedRefMmps > 0.0;
+
+    backstopRunRev :=
+        backstopSignedSpeedRefMmps < 0.0;
+
+ELSE
+
+    backstopSpeedRefMmps := 0.0;
+
+    backstopRunFw := FALSE;
+    backstopRunRev := FALSE;
+
+END_IF;
+
+// EN: Enable the servo with the stacker system; drive-ready feedback is not used here
+//     because it would create a circular enable dependency.
+// PT: Habilita o servo com o sistema do stacker; o retorno de drive pronto não é usado
+//     aqui porque criaria uma dependência circular de habilitação.
+backstopDriveEnable := systemRunEnable AND safetyCircuitOk;
+
+
+//==============================================================
+// 13) Backstop plate lift solenoid
+//==============================================================
+// EN: Lift the backstop plate during backstop movement and homing.
+//     Discharge conveyor protection can be ORed after all methods are called.
+IF systemRunEnable AND
+   (
+       backstopRunFw OR
+       backstopRunRev OR
+       sheetStackDischargeConveyorRun OR
+       (backstopControlState = 10) OR
+       (backstopControlState = 11) OR
+       (backstopControlState = 12) OR
+       (backstopControlState = 13) OR
+       (backstopControlState = 14)
+   ) THEN
+
+    backstopPlateUpSolenoid := TRUE;
+    instTONBackstopDownDelay.IN := FALSE;
+
+ELSE
+
+    instTONBackstopDownDelay.IN := TRUE;
+
+    IF instTONBackstopDownDelay.Q THEN
+
+        backstopPlateUpSolenoid := FALSE;
+
+    END_IF
+
+END_IF;
+
+instTONBackstopDownDelay(PT := T#200MS);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_ConveyorSpeedControl" Id="{de0fe15e-c13c-49e1-841f-c20bd53734e9}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SPEED REFERENCE GENERATOR
+// EN: Generates synchronized and sheet-stack separation speed references [m/min].
+//==============================================================
+METHOD _ConveyorSpeedControl
+VAR
+    rPackageComplete                  : BOOL;
+    packageGapReady                   : BOOL;
+    validCycleTimeS                   : REAL;
+
+    sheetConveyorsSpeedUpReferenceMPM : REAL;
+
+    sheetConveyor1BaseSpeedMPM        : REAL;
+    sheetConveyor2BaseSpeedMPM        : REAL;
+    sheetConveyor3BaseSpeedMPM        : REAL;
+    sheetConveyor4BaseSpeedMPM        : REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+//==============================================================
+// 1) Default event pulses
+//==============================================================
+sheetStackSeparationStarted         := FALSE;
+sheetStackSeparationFinished        := FALSE;
+
+sheetConveyor2SeparationStarted     := FALSE;
+sheetConveyor2SeparationFinished    := FALSE;
+
+sheetConveyor3SeparationStarted     := FALSE;
+sheetConveyor3SeparationFinished    := FALSE;
+
+sheetConveyor4SeparationStarted     := FALSE;
+sheetConveyor4SeparationFinished    := FALSE;
+
+
+//==============================================================
+// 2) Edge detection
+//==============================================================
+rPackageComplete := packageCompleteCmd AND NOT packageCompleteCmdOld;
+packageCompleteCmdOld := packageCompleteCmd;
+
+
+//==============================================================
+// 3) Enable and scan time
+//==============================================================
+speedControlEnabled :=
+    sheetConveyor1Run AND
+    sheetConveyor2Run AND
+    sheetConveyor3Run AND
+    sheetConveyor4Run AND
+    safetyCircuitOk;
+
+rampReset := NOT speedControlEnabled;
+
+
+// EN: Read PLC scan time using OSCAT CYCLE_TIME.
+instCycleTime(
+    RST := resetCmd
+);
+
+
+// EN: Convert last cycle time from TIME/ms to seconds.
+scanTimeMs := TIME_TO_REAL(instCycleTime.ct_last);
+
+validCycleTimeS :=
+    LIMIT(
+        0.001,
+        scanTimeMs / 1000.0,
+        20.0
+    );
+
+scanTimeS := validCycleTimeS;
+
+
+//==============================================================
+// 4) Sheet length conversion
+//==============================================================
+// EN: Sheet length is kept converted for other calculations,
+//     but it is no longer used as the separation tracking target.
+sheetLengthM := MAX(0.0, sheetLengthMm) / 1000.0;
+
+
+//==============================================================
+// 5) Calculate normal stacker speed
+//==============================================================
+IF speedControlEnabled THEN
+
+    normalStackerSpeedMPM :=
+        LIMIT(
+            machineConfig.minimumSpeedMPM,
+            MAX(0.0, lineSpeedMPM) *
+                MAX(0.0, machineConfig.stackerSpeedRatio),
+            machineConfig.maximumSpeedMPM
+        );
+
+ELSE
+
+    normalStackerSpeedMPM := 0.0;
+
+END_IF;
+
+
+//==============================================================
+// 6) Calculate normal speed for each conveyor
+//==============================================================
+sheetConveyor1NormalSpeedMPM :=
+    normalStackerSpeedMPM *
+    MAX(0.0, machineConfig.sheetConveyor1SpeedTrim);
+
+sheetConveyor2NormalSpeedMPM :=
+    normalStackerSpeedMPM *
+    MAX(0.0, machineConfig.sheetConveyor2SpeedTrim);
+
+sheetConveyor3NormalSpeedMPM :=
+    normalStackerSpeedMPM *
+    MAX(0.0, machineConfig.sheetConveyor3SpeedTrim);
+
+sheetConveyor4NormalSpeedMPM :=
+    normalStackerSpeedMPM *
+    MAX(0.0, machineConfig.sheetConveyor4SpeedTrim);
+
+
+//==============================================================
+// 6.1) Sheet conveyors speed-up reference
+//==============================================================
+// EN: Speed-up is added directly to conveyors 1/2/3 references.
+//     It can work even when line speed is zero, as long as the
+//     conveyor group is enabled.
+IF speedControlEnabled AND sheetConveyorsSpeedUpCmd THEN
+
+    sheetConveyorsSpeedUpReferenceMPM :=
+        MAX(0.0, machineConfig.sheetConveyorsSpeedUpMPM);
+
+ELSE
+
+    sheetConveyorsSpeedUpReferenceMPM := 0.0;
+
+END_IF;
+
+
+//==============================================================
+// 6.2) Base speed references including speed-up
+//==============================================================
+// EN: Base speed is the synchronized conveyor speed plus operator speed-up.
+//     Separation tracking must use this base speed as reference.
+sheetConveyor1BaseSpeedMPM :=
+    sheetConveyor1NormalSpeedMPM + sheetConveyorsSpeedUpReferenceMPM;
+
+sheetConveyor2BaseSpeedMPM :=
+    sheetConveyor2NormalSpeedMPM + sheetConveyorsSpeedUpReferenceMPM;
+
+sheetConveyor3BaseSpeedMPM :=
+    sheetConveyor3NormalSpeedMPM + sheetConveyorsSpeedUpReferenceMPM;
+
+sheetConveyor4BaseSpeedMPM :=
+    sheetConveyor4NormalSpeedMPM + sheetConveyorsSpeedUpReferenceMPM;
+
+
+//==============================================================
+// 7) Calculate separation high speed
+//==============================================================
+// EN: Gap speed also receives the same speed-up reference.
+//     This preserves the real gap differential while allowing operator boost.
+sheetConveyor2GapSpeedMPM :=
+    (sheetConveyor2NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
+    machineConfig.packageGapSpeedOffsetMPM +
+    sheetConveyorsSpeedUpReferenceMPM;
+
+sheetConveyor3GapSpeedMPM :=
+    (sheetConveyor3NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
+    machineConfig.packageGapSpeedOffsetMPM +
+    sheetConveyorsSpeedUpReferenceMPM;
+
+sheetConveyor4GapSpeedMPM :=
+    (sheetConveyor4NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
+    machineConfig.packageGapSpeedOffsetMPM +
+    sheetConveyorsSpeedUpReferenceMPM;
+
+
+//==============================================================
+// 8) Calculate separation tracking target distances
+//==============================================================
+// EN: Separation tracking target is based on each conveyor length.
+sheetConveyor2TargetDistanceM :=
+    MAX(0.0, machineConfig.sheetConveyor2LengthM);
+
+sheetConveyor3TargetDistanceM :=
+    MAX(0.0, machineConfig.sheetConveyor3LengthM);
+
+sheetConveyor4TargetDistanceM :=
+    MAX(0.0, machineConfig.sheetConveyor4LengthM);
+
+
+//==============================================================
+// 9) Check separation ready conditions
+//==============================================================
+// EN: Compare gap speed against base speed, not normal speed.
+//     Otherwise operator speed-up would be incorrectly counted as gap opening.
+packageGapReady :=
+    speedControlEnabled AND
+    (sheetConveyor2TargetDistanceM > 0.0) AND
+    (sheetConveyor3TargetDistanceM > 0.0) AND
+    (sheetConveyor4TargetDistanceM > 0.0) AND
+    ((sheetConveyor2GapSpeedMPM - sheetConveyor2BaseSpeedMPM) >= machineConfig.minimumOpeningSpeedMPM) AND
+    ((sheetConveyor3GapSpeedMPM - sheetConveyor3BaseSpeedMPM) >= machineConfig.minimumOpeningSpeedMPM) AND
+    ((sheetConveyor4GapSpeedMPM - sheetConveyor4BaseSpeedMPM) >= machineConfig.minimumOpeningSpeedMPM);
+
+sheetStackSeparationReady := packageGapReady;
+
+
+//==============================================================
+// 10) Sheet stack separation state machine
+//==============================================================
+IF NOT speedControlEnabled THEN
+
+    sheetStackSeparationState      := 'DISABLED';
+    sheetStackSeparationStateCode  := -1;
+
+    packageSeparationState         := 0;
+
+    sheetStackSeparationActive     := FALSE;
+    sheetStackBrakeActive          := FALSE;
+    brakeValve                     := FALSE;
+
+    sheetConveyor2SeparationActive := FALSE;
+    sheetConveyor3SeparationActive := FALSE;
+    sheetConveyor4SeparationActive := FALSE;
+
+    sheetConveyor2HighSpeedActive  := FALSE;
+    sheetConveyor3HighSpeedActive  := FALSE;
+    sheetConveyor4HighSpeedActive  := FALSE;
+
+    sheetConveyor2OpeningDistanceM := 0.0;
+    sheetConveyor3OpeningDistanceM := 0.0;
+    sheetConveyor4OpeningDistanceM := 0.0;
+
+    sheetConveyor1TargetSpeedMPM   := 0.0;
+    sheetConveyor2TargetSpeedMPM   := 0.0;
+    sheetConveyor3TargetSpeedMPM   := 0.0;
+    sheetConveyor4TargetSpeedMPM   := 0.0;
+
+
+ELSE
+
+    CASE packageSeparationState OF
+
+        0: // NORMAL
+            sheetStackSeparationState     := 'NORMAL';
+            sheetStackSeparationStateCode := 0;
+
+            sheetStackSeparationActive    := FALSE;
+            sheetStackBrakeActive         := FALSE;
+            brakeValve                    := FALSE;
+
+            sheetConveyor2SeparationActive := FALSE;
+            sheetConveyor3SeparationActive := FALSE;
+            sheetConveyor4SeparationActive := FALSE;
+
+            sheetConveyor2HighSpeedActive  := FALSE;
+            sheetConveyor3HighSpeedActive  := FALSE;
+            sheetConveyor4HighSpeedActive  := FALSE;
+
+            sheetConveyor2OpeningDistanceM := 0.0;
+            sheetConveyor3OpeningDistanceM := 0.0;
+            sheetConveyor4OpeningDistanceM := 0.0;
+
+            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM  := sheetConveyor2BaseSpeedMPM;
+            sheetConveyor3TargetSpeedMPM  := sheetConveyor3BaseSpeedMPM;
+            sheetConveyor4TargetSpeedMPM  := sheetConveyor4BaseSpeedMPM;
+
+            IF rPackageComplete AND packageGapReady THEN
+                packageSeparationState := 10;
+            END_IF
+
+
+        10: // START_SHEET_STACK_SEPARATION
+            sheetStackSeparationState     := 'START_SEPARATION';
+            sheetStackSeparationStateCode := 10;
+
+            sheetStackSeparationActive    := TRUE;
+            sheetStackSeparationStarted   := TRUE;
+
+            sheetStackBrakeActive         := TRUE;
+            brakeValve                    := TRUE;
+
+            // EN: Conveyor 2 tracking starts immediately.
+            sheetConveyor2SeparationStarted := TRUE;
+
+            sheetConveyor2SeparationActive  := TRUE;
+            sheetConveyor3SeparationActive  := FALSE;
+            sheetConveyor4SeparationActive  := FALSE;
+
+            // EN: Conveyor 2 and 3 accelerate together from the beginning.
+            sheetConveyor2HighSpeedActive   := TRUE;
+            sheetConveyor3HighSpeedActive   := TRUE;
+            sheetConveyor4HighSpeedActive   := TRUE;
+
+            sheetConveyor2OpeningDistanceM  := 0.0;
+            sheetConveyor3OpeningDistanceM  := 0.0;
+            sheetConveyor4OpeningDistanceM  := 0.0;
+
+            sheetConveyor1TargetSpeedMPM    := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM    := sheetConveyor2GapSpeedMPM;
+            sheetConveyor3TargetSpeedMPM    := sheetConveyor3GapSpeedMPM;
+            sheetConveyor4TargetSpeedMPM    := sheetConveyor4GapSpeedMPM;
+
+            packageSeparationState := 20;
+
+
+        20: // SHEET_CONVEYOR_2_SEPARATION_TRACKING
+            sheetStackSeparationState     := 'CONV2_TRACKING';
+            sheetStackSeparationStateCode := 20;
+
+            sheetStackSeparationActive    := TRUE;
+
+            sheetStackBrakeActive         := TRUE;
+            brakeValve                    := TRUE;
+
+            sheetConveyor2SeparationActive := TRUE;
+            sheetConveyor3SeparationActive := FALSE;
+            sheetConveyor4SeparationActive := FALSE;
+
+            sheetConveyor2HighSpeedActive  := TRUE;
+            sheetConveyor3HighSpeedActive  := TRUE;
+            sheetConveyor4HighSpeedActive  := TRUE;
+
+            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM  := sheetConveyor2GapSpeedMPM;
+            sheetConveyor3TargetSpeedMPM  := sheetConveyor3GapSpeedMPM;
+            sheetConveyor4TargetSpeedMPM  := sheetConveyor4GapSpeedMPM;
+
+            IF sheetConveyor2OpeningDistanceM >= sheetConveyor2TargetDistanceM THEN
+
+                // EN: Conveyor 2 tracking finished. Conveyor 2 returns to base speed.
+                sheetConveyor2SeparationFinished := TRUE;
+
+                sheetConveyor2SeparationActive   := FALSE;
+                sheetConveyor2HighSpeedActive    := FALSE;
+
+                sheetStackBrakeActive            := FALSE;
+                brakeValve                       := FALSE;
+
+                sheetConveyor2TargetSpeedMPM     := sheetConveyor2BaseSpeedMPM;
+
+                // EN: Conveyor 3 tracking starts after conveyor 2 returns to sync.
+                sheetConveyor3SeparationStarted := TRUE;
+                sheetConveyor3OpeningDistanceM  := 0.0;
+
+                packageSeparationState := 30;
+
+            END_IF
+
+
+        30: // SHEET_CONVEYOR_3_SEPARATION_TRACKING
+            sheetStackSeparationState     := 'CONV3_TRACKING';
+            sheetStackSeparationStateCode := 30;
+
+            sheetStackSeparationActive    := TRUE;
+
+            sheetStackBrakeActive         := FALSE;
+            brakeValve                    := FALSE;
+
+            sheetConveyor2SeparationActive := FALSE;
+            sheetConveyor3SeparationActive := TRUE;
+            sheetConveyor4SeparationActive := FALSE;
+
+            sheetConveyor2HighSpeedActive  := FALSE;
+            sheetConveyor3HighSpeedActive  := TRUE;
+            sheetConveyor4HighSpeedActive  := TRUE;
+
+            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM  := sheetConveyor2BaseSpeedMPM;
+            sheetConveyor3TargetSpeedMPM  := sheetConveyor3GapSpeedMPM;
+            sheetConveyor4TargetSpeedMPM  := sheetConveyor4GapSpeedMPM;
+
+            IF sheetConveyor3OpeningDistanceM >= sheetConveyor3TargetDistanceM THEN
+
+                // EN: Conveyor 3 returns to base synchronized speed.
+                sheetConveyor3TargetSpeedMPM := sheetConveyor3BaseSpeedMPM;
+
+                // EN: Conveyor 4 tracking starts after conveyor 3 returns to sync.
+                // PT: O rastreamento da esteira 4 inicia após a esteira 3 retornar ao sincronismo.
+                sheetConveyor4SeparationStarted := TRUE;
+                sheetConveyor4OpeningDistanceM := 0.0;
+
+                packageSeparationState := 40;
+
+            END_IF
+
+
+        40: // SHEET_CONVEYOR_4_SEPARATION_TRACKING
+            sheetStackSeparationState     := 'CONV4_TRACKING';
+            sheetStackSeparationStateCode := 40;
+
+            sheetStackSeparationActive    := TRUE;
+            sheetStackBrakeActive         := FALSE;
+            brakeValve                    := FALSE;
+
+            sheetConveyor2SeparationActive := FALSE;
+            sheetConveyor3SeparationActive := FALSE;
+            sheetConveyor4SeparationActive := TRUE;
+
+            sheetConveyor2HighSpeedActive := FALSE;
+            sheetConveyor3HighSpeedActive := FALSE;
+            sheetConveyor4HighSpeedActive := TRUE;
+
+            sheetConveyor1TargetSpeedMPM := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM := sheetConveyor2BaseSpeedMPM;
+            sheetConveyor3TargetSpeedMPM := sheetConveyor3BaseSpeedMPM;
+            sheetConveyor4TargetSpeedMPM := sheetConveyor4GapSpeedMPM;
+
+            IF sheetConveyor4OpeningDistanceM >= sheetConveyor4TargetDistanceM THEN
+                sheetConveyor4TargetSpeedMPM := sheetConveyor4BaseSpeedMPM;
+                packageSeparationState := 50;
+            END_IF
+
+
+        50: // FINISH_SHEET_STACK_SEPARATION
+            sheetStackSeparationState     := 'FINISH_SEPARATION';
+            sheetStackSeparationStateCode := 50;
+
+            sheetStackSeparationActive    := FALSE;
+            sheetStackSeparationFinished  := TRUE;
+
+            sheetStackBrakeActive         := FALSE;
+            brakeValve                    := FALSE;
+
+            sheetConveyor2SeparationActive  := FALSE;
+            sheetConveyor3SeparationActive  := FALSE;
+            sheetConveyor4SeparationActive  := FALSE;
+
+            sheetConveyor2HighSpeedActive   := FALSE;
+            sheetConveyor3HighSpeedActive   := FALSE;
+            sheetConveyor4HighSpeedActive   := FALSE;
+
+            sheetConveyor3SeparationFinished := TRUE;
+            sheetConveyor4SeparationFinished := TRUE;
+
+            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            sheetConveyor2TargetSpeedMPM  := sheetConveyor2BaseSpeedMPM;
+            sheetConveyor3TargetSpeedMPM  := sheetConveyor3BaseSpeedMPM;
+            sheetConveyor4TargetSpeedMPM  := sheetConveyor4BaseSpeedMPM;
+
+            packageSeparationState := 0;
+
+
+    ELSE
+
+        packageSeparationState := 0;
+
+    END_CASE;
+
+END_IF;
+
+
+//==============================================================
+// 11) Limit speed targets
+//==============================================================
+sheetConveyor1TargetSpeedMPM := LIMIT(
+    machineConfig.minimumSpeedMPM,
+    sheetConveyor1TargetSpeedMPM,
+    machineConfig.maximumSpeedMPM
+);
+
+sheetConveyor2TargetSpeedMPM := LIMIT(
+    machineConfig.minimumSpeedMPM,
+    sheetConveyor2TargetSpeedMPM,
+    machineConfig.maximumSpeedMPM
+);
+
+sheetConveyor3TargetSpeedMPM := LIMIT(
+    machineConfig.minimumSpeedMPM,
+    sheetConveyor3TargetSpeedMPM,
+    machineConfig.maximumSpeedMPM
+);
+
+sheetConveyor4TargetSpeedMPM := LIMIT(
+    machineConfig.minimumSpeedMPM,
+    sheetConveyor4TargetSpeedMPM,
+    machineConfig.maximumSpeedMPM
+);
+
+
+//==============================================================
+// 12) Ramp sheet conveyor 1 speed reference
+//==============================================================
+instRampSheetConveyor1(
+    X          := sheetConveyor1TargetSpeedMPM,
+    A_UP       := MAX(0.0, machineConfig.rampAccelerationUpMPMps2),
+    A_DN       := -MAX(0.0, machineConfig.rampAccelerationDownMPMps2),
+    VU_MAX     := MAX(0.0, machineConfig.rampVelocityUpMaxMPMps),
+    VD_MAX     := -MAX(0.0, machineConfig.rampVelocityDownMaxMPMps),
+    LIMIT_HIGH := machineConfig.maximumSpeedMPM,
+    LIMIT_LOW  := machineConfig.minimumSpeedMPM,
+    RST        := rampReset,
+    Y          => sheetConveyor1SpeedRefMPM
+);
+
+
+//==============================================================
+// 13) Ramp sheet conveyor 2 speed reference
+//==============================================================
+instRampSheetConveyor2(
+    X          := sheetConveyor2TargetSpeedMPM,
+    A_UP       := MAX(0.0, machineConfig.rampAccelerationUpMPMps2),
+    A_DN       := -MAX(0.0, machineConfig.rampAccelerationDownMPMps2),
+    VU_MAX     := MAX(0.0, machineConfig.rampVelocityUpMaxMPMps),
+    VD_MAX     := -MAX(0.0, machineConfig.rampVelocityDownMaxMPMps),
+    LIMIT_HIGH := machineConfig.maximumSpeedMPM,
+    LIMIT_LOW  := machineConfig.minimumSpeedMPM,
+    RST        := rampReset,
+    Y          => sheetConveyor2SpeedRefMPM
+);
+
+
+//==============================================================
+// 14) Ramp sheet conveyor 3 speed reference
+//==============================================================
+instRampSheetConveyor3(
+    X          := sheetConveyor3TargetSpeedMPM,
+    A_UP       := MAX(0.0, machineConfig.rampAccelerationUpMPMps2),
+    A_DN       := -MAX(0.0, machineConfig.rampAccelerationDownMPMps2),
+    VU_MAX     := MAX(0.0, machineConfig.rampVelocityUpMaxMPMps),
+    VD_MAX     := -MAX(0.0, machineConfig.rampVelocityDownMaxMPMps),
+    LIMIT_HIGH := machineConfig.maximumSpeedMPM,
+    LIMIT_LOW  := machineConfig.minimumSpeedMPM,
+    RST        := rampReset,
+    Y          => sheetConveyor3SpeedRefMPM
+);
+
+
+//==============================================================
+// 15) Ramp sheet conveyor 4 speed reference
+//==============================================================
+instRampSheetConveyor4(
+    X          := sheetConveyor4TargetSpeedMPM,
+    A_UP       := MAX(0.0, machineConfig.rampAccelerationUpMPMps2),
+    A_DN       := -MAX(0.0, machineConfig.rampAccelerationDownMPMps2),
+    VU_MAX     := MAX(0.0, machineConfig.rampVelocityUpMaxMPMps),
+    VD_MAX     := -MAX(0.0, machineConfig.rampVelocityDownMaxMPMps),
+    LIMIT_HIGH := machineConfig.maximumSpeedMPM,
+    LIMIT_LOW  := machineConfig.minimumSpeedMPM,
+    RST        := rampReset,
+    Y          => sheetConveyor4SpeedRefMPM
+);
+
+
+//==============================================================
+// 16) Calculate real separation tracking speed using ramped references
+//==============================================================
+// EN: Only the real speed differential above the base speed moves the
+//     separation point through the conveyors.
+//     Operator speed-up is already included in base speed, so it is not
+//     counted as gap opening.
+sheetConveyor2OpeningSpeedMPM :=
+    MAX(0.0, sheetConveyor2SpeedRefMPM - sheetConveyor2BaseSpeedMPM);
+
+sheetConveyor3OpeningSpeedMPM :=
+    MAX(0.0, sheetConveyor3SpeedRefMPM - sheetConveyor3BaseSpeedMPM);
+
+sheetConveyor4OpeningSpeedMPM :=
+    MAX(0.0, sheetConveyor4SpeedRefMPM - sheetConveyor4BaseSpeedMPM);
+
+
+//==============================================================
+// 17) Integrate real separation tracking distance
+//==============================================================
+IF speedControlEnabled THEN
+
+    IF packageSeparationState = 20 THEN
+
+        IF sheetConveyor2OpeningSpeedMPM >= machineConfig.minimumOpeningSpeedMPM THEN
+
+            sheetConveyor2OpeningDistanceM :=
+                sheetConveyor2OpeningDistanceM +
+                (sheetConveyor2OpeningSpeedMPM / 60.0) * scanTimeS;
+
+        END_IF
+
+    ELSIF packageSeparationState = 30 THEN
+
+        IF sheetConveyor3OpeningSpeedMPM >= machineConfig.minimumOpeningSpeedMPM THEN
+
+            sheetConveyor3OpeningDistanceM :=
+                sheetConveyor3OpeningDistanceM +
+                (sheetConveyor3OpeningSpeedMPM / 60.0) * scanTimeS;
+
+        END_IF
+
+    ELSIF packageSeparationState = 40 THEN
+
+        IF sheetConveyor4OpeningSpeedMPM >= machineConfig.minimumOpeningSpeedMPM THEN
+
+            sheetConveyor4OpeningDistanceM :=
+                sheetConveyor4OpeningDistanceM +
+                (sheetConveyor4OpeningSpeedMPM / 60.0) * scanTimeS;
+
+        END_IF
+
+    END_IF
+
+END_IF;
+
+
+//==============================================================
+// 18) Publish tracking distances to outputs
+//==============================================================
+sheetConveyor2TrackingDistanceM := sheetConveyor2OpeningDistanceM;
+sheetConveyor3TrackingDistanceM := sheetConveyor3OpeningDistanceM;
+sheetConveyor4TrackingDistanceM := sheetConveyor4OpeningDistanceM;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_ExternalCommands" Id="{23081b0f-b3c0-4f06-84d8-ae06b486e5db}">
+      <Declaration><![CDATA[METHOD _ExternalCommands : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_HmiStatus" Id="{16094ab9-97e2-4ed8-a70b-4e9ddcf19fa2}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — HMI STATUS
+// EN: Maps internal status, outputs, positions and diagnostics
+//     to the HMI status structure.
+//==============================================================
+METHOD _HmiStatus
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+
+//==============================================================
+// 1) System general status
+//==============================================================
+hmiStatus.systemRunEnable :=
+    systemRunEnable;
+
+hmiStatus.safetyCircuitOk :=
+    safetyCircuitOk;
+
+hmiStatus.faultActive :=
+    faultActive OR
+    backstopFault OR
+    elevatorFault OR
+    sheetStackDischargeFault OR
+    sheetStackDischargeConveyorFault;
+
+hmiStatus.deviceState :=
+    deviceState;
+
+
+//==============================================================
+// 2) Sheet conveyor group status
+//==============================================================
+hmiStatus.synchronizedConveyorsRunning :=
+    synchronizedConveyorsRunning;
+
+hmiStatus.sheetConveyor1Run :=
+    sheetConveyor1Run;
+
+hmiStatus.sheetConveyor2Run :=
+    sheetConveyor2Run;
+
+hmiStatus.sheetConveyor3Run :=
+    sheetConveyor3Run;
+
+hmiStatus.sheetConveyor4Run :=
+    sheetConveyor4Run;
+
+hmiStatus.sheetConveyor1SpeedRefMPM :=
+    sheetConveyor1SpeedRefMPM;
+
+hmiStatus.sheetConveyor2SpeedRefMPM :=
+    sheetConveyor2SpeedRefMPM;
+
+hmiStatus.sheetConveyor3SpeedRefMPM :=
+    sheetConveyor3SpeedRefMPM;
+
+hmiStatus.sheetConveyor4SpeedRefMPM :=
+    sheetConveyor4SpeedRefMPM;
+
+hmiStatus.syncConveyorsState :=
+    syncConveyorsState;
+
+
+//==============================================================
+// 3) Sheet stack separation status
+//==============================================================
+hmiStatus.sheetStackSeparationReady :=
+    sheetStackSeparationReady;
+
+hmiStatus.sheetStackSeparationActive :=
+    sheetStackSeparationActive;
+
+hmiStatus.sheetStackBrakeActive :=
+    sheetStackBrakeActive;
+
+
+//==============================================================
+// 4) Sheet stack discharge sequence status
+//==============================================================
+hmiStatus.sheetStackDischargeState :=
+    sheetStackDischargeState;
+
+hmiStatus.sheetStackDischargeStateCode :=
+    sheetStackDischargeStateCode;
+
+hmiStatus.sheetStackDischargePending :=
+    sheetStackDischargePending;
+
+hmiStatus.sheetStackDischargeActive :=
+    sheetStackDischargeActive;
+
+hmiStatus.sheetStackDischargeStarted :=
+    sheetStackDischargeStarted;
+
+hmiStatus.sheetStackDischargeFinished :=
+    sheetStackDischargeFinished;
+
+hmiStatus.sheetStackDischargeFault :=
+    sheetStackDischargeFault;
+
+hmiStatus.sheetStackDischargeFaultCode :=
+    sheetStackDischargeFaultCode;
+
+hmiStatus.sheetStackDischargeLastCycleOk :=
+    sheetStackDischargeLastCycleOk;
+
+hmiStatus.sheetStackDischargeLastResultCode :=
+    sheetStackDischargeLastResultCode;
+
+hmiStatus.sheetStackDischargeLastFaultStepCode :=
+    sheetStackDischargeLastFaultStepCode;
+
+hmiStatus.sheetStackDischargeLastFaultCode :=
+    sheetStackDischargeLastFaultCode;
+
+
+//==============================================================
+// 5) Sheet stack discharge conveyor status
+//==============================================================
+hmiStatus.sheetStackDischargeConveyorState :=
+    sheetStackDischargeConveyorState;
+
+hmiStatus.sheetStackDischargeConveyorRun :=
+    sheetStackDischargeConveyorRun;
+
+hmiStatus.sheetStackDischargeConveyorSpeedRefMPM :=
+    sheetStackDischargeConveyorSpeedRefMPM;
+
+hmiStatus.sheetStackDischargeConveyorFault :=
+    sheetStackDischargeConveyorFault;
+
+hmiStatus.sheetStackDischargeConveyorFaultCode :=
+    sheetStackDischargeConveyorFaultCode;
+
+
+//==============================================================
+// 6) Backstop status
+//==============================================================
+hmiStatus.backstopState :=
+    backstopState;
+
+hmiStatus.backstopHomed :=
+    backstopHomed;
+
+hmiStatus.backstopHomeRunning :=
+    backstopHomeRunning;
+
+hmiStatus.backstopInPosition :=
+    backstopInPosition;
+
+hmiStatus.backstopPositionMm :=
+    backstopPositionMm;
+
+hmiStatus.backstopTargetPositionMm :=
+    backstopTargetPositionMm;
+
+hmiStatus.backstopPositionErrorMm :=
+    backstopPositionErrorMm;
+
+hmiStatus.backstopRunFw :=
+    backstopRunFw;
+
+hmiStatus.backstopRunRev :=
+    backstopRunRev;
+
+hmiStatus.backstopSpeedRefMmps :=
+    backstopSpeedRefMmps;
+
+hmiStatus.backstopPlateUpSolenoid :=
+    backstopPlateUpSolenoid;
+
+hmiStatus.backstopSetEncoderPosition :=
+    backstopSetEncoderPosition;
+
+hmiStatus.backstopSetEncoderPositionMm :=
+    backstopSetEncoderPositionMm;
+
+hmiStatus.backstopManualInterventionActive :=
+    backstopManualInterventionActive;
+
+hmiStatus.backstopManualInterventionPositionMm :=
+    backstopManualInterventionPositionMm;
+
+hmiStatus.backstopFault :=
+    backstopFault;
+
+hmiStatus.backstopFaultCode :=
+    backstopFaultCode;
+
+
+//==============================================================
+// 7) Elevator status
+//==============================================================
+hmiStatus.elevatorState :=
+    elevatorState;
+
+hmiStatus.elevatorHomed :=
+    elevatorHomed;
+
+hmiStatus.elevatorInPosition :=
+    elevatorInPosition;
+
+hmiStatus.elevatorPositionMm :=
+    elevatorPositionMm;
+
+hmiStatus.elevatorTargetPositionMm :=
+    elevatorTargetPositionMm;
+
+hmiStatus.elevatorPositionErrorMm :=
+    elevatorPositionErrorMm;
+
+hmiStatus.elevatorRunUp :=
+    elevatorRunUp;
+
+hmiStatus.elevatorRunDown :=
+    elevatorRunDown;
+
+hmiStatus.elevatorBrakeRelease :=
+    elevatorBrakeRelease;
+
+hmiStatus.elevatorSpeedRefMmps :=
+    elevatorSpeedRefMmps;
+
+hmiStatus.elevatorSetEncoderPosition :=
+    elevatorSetEncoderPosition;
+
+hmiStatus.elevatorSetEncoderPositionMm :=
+    elevatorSetEncoderPositionMm;
+
+hmiStatus.elevatorFault :=
+    elevatorFault;
+
+hmiStatus.elevatorFaultCode :=
+    elevatorFaultCode;
+
+
+//==============================================================
+// 8) Process values
+//==============================================================
+hmiStatus.lineSpeedMPM :=
+    lineSpeedMPM;
+
+hmiStatus.sheetLengthMm :=
+    sheetLengthMm;
+
+hmiStatus.stackHeightMm :=
+    stackHeightMm;
+
+
+//==============================================================
+// 9) Input / drive status mirror
+//==============================================================
+hmiStatus.sheetConveyor1DriveOk :=
+    sheetConveyor1DriveOk;
+
+hmiStatus.sheetConveyor2DriveOk :=
+    sheetConveyor2DriveOk;
+
+hmiStatus.sheetConveyor3DriveOk :=
+    sheetConveyor3DriveOk;
+
+hmiStatus.sheetConveyor4DriveOk :=
+    sheetConveyor4DriveOk;
+
+hmiStatus.backstopDriveOk :=
+    backstopDriveOk;
+
+hmiStatus.elevatorDriveOk :=
+    elevatorDriveOk;
+
+hmiStatus.sheetStackDischargeConveyorDriveOk :=
+    sheetStackDischargeConveyorDriveOk;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_MachineAuxilary" Id="{e2b5cbf6-69e2-466d-b88b-098c16376b1c}">
+      <Declaration><![CDATA[METHOD _MachineAuxilary
+VAR_INPUT
+END_VAR
+(*
+
+
+
+stopMachinePulse :=
+    NOT safetyCircuitOk OR
+    NOT sheetConveyor1DriveOk OR
+    NOT sheetConveyor2DriveOk OR
+    NOT sheetConveyor3DriveOk;
+	NOT backstopDriveOk
+	NOT elevatorDriveOk
+*)]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[noCrushRollersUpDownValve := noCrushRollersDownCmd;
+
+stackerRunning := systemRunEnable;
+
+
+reset := resetCmd;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SheetConveyorGroupControl" Id="{4e9269ad-ad7c-49a7-a563-44d7dbcca5a6}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SHEET CONVEYOR GROUP CONTROL
+// EN: Controls the synchronized sheet conveyor group.
+//     Start/stop command latch is handled by _SystemControl().
+//==============================================================
+METHOD _SheetConveyorGroupControl
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//==============================================================
+// 1) Conditions
+//==============================================================
+// EN: Only synchronized sheet conveyor drives are considered here.
+// PT: Apenas os inversores das esteiras sincronizadas são considerados aqui.
+allSynchronizedDrivesOk :=
+    sheetConveyor1DriveOk AND
+    sheetConveyor2DriveOk AND
+    sheetConveyor3DriveOk AND
+    sheetConveyor4DriveOk;
+
+
+// EN: Synchronized conveyor group fault.
+// PT: Falha do grupo de esteiras sincronizadas.
+anyFault :=
+    NOT safetyCircuitOk OR
+    NOT allSynchronizedDrivesOk;
+
+faultActive := anyFault;
+
+
+//==============================================================
+// 2) State machine
+//==============================================================
+CASE syncConveyorsState OF
+
+    0: // IDLE
+        deviceState := 'IDLE';
+
+        sheetConveyor1Run := FALSE;
+        sheetConveyor2Run := FALSE;
+        sheetConveyor3Run := FALSE;
+        sheetConveyor4Run := FALSE;
+
+        synchronizedConveyorsRunning := FALSE;
+
+        // EN: The group starts only when the master system is enabled
+        //     and no conveyor group fault is active.
+        IF systemRunEnable AND NOT anyFault THEN
+
+            syncConveyorsState := 1;
+
+        ELSIF systemRunEnable AND anyFault THEN
+
+            syncConveyorsState := 10;
+
+        END_IF
+
+
+    1: // RUN
+        deviceState := 'RUN';
+
+        // EN: Outputs are also directly conditioned by systemRunEnable
+        //     to avoid one-scan movement after a stop command.
+        sheetConveyor1Run :=
+            systemRunEnable AND
+            safetyCircuitOk AND
+            sheetConveyor1DriveOk;
+
+        sheetConveyor2Run :=
+            systemRunEnable AND
+            safetyCircuitOk AND
+            sheetConveyor2DriveOk;
+
+        sheetConveyor3Run :=
+            systemRunEnable AND
+            safetyCircuitOk AND
+            sheetConveyor3DriveOk;
+
+        sheetConveyor4Run :=
+            systemRunEnable AND
+            safetyCircuitOk AND
+            sheetConveyor4DriveOk;
+
+        synchronizedConveyorsRunning :=
+            sheetConveyor1Run AND
+            sheetConveyor2Run AND
+            sheetConveyor3Run AND
+            sheetConveyor4Run;
+
+        IF anyFault THEN
+
+            syncConveyorsState := 10;
+
+        ELSIF NOT systemRunEnable THEN
+
+            syncConveyorsState := 0;
+
+        END_IF
+
+
+    10: // FAULT
+        deviceState := 'FAULT';
+
+        sheetConveyor1Run := FALSE;
+        sheetConveyor2Run := FALSE;
+        sheetConveyor3Run := FALSE;
+        sheetConveyor4Run := FALSE;
+
+        synchronizedConveyorsRunning := FALSE;
+
+        // EN: Fault state is released only by reset and with all faults cleared.
+        //     If systemRunEnable is still TRUE after reset, the group can start
+        //     again from IDLE on the next scan.
+        IF resetCmd AND NOT anyFault THEN
+
+            syncConveyorsState := 0;
+
+        END_IF
+
+
+ELSE
+
+    syncConveyorsState := 0;
+
+END_CASE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SheetStackDischargeControl" Id="{81f9f969-5eb1-4e10-bb82-8d9cdff46e5d}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SHEET STACK DISCHARGE CONTROL
+// EN: Controls the sheet stack discharge sequence after the sheet
+//     conveyor separation cycle is completed.
+//
+// State code
+// 0  = IDLE
+// 5  = WAIT_SEPARATION
+// 10 = START_DISCHARGE_POSITIONING
+// 20 = WAIT_BACKSTOP_POSITION
+// 30 = RUN_DISCHARGE_CONVEYOR
+// 40 = START_RETURN_POSITIONING
+// 50 = WAIT_BACKSTOP_RETURN
+// 60 = FINISH
+// 90 = ABORT_TRANSIENT
+//
+// Last result code
+// 0 = No cycle executed yet
+// 1 = Last cycle completed successfully
+// 2 = Last cycle completed with manual backstop skip
+// 3 = Last cycle completed/aborted by timeout
+// 4 = Last cycle aborted by fault
+//
+// Fault code
+// 0  = No fault
+// 1  = Safety circuit not OK
+// 2  = Sheet conveyor drive not OK
+// 3  = Discharge conveyor drive/control fault
+// 4  = Backstop drive/control fault
+// 5  = Elevator drive/control fault
+// 6  = Stacker stopped during cycle
+// 10 = Wait separation timeout
+// 20 = Backstop positioning timeout
+// 30 = Discharge conveyor did not start timeout
+// 50 = Backstop return timeout
+//==============================================================
+METHOD _SheetStackDischargeControl
+VAR
+    abortCycle : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+
+//==============================================================
+// 1) Default event pulses
+//==============================================================
+sheetStackDischargeStarted  := FALSE;
+sheetStackDischargeFinished := FALSE;
+
+
+//==============================================================
+// 2) Default internal requests / overrides
+//==============================================================
+// EN: The sequence does not write the physical discharge conveyor outputs.
+//     It only generates an internal request to the conveyor control method.
+sheetStackDischargeConveyorRunRequest := FALSE;
+
+backstopTargetOverrideActive := FALSE;
+backstopTargetOverridePositionMm := 0.0;
+
+elevatorTargetOverrideActive := FALSE;
+elevatorTargetOverridePositionMm := 0.0;
+
+
+//==============================================================
+// 3) Edge detection
+//==============================================================
+// EN: Separate edge detector to avoid interfering with conveyor speed control.
+rPackageCompleteDischarge :=
+    packageCompleteCmd AND NOT packageCompleteCmdOldDischarge;
+
+packageCompleteCmdOldDischarge := packageCompleteCmd;
+
+
+//==============================================================
+// 4) Fault condition
+//==============================================================
+// EN: Elevator feedback is not used for sequence progress,
+//     but its drive/control fault still aborts the cycle.
+sheetStackDischargeFaultCondition :=
+    NOT safetyCircuitOk OR
+    NOT sheetConveyor1DriveOk OR
+    NOT sheetConveyor2DriveOk OR
+    NOT sheetConveyor3DriveOk OR
+    NOT sheetConveyor4DriveOk OR
+    NOT sheetStackDischargeConveyorDriveOk OR
+    sheetStackDischargeConveyorFault OR
+    NOT backstopDriveOk OR
+    backstopFault OR
+    NOT elevatorDriveOk OR
+    elevatorFault;
+
+
+//==============================================================
+// 5) Fault code priority
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    sheetStackDischargeFaultCode := 1;
+
+ELSIF NOT sheetConveyor1DriveOk OR
+      NOT sheetConveyor2DriveOk OR
+      NOT sheetConveyor3DriveOk OR
+      NOT sheetConveyor4DriveOk THEN
+
+    sheetStackDischargeFaultCode := 2;
+
+ELSIF NOT sheetStackDischargeConveyorDriveOk OR
+      sheetStackDischargeConveyorFault THEN
+
+    sheetStackDischargeFaultCode := 3;
+
+ELSIF NOT backstopDriveOk OR
+      backstopFault THEN
+
+    sheetStackDischargeFaultCode := 4;
+
+ELSIF NOT elevatorDriveOk OR
+      elevatorFault THEN
+
+    sheetStackDischargeFaultCode := 5;
+
+ELSIF NOT synchronizedConveyorsRunning THEN
+
+    sheetStackDischargeFaultCode := 6;
+
+END_IF;
+
+
+//==============================================================
+// 6) Optional reset of current sequence fault display
+//==============================================================
+// EN: Reset clears the current sequence fault flag,
+//     but does not erase last cycle diagnostic codes.
+IF resetCmd AND (sheetStackDischargeControlState = 0) THEN
+
+    sheetStackDischargeFault := FALSE;
+    sheetStackDischargeFaultCode := 0;
+
+END_IF;
+
+
+//==============================================================
+// 7) Arm discharge sequence from packageCompleteCmd
+//==============================================================
+// EN: packageCompleteCmd is ignored if stacker is not running or if
+//     any relevant drive/safety fault is active.
+IF rPackageCompleteDischarge AND
+   synchronizedConveyorsRunning AND
+   NOT sheetStackDischargeFaultCondition AND
+   NOT sheetStackDischargeActive AND
+   NOT sheetStackDischargePending THEN
+
+    sheetStackDischargePending := TRUE;
+
+    // EN: Clear current-cycle flags when a new cycle is accepted.
+    sheetStackDischargeFault := FALSE;
+    sheetStackDischargeFaultCode := 0;
+
+    sheetStackDischargeCycleHasManualSkip := FALSE;
+    sheetStackDischargeCycleHasTimeout := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 8) Immediate abort condition
+//==============================================================
+// EN: Any relevant fault during an active/pending cycle aborts the
+//     sequence and automatically returns to IDLE.
+//     Loss of synchronized conveyor running also aborts the cycle.
+abortCycle :=
+    (
+        sheetStackDischargeActive OR
+        sheetStackDischargePending OR
+        (sheetStackDischargeControlState <> 0)
+    )
+    AND
+    (
+        sheetStackDischargeFaultCondition OR
+        NOT synchronizedConveyorsRunning
+    );
+
+
+IF abortCycle THEN
+
+    sheetStackDischargeConveyorRunRequest := FALSE;
+
+    backstopTargetOverrideActive := FALSE;
+    elevatorTargetOverrideActive := FALSE;
+
+    sheetStackDischargePending := FALSE;
+    sheetStackDischargeActive := FALSE;
+
+    tonSheetStackDischarge(IN := FALSE);
+    tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+    sheetStackDischargeFault := TRUE;
+
+    sheetStackDischargeLastCycleOk := FALSE;
+    sheetStackDischargeLastResultCode := 4;
+    sheetStackDischargeLastFaultStepCode := sheetStackDischargeControlState;
+    sheetStackDischargeLastFaultCode := sheetStackDischargeFaultCode;
+
+    sheetStackDischargeState := 'ABORTED';
+    sheetStackDischargeStateCode := 90;
+
+    // EN: Do not clear backstopManualInterventionActive here.
+    //     If the cycle aborted before return, keeping the memory is safer
+    //     for the next cycle.
+
+    // EN: No latched FAULT state. Return to IDLE automatically.
+    sheetStackDischargeControlState := 0;
+
+
+ELSE
+
+    //==============================================================
+    // 9) Sheet stack discharge state machine
+    //==============================================================
+    CASE sheetStackDischargeControlState OF
+
+        0: // IDLE
+            sheetStackDischargeState := 'IDLE';
+            sheetStackDischargeStateCode := 0;
+
+            sheetStackDischargeActive := FALSE;
+
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            backstopTargetOverrideActive := FALSE;
+            elevatorTargetOverrideActive := FALSE;
+
+            tonSheetStackDischarge(IN := FALSE);
+            tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+            IF sheetStackDischargePending THEN
+
+                tonSheetStackDischarge(IN := FALSE);
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 5;
+
+            END_IF
+
+
+        5: // WAIT_SEPARATION
+            sheetStackDischargeState := 'WAIT_SEPARATION';
+            sheetStackDischargeStateCode := 5;
+
+            sheetStackDischargeActive := FALSE;
+
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            backstopTargetOverrideActive := FALSE;
+            elevatorTargetOverrideActive := FALSE;
+
+            tonSheetStackDischarge(IN := FALSE);
+
+            // EN: Wait for conveyor speed control to finish sheet stack separation.
+            tonSheetStackDischargeStepTimeout(
+                IN := TRUE,
+                PT := machineConfig.sheetStackDischargeWaitSeparationTimeout
+            );
+
+            IF sheetStackSeparationFinished THEN
+
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 10;
+
+
+            ELSIF tonSheetStackDischargeStepTimeout.Q THEN
+
+                // EN: Separation did not finish. Do not discharge.
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargePending := FALSE;
+                sheetStackDischargeActive := FALSE;
+
+                sheetStackDischargeFault := TRUE;
+                sheetStackDischargeFaultCode := 10;
+
+                sheetStackDischargeLastCycleOk := FALSE;
+                sheetStackDischargeLastResultCode := 3;
+                sheetStackDischargeLastFaultStepCode := 5;
+                sheetStackDischargeLastFaultCode := 10;
+
+                sheetStackDischargeControlState := 0;
+
+            END_IF
+
+
+        10: // START_DISCHARGE_POSITIONING
+            sheetStackDischargeState := 'START_POSITIONING';
+            sheetStackDischargeStateCode := 10;
+
+            sheetStackDischargePending := FALSE;
+            sheetStackDischargeActive := TRUE;
+            sheetStackDischargeStarted := TRUE;
+
+            tonSheetStackDischarge(IN := FALSE);
+            tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+            //======================================================
+            // EN: Latch programmed backstop target for this cycle.
+            //     This is the normal position based on sheet length.
+            //======================================================
+            backstopProgrammedDischargeTargetMm :=
+                LIMIT(
+                    machineConfig.backstopMinPositionMm,
+                    MAX(0.0, sheetLengthMm) +
+                        machineConfig.backstopSheetLengthOffsetMm,
+                    machineConfig.backstopMaxPositionMm
+                );
+
+            //======================================================
+            // EN: Define safe opening base position.
+            //
+            // If the operator manually moved the backstop before the
+            // automatic cycle, use the greater value between:
+            // - programmed position
+            // - last manual intervention position
+            //
+            // This prevents the automatic opening override from closing
+            // the backstop onto the material.
+            //
+            // If there was no manual intervention, use only the programmed
+            // position as the base.
+            //======================================================
+            IF backstopManualInterventionActive THEN
+
+                backstopDischargeOpenBasePositionMm :=
+                    MAX(
+                        backstopProgrammedDischargeTargetMm,
+                        backstopManualInterventionPositionMm
+                    );
+
+            ELSE
+
+                backstopDischargeOpenBasePositionMm :=
+                    backstopProgrammedDischargeTargetMm;
+
+            END_IF;
+
+            //======================================================
+            // EN: Latch safe discharge open target.
+            //     Offset is applied after selecting the safe base.
+            //======================================================
+            backstopDischargeOpenTargetMm :=
+                LIMIT(
+                    machineConfig.backstopMinPositionMm,
+                    backstopDischargeOpenBasePositionMm +
+                        machineConfig.backstopDischargeOpenOffsetMm,
+                    machineConfig.backstopMaxPositionMm
+                );
+
+            // EN: Request safe backstop opening.
+            //     Backstop control accepts it only in auto.
+            backstopTargetOverrideActive := TRUE;
+            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+
+            // EN: Request elevator to move up.
+            //     The sequence does not wait for leveler feedback.
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMaxPositionMm;
+
+            sheetStackDischargeControlState := 20;
+
+
+        20: // WAIT_BACKSTOP_POSITION
+            sheetStackDischargeState := 'WAIT_BACKSTOP_POSITION';
+            sheetStackDischargeStateCode := 20;
+
+            sheetStackDischargeActive := TRUE;
+
+            // EN: Keep safe latched backstop discharge target active.
+            backstopTargetOverrideActive := TRUE;
+            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+
+            // EN: Keep elevator up target active.
+            //     Feedback is intentionally ignored for sequence progress.
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMaxPositionMm;
+
+            // EN: If backstop is not in auto, do not wait for it.
+            IF NOT backstopAutoCmd THEN
+
+                sheetStackDischargeCycleHasManualSkip := TRUE;
+
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 30;
+
+
+            ELSIF backstopInPosition THEN
+
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 30;
+
+
+            ELSE
+
+                tonSheetStackDischargeStepTimeout(
+                    IN := TRUE,
+                    PT := machineConfig.sheetStackDischargePositioningTimeout
+                );
+
+                IF tonSheetStackDischargeStepTimeout.Q THEN
+
+                    // EN: Do not stay trapped waiting for backstop.
+                    //     Continue the cycle, but record timeout diagnostic.
+                    tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                    sheetStackDischargeCycleHasTimeout := TRUE;
+
+                    sheetStackDischargeFault := TRUE;
+                    sheetStackDischargeFaultCode := 20;
+
+                    sheetStackDischargeLastCycleOk := FALSE;
+                    sheetStackDischargeLastResultCode := 3;
+                    sheetStackDischargeLastFaultStepCode := 20;
+                    sheetStackDischargeLastFaultCode := 20;
+
+                    sheetStackDischargeControlState := 30;
+
+                END_IF
+
+            END_IF
+
+
+        30: // RUN_DISCHARGE_CONVEYOR
+            sheetStackDischargeState := 'DISCHARGING';
+            sheetStackDischargeStateCode := 30;
+
+            sheetStackDischargeActive := TRUE;
+
+            // EN: Keep safe latched backstop discharge target active
+            //     while discharging.
+            backstopTargetOverrideActive := TRUE;
+            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+
+            // EN: Keep elevator up while discharging.
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMaxPositionMm;
+
+            // EN: Request discharge conveyor run.
+            //     Physical output is controlled by _SheetStackDischargeConveyorControl.
+            sheetStackDischargeConveyorRunRequest := TRUE;
+
+            // EN: If conveyor is not actually running, use start timeout.
+            IF NOT sheetStackDischargeConveyorRun THEN
+
+                tonSheetStackDischarge(IN := FALSE);
+
+                tonSheetStackDischargeStepTimeout(
+                    IN := TRUE,
+                    PT := machineConfig.sheetStackDischargeConveyorStartTimeout
+                );
+
+                IF tonSheetStackDischargeStepTimeout.Q THEN
+
+                    // EN: Conveyor did not start. Do not stay trapped.
+                    tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                    sheetStackDischargeConveyorRunRequest := FALSE;
+
+                    sheetStackDischargeCycleHasTimeout := TRUE;
+
+                    sheetStackDischargeFault := TRUE;
+                    sheetStackDischargeFaultCode := 30;
+
+                    sheetStackDischargeLastCycleOk := FALSE;
+                    sheetStackDischargeLastResultCode := 3;
+                    sheetStackDischargeLastFaultStepCode := 30;
+                    sheetStackDischargeLastFaultCode := 30;
+
+                    sheetStackDischargeControlState := 40;
+
+                END_IF
+
+
+            ELSE
+
+                // EN: Conveyor is running. Count real discharge time.
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                tonSheetStackDischarge(
+                    IN := TRUE,
+                    PT := machineConfig.sheetStackDischargeTime
+                );
+
+                IF tonSheetStackDischarge.Q THEN
+
+                    tonSheetStackDischarge(IN := FALSE);
+
+                    sheetStackDischargeConveyorRunRequest := FALSE;
+
+                    sheetStackDischargeControlState := 40;
+
+                END_IF
+
+            END_IF
+
+
+        40: // START_RETURN_POSITIONING
+            sheetStackDischargeState := 'START_RETURN';
+            sheetStackDischargeStateCode := 40;
+
+            sheetStackDischargeActive := TRUE;
+
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            tonSheetStackDischarge(IN := FALSE);
+            tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+            // EN: Request backstop return to the latched programmed target.
+            //     The override remains active until the backstop returns.
+            backstopTargetOverrideActive := TRUE;
+            backstopTargetOverridePositionMm :=
+                backstopProgrammedDischargeTargetMm;
+
+            // EN: Request elevator to return down.
+            //     The sequence does not wait for leveler feedback.
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMinPositionMm;
+
+            sheetStackDischargeControlState := 50;
+
+
+        50: // WAIT_BACKSTOP_RETURN
+            sheetStackDischargeState := 'WAIT_BACKSTOP_RETURN';
+            sheetStackDischargeStateCode := 50;
+
+            sheetStackDischargeActive := TRUE;
+
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            // EN: Keep backstop return target active.
+            backstopTargetOverrideActive := TRUE;
+            backstopTargetOverridePositionMm :=
+                backstopProgrammedDischargeTargetMm;
+
+            // EN: Keep elevator return target active.
+            //     Feedback is intentionally ignored for sequence progress.
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMinPositionMm;
+
+            // EN: If backstop is not in auto, do not wait for it.
+            IF NOT backstopAutoCmd THEN
+
+                sheetStackDischargeCycleHasManualSkip := TRUE;
+
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 60;
+
+
+            ELSIF backstopInPosition THEN
+
+                tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                sheetStackDischargeControlState := 60;
+
+
+            ELSE
+
+                tonSheetStackDischargeStepTimeout(
+                    IN := TRUE,
+                    PT := machineConfig.sheetStackDischargeReturnTimeout
+                );
+
+                IF tonSheetStackDischargeStepTimeout.Q THEN
+
+                    // EN: Do not stay trapped waiting for return.
+                    tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+                    sheetStackDischargeCycleHasTimeout := TRUE;
+
+                    sheetStackDischargeFault := TRUE;
+                    sheetStackDischargeFaultCode := 50;
+
+                    sheetStackDischargeLastCycleOk := FALSE;
+                    sheetStackDischargeLastResultCode := 3;
+                    sheetStackDischargeLastFaultStepCode := 50;
+                    sheetStackDischargeLastFaultCode := 50;
+
+                    sheetStackDischargeControlState := 60;
+
+                END_IF
+
+            END_IF
+
+
+        60: // FINISH
+            sheetStackDischargeState := 'FINISH';
+            sheetStackDischargeStateCode := 60;
+
+            sheetStackDischargeActive := FALSE;
+            sheetStackDischargePending := FALSE;
+            sheetStackDischargeFinished := TRUE;
+
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            backstopTargetOverrideActive := FALSE;
+            elevatorTargetOverrideActive := FALSE;
+
+            tonSheetStackDischarge(IN := FALSE);
+            tonSheetStackDischargeStepTimeout(IN := FALSE);
+
+            IF sheetStackDischargeCycleHasTimeout THEN
+
+                sheetStackDischargeLastCycleOk := FALSE;
+                sheetStackDischargeLastResultCode := 3;
+
+                // EN: Keep manual intervention memory after timeout.
+                //     The backstop may not have returned correctly.
+
+            ELSIF sheetStackDischargeCycleHasManualSkip THEN
+
+                sheetStackDischargeLastCycleOk := FALSE;
+                sheetStackDischargeLastResultCode := 2;
+                sheetStackDischargeLastFaultStepCode := 0;
+                sheetStackDischargeLastFaultCode := 0;
+
+                sheetStackDischargeFault := FALSE;
+                sheetStackDischargeFaultCode := 0;
+
+                // EN: Keep manual intervention memory because the backstop
+                //     was not controlled automatically.
+
+
+            ELSE
+
+                sheetStackDischargeLastCycleOk := TRUE;
+                sheetStackDischargeLastResultCode := 1;
+                sheetStackDischargeLastFaultStepCode := 0;
+                sheetStackDischargeLastFaultCode := 0;
+
+                sheetStackDischargeFault := FALSE;
+                sheetStackDischargeFaultCode := 0;
+
+                // EN: Cycle completed correctly and backstop returned to
+                //     programmed target. Clear manual intervention memory.
+                backstopManualInterventionActive := FALSE;
+                backstopManualInterventionPositionMm := 0.0;
+
+            END_IF
+
+            // EN: Always return to IDLE automatically.
+            sheetStackDischargeControlState := 0;
+
+
+    ELSE
+
+        sheetStackDischargeControlState := 0;
+
+    END_CASE;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SheetStackDischargeConveyorControl" Id="{4c5fd8d2-b02a-497c-92c4-0a7dc3f91db2}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SHEET STACK DISCHARGE CONVEYOR CONTROL
+// EN: Controls the sheet stack discharge conveyor.
+//     Conveyor runs while manual button is pressed or while
+//     automatic request is active and conveyor automatic mode is enabled.
+//
+// Fault code
+// 0 = No fault
+// 1 = Safety circuit not OK
+// 2 = Discharge conveyor drive not OK
+//==============================================================
+METHOD _SheetStackDischargeConveyorControl
+VAR
+    manualRunRequest   : BOOL;
+    automaticRunRequest: BOOL;
+    finalRunRequest    : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//==============================================================
+// COMPLEX STACKER — SHEET STACK DISCHARGE CONVEYOR CONTROL
+// EN: Controls the sheet stack discharge conveyor in manual pulse
+//     or automatic sequence request.
+//==============================================================
+
+
+//==============================================================
+// 1) Default outputs
+//==============================================================
+sheetStackDischargeConveyorRun := FALSE;
+sheetStackDischargeConveyorSpeedRefMPM := 0.0;
+
+
+//==============================================================
+// 2) Run request selection
+//==============================================================
+// EN: Manual command is momentary. Conveyor runs while button is pressed.
+manualRunRequest :=
+    sheetStackDischargeConveyorManualRunCmd;
+
+
+// EN: Automatic request is generated by the discharge sequence.
+//     This conveyor is assumed to be available for automatic cycle
+//     whenever the master system is enabled.
+automaticRunRequest :=
+    sheetStackDischargeConveyorRunRequest;
+
+
+// EN: Master system enable blocks both manual and automatic movement.
+finalRunRequest :=
+    systemRunEnable AND
+    (
+        manualRunRequest OR
+        automaticRunRequest OR
+		backstopHomeRunning
+    );
+
+
+//==============================================================
+// 3) Fault detection
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    sheetStackDischargeConveyorState := 'SAFETY_OFF';
+
+    sheetStackDischargeConveyorFault := TRUE;
+    sheetStackDischargeConveyorFaultCode := 1;
+
+
+ELSIF NOT sheetStackDischargeConveyorDriveOk THEN
+
+    sheetStackDischargeConveyorState := 'DRIVE_NOT_OK';
+
+    sheetStackDischargeConveyorFault := TRUE;
+    sheetStackDischargeConveyorFaultCode := 2;
+
+
+ELSE
+
+    //==============================================================
+    // 4) Fault reset
+    //==============================================================
+    IF resetCmd THEN
+
+        sheetStackDischargeConveyorFault := FALSE;
+        sheetStackDischargeConveyorFaultCode := 0;
+
+    END_IF;
+
+
+    //==============================================================
+    // 5) Conveyor output control
+    //==============================================================
+    IF sheetStackDischargeConveyorFault THEN
+
+        sheetStackDischargeConveyorState := 'FAULT';
+
+        sheetStackDischargeConveyorRun := FALSE;
+        sheetStackDischargeConveyorSpeedRefMPM := 0.0;
+
+
+    ELSIF NOT systemRunEnable THEN
+
+        // EN: Master stop disables movement without generating a conveyor fault.
+        sheetStackDischargeConveyorState := 'SYSTEM_DISABLED';
+
+        sheetStackDischargeConveyorRun := FALSE;
+        sheetStackDischargeConveyorSpeedRefMPM := 0.0;
+
+
+    ELSIF finalRunRequest THEN
+
+        IF automaticRunRequest THEN
+
+            sheetStackDischargeConveyorState := 'AUTO_RUN';
+
+        ELSE
+
+            sheetStackDischargeConveyorState := 'MANUAL_RUN';
+
+        END_IF;
+
+        sheetStackDischargeConveyorRun := TRUE;
+
+        sheetStackDischargeConveyorSpeedRefMPM :=
+            LIMIT(
+                0.0,
+                machineConfig.sheetStackDischargeConveyorSpeedMPM,
+                machineConfig.maximumSpeedMPM
+            );
+
+
+    ELSE
+
+        sheetStackDischargeConveyorState := 'STOP';
+
+        sheetStackDischargeConveyorRun := FALSE;
+        sheetStackDischargeConveyorSpeedRefMPM := 0.0;
+
+    END_IF
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SystemControl" Id="{5a4b0a01-5a77-4e35-ba06-3e5ef45b35a9}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SYSTEM CONTROL
+// EN: Master system run enable and automatic homing requests.
+//==============================================================
+METHOD _SystemControl
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//==============================================================
+// 1) Edge detection
+//==============================================================
+rStartCmd := startCmd AND NOT startCmdOld;
+startCmdOld := startCmd;
+
+rStopCmd := stopCmd AND NOT stopCmdOld;
+stopCmdOld := stopCmd;
+
+
+
+//==============================================================
+// 2) Stop machine pulse on critical fault
+//==============================================================
+stopMachineFaultCondition :=
+    NOT safetyCircuitOk OR
+    NOT sheetConveyor1DriveOk OR
+    NOT sheetConveyor2DriveOk OR
+    NOT sheetConveyor3DriveOk OR
+    NOT sheetConveyor4DriveOk OR
+    NOT backstopDriveOk OR
+    NOT elevatorDriveOk OR
+    NOT sheetStackDischargeConveyorDriveOk;
+
+rStopMachineFaultCondition :=
+    stopMachineFaultCondition AND
+    NOT stopMachineFaultConditionOld;
+
+stopMachineFaultConditionOld :=
+    stopMachineFaultCondition;
+
+tpStopMachinePulse(
+    IN := rStopMachineFaultCondition,
+    PT := T#500MS
+);
+
+stopMachinePulse :=
+    tpStopMachinePulse.Q;
+
+
+//==============================================================
+// 2) Default one-scan requests
+//==============================================================
+backstopAutoHomeRequest := FALSE;
+elevatorAutoHomeRequest := FALSE;
+
+
+//==============================================================
+// 3) Master system run enable
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    systemRunEnable := FALSE;
+
+ELSIF rStopCmd THEN
+
+    systemRunEnable := FALSE;
+
+ELSIF rStartCmd THEN
+
+    systemRunEnable := TRUE;
+
+END_IF;
+
+
+//==============================================================
+// 4) Automatic homing on system start
+//==============================================================
+// EN: Auto-home is generated only on the rising edge of startCmd.
+//     Each axis must be enabled in automatic mode.
+//     This prevents automatic movement of axes intentionally left in manual.
+IF rStartCmd AND systemRunEnable THEN
+
+    // Backstop auto-home
+    IF backstopAutoCmd AND
+       NOT backstopHomed AND
+       NOT backstopFault THEN
+
+        backstopAutoHomeRequest := TRUE;
+
+    END_IF;
+
+
+    // Elevator auto-home
+    IF elevatorAutoCmd AND
+       NOT elevatorHomed AND
+       NOT elevatorFault THEN
+
+        elevatorAutoHomeRequest := TRUE;
+
+    END_IF;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_ComplexSheetStackerControl_1">
+      <LineId Id="3" Count="11" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._AlarmControl">
+      <LineId Id="158" Count="216" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="375" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._BackstopControl">
+      <LineId Id="3" Count="905" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="910" Count="6" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._ConveyorSpeedControl">
+      <LineId Id="3" Count="63" />
+      <LineId Id="497" Count="13" />
+      <LineId Id="77" Count="403" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="486" Count="10" />
+      <LineId Id="596" Count="13" />
+      <LineId Id="511" Count="84" />
+      <LineId Id="610" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._ExternalCommands">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._HmiStatus">
+      <LineId Id="3" Count="255" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="260" Count="8" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._MachineAuxilary">
+      <LineId Id="2" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._SheetConveyorGroupControl">
+      <LineId Id="3" Count="106" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="111" Count="8" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._SheetStackDischargeControl">
+      <LineId Id="3" Count="621" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="626" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._SheetStackDischargeConveyorControl">
+      <LineId Id="3" Count="121" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl_1._SystemControl">
+      <LineId Id="3" Count="9" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="76" Count="24" />
+      <LineId Id="74" Count="1" />
+      <LineId Id="13" Count="52" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="101" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

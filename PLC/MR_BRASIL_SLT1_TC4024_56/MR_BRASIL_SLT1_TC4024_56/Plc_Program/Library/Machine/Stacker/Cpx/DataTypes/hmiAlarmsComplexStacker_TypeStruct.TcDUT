@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiAlarmsComplexStacker_TypeStruct" Id="{df56a9cb-fbb6-4c9f-844a-068662347272}">
+    <Declaration><![CDATA[TYPE hmiAlarmsComplexStacker_TypeStruct :
+STRUCT
+
+    //==============================================================
+    // General / system alarms
+    //==============================================================
+    safetyCircuitNotOk                 : BOOL;
+    systemFaultActive                  : BOOL;
+    systemNotEnabled                   : BOOL;
+
+    //==============================================================
+    // Sheet conveyor group alarms
+    //==============================================================
+    sheetConveyor1DriveNotOk           : BOOL;
+    sheetConveyor2DriveNotOk           : BOOL;
+    sheetConveyor3DriveNotOk           : BOOL;
+    sheetConveyor4DriveNotOk           : BOOL;
+    sheetConveyorGroupFault            : BOOL;
+    synchronizedConveyorsNotRunning    : BOOL;
+
+    //==============================================================
+    // Sheet stack separation alarms / indications
+    //==============================================================
+    sheetStackSeparationNotReady       : BOOL;
+    sheetStackSeparationActive         : BOOL;
+    sheetStackBrakeActive              : BOOL;
+
+    //==============================================================
+    // Sheet stack discharge sequence alarms / indications
+    //==============================================================
+    sheetStackDischargeFault           : BOOL;
+    sheetStackDischargeLastCycleNotOk  : BOOL;
+    sheetStackDischargeTimeout         : BOOL;
+    sheetStackDischargeManualSkip      : BOOL;
+
+    //==============================================================
+    // Sheet stack discharge conveyor alarms
+    //==============================================================
+    sheetStackDischargeConveyorDriveNotOk : BOOL;
+    sheetStackDischargeConveyorFault      : BOOL;
+
+    //==============================================================
+    // Backstop alarms / indications
+    //==============================================================
+    backstopDriveNotOk                 : BOOL;
+    backstopFault                      : BOOL;
+    backstopNotHomed                   : BOOL;
+    backstopNotInPosition              : BOOL;
+
+    backstopSafeMaxLimitActive         : BOOL;
+    backstopSafeMinLimitActive         : BOOL;
+    backstopMaxLimitActive             : BOOL;
+    backstopMinLimitActive             : BOOL;
+
+    backstopManualInterventionActive   : BOOL;
+
+    //==============================================================
+    // Elevator alarms / indications
+    //==============================================================
+    elevatorDriveNotOk          : BOOL;
+    elevatorFault               : BOOL;
+    elevatorNotHomed            : BOOL;
+    elevatorNotInPosition       : BOOL;
+
+    elevatorUpperSafetyLimitActive : BOOL;
+    elevatorLowerSafetyLimitActive : BOOL;
+    elevatorUpperLimitActive       : BOOL;
+    elevatorLowerLimitActive       : BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

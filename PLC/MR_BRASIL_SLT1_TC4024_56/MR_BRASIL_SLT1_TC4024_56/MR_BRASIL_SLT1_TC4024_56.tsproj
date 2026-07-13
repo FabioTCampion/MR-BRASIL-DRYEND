@@ -1424,6 +1424,22 @@ External Setpoint Generation:
 			</Relations>
 		</DataType>
 		<DataType>
+			<Name GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}" AutoDeleteType="true">_00BH11_HWTOPLC_PDOS</Name>
+			<BitSize>16</BitSize>
+			<SubItem>
+				<Name>inputByte_0</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>inputByte_1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
 			<Name GUID="{B48B423C-2FB0-99A4-D2B7-E186BFC34031}" AutoDeleteType="true">EL3002_DEV_STATUS</Name>
 			<BitSize>56</BitSize>
 			<SubItem>
@@ -1657,22 +1673,6 @@ External Setpoint Generation:
 			</SubItem>
 		</DataType>
 		<DataType>
-			<Name GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}" AutoDeleteType="true">_00BH11_HWTOPLC_PDOS</Name>
-			<BitSize>16</BitSize>
-			<SubItem>
-				<Name>inputByte_0</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<BitSize>8</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>inputByte_1</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<BitSize>8</BitSize>
-				<BitOffs>8</BitOffs>
-			</SubItem>
-		</DataType>
-		<DataType>
 			<Name GUID="{4412057D-BBE6-C77D-63D7-9839284A7A28}" AutoDeleteType="true">_DT35B15251_HWTOPLC_PDOS</Name>
 			<BitSize>16</BitSize>
 			<SubItem>
@@ -1747,6 +1747,22 @@ External Setpoint Generation:
 			</Properties>
 		</DataType>
 		<DataType>
+			<Name GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}" AutoDeleteType="true">_00BH11_PLCTOHW_PDOS</Name>
+			<BitSize>16</BitSize>
+			<SubItem>
+				<Name>outputByte_0</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>0</BitOffs>
+			</SubItem>
+			<SubItem>
+				<Name>outputByte_1</Name>
+				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
+				<BitSize>8</BitSize>
+				<BitOffs>8</BitOffs>
+			</SubItem>
+		</DataType>
+		<DataType>
 			<Name GUID="{7AC94A94-F196-480A-26D6-4089222913FB}" AutoDeleteType="true">EL5152_CONTROL</Name>
 			<BitSize>16</BitSize>
 			<SubItem>
@@ -1791,22 +1807,6 @@ External Setpoint Generation:
 		</DataType>
 		<DataType>
 			<Name GUID="{09D84BA2-3216-5F71-C23E-90E2921589F6}" AutoDeleteType="true">_00BE31_PLCTOHW_PDOS</Name>
-			<BitSize>16</BitSize>
-			<SubItem>
-				<Name>outputByte_0</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<BitSize>8</BitSize>
-				<BitOffs>0</BitOffs>
-			</SubItem>
-			<SubItem>
-				<Name>outputByte_1</Name>
-				<Type GUID="{18071995-0000-0000-0000-000000000001}">BYTE</Type>
-				<BitSize>8</BitSize>
-				<BitOffs>8</BitOffs>
-			</SubItem>
-		</DataType>
-		<DataType>
-			<Name GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}" AutoDeleteType="true">_00BH11_PLCTOHW_PDOS</Name>
 			<BitSize>16</BitSize>
 			<SubItem>
 				<Name>outputByte_0</Name>
@@ -2003,14 +2003,17 @@ External Setpoint Generation:
 	</ImageDatas>
 	<Project ProjectGUID="{9326665A-4A0F-4EDB-9134-521E368C0D83}" TargetNetId="192.168.30.79.1.1" ShowHideConfigurations="#x6">
 		<System>
+			<Settings>
+				<IoIdleTask CycleTime="50000"/>
+			</Settings>
 			<Licenses IgnoreProjectLicenses="true">
 				<Target BkhfOrder="01762982" CustomOrder="01762982">
 					<CustomComment><![CDATA[MR-BRASIL - SLITTER LICENSE]]></CustomComment>
 					<ManualSelect>{BF78CFC7-2E63-42C3-8C07-BB6C346BFB8B}</ManualSelect>
 					<ManualSelect>{66689887-CCBD-452C-AC9A-039D997C6E66}</ManualSelect>
 					<ManualSelect>{6952449D-F68C-49A2-ADE4-8639D85B33A4}</ManualSelect>
-					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 					<ManualSelect>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</ManualSelect>
+					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -3943,11 +3946,83 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{CBDB8CCC-0F43-46E7-8C82-C97A3A06A577}" Name="Plc_Program" PrjFilePath="Plc_Program\Plc_Program.plcproj" TmcFilePath="Plc_Program\Plc_Program.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{E8D9DC72-931E-F444-F608-E78DFD727FB0}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{A61BCA57-4359-7033-0597-766DADF5F99A}">
 					<Name>Plc_Program Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
-					<Vars VarGrpType="1">
-						<Name>PlcFastTask Inputs</Name>
+					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
+						<Name>PlcTask Inputs</Name>
+						<Var>
+							<Name>.STKU_050_DIO1.HwToPlc</Name>
+							<Type GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}">_00BH11_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKU_050_DIO2.HwToPlc</Name>
+							<Type GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}">_00BH11_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKU_050_DIO3.HwToPlc</Name>
+							<Type GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}">_00BH11_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.statusWord</Name>
+							<Type>UINT</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG1.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG2.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG3.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG4.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG5.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG6.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG1.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG2.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG3.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG4.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG5.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG6.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG7.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG8.NcToPlc</Name>
+							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
+						</Var>
 						<Var>
 							<Name>.SLT1_P1_050_DI01.PDOS.digitalInput_00</Name>
 							<Type>BOOL</Type>
@@ -4404,9 +4479,239 @@ External Setpoint Generation:
 							<Name>.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2</Name>
 							<Type GUID="{9E2310AC-5A40-2E6A-AB11-96D2B0504F71}">EL3002_CHANNEL</Type>
 						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_00</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_01</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_02</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_03</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_04</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_05</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_06</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_07</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_08</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_09</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_10</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_11</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_12</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_13</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_14</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI1.PDOS.digitalInput_15</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_00</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_01</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_02</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_03</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_04</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_05</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_06</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_07</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_08</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_09</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_10</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_11</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_12</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_13</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_14</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_DI2.PDOS.digitalInput_15</Name>
+							<Type>BOOL</Type>
+						</Var>
+						<Var>
+							<Name>.STK_P2_050_ENC1.HwToPlc</Name>
+							<Comment><![CDATA[ Input PDOs from encoder hardware to PLC (status + values)]]></Comment>
+							<Type GUID="{A075F895-B2F2-D93C-E416-FE0B947012DB}">EL5152_HWTOPLC</Type>
+						</Var>
+						<Var>
+							<Name>.STK_050_BC2.HwToPlc</Name>
+							<Type GUID="{4B7A1876-E5E3-DD8D-13A7-8650F71DAE13}">_006B51_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_050_DIO1.HwToPlc</Name>
+							<Type GUID="{EA0649AE-F2D4-1DB8-82C6-B9D0BFF3BDE5}">_00BE31_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_050_DIO2.HwToPlc</Name>
+							<Type GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}">_00BH11_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_100_B01.HwToPlc</Name>
+							<Comment><![CDATA[ IO-Link input process data]]></Comment>
+							<Type GUID="{4412057D-BBE6-C77D-63D7-9839284A7A28}">_DT35B15251_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_P2_100_UG8.HwToPlc</Name>
+							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
+ PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
+							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKL_P2_100_UG9.HwToPlc</Name>
+							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
+ PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
+							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
+						</Var>
 					</Vars>
-					<Vars VarGrpType="2" AreaNo="1">
-						<Name>PlcFastTask Outputs</Name>
+					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
+						<Name>PlcTask Outputs</Name>
+						<Var>
+							<Name>.STKU_050_DIO1.PlcToHw</Name>
+							<Type GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}">_00BH11_PLCTOHW_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKU_050_DIO2.PlcToHw</Name>
+							<Type GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}">_00BH11_PLCTOHW_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.STKU_050_DIO3.PlcToHw</Name>
+							<Type GUID="{C8621073-5011-1476-B7FB-800FF2E9E87E}">_00BH11_PLCTOHW_PDOS</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG1.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG2.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG3.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG4.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG5.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_100_UG6.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG1.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG2.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG3.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG4.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG5.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG6.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG7.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
+						<Var>
+							<Name>.SLT1_P1_200_UG8.PlcToNc</Name>
+							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
+						</Var>
 						<Var>
 							<Name>.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_00</Name>
 							<Type>BOOL</Type>
@@ -4951,290 +5256,6 @@ External Setpoint Generation:
 							<Name>.ARK_P1_050_AO02.PDOS.HwToPLC.Channel4</Name>
 							<Type>INT</Type>
 						</Var>
-					</Vars>
-					<Vars VarGrpType="1" ContextId="1" AreaNo="16">
-						<Name>PlcTask Inputs</Name>
-						<Var>
-							<Name>.statusWord</Name>
-							<Type>UINT</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG1.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG2.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG3.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG4.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG5.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG6.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG1.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG2.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG3.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG4.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG5.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG6.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG7.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG8.NcToPlc</Name>
-							<Type GUID="{25521FAA-EA5F-4C7F-8864-BBCCDACD2E98}" Namespace="MC">NCTOPLC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_00</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_01</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_02</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_03</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_04</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_05</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_06</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_07</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_08</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_09</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_10</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_11</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_12</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_13</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_14</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI1.PDOS.digitalInput_15</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_00</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_01</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_02</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_03</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_04</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_05</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_06</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_07</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_08</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_09</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_10</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_11</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_12</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_13</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_14</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_DI2.PDOS.digitalInput_15</Name>
-							<Type>BOOL</Type>
-						</Var>
-						<Var>
-							<Name>.STK_P2_050_ENC1.HwToPlc</Name>
-							<Comment><![CDATA[ Input PDOs from encoder hardware to PLC (status + values)]]></Comment>
-							<Type GUID="{A075F895-B2F2-D93C-E416-FE0B947012DB}">EL5152_HWTOPLC</Type>
-						</Var>
-						<Var>
-							<Name>.STK_050_BC2.HwToPlc</Name>
-							<Type GUID="{4B7A1876-E5E3-DD8D-13A7-8650F71DAE13}">_006B51_HWTOPLC_PDOS</Type>
-						</Var>
-						<Var>
-							<Name>.STKL_050_DIO1.HwToPlc</Name>
-							<Type GUID="{EA0649AE-F2D4-1DB8-82C6-B9D0BFF3BDE5}">_00BE31_HWTOPLC_PDOS</Type>
-						</Var>
-						<Var>
-							<Name>.STKL_050_DIO2.HwToPlc</Name>
-							<Type GUID="{A8A54DE5-3513-2A03-DFFD-B707B98B1BB3}">_00BH11_HWTOPLC_PDOS</Type>
-						</Var>
-						<Var>
-							<Name>.STKL_100_B01.HwToPlc</Name>
-							<Comment><![CDATA[ IO-Link input process data]]></Comment>
-							<Type GUID="{4412057D-BBE6-C77D-63D7-9839284A7A28}">_DT35B15251_HWTOPLC_PDOS</Type>
-						</Var>
-						<Var>
-							<Name>.STKL_P2_100_UG8.HwToPlc</Name>
-							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
- PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
-							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
-						</Var>
-						<Var>
-							<Name>.STKL_P2_100_UG9.HwToPlc</Name>
-							<Comment><![CDATA[ EN: Hardware inputs received cyclically from the drive and CANopen master.
- PT: Entradas de hardware recebidas ciclicamente do drive e do mestre CANopen.]]></Comment>
-							<Type GUID="{1F24EF19-2BB8-6455-28A4-AA68E2475DBC}">IS620P_CO_HWTOPLC_PDOS</Type>
-						</Var>
-					</Vars>
-					<Vars VarGrpType="2" ContextId="1" AreaNo="17">
-						<Name>PlcTask Outputs</Name>
-						<Var>
-							<Name>.SLT1_P1_100_UG1.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG2.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG3.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG4.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG5.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_100_UG6.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG1.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG2.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG3.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG4.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG5.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG6.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG7.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
-						<Var>
-							<Name>.SLT1_P1_200_UG8.PlcToNc</Name>
-							<Type GUID="{96B75FEB-2D84-43BE-A3EC-D9A681F27D52}" Namespace="MC">PLCTONC_AXIS_REF</Type>
-						</Var>
 						<Var>
 							<Name>.STK_P2_050_AO1.PDOS.HwToPLC.Channel1</Name>
 							<Type>INT</Type>
@@ -5498,9 +5519,6 @@ External Setpoint Generation:
 				</Image>
 				<Image Id="4" AddrType="10" ImageType="3">
 					<Name>Image-2</Name>
-				</Image>
-				<Image Id="6" AddrType="10" ImageType="3">
-					<Name>Image-3</Name>
 				</Image>
 				<Box Id="7" BoxType="9099">
 					<Name>SLT1+P1=050-BC1</Name>
@@ -10011,8 +10029,8 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 						<EtherCAT SlaveType="5" AdsServerAddress="c0a81e4f03010000" FixedAdsServerNetId="true" PdiType="#x0008" ExecIo="true" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="35" FoeType="1" VendorId="#x00000002" ProductCode="#x1a5f3052" RevisionNo="#x00100000" InfoDataAddr="true" InfoDataNetId="true" OwnAddrExtern="true" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL6751 CANopen Master" Desc="EL6751" PortABoxInfo="#x0100004e">
 							<SyncMan>00182e0226000100010000002800ce052e02001826010000</SyncMan>
 							<SyncMan>2e1a2e0222000100020000002800ce052e022e1a22010000</SyncMan>
-							<SyncMan>001017002600010003000000000000000000001026010000</SyncMan>
-							<SyncMan>001412002200010004000000000000000000001422010000</SyncMan>
+							<SyncMan>00102e002600010003000000000000000000001026010000</SyncMan>
+							<SyncMan>00141e002200010004000000000000000000001422010000</SyncMan>
 							<Fmmu>0000000000000000001000020100000001000000000000000000000000000000</Fmmu>
 							<Fmmu>0000000000000000001400010100000002000000000000000000000000000000</Fmmu>
 							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
@@ -10040,8 +10058,34 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 									<Type GUID="{18071995-0000-0000-0000-002000000020}">ARRAY [0..3] OF BYTE</Type>
 								</Entry>
 							</Pdo>
+							<Pdo Name="STK+P2=100-UG8 - Elevator Servo Drive_IN" Index="#x1a01" Flags="#x0011" SyncMan="3">
+								<Entry Name="TxPDO_1" Index="#x6010" Sub="#x01" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000018}">ARRAY [0..2] OF BYTE</Type>
+								</Entry>
+								<Entry Name="TxPDO_2" Index="#x6010" Sub="#x02" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="STK+P2=100-UG8 - Elevator Servo Drive_OUT" Index="#x1601" InOut="1" Flags="#x0011" SyncMan="2">
+								<Entry Name="RxPDO_1" Index="#x7010" Sub="#x01" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000018}">ARRAY [0..2] OF BYTE</Type>
+								</Entry>
+								<Entry Name="RxPDO_2" Index="#x7010" Sub="#x02" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+								</Entry>
+								<Entry Name="RxPDO_3" Index="#x7010" Sub="#x03" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000040}">ARRAY [0..7] OF BYTE</Type>
+								</Entry>
+								<Entry Name="RxPDO_4" Index="#x7010" Sub="#x04" Flags="#x00000100">
+									<Type GUID="{18071995-0000-0000-0000-002000000020}">ARRAY [0..3] OF BYTE</Type>
+								</Entry>
+							</Pdo>
 							<Pdo Name="CANopen" Index="#x1a80" Flags="#x0011" SyncMan="3">
 								<Entry Name="STK+P2=100-UG8 - Backstop Servo Drive_NodeState" Index="#xa000" Sub="#x01" Flags="#x00000100">
+									<DefaultDataMask>1f1f</DefaultDataMask>
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="STK+P2=100-UG8 - Elevator Servo Drive_NodeState" Index="#xa010" Sub="#x01" Flags="#x00000100">
 									<DefaultDataMask>1f1f</DefaultDataMask>
 									<Type>USINT</Type>
 								</Entry>
@@ -10063,8 +10107,11 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 								<Entry Name="STK+P2=100-UG8 - Backstop Servo Drive_DiagFlag" Index="#xa000" Sub="#x02" Flags="#x00000100">
 									<Type>BIT</Type>
 								</Entry>
+								<Entry Name="STK+P2=100-UG8 - Elevator Servo Drive_DiagFlag" Index="#xa010" Sub="#x02" Flags="#x00000100">
+									<Type>BIT</Type>
+								</Entry>
 								<Entry>
-									<Type GUID="{18071995-0000-0000-0000-002000000006}">ARRAY [0..5] OF BIT</Type>
+									<Type GUID="{18071995-0000-0000-0000-002000000005}">ARRAY [0..4] OF BIT</Type>
 								</Entry>
 							</Pdo>
 						</EtherCAT>
@@ -10081,8 +10128,8 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 					<EtherCAT SlaveType="2" PdiType="#x0c05" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" EoeType="1" FoeType="1" VendorId="#x00000036" ProductCode="#x0000504a" RevisionNo="#x00000002" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" DownloadSlotCfg="true" PortPhys="17" IdentificationAdo="308" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="FNI ECT-504-105-M" Desc="FNI ECT-504-105-M" PortABoxInfo="#x0100004f">
 						<SyncMan>001080002600010001000000240080008000001026010000</SyncMan>
 						<SyncMan>801080002200010002000000240080008000801022010000</SyncMan>
-						<SyncMan>001606006400010003000000000000000200001664010000</SyncMan>
-						<SyncMan>001a14002000010004000000000000000e00001a20010000</SyncMan>
+						<SyncMan>00160c006400010003000000000000000200001664010000</SyncMan>
+						<SyncMan>001a1a002000010004000000000000000e00001a20010000</SyncMan>
 						<Fmmu>0000000000000000001600020100000001000000000000000000000000000000</Fmmu>
 						<Fmmu>0000000000000000001a00010100000002000000000000000000000000000000</Fmmu>
 						<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
@@ -10090,16 +10137,6 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 						<BootStrapData>0010800080108000</BootStrapData>
 						<DcMode>53796e6368726f6e0000000000000000534d2d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
 						<DcMode>4443000000000000000000000000000044432d53796e6368726f6e000000000000000000000000000000000000000000000000000000000000000000000000030100000000000000000000000000000000000000000000000000000000000000</DcMode>
-						<MBoxUserCmdData>02000300090000001a00000003000000100009030000000000000000000000002030800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001b00000003000000100009030000000000000000000000002030800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001a00000003000000110009030000000000000000000000002040800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001b00000003000000110009030000000000000000000000002040800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001a00000003000000120009030000000000000000000000002050800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001b00000003000000120009030000000000000000000000002050800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001a00000003000000130009030000000000000000000000002060800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001b00000003000000130009030000000000000000000000002060800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001a00000003000000140009030000000000000000000000002070800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
-						<MBoxUserCmdData>02000300090000001b00000003000000140009030000000000000000000000002070800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
 						<MBoxUserCmdData>020003000900000015000000030000000100090300000000000000000000000020008001010000000053657420496e7370656374696f6e204c6576656c7300</MBoxUserCmdData>
 						<MBoxUserCmdData>020003000a0000000d0000000300000001000903000000000000000000000000200080020200000000005365742056656e646f7220494400</MBoxUserCmdData>
 						<MBoxUserCmdData>020003000c0000000d00000003000000010009030000000000000000000000002000800304000000000000005365742044657669636520494400</MBoxUserCmdData>
@@ -10121,6 +10158,31 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 						<MBoxUserCmdData>02000300090000000e0000000300000003000903000000000000000000000000202080050100000000536574204379636c652054696d6500</MBoxUserCmdData>
 						<MBoxUserCmdData>02000300090000001a00000003000000030009030000000000000000000000002020800601000000105365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
 						<MBoxUserCmdData>02000300090000001b00000003000000030009030000000000000000000000002020800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000015000000030000000600090300000000000000000000000020308001010000000053657420496e7370656374696f6e204c6576656c7300</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000a0000000d0000000300000006000903000000000000000000000000203080020200000000005365742056656e646f7220494400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000c0000000d00000003000000060009030000000000000000000000002030800304000000000000005365742044657669636520494400</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001100000003000000060009030000000000000000000000002030800401000000005365742053657269616c204e756d62657200</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000000e0000000300000006000903000000000000000000000000203080050100000000536574204379636c652054696d6500</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001a00000003000000060009030000000000000000000000002030800601000000105365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001b00000003000000060009030000000000000000000000002030800701000000105365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000015000000030000000700090300000000000000000000000020408001010000000053657420496e7370656374696f6e204c6576656c7300</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000a0000000d0000000300000007000903000000000000000000000000204080020200000000005365742056656e646f7220494400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000c0000000d00000003000000070009030000000000000000000000002040800304000000000000005365742044657669636520494400</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001100000003000000070009030000000000000000000000002040800401000000005365742053657269616c204e756d62657200</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000000e0000000300000007000903000000000000000000000000204080050100000000536574204379636c652054696d6500</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001a00000003000000070009030000000000000000000000002040800601000000105365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001b00000003000000070009030000000000000000000000002040800701000000105365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001a00000003000000090009030000000000000000000000002060800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001b00000003000000090009030000000000000000000000002060800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001a000000030000000a0009030000000000000000000000002070800601000000015365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001b000000030000000a0009030000000000000000000000002070800701000000005365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000015000000030000000800090300000000000000000000000020508001010000000053657420496e7370656374696f6e204c6576656c7300</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000a0000000d0000000300000008000903000000000000000000000000205080020200000000005365742056656e646f7220494400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000c0000000d00000003000000080009030000000000000000000000002050800304000000000000005365742044657669636520494400</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001100000003000000080009030000000000000000000000002050800401000000005365742053657269616c204e756d62657200</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000000e0000000300000008000903000000000000000000000000205080050100000000536574204379636c652054696d6500</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001a00000003000000080009030000000000000000000000002050800601000000105365742050726f63657373204461746120496e204c656e67746800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000001b00000003000000080009030000000000000000000000002050800701000000105365742050726f636573732044617461204f7574204c656e67746800</MBoxUserCmdData>
 						<Pdo Name="Digital Input Mapping" Index="#x1a10" Flags="#x0011" SyncMan="3">
 							<Entry Name="Input Pin 4" Index="#x6100" Sub="#x01">
 								<Type>BITARR8</Type>
@@ -10319,6 +10381,54 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 								<Type>USINT</Type>
 							</Entry>
 						</Pdo>
+						<Pdo Name="IO-Link Input process data mapping" Index="#x1a03" Flags="#x0291" SyncMan="3">
+							<Entry Name="Input Byte 0" Index="#x6030" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Input Byte 1" Index="#x6030" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="IO-Link Output process data mapping" Index="#x1603" InOut="1" Flags="#x0291" SyncMan="2">
+							<Entry Name="Output Byte 0" Index="#x7030" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Output Byte 1" Index="#x7030" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="IO-Link Input process data mapping" Index="#x1a04" Flags="#x0291" SyncMan="3">
+							<Entry Name="Input Byte 0" Index="#x6040" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Input Byte 1" Index="#x6040" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="IO-Link Output process data mapping" Index="#x1604" InOut="1" Flags="#x0291" SyncMan="2">
+							<Entry Name="Output Byte 0" Index="#x7040" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Output Byte 1" Index="#x7040" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="IO-Link Input process data mapping" Index="#x1a05" Flags="#x0291" SyncMan="3">
+							<Entry Name="Input Byte 0" Index="#x6050" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Input Byte 1" Index="#x6050" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="IO-Link Output process data mapping" Index="#x1605" InOut="1" Flags="#x0291" SyncMan="2">
+							<Entry Name="Output Byte 0" Index="#x7050" Sub="#x01" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+							<Entry Name="Output Byte 1" Index="#x7050" Sub="#x02" Flags="#x00001000">
+								<Type>USINT</Type>
+							</Entry>
+						</Pdo>
 						<CoeProfile ProfileNo="20554"/>
 						<Slot Name="IO-Link Port 0" ImageId="1010">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
@@ -10357,7 +10467,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090005" Type="IOL_IO_2_2byte " Class="">
-								<Name>STK+M=050-DIO1 - IO-Link slave IP67</Name>
+								<Name>STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]</Name>
 								<ImageId>1010</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6656</PdoIndex>
@@ -10402,7 +10512,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090004" Type="IOL_IO_2_2byte " Class="">
-								<Name>STK+M=050-DIO2  - IO-Link slave IP24</Name>
+								<Name>STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]</Name>
 								<ImageId>1010</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6657</PdoIndex>
@@ -10447,7 +10557,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090003" Type="IOL_I_2byte" Class="">
-								<Name>STK+M=050-BE1  - IO-Link Sick distance sensor</Name>
+								<Name>STKL+M=050-BE1  - IO-Link Sick distance sensor [Backstop]</Name>
 								<ImageId>1010</ImageId>
 								<ModuleData>3600000003110000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6658</PdoIndex>
@@ -10490,10 +10600,12 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4878</ModuleIdent>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
-							<Module Id="#x03090010" Type="Digital_IN" Class="">
-								<Name>Module 4 (Digital_IN)</Name>
-								<ImageId>1011</ImageId>
-								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
+							<Module Id="#x03090006" Type="IOL_IO_2_2byte " Class="">
+								<Name>STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]</Name>
+								<ImageId>1010</ImageId>
+								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
+								<PdoIndex>6659</PdoIndex>
+								<PdoIndex>5635</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
@@ -10533,10 +10645,12 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4878</ModuleIdent>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
-							<Module Id="#x03090011" Type="Digital_IN" Class="">
-								<Name>Module 5 (Digital_IN)</Name>
-								<ImageId>1011</ImageId>
-								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
+							<Module Id="#x03090007" Type="IOL_IO_2_2byte " Class="">
+								<Name>STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]</Name>
+								<ImageId>1010</ImageId>
+								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
+								<PdoIndex>6660</PdoIndex>
+								<PdoIndex>5636</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
@@ -10576,10 +10690,12 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4878</ModuleIdent>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
-							<Module Id="#x03090012" Type="Digital_IN" Class="">
-								<Name>Module 6 (Digital_IN)</Name>
-								<ImageId>1011</ImageId>
-								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
+							<Module Id="#x03090008" Type="IOL_IO_2_2byte " Class="">
+								<Name>STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]</Name>
+								<ImageId>1010</ImageId>
+								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
+								<PdoIndex>6661</PdoIndex>
+								<PdoIndex>5637</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
@@ -10619,7 +10735,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4878</ModuleIdent>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
-							<Module Id="#x03090013" Type="Digital_IN" Class="">
+							<Module Id="#x03090009" Type="Digital_IN" Class="">
 								<Name>Module 7 (Digital_IN)</Name>
 								<ImageId>1011</ImageId>
 								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
@@ -10662,7 +10778,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4878</ModuleIdent>
 							<ModuleIdent>4879</ModuleIdent>
 							<ModuleIdent>4880</ModuleIdent>
-							<Module Id="#x03090014" Type="Digital_IN" Class="">
+							<Module Id="#x0309000a" Type="Digital_IN" Class="">
 								<Name>Module 8 (Digital_IN)</Name>
 								<ImageId>1011</ImageId>
 								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
@@ -10671,7 +10787,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 						</Slot>
 					</EtherCAT>
 				</Box>
-				<EtherCAT DcSyncMode="3" EnableVirtualSwitch="true" MaxSwitchPorts="3" MaxSwitchFrames="140"/>
+				<EtherCAT DcSyncMode="3" EnableVirtualSwitch="true" MaxSwitchPorts="4" MaxSwitchFrames="160"/>
 			</Device>
 			<Device Id="3" DevType="121">
 				<Name>Device 3 (NOV-DP-RAM)</Name>
@@ -10704,8 +10820,8 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 					<Name>Image</Name>
 				</Image>
 				<Box File="STK+P2=100-UG8 - Backstop Servo Drive.xti" Id="11"/>
-				<Box Id="12" Disabled="true" BoxType="5003">
-					<Name>STK+P2=100-UG9 - Lift Servo Driver</Name>
+				<Box Id="34" BoxType="5003">
+					<Name>STK+P2=100-UG8 - Elevator Servo Drive</Name>
 					<ImageId>41</ImageId>
 					<Vars VarGrpType="1">
 						<Name>Inputs</Name>
@@ -10750,62 +10866,62 @@ Slave-Mode:
 						<Name>Outputs</Name>
 					</Vars>
 					<CanOpen NodeId="2" BaudSupport="511" FixedSdos="12" GenerateFixedSdos="true" DvFlag_Active="true" AddTypeInfo="2" DevProfNum="402" CobIDEmcy="130" CobIDGuard="1794" GuardTime="100" LifeTime="3" VendorId="953" ProductCode="852231">
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
+						<Sdo Index="6144" SubIndex="1" Length="4" Value="386"/>
 						<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
+						<Sdo Index="6145" SubIndex="1" Length="4" Value="642"/>
 						<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
+						<Sdo Index="5120" SubIndex="1" Length="4" Value="514"/>
 						<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
+						<Sdo Index="5121" SubIndex="1" Length="4" Value="770"/>
 						<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5122" SubIndex="1" Length="4" Value="1025"/>
+						<Sdo Index="5122" SubIndex="1" Length="4" Value="1026"/>
 						<Sdo Index="5122" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5123" SubIndex="1" Length="4" Value="1281"/>
+						<Sdo Index="5123" SubIndex="1" Length="4" Value="1282"/>
 						<Sdo Index="5123" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="-2147483263"/>
+						<Sdo Index="6144" SubIndex="1" Length="4" Value="-1073741438"/>
 						<Sdo Index="6656" Length="1"/>
 						<Sdo Index="6656" SubIndex="1" Length="4" Value="1614872592"/>
 						<Sdo Index="6656" SubIndex="2" Length="4" Value="1616969736"/>
 						<Sdo Index="6656" Length="1" Value="2"/>
 						<Sdo Index="6144" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6144" SubIndex="1" Length="4" Value="385"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="-2147483007"/>
+						<Sdo Index="6144" SubIndex="1" Length="4" Value="1073742210"/>
+						<Sdo Index="6145" SubIndex="1" Length="4" Value="-1073741182"/>
 						<Sdo Index="6657" Length="1"/>
 						<Sdo Index="6657" SubIndex="1" Length="4" Value="1617166368"/>
 						<Sdo Index="6657" SubIndex="2" Length="4" Value="1617690656"/>
 						<Sdo Index="6657" Length="1" Value="2"/>
 						<Sdo Index="6145" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="6145" SubIndex="1" Length="4" Value="641"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="-2147483135"/>
+						<Sdo Index="6145" SubIndex="1" Length="4" Value="1073742466"/>
+						<Sdo Index="5120" SubIndex="1" Length="4" Value="-2147483134"/>
 						<Sdo Index="5632" Length="1"/>
 						<Sdo Index="5632" SubIndex="1" Length="4" Value="1614807056"/>
 						<Sdo Index="5632" SubIndex="2" Length="4" Value="1616904200"/>
 						<Sdo Index="5632" Length="1" Value="2"/>
 						<Sdo Index="5120" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5120" SubIndex="1" Length="4" Value="513"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="-2147482879"/>
+						<Sdo Index="5120" SubIndex="1" Length="4" Value="514"/>
+						<Sdo Index="5121" SubIndex="1" Length="4" Value="-2147482878"/>
 						<Sdo Index="5633" Length="1"/>
 						<Sdo Index="5633" SubIndex="1" Length="4" Value="1618608160"/>
 						<Sdo Index="5633" SubIndex="2" Length="4" Value="1619066912"/>
 						<Sdo Index="5633" Length="1" Value="2"/>
 						<Sdo Index="5121" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5121" SubIndex="1" Length="4" Value="769"/>
-						<Sdo Index="5122" SubIndex="1" Length="4" Value="-2147482623"/>
+						<Sdo Index="5121" SubIndex="1" Length="4" Value="770"/>
+						<Sdo Index="5122" SubIndex="1" Length="4" Value="-2147482622"/>
 						<Sdo Index="5634" Length="1"/>
 						<Sdo Index="5634" SubIndex="1" Length="4" Value="1619197984"/>
 						<Sdo Index="5634" SubIndex="2" Length="4" Value="1619263520"/>
 						<Sdo Index="5634" Length="1" Value="2"/>
 						<Sdo Index="5122" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5122" SubIndex="1" Length="4" Value="1025"/>
-						<Sdo Index="5123" SubIndex="1" Length="4" Value="-2147482367"/>
+						<Sdo Index="5122" SubIndex="1" Length="4" Value="1026"/>
+						<Sdo Index="5123" SubIndex="1" Length="4" Value="-2147482366"/>
 						<Sdo Index="5635" Length="1"/>
 						<Sdo Index="5635" SubIndex="1" Length="4" Value="1627324448"/>
 						<Sdo Index="5635" Length="1" Value="1"/>
 						<Sdo Index="5123" SubIndex="2" Length="1" Value="255"/>
-						<Sdo Index="5123" SubIndex="1" Length="4" Value="1281"/>
-						<Sdo Index="6146" SubIndex="1" Length="4" Value="-2147482751"/>
-						<Sdo Index="6147" SubIndex="1" Length="4" Value="-2147482495"/>
-						<TxPdo TX="true" CobId="385" TransType="255" Flags="3" PdoStartAddress="11">
+						<Sdo Index="5123" SubIndex="1" Length="4" Value="1282"/>
+						<Sdo Index="6146" SubIndex="1" Length="4" Value="-1073740926"/>
+						<Sdo Index="6147" SubIndex="1" Length="4" Value="-1073740670"/>
+						<TxPdo TX="true" CobId="386" TransType="255" Flags="3" PdoStartAddress="11">
 							<Name>TxPDO 1 - Status</Name>
 							<ImageId>82</ImageId>
 							<Vars VarGrpType="1" InsertType="2">
@@ -10822,7 +10938,7 @@ Slave-Mode:
 								</Var>
 							</Vars>
 						</TxPdo>
-						<TxPdo TX="true" CobId="641" TransType="255" Flags="3" PdoStartAddress="14">
+						<TxPdo TX="true" CobId="642" TransType="255" Flags="3" PdoStartAddress="14">
 							<Name>TxPDO 2 - Feedback</Name>
 							<ImageId>82</ImageId>
 							<Vars VarGrpType="1" InsertType="2">
@@ -10839,7 +10955,7 @@ Slave-Mode:
 								</Var>
 							</Vars>
 						</TxPdo>
-						<RxPdo CobId="513" TransType="255" Flags="3" PdoStartAddress="23">
+						<RxPdo CobId="514" TransType="255" Flags="3" PdoStartAddress="23">
 							<Name>RxPDO 1 - Control</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10856,7 +10972,7 @@ Slave-Mode:
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="769" TransType="255" Flags="3" PdoStartAddress="26">
+						<RxPdo CobId="770" TransType="255" Flags="3" PdoStartAddress="26">
 							<Name>RxPDO 2 - Position profile</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10873,7 +10989,7 @@ Slave-Mode:
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="1025" TransType="255" Flags="3" PdoStartAddress="34">
+						<RxPdo CobId="1026" TransType="255" Flags="3" PdoStartAddress="34">
 							<Name>RxPDO 3 - Acceleration and deceleration</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10890,7 +11006,7 @@ Slave-Mode:
 								</Var>
 							</Vars>
 						</RxPdo>
-						<RxPdo CobId="1281" TransType="255" Flags="3" PdoStartAddress="42">
+						<RxPdo CobId="1282" TransType="255" Flags="3" PdoStartAddress="42">
 							<Name>RxPDO 4 - Velocity reference</Name>
 							<ImageId>42</ImageId>
 							<Vars VarGrpType="2" InsertType="2">
@@ -10916,11 +11032,10 @@ Slave-Mode:
 		</Io>
 	</Project>
 	<Mappings>
-		<MappingInfo Identifier="{00000000-2001-0850-0120-500862000403}" Id="#x02030030"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0120-500841000403}" Id="#x02030020"/>
 		<MappingInfo Identifier="{00000000-2001-0850-0120-500870000403}" Id="#x02030060"/>
-		<MappingInfo Identifier="{00000000-2002-0850-0020-500820000403}" Id="#x02030010"/>
+		<MappingInfo Identifier="{00000000-0020-0304-1000-040320000403}" Id="#x02030010"/>
 		<MappingInfo Identifier="{00000000-0030-0304-1000-040333000403}" Id="#x02030050"/>
-		<MappingInfo Identifier="{00000000-0040-0304-1000-040341000403}" Id="#x02030020"/>
 		<MappingInfo Identifier="{05000010-2001-0850-1000-040301205008}" Id="#x02030040" Watchdog="14000000040000000400000004000000"/>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^Scorer1_Axis">
 			<OwnerB Name="TIID^ETC^SLT1+P1=100-UG06">
@@ -11172,7 +11287,7 @@ Slave-Mode:
 				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^targetPosition" VarB="RxPDO 2 - Position profile^Outputs^TargetPosition_607A"/>
 				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG8.PlcToHw^targetVelocity" VarB="RxPDO 4 - Velocity reference^Outputs^TargetVelocity_60FF"/>
 			</OwnerB>
-			<OwnerB Name="TIID^CANopen^STK+P2=100-UG9 - Lift Servo Driver">
+			<OwnerB Name="TIID^CANopen^STK+P2=100-UG8 - Elevator Servo Drive">
 				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^actualPosition" VarB="TxPDO 2 - Feedback^Inputs^ActualPosition_6064"/>
 				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^actualVelocity" VarB="TxPDO 2 - Feedback^Inputs^ActualVelocity_606C"/>
 				<Link VarA="PlcTask Inputs^.STKL_P2_100_UG9.HwToPlc^diagFlag" VarB="Inputs^DiagFlag"/>
@@ -11188,308 +11303,331 @@ Slave-Mode:
 				<Link VarA="PlcTask Outputs^.STKL_P2_100_UG9.PlcToHw^targetVelocity" VarB="RxPDO 4 - Velocity reference^Outputs^TargetVelocity_60FF"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-AI1">
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Error" VarB="AI Standard Channel 1^Status^Error"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Overrange" VarB="AI Standard Channel 1^Status^Overrange"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Underrange" VarB="AI Standard Channel 1^Status^Underrange"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Value" VarB="AI Standard Channel 1^Value"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Error" VarB="AI Standard Channel 2^Status^Error"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Overrange" VarB="AI Standard Channel 2^Status^Overrange"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Underrange" VarB="AI Standard Channel 2^Status^Underrange"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Value" VarB="AI Standard Channel 2^Value"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Error" VarB="AI Standard Channel 1^Status^Error"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Overrange" VarB="AI Standard Channel 1^Status^Overrange"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Status^Underrange" VarB="AI Standard Channel 1^Status^Underrange"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel1^Value" VarB="AI Standard Channel 1^Value"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Error" VarB="AI Standard Channel 2^Status^Error"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Overrange" VarB="AI Standard Channel 2^Status^Overrange"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Status^Underrange" VarB="AI Standard Channel 2^Status^Underrange"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_AI01.PDOS.HwToPLC.Channel2^Value" VarB="AI Standard Channel 2^Value"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-AO1">
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel1" VarB="AO Outputs Channel 1^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel2" VarB="AO Outputs Channel 2^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel3" VarB="AO Outputs Channel 3^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel4" VarB="AO Outputs Channel 4^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel1" VarB="AO Outputs Channel 1^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel2" VarB="AO Outputs Channel 2^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel3" VarB="AO Outputs Channel 3^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO01.PDOS.HwToPLC.Channel4" VarB="AO Outputs Channel 4^Analog output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-AO2">
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel1" VarB="AO Outputs Channel 1^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel2" VarB="AO Outputs Channel 2^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel3" VarB="AO Outputs Channel 3^Analog output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel4" VarB="AO Outputs Channel 4^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel1" VarB="AO Outputs Channel 1^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel2" VarB="AO Outputs Channel 2^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel3" VarB="AO Outputs Channel 3^Analog output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_AO02.PDOS.HwToPLC.Channel4" VarB="AO Outputs Channel 4^Analog output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-DI1">
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.ARK_P1_050_DI01.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-DO1">
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO01.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^RK+P1=050-BC1^RK+P1=050-DO2">
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.ARK_P1_050_DO02.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DI1">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI01.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DI2">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI02.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DI3">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI03.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DI4">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI04.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DI5">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI05.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO1">
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
-				<Link VarA="PlcFastTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_00" VarB="Channel 1^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_01" VarB="Channel 2^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_02" VarB="Channel 3^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_03" VarB="Channel 4^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_04" VarB="Channel 5^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_05" VarB="Channel 6^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_06" VarB="Channel 7^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_07" VarB="Channel 8^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_08" VarB="Channel 9^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_09" VarB="Channel 10^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_10" VarB="Channel 11^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_11" VarB="Channel 12^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_12" VarB="Channel 13^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_13" VarB="Channel 14^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_14" VarB="Channel 15^Input"/>
+				<Link VarA="PlcTask Inputs^.SLT1_P1_050_DI06.PDOS.digitalInput_15" VarB="Channel 16^Input"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO2">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO01.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO3">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO02.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO4">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO03.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO5">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO04.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO6">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO05.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^SLT1+P1=050-BC1^SLT1+P1=050-DO7">
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
-				<Link VarA="PlcFastTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_00" VarB="Channel 1^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_01" VarB="Channel 2^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_02" VarB="Channel 3^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_03" VarB="Channel 4^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_04" VarB="Channel 5^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_05" VarB="Channel 6^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_06" VarB="Channel 7^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_07" VarB="Channel 8^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_08" VarB="Channel 9^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_09" VarB="Channel 10^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_10" VarB="Channel 11^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_11" VarB="Channel 12^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_12" VarB="Channel 13^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_13" VarB="Channel 14^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_14" VarB="Channel 15^Output"/>
+				<Link VarA="PlcTask Outputs^.SLT1_P1_050_DO06.PDOS.PlcToHw.digitalOutput_15" VarB="Channel 16^Output"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^STK+M=050-BC1">
-				<Link VarA="PlcTask Inputs^.STKL_050_DIO1.HwToPlc^inputByte_0" VarB="STK+M=050-DIO1 - IO-Link slave IP67^IO-Link Input process data mapping^Input Byte 0"/>
-				<Link VarA="PlcTask Inputs^.STKL_050_DIO1.HwToPlc^inputByte_1" VarB="STK+M=050-DIO1 - IO-Link slave IP67^IO-Link Input process data mapping^Input Byte 1"/>
-				<Link VarA="PlcTask Inputs^.STKL_050_DIO2.HwToPlc^inputByte_0" VarB="STK+M=050-DIO2  - IO-Link slave IP24^IO-Link Input process data mapping^Input Byte 0"/>
-				<Link VarA="PlcTask Inputs^.STKL_050_DIO2.HwToPlc^inputByte_1" VarB="STK+M=050-DIO2  - IO-Link slave IP24^IO-Link Input process data mapping^Input Byte 1"/>
-				<Link VarA="PlcTask Inputs^.STKL_100_B01.HwToPlc^inputByte_0" VarB="STK+M=050-BE1  - IO-Link Sick distance sensor^IO-Link Input process data mapping^Input Byte 0"/>
-				<Link VarA="PlcTask Inputs^.STKL_100_B01.HwToPlc^inputByte_1" VarB="STK+M=050-BE1  - IO-Link Sick distance sensor^IO-Link Input process data mapping^Input Byte 1"/>
-				<Link VarA="PlcTask Outputs^.STKL_050_DIO1.PlcToHw^outputByte_0" VarB="STK+M=050-DIO1 - IO-Link slave IP67^IO-Link Output process data mapping^Output Byte 0"/>
-				<Link VarA="PlcTask Outputs^.STKL_050_DIO1.PlcToHw^outputByte_1" VarB="STK+M=050-DIO1 - IO-Link slave IP67^IO-Link Output process data mapping^Output Byte 1"/>
-				<Link VarA="PlcTask Outputs^.STKL_050_DIO2.PlcToHw^outputByte_0" VarB="STK+M=050-DIO2  - IO-Link slave IP24^IO-Link Output process data mapping^Output Byte 0"/>
-				<Link VarA="PlcTask Outputs^.STKL_050_DIO2.PlcToHw^outputByte_1" VarB="STK+M=050-DIO2  - IO-Link slave IP24^IO-Link Output process data mapping^Output Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKL_050_DIO1.HwToPlc^inputByte_0" VarB="STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKL_050_DIO1.HwToPlc^inputByte_1" VarB="STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKL_050_DIO2.HwToPlc^inputByte_0" VarB="STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKL_050_DIO2.HwToPlc^inputByte_1" VarB="STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKL_100_B01.HwToPlc^inputByte_0" VarB="STKL+M=050-BE1  - IO-Link Sick distance sensor [Backstop]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKL_100_B01.HwToPlc^inputByte_1" VarB="STKL+M=050-BE1  - IO-Link Sick distance sensor [Backstop]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO1.HwToPlc^inputByte_0" VarB="STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO1.HwToPlc^inputByte_1" VarB="STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO2.HwToPlc^inputByte_0" VarB="STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO2.HwToPlc^inputByte_1" VarB="STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO3.HwToPlc^inputByte_0" VarB="STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]^IO-Link Input process data mapping^Input Byte 0"/>
+				<Link VarA="PlcTask Inputs^.STKU_050_DIO3.HwToPlc^inputByte_1" VarB="STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]^IO-Link Input process data mapping^Input Byte 1"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^deviceState" VarB="Digital Input Mapping^Device Status"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^inputPin2" VarB="Digital Input Mapping^Actuator Shutdown Pin 2"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^inputPin4" VarB="Digital Input Mapping^Input Pin 4"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port0" VarB="IO-Link Device State^Status Of IO-Link Port 0"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port1" VarB="IO-Link Device State^Status Of IO-Link Port 1"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port2" VarB="IO-Link Device State^Status Of IO-Link Port 2"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port3" VarB="IO-Link Device State^Status Of IO-Link Port 3"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port4" VarB="IO-Link Device State^Status Of IO-Link Port 4"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port5" VarB="IO-Link Device State^Status Of IO-Link Port 5"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port6" VarB="IO-Link Device State^Status Of IO-Link Port 6"/>
+				<Link VarA="PlcTask Inputs^.STK_050_BC2.HwToPlc^ioLinkDeviceState_Port7" VarB="IO-Link Device State^Status Of IO-Link Port 7"/>
+				<Link VarA="PlcTask Outputs^.STKL_050_DIO1.PlcToHw^outputByte_0" VarB="STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]^IO-Link Output process data mapping^Output Byte 0"/>
+				<Link VarA="PlcTask Outputs^.STKL_050_DIO1.PlcToHw^outputByte_1" VarB="STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]^IO-Link Output process data mapping^Output Byte 1"/>
+				<Link VarA="PlcTask Outputs^.STKL_050_DIO2.PlcToHw^outputByte_0" VarB="STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]^IO-Link Output process data mapping^Output Byte 0"/>
+				<Link VarA="PlcTask Outputs^.STKL_050_DIO2.PlcToHw^outputByte_1" VarB="STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]^IO-Link Output process data mapping^Output Byte 1"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO1.PlcToHw^outputByte_0" VarB="STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]^IO-Link Output process data mapping^Output Byte 0"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO1.PlcToHw^outputByte_1" VarB="STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]^IO-Link Output process data mapping^Output Byte 1"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO2.PlcToHw^outputByte_0" VarB="STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]^IO-Link Output process data mapping^Output Byte 0"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO2.PlcToHw^outputByte_1" VarB="STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]^IO-Link Output process data mapping^Output Byte 1"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO3.PlcToHw^outputByte_0" VarB="STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]^IO-Link Output process data mapping^Output Byte 0"/>
+				<Link VarA="PlcTask Outputs^.STKU_050_DIO3.PlcToHw^outputByte_1" VarB="STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]^IO-Link Output process data mapping^Output Byte 1"/>
 			</OwnerB>
 			<OwnerB Name="TIID^ETC^STK+P2=050-BC1^STK+P2=050-AO1">
 				<Link VarA="PlcTask Outputs^.STK_P2_050_AO1.PDOS.HwToPLC.Channel1" VarB="AO Outputs Channel 1^Analog output"/>

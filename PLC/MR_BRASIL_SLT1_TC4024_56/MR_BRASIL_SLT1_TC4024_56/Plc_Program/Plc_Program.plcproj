@@ -383,46 +383,58 @@
     <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_SpeedMeter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiAlarmsSimpleStacker_TypeStruct.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\DataTypes\hmiAlarmsSimpleStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiCommandsSimpleStacker_TypeStruct.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\DataTypes\hmiCommandsSimpleStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\hmiStatusSimpleStacker_TypeStruct.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\DataTypes\hmiStatusSimpleStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\SimpleStackerConfig_TypeStruct.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\ComplexStackerConfig_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\DataTypes\SimpleStackerConfig_TypeStruct_1.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\hmiAlarmsComplexStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_BackstopState.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\hmiStatusComplexStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_ConveyorLevelerState.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Cpx\FB_ComplexSheetStackerControl.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_PackageSeparationState.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\DataTypes\SimpleStackerConfig_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_SheetStackDischargeState.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\DataTypes\SimpleStackerConfig_TypeStruct_1.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\E_SyncConveyorsState.TcDUT">
+    <Compile Include="Library\Machine\Stacker\Simple\E_BackstopState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl.TcPOU">
+    <Compile Include="Library\Machine\Stacker\Simple\E_ConveyorLevelerState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_1.TcPOU">
+    <Compile Include="Library\Machine\Stacker\Simple\E_PackageSeparationState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_2.TcPOU">
+    <Compile Include="Library\Machine\Stacker\Simple\E_SheetStackDischargeState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Library\Machine\Stacker\Simple Stacker\FB_SimpleSheetStackerControl_3.TcPOU">
+    <Compile Include="Library\Machine\Stacker\Simple\E_SyncConveyorsState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple\FB_SimpleSheetStackerControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple\FB_SimpleSheetStackerControl_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple\FB_SimpleSheetStackerControl_2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Simple\FB_SimpleSheetStackerControl_3.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\Ramp\FB_Gen_SRamp.TcPOU">
@@ -521,8 +533,10 @@
     <Folder Include="Library\Machine\Slitter\DataTypes" />
     <Folder Include="Library\Machine\Slitter\DataTypes\Hmi" />
     <Folder Include="Library\Machine\Slitter\FunctionBlocks" />
-    <Folder Include="Library\Machine\Stacker\Simple Stacker" />
-    <Folder Include="Library\Machine\Stacker\Simple Stacker\DataTypes" />
+    <Folder Include="Library\Machine\Stacker\Cpx" />
+    <Folder Include="Library\Machine\Stacker\Cpx\DataTypes" />
+    <Folder Include="Library\Machine\Stacker\Simple" />
+    <Folder Include="Library\Machine\Stacker\Simple\DataTypes" />
     <Folder Include="Library\Ramp" />
     <Folder Include="Library\Sick" />
     <Folder Include="Library\Sick\DT35-B15251 - Laser Sensor" />
@@ -571,6 +585,17 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <SubObject Include="FB_ComplexSheetStackerControl._AlarmControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._BackstopControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._ConveyorSpeedControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._ExternalCommands" />
+    <SubObject Include="FB_ComplexSheetStackerControl._HmiStatus" />
+    <SubObject Include="FB_ComplexSheetStackerControl._MachineAuxilary" />
+    <SubObject Include="FB_ComplexSheetStackerControl._SheetConveyorGroupControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._SheetStackDischargeControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._StackBufferConveyorsControl" />
+    <SubObject Include="FB_ComplexSheetStackerControl._SystemControl" />
     <SubObject Include="FB_IS620P_CO._ControlDriveState" />
     <SubObject Include="FB_IS620P_CO._ControlVelocity" />
     <SubObject Include="FB_IS620P_CO._ConvertRawPositionToMm" />

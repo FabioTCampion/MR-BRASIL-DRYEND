@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiStatusComplexStacker_TypeStruct" Id="{e72d5dce-acf9-4a51-afb8-cc8f745134aa}">
+    <Declaration><![CDATA[TYPE hmiStatusComplexStacker_TypeStruct :
+STRUCT
+
+    //==============================================================
+    // System general status
+    //==============================================================
+    systemRunEnable                         : BOOL;        // EN: Master system run enable
+    safetyCircuitOk                         : BOOL;        // EN: Safety circuit status
+    faultActive                             : BOOL;        // EN: General fault active
+    deviceState                             : STRING(30);  // EN: General device state text
+
+
+    //==============================================================
+    // Sheet conveyor group status
+    //==============================================================
+    synchronizedConveyorsRunning            : BOOL;        // EN: All synchronized conveyors running
+
+    sheetConveyor1Run                       : BOOL;        // EN: Sheet conveyor 1 run output
+    sheetConveyor2Run                       : BOOL;        // EN: Sheet conveyor 2 run output
+    sheetConveyor3Run                       : BOOL;        // EN: Sheet conveyor 3 run output
+    sheetConveyor4Run                       : BOOL;        // EN: Sheet conveyor 4 run output
+
+    sheetConveyor1SpeedRefMPM               : REAL;        // EN: Sheet conveyor 1 speed reference [m/min]
+    sheetConveyor2SpeedRefMPM               : REAL;        // EN: Sheet conveyor 2 speed reference [m/min]
+    sheetConveyor3SpeedRefMPM               : REAL;        // EN: Sheet conveyor 3 speed reference [m/min]
+    sheetConveyor4SpeedRefMPM               : REAL;        // EN: Sheet conveyor 4 speed reference [m/min]
+
+    syncConveyorsState                      : INT;         // EN: Synchronized conveyor group state code
+
+
+    //==============================================================
+    // Sheet stack separation status
+    //==============================================================
+    sheetStackSeparationReady               : BOOL;        // EN: Stack separation ready
+    sheetStackSeparationActive              : BOOL;        // EN: Stack separation active
+    sheetStackBrakeActive                   : BOOL;        // EN: Stack brake active
+
+    sheetStackSeparationDistanceM           : REAL;        // EN: Current separation distance [m]
+    sheetStackSeparationTargetDistanceM     : REAL;        // EN: Target separation distance [m]
+
+
+    //==============================================================
+    // Sheet stack discharge sequence status
+    //==============================================================
+    sheetStackDischargeState                : STRING(30);  // EN: Discharge sequence state text
+    sheetStackDischargeStateCode            : INT;         // EN: Discharge sequence state code
+
+    sheetStackDischargePending              : BOOL;        // EN: Discharge cycle pending
+    sheetStackDischargeActive               : BOOL;        // EN: Discharge cycle active
+    sheetStackDischargeStarted              : BOOL;        // EN: Discharge cycle started pulse/status
+    sheetStackDischargeFinished             : BOOL;        // EN: Discharge cycle finished pulse/status
+
+    sheetStackDischargeFault                : BOOL;        // EN: Discharge sequence fault
+    sheetStackDischargeFaultCode            : INT;         // EN: Current discharge fault code
+
+    sheetStackDischargeLastCycleOk          : BOOL;        // EN: Last discharge cycle completed successfully
+    sheetStackDischargeLastResultCode       : INT;         // EN: Last discharge result code
+    sheetStackDischargeLastFaultStepCode    : INT;         // EN: Last discharge fault step code
+    sheetStackDischargeLastFaultCode        : INT;         // EN: Last discharge fault code
+
+
+    //==============================================================
+    // Sheet stack discharge conveyor status
+    //==============================================================
+    sheetStackDischargeConveyorState        : STRING(30);  // EN: Discharge conveyor state text
+    sheetStackDischargeConveyorRun          : BOOL;        // EN: Discharge conveyor run output
+    sheetStackDischargeConveyorSpeedRefMPM  : REAL;        // EN: Discharge conveyor speed reference [m/min]
+
+    sheetStackDischargeConveyorFault        : BOOL;        // EN: Discharge conveyor fault
+    sheetStackDischargeConveyorFaultCode    : INT;         // EN: Discharge conveyor fault code
+
+
+    //==============================================================
+    // Backstop status
+    //==============================================================
+    backstopState                           : STRING(30);  // EN: Backstop state text
+    backstopHomed                           : BOOL;        // EN: Backstop homing completed
+    backstopHomeRunning                     : BOOL;        // EN: Backstop homing sequence running
+    backstopInPosition                      : BOOL;        // EN: Backstop is inside target tolerance
+
+    backstopPositionMm                      : REAL;        // EN: Actual backstop position [mm]
+    backstopTargetPositionMm                : REAL;        // EN: Active backstop target position [mm]
+    backstopPositionErrorMm                 : REAL;        // EN: Backstop position error [mm]
+
+    backstopRunFw                           : BOOL;        // EN: Backstop forward/open run output
+    backstopRunRev                          : BOOL;        // EN: Backstop reverse/close run output
+    backstopSpeedRefMmps                    : REAL;        // EN: Backstop speed reference [mm/s]
+
+    backstopPlateUpSolenoid                 : BOOL;        // EN: Backstop plate up solenoid
+    backstopSetEncoderPosition              : BOOL;        // EN: Backstop set encoder pulse
+    backstopSetEncoderPositionMm            : REAL;        // EN: Backstop set encoder position [mm]
+
+    backstopManualInterventionActive        : BOOL;        // EN: Manual intervention memory active
+    backstopManualInterventionPositionMm    : REAL;        // EN: Stored manual intervention position [mm]
+
+    backstopFault                           : BOOL;        // EN: Backstop fault
+    backstopFaultCode                       : INT;         // EN: Backstop fault code
+
+
+    //==============================================================
+    // Elevator status
+    //==============================================================
+    elevatorState                    : STRING(30);  // EN: Elevator state text
+    elevatorHomed                    : BOOL;        // EN: Elevator homing completed
+    elevatorInPosition               : BOOL;        // EN: Elevator is inside target tolerance
+
+    elevatorPositionMm               : REAL;        // EN: Actual elevator position [mm]
+    elevatorTargetPositionMm         : REAL;        // EN: Active elevator target position [mm]
+    elevatorPositionErrorMm          : REAL;        // EN: Elevator position error [mm]
+
+    elevatorRunUp                    : BOOL;        // EN: Elevator up run output
+    elevatorRunDown                  : BOOL;        // EN: Elevator down run output
+    elevatorBrakeRelease             : BOOL;        // EN: Elevator brake release output
+    elevatorSpeedRefMmps             : REAL;        // EN: Elevator speed reference [mm/s]
+
+    elevatorSetEncoderPosition       : BOOL;        // EN: Elevator set encoder pulse
+    elevatorSetEncoderPositionMm     : REAL;        // EN: Elevator set encoder position [mm]
+
+    elevatorFault                    : BOOL;        // EN: Elevator fault
+    elevatorFaultCode                : INT;         // EN: Elevator fault code
+
+
+    //==============================================================
+    // Process values
+    //==============================================================
+    lineSpeedMPM                            : REAL;        // EN: Current line speed [m/min]
+    sheetLengthMm                           : REAL;        // EN: Current sheet length [mm]
+    stackHeightMm                           : REAL;        // EN: Current stack height [mm]
+
+
+    //==============================================================
+    // Input / drive status mirror
+    //==============================================================
+    sheetConveyor1DriveOk                   : BOOL;        // EN: Sheet conveyor 1 drive OK
+    sheetConveyor2DriveOk                   : BOOL;        // EN: Sheet conveyor 2 drive OK
+    sheetConveyor3DriveOk                   : BOOL;        // EN: Sheet conveyor 3 drive OK
+    sheetConveyor4DriveOk                   : BOOL;        // EN: Sheet conveyor 4 drive OK
+
+    backstopDriveOk                         : BOOL;        // EN: Backstop drive OK
+    elevatorDriveOk                  : BOOL;        // EN: Elevator drive OK
+    sheetStackDischargeConveyorDriveOk      : BOOL;        // EN: Discharge conveyor drive OK
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Refactors>
+  <Renames>
+    <RenamedType>
+      <Type guid="e08739c9-c0f8-48d5-8bb0-68f7f3197b0c">FB_COMPLEXSHEETSTACKERCONTROL_1</Type>
+      <From>FB_ComplexSheetStackerControl_1</From>
+      <To>FB_ComplexSheetStackerControl_old</To>
+    </RenamedType>
+  </Renames>
+</Refactors>
