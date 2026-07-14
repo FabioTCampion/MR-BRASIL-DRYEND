@@ -17288,7 +17288,7 @@ END_VAR
       <Declaration><![CDATA[METHOD _08_UpperStackerControl
 VAR_INPUT
 END_VAR
-
+//STKU_050_DIO2.digitalInput_12 Material no backstop
 VAR
 
 END_VAR
@@ -17414,8 +17414,8 @@ END_VAR
                               <v n="Id">670L</v>
                             </o>
                             <o>
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO2.digitalOutput_15"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -17894,8 +17894,8 @@ END_VAR
                               <v n="Id">688L</v>
                             </o>
                             <o>
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO2.digitalOutput_14"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -18038,8 +18038,8 @@ END_VAR
                               <v n="Id">697L</v>
                             </o>
                             <o>
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO3.digitalOutput_10"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -18054,8 +18054,8 @@ END_VAR
                               <v n="Id">698L</v>
                             </o>
                             <o>
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO3.digitalOutput_11"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19185,7 +19185,7 @@ END_VAR
                             <v n="Extensible">false</v>
                           </o>
                           <o>
-                            <v n="Flags">1</v>
+                            <v n="Flags">0</v>
                             <v n="Fixed">true</v>
                             <v n="Extensible">false</v>
                           </o>
@@ -19599,10 +19599,11 @@ END_VAR
                             <v n="ProvidesSTSnippet">false</v>
                             <v n="Id">764L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_06"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19613,15 +19614,85 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">982L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1058L</v>
                             </o>
-                            <v n="Id">981L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_06"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">982L</v>
+                                </o>
+                                <v n="Id">981L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_10"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1023L</v>
+                                </o>
+                                <v n="Id">1022L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1059L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_07"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19632,10 +19703,79 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">776L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1056L</v>
                             </o>
-                            <v n="Id">775L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_07"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">776L</v>
+                                </o>
+                                <v n="Id">775L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_11"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1053L</v>
+                                </o>
+                                <v n="Id">1052L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1057L</v>
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
@@ -19656,10 +19796,11 @@ END_VAR
                             </o>
                             <v n="Id">777L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_05"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"&amp;"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19670,10 +19811,79 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">780L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1018L</v>
                             </o>
-                            <v n="Id">779L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_05"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">780L</v>
+                                </o>
+                                <v n="Id">779L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_01"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1017L</v>
+                                </o>
+                                <v n="Id">1016L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Ampersand</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1019L</v>
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
@@ -19981,8 +20191,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO2.digitalInput_13"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20093,10 +20303,11 @@ END_VAR
                             </o>
                             <v n="Id">805L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_01"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20107,15 +20318,85 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">812L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1060L</v>
                             </o>
-                            <v n="Id">811L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_01"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">812L</v>
+                                </o>
+                                <v n="Id">811L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_07"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1029L</v>
+                                </o>
+                                <v n="Id">1028L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1061L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_02"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20126,10 +20407,79 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">816L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1062L</v>
                             </o>
-                            <v n="Id">815L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_02"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">816L</v>
+                                </o>
+                                <v n="Id">815L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_08"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1035L</v>
+                                </o>
+                                <v n="Id">1034L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1063L</v>
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
@@ -20264,10 +20614,11 @@ END_VAR
                             </o>
                             <v n="Id">831L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_03"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20278,15 +20629,85 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">838L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1064L</v>
                             </o>
-                            <v n="Id">837L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_03"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">838L</v>
+                                </o>
+                                <v n="Id">837L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_05"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1041L</v>
+                                </o>
+                                <v n="Id">1040L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1065L</v>
                           </o>
-                          <o t="BoxTreeOperand">
-                            <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_050_DIO1.digitalInput_04"</v>
-                              <v n="Type">"BOOL"</v>
+                          <o t="BoxTreeBox">
+                            <v n="BoxType">"OR"</v>
+                            <o n="Instance" t="Operand">
+                              <n n="Operand" />
+                              <v n="Type">""</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20297,10 +20718,79 @@ END_VAR
                               </o>
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
-                              <v n="IsInstance">false</v>
-                              <v n="Id">842L</v>
+                              <v n="IsInstance">true</v>
+                              <v n="Id">1066L</v>
                             </o>
-                            <v n="Id">841L</v>
+                            <o n="OutputItems" t="OutputItemList">
+                              <l2 n="OutputItems">
+                                <n />
+                              </l2>
+                            </o>
+                            <o n="Flags" t="Flags">
+                              <v n="Flags">0</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <n n="InputFlags" />
+                            <l2 n="InputItems" cet="BoxTreeOperand">
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO1.digitalInput_04"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">842L</v>
+                                </o>
+                                <v n="Id">841L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"STKU_050_DIO2.digitalInput_04"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1045L</v>
+                                </o>
+                                <v n="Id">1044L</v>
+                              </o>
+                            </l2>
+                            <o n="InputParam" t="ParamList">
+                              <l2 n="Names" />
+                              <l2 n="Types" />
+                            </o>
+                            <o n="OutputParam" t="ParamList">
+                              <l2 n="Names" cet="String">
+                                <v></v>
+                              </l2>
+                              <l2 n="Types" cet="String">
+                                <v>BOOL</v>
+                              </l2>
+                            </o>
+                            <v n="CallType" t="Operator">Or</v>
+                            <v n="EN">false</v>
+                            <v n="ENO">false</v>
+                            <n n="STSnippet" />
+                            <v n="ContainsExtensibleInputs">false</v>
+                            <v n="ProvidesSTSnippet">false</v>
+                            <v n="Id">1067L</v>
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
@@ -20399,8 +20889,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO2.digitalInput_02"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20852,7 +21342,7 @@ Sliiter 1 control - Function Block
                         <v n="BoxType">"FB_SlitterControl"</v>
                         <o n="Instance" t="Operand">
                           <v n="Operand">"instFBSlitter1Control"</v>
-                          <n n="Type" />
+                          <v n="Type">"FB_SlitterControl"</v>
                           <v n="Comment">""</v>
                           <v n="SymbolComment">""</v>
                           <v n="Address">""</v>
@@ -20871,7 +21361,7 @@ Sliiter 1 control - Function Block
                             <n />
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20887,7 +21377,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20919,7 +21409,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20967,7 +21457,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20983,7 +21473,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20999,7 +21489,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21015,7 +21505,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21031,7 +21521,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21047,7 +21537,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21063,7 +21553,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21079,7 +21569,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21095,7 +21585,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21111,7 +21601,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21127,7 +21617,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21143,7 +21633,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21159,7 +21649,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21175,7 +21665,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21191,7 +21681,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21207,7 +21697,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21223,7 +21713,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21239,7 +21729,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21255,7 +21745,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21271,7 +21761,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21287,7 +21777,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21303,7 +21793,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21319,7 +21809,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21335,7 +21825,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21351,7 +21841,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21367,7 +21857,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21383,7 +21873,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21399,7 +21889,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21415,7 +21905,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21431,7 +21921,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21447,7 +21937,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21463,7 +21953,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21479,7 +21969,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21495,7 +21985,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21511,7 +22001,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21527,7 +22017,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21543,7 +22033,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO01.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21559,7 +22049,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21575,7 +22065,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21591,7 +22081,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21607,7 +22097,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21623,7 +22113,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21639,7 +22129,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21655,7 +22145,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21671,7 +22161,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21687,7 +22177,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21703,7 +22193,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21719,7 +22209,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21735,7 +22225,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21751,7 +22241,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21767,7 +22257,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21783,7 +22273,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21799,7 +22289,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21815,7 +22305,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21831,7 +22321,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21847,7 +22337,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21863,7 +22353,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21879,7 +22369,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO06.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21895,7 +22385,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21911,7 +22401,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21927,7 +22417,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21943,7 +22433,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21959,7 +22449,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21975,7 +22465,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -21991,7 +22481,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22007,7 +22497,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22023,7 +22513,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22039,7 +22529,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22055,7 +22545,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22071,7 +22561,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22087,7 +22577,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22103,7 +22593,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22119,7 +22609,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO04.digitalOutput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22135,7 +22625,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22151,7 +22641,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22167,7 +22657,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO03.digitalOutput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22183,7 +22673,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22199,7 +22689,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22215,7 +22705,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO02.digitalOutput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22231,7 +22721,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22247,7 +22737,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"SLT1_P1_050_DO05.digitalOutput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22263,7 +22753,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"hmiStatus.arrKnifeRunningMetersForSharpening"</v>
-                              <n n="Type" />
+                              <v n="Type">"ARRAY [1..5] OF INT"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22279,7 +22769,7 @@ Sliiter 1 control - Function Block
                             </o>
                             <o>
                               <v n="Operand">"hmiStatus.arrKnifeRunningMetersForLubfrication"</v>
-                              <n n="Type" />
+                              <v n="Type">"ARRAY [1..5] OF INT"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22871,7 +23361,7 @@ Sliiter 1 control - Function Block
                               <o>
                                 <o n="Operand" t="Operand">
                                   <v n="Operand">"hmiCommands.slitter1.enableAxis"</v>
-                                  <n n="Type" />
+                                  <v n="Type">"BOOL"</v>
                                   <v n="Comment">""</v>
                                   <v n="SymbolComment">""</v>
                                   <v n="Address">""</v>
@@ -22890,7 +23380,7 @@ Sliiter 1 control - Function Block
                               <o>
                                 <o n="Operand" t="Operand">
                                   <v n="Operand">"SLT1_P1_050_DI01.digitalInput_01"</v>
-                                  <n n="Type" />
+                                  <v n="Type">"BOOL"</v>
                                   <v n="Comment">""</v>
                                   <v n="SymbolComment">""</v>
                                   <v n="Address">""</v>
@@ -22930,7 +23420,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22949,7 +23439,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -22968,7 +23458,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.executePositioning"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23006,7 +23496,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.executeHomming"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23025,7 +23515,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.generatePositions"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23044,7 +23534,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.resetCommand"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23082,7 +23572,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23101,7 +23591,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23120,7 +23610,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23139,7 +23629,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23158,7 +23648,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23177,7 +23667,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23196,7 +23686,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23215,7 +23705,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23234,7 +23724,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23253,7 +23743,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23272,7 +23762,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23291,7 +23781,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23310,7 +23800,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23329,7 +23819,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23348,7 +23838,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23367,7 +23857,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23386,7 +23876,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23405,7 +23895,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23424,7 +23914,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23443,7 +23933,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23462,7 +23952,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23481,7 +23971,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23500,7 +23990,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23519,7 +24009,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23538,7 +24028,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_01"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23557,7 +24047,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23576,7 +24066,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23595,7 +24085,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23614,7 +24104,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI01.digitalInput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23633,7 +24123,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualSharpeningArr[1]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23652,7 +24142,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualSharpeningArr[2]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23671,7 +24161,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualSharpeningArr[3]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23690,7 +24180,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualSharpeningArr[4]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23709,7 +24199,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualSharpeningArr[5]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23728,7 +24218,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualLubrificationArr[1]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23747,7 +24237,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualLubrificationArr[2]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23766,7 +24256,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualLubrificationArr[3]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23785,7 +24275,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualLubrificationArr[4]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23804,7 +24294,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"hmiCommands.slitter1.knifeManualLubrificationArr[5]"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23823,7 +24313,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23842,7 +24332,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23861,7 +24351,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23880,7 +24370,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23899,7 +24389,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23918,7 +24408,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23937,7 +24427,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23956,7 +24446,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23975,7 +24465,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -23994,7 +24484,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24070,7 +24560,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24089,7 +24579,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24108,7 +24598,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24127,7 +24617,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI05.digitalInput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24146,7 +24636,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24165,7 +24655,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_04"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24184,7 +24674,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24203,7 +24693,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24222,7 +24712,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24241,7 +24731,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24260,7 +24750,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_02"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24279,7 +24769,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_05"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24298,7 +24788,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_06"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24317,7 +24807,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_07"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24336,7 +24826,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_08"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24355,7 +24845,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_09"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24374,7 +24864,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_10"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24393,7 +24883,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24412,7 +24902,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24431,7 +24921,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24450,7 +24940,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24469,7 +24959,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24488,7 +24978,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI06.digitalInput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24507,7 +24997,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_11"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24526,7 +25016,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_12"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24545,7 +25035,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_13"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24564,7 +25054,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI04.digitalInput_14"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24583,7 +25073,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI02.digitalInput_03"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24602,7 +25092,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_16"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24621,7 +25111,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_050_DI03.digitalInput_15"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24640,7 +25130,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"machineConfig.slitter1"</v>
-                              <n n="Type" />
+                              <v n="Type">"slitterConfig_TypeStruct"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24659,7 +25149,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_100_UG1"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24678,7 +25168,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_100_UG2"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24697,7 +25187,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_100_UG3"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24716,7 +25206,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_100_UG4"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24735,7 +25225,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_100_UG5"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24754,7 +25244,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG1"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24773,7 +25263,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG2"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24792,7 +25282,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG3"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24811,7 +25301,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG4"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24830,7 +25320,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG5"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24849,7 +25339,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG6"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24868,7 +25358,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG7"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24887,7 +25377,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"SLT1_P1_200_UG8"</v>
-                              <n n="Type" />
+                              <v n="Type">"AXIS_REF"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24906,7 +25396,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"currentOrder"</v>
-                              <n n="Type" />
+                              <v n="Type">"Order_TypeStruct"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -24925,7 +25415,7 @@ Sliiter 1 control - Function Block
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
                               <v n="Operand">"nextOrder"</v>
-                              <n n="Type" />
+                              <v n="Type">"Order_TypeStruct"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>

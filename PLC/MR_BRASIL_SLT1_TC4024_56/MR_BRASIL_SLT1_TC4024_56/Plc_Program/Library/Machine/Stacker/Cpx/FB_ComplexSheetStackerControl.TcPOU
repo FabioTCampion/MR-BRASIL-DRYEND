@@ -736,6 +736,13 @@ VAR
 	elevatorManualCommandArmed          : BOOL;
 	elevatorManualCommandRequest        : BOOL;
 	elevatorReadyForAutomaticCycle      : BOOL;
+
+	// EN: Keeps the discharge conveyor active from the lower home limit until
+	//     the minimum run time and platform-clear conditions are confirmed.
+	// PT: Mantém a esteira de descarga ativa desde o limite inferior do home até
+	//     confirmar o tempo mínimo de giro e as condições de plataforma livre.
+	elevatorHomeDischargeConveyorRunRequest : BOOL;
+	elevatorHomeDischargeComplete            : BOOL;
 	
 	
 	//==============================================================
@@ -743,6 +750,7 @@ VAR
 	//==============================================================
 	tonElevatorHomingTimeout            : TON;
 	tonElevatorHomeSettleDelay          : TON;
+	tonElevatorHomeDischargeMinimumRun  : TON;
 	tonElevatorLevelingSpeed2Delay      : TON;
 	
 	// EN: Delay after brake release before motor movement.
@@ -2156,6 +2164,7 @@ IF systemRunEnable AND
    (
        backstopRunFw OR
        backstopRunRev OR
+       sheetStackDischargeActive OR
        sheetStackDischargeConveyorRun OR
        (backstopControlState = 10) OR
        (backstopControlState = 11) OR
@@ -2172,9 +2181,7 @@ ELSE
     instTONBackstopDownDelay.IN := TRUE;
 
     IF instTONBackstopDownDelay.Q THEN
-
         backstopPlateUpSolenoid := FALSE;
-
     END_IF
 
 END_IF;
@@ -2818,7 +2825,7 @@ sheetConveyor4TrackingDistanceM := sheetConveyor4OpeningDistanceM;]]></ST>
 // 11 = HOME_RELEASE_SENSOR
 // 12 = HOME_SETTLE
 // 13 = HOME_SET_ENCODER
-// 14 = HOME_MOVE_TO_UPPER_POSITION
+// 14 = HOME_WAIT_CLEAR_AND_MOVE_TO_UPPER_POSITION
 // 20 = MANUAL
 // 30 = AUTO_LEVELING
 // 40 = DISCHARGE_POSITIONING
@@ -2833,6 +2840,7 @@ METHOD _ElevatorControl
 elevatorSignedSpeedRefMmps := 0.0;
 elevatorSetEncoderPositionTrigger := FALSE;
 elevatorManualLowSpeedZoneActive := FALSE;
+elevatorHomeDischargeConveyorRunRequest := FALSE;
 
 
 //==============================================================
@@ -3233,6 +3241,7 @@ ELSE
             elevatorHomed := FALSE;
             elevatorReadyForAutomaticCycle := FALSE;
             elevatorInPosition := FALSE;
+            elevatorHomeDischargeComplete := FALSE;
 
             tonElevatorHomingTimeout(
                 IN := TRUE,
@@ -3253,6 +3262,12 @@ ELSE
 
                 elevatorSignedSpeedRefMmps := 0.0;
                 tonElevatorHomingTimeout(IN := FALSE);
+
+                // EN: Start clearing the platform as soon as the lower home
+                //     limit is reached. Homing continues through encoder reset.
+                // PT: Inicia a limpeza da plataforma assim que o limite inferior
+                //     do home é atingido. O homing continua até zerar o encoder.
+                elevatorHomeDischargeConveyorRunRequest := TRUE;
                 elevatorControlState := 11;
 
             ELSIF elevatorHomeDownAllowed THEN
@@ -3265,6 +3280,7 @@ ELSE
 
         11: // HOME_RELEASE_SENSOR
             elevatorState := 'HOME_RELEASE';
+            elevatorHomeDischargeConveyorRunRequest := TRUE;
 
             tonElevatorHomingTimeout(
                 IN := TRUE,
@@ -3299,6 +3315,7 @@ ELSE
         12: // HOME_SETTLE
             elevatorState := 'HOME_SETTLE';
             elevatorSignedSpeedRefMmps := 0.0;
+            elevatorHomeDischargeConveyorRunRequest := TRUE;
 
             // EN: Encoder reset is allowed only while the lower sensor
             //     remains released throughout the settle time.
@@ -3327,6 +3344,7 @@ ELSE
         13: // HOME_SET_ENCODER
             elevatorState := 'HOME_SET_ENCODER';
             elevatorSignedSpeedRefMmps := 0.0;
+            elevatorHomeDischargeConveyorRunRequest := TRUE;
 
             elevatorSetEncoderPositionTrigger := TRUE;
             elevatorSetEncoderPositionMm := machineConfig.elevatorHomePositionMm;
@@ -3340,14 +3358,41 @@ ELSE
 
 
         14: // HOME_MOVE_TO_UPPER_POSITION
-            elevatorState := 'HOME_MOVE_UP';
-
             tonElevatorHomingTimeout(
                 IN := TRUE,
                 PT := machineConfig.elevatorHomingTimeout
             );
 
-            IF elevatorInPosition THEN
+            // EN: Keep the conveyor running after the encoder is set. The final
+            //     upward movement is released only after the actual run time and
+            //     both platform-clear conditions are confirmed.
+            // PT: Mantém a esteira ligada após zerar o encoder. A subida final é
+            //     liberada somente após confirmar o tempo real de giro e as duas
+            //     condições de plataforma livre.
+            IF NOT elevatorHomeDischargeComplete THEN
+
+                elevatorState := 'HOME_WAIT_CLEAR';
+                elevatorHomeDischargeConveyorRunRequest := TRUE;
+
+                IF tonElevatorHomeDischargeMinimumRun.Q AND
+                   elevatorStackExitClearSensor AND
+						elevatorStackPresentSensor THEN
+
+                    elevatorHomeDischargeComplete := TRUE;
+                    elevatorHomeDischargeConveyorRunRequest := FALSE;
+                    elevatorState := 'HOME_MOVE_UP';
+
+                END_IF
+
+            ELSE
+
+                elevatorState := 'HOME_MOVE_UP';
+
+            END_IF;
+
+
+            IF elevatorInPosition AND
+               elevatorHomeDischargeComplete THEN
 
                 elevatorSignedSpeedRefMmps := 0.0;
                 tonElevatorHomingTimeout(IN := FALSE);
@@ -3371,12 +3416,16 @@ ELSE
                 elevatorState := 'HOME_UP_TIMEOUT';
                 elevatorControlState := 90;
 
-            ELSIF (elevatorRawSpeedRefMmps > 0.0) AND elevatorUpAllowed THEN
+            ELSIF elevatorHomeDischargeComplete AND
+                  (elevatorRawSpeedRefMmps > 0.0) AND
+                  elevatorUpAllowed THEN
 
                 elevatorSignedSpeedRefMmps :=
                     elevatorRawSpeedRefMmps;
 
-            ELSIF (elevatorRawSpeedRefMmps < 0.0) AND elevatorDownAllowed THEN
+            ELSIF elevatorHomeDischargeComplete AND
+                  (elevatorRawSpeedRefMmps < 0.0) AND
+                  elevatorDownAllowed THEN
 
                 elevatorSignedSpeedRefMmps :=
                     elevatorRawSpeedRefMmps;
@@ -3672,8 +3721,36 @@ ELSE
 END_IF;
 
 
+// EN: Any transition outside the homing states cancels its conveyor request
+//     in the same scan, including stop, fault and completed homing.
+// PT: Qualquer transição para fora dos estados de homing cancela o pedido da
+//     esteira no mesmo scan, incluindo parada, falha e homing concluído.
+IF (elevatorControlState < 10) OR
+   (elevatorControlState > 14) THEN
+
+    elevatorHomeDischargeConveyorRunRequest := FALSE;
+    elevatorHomeDischargeComplete := FALSE;
+
+END_IF;
+
+
 //==============================================================
-// 10) Encoder set pulse
+// 10) Elevator home discharge conveyor minimum run time
+//==============================================================
+// EN: Count only while the homing request is active and the conveyor run output
+//     was commanded TRUE. Reading the previous scan adds a conservative delay.
+// PT: Conta somente enquanto o pedido do homing estiver ativo e a saída de giro
+//     da esteira tiver sido comandada. A leitura do scan anterior adiciona atraso.
+tonElevatorHomeDischargeMinimumRun(
+    IN :=
+        elevatorHomeDischargeConveyorRunRequest AND
+        sheetStackDischargeConveyorRun,
+    PT := machineConfig.sheetStackDischargeTime
+);
+
+
+//==============================================================
+// 11) Encoder set pulse
 //==============================================================
 tpElevatorSetEncoderPosition(
     IN := elevatorSetEncoderPositionTrigger,
@@ -3684,7 +3761,7 @@ elevatorSetEncoderPosition := tpElevatorSetEncoderPosition.Q;
 
 
 //==============================================================
-// 11) Servo enable and magnetic brake control
+// 12) Servo enable and magnetic brake control
 //==============================================================
 // EN: Keep the servo enabled with zero speed, following the backstop concept.
 //     Drive-ready feedback is not used to avoid a circular enable dependency.
@@ -4389,7 +4466,7 @@ elevatorPlatformClear :=
     NOT elevatorStackPresentAtDischargeStart OR
     (
         elevatorStackExitClearSensor AND
-        NOT elevatorStackPresentSensor
+         elevatorStackPresentSensor
     );
 
 
@@ -5392,11 +5469,13 @@ manualRunRequest :=
     );
 
 
-// EN: Automatic request is generated by the discharge sequence.
-//     This conveyor is assumed to be available for automatic cycle
-//     whenever the master system is enabled.
+// EN: Automatic request is generated by the discharge sequence or by the
+//     elevator homing platform-clear step.
+// PT: O pedido automático é gerado pela sequência de descarga ou pela etapa
+//     de limpeza da plataforma durante o homing do elevador.
 automaticRunRequest :=
-    sheetStackDischargeConveyorRunRequest;
+    sheetStackDischargeConveyorRunRequest OR
+    elevatorHomeDischargeConveyorRunRequest;
 
 
 // EN: Master system enable blocks both manual and automatic movement.
@@ -5404,8 +5483,7 @@ finalRunRequest :=
     systemRunEnable AND
     (
         manualRunRequest OR
-        automaticRunRequest OR
-		backstopHomeRunning
+        automaticRunRequest
     );
 
 
@@ -5721,7 +5799,26 @@ END_IF
 
 
 //==============================================================
-// 6) Apply the common fixed speed reference
+// 6) Sheet stack discharge conveyor coupling
+// EN: Run buffer conveyor 1 together with the sheet stack discharge
+//     conveyor so the stack is transferred continuously out of the elevator.
+//     The existing master, safety and drive interlocks remain active.
+// PT: Aciona a esteira buffer 1 junto com a esteira de descarga da pilha
+//     para transferir a pilha continuamente para fora do elevador.
+//     Os intertravamentos gerais, de segurança e dos drives são mantidos.
+//==============================================================
+IF sheetStackDischargeConveyorRun AND
+   systemRunEnable AND
+   safetyCircuitOk AND
+   allBufferDrivesOk THEN
+
+    stackBufferConveyor1Run := TRUE;
+
+END_IF;
+
+
+//==============================================================
+// 7) Apply the common fixed speed reference
 //==============================================================
 IF stackBufferConveyor1Run THEN
     stackBufferConveyor1SpeedRefMPM :=
@@ -5960,7 +6057,9 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._BackstopControl">
       <LineId Id="3" Count="905" />
       <LineId Id="2" Count="0" />
-      <LineId Id="910" Count="20" />
+      <LineId Id="910" Count="7" />
+      <LineId Id="966" Count="25" />
+      <LineId Id="945" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ConveyorSpeedControl">
       <LineId Id="3" Count="63" />
@@ -5974,7 +6073,7 @@ END_IF;]]></ST>
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ElevatorControl">
       <LineId Id="2" Count="0" />
-      <LineId Id="4" Count="912" />
+      <LineId Id="4" Count="997" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ExternalCommands">
       <LineId Id="5" Count="0" />
@@ -5994,6 +6093,9 @@ END_IF;]]></ST>
       <LineId Id="43" Count="2" />
       <LineId Id="22" Count="20" />
       <LineId Id="46" Count="0" />
+      <LineId Id="53" Count="2" />
+      <LineId Id="47" Count="5" />
+      <LineId Id="56" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetConveyorGroupControl">
       <LineId Id="3" Count="106" />
@@ -6007,15 +6109,17 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeControl">
       <LineId Id="3" Count="621" />
       <LineId Id="2" Count="0" />
-      <LineId Id="626" Count="324" />
+      <LineId Id="626" Count="339" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl">
-      <LineId Id="3" Count="121" />
+      <LineId Id="3" Count="50" />
+      <LineId Id="55" Count="69" />
       <LineId Id="2" Count="0" />
+      <LineId Id="126" Count="15" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._StackBufferConveyorsControl">
       <LineId Id="2" Count="0" />
-      <LineId Id="4" Count="227" />
+      <LineId Id="4" Count="246" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SystemControl">
       <LineId Id="3" Count="9" />
@@ -6028,6 +6132,9 @@ END_IF;]]></ST>
       <LineId Id="115" Count="4" />
       <LineId Id="102" Count="12" />
       <LineId Id="120" Count="0" />
+      <LineId Id="197" Count="4" />
+      <LineId Id="121" Count="75" />
+      <LineId Id="202" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

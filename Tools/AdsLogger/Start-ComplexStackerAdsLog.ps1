@@ -6,7 +6,7 @@ param(
     [int]$AdsPort = 851,
 
     [ValidateRange(50, 60000)]
-    [int]$SampleIntervalMs = 100,
+    [int]$SampleIntervalMs = 50,
 
     [ValidateRange(0, 86400)]
     [int]$DurationSeconds = 0,
@@ -64,6 +64,7 @@ $symbolSuffixes = @(
     'safetyCircuitOk',
     'startCmd',
     'stopCmd',
+    'resetCmd',
     'packageCompleteCmd',
     'rPackageCompleteDischarge',
     'synchronizedConveyorsRunning',
@@ -89,7 +90,10 @@ $symbolSuffixes = @(
     'sheetStackDischargeCycleHasManualSkip',
     'sheetStackDischargeCycleHasTimeout',
     'sheetStackDischargeConveyorRunRequest',
+    'elevatorHomeDischargeConveyorRunRequest',
+    'sheetStackDischargeConveyorManualRunCmd',
     'sheetStackDischargeConveyorRun',
+    'sheetStackDischargeConveyorState',
     'sheetStackDischargeConveyorSpeedRefMPM',
     'sheetStackDischargeConveyorDriveOk',
     'sheetStackDischargeConveyorFault',
@@ -109,8 +113,24 @@ $symbolSuffixes = @(
     'elevatorState',
     'elevatorAutoCmd',
     'elevatorHomeCmd',
+    'elevatorAutoHomePending',
+    'elevatorAutoHomeRequest',
+    'rElevatorHome',
     'elevatorHomed',
     'elevatorReadyForAutomaticCycle',
+    'elevatorHomeLimitReached',
+    'elevatorHomeLimitFallingEdge',
+    'elevatorHomeDischargeComplete',
+    'tonElevatorHomeDischargeMinimumRun.IN',
+    'tonElevatorHomeDischargeMinimumRun.Q',
+    'tonElevatorHomeDischargeMinimumRun.ET',
+    'tonElevatorHomingTimeout.Q',
+    'tonElevatorHomingTimeout.ET',
+    'tonElevatorHomeSettleDelay.Q',
+    'tonElevatorHomeSettleDelay.ET',
+    'elevatorSetEncoderPositionTrigger',
+    'elevatorSetEncoderPosition',
+    'elevatorSetEncoderPositionMm',
     'elevatorTargetOverrideActive',
     'elevatorTargetOverridePositionMm',
     'elevatorPositionMm',
@@ -136,6 +156,8 @@ $symbolSuffixes = @(
     # PT: Permissoes, comandos e protecoes do elevador.
     'elevatorUpAllowed',
     'elevatorDownAllowed',
+    'elevatorHomeDownAllowed',
+    'elevatorHomeReleaseAllowed',
     'elevatorManualCommandArmed',
     'elevatorManualCommandRequest',
     'elevatorUpCmd',
@@ -155,6 +177,7 @@ $symbolSuffixes = @(
     # EN: Backstop participation and downstream buffer conditions.
     # PT: Participacao do backstop e condicoes do buffer de saida.
     'backstopAutoCmd',
+    'backstopHomeRunning',
     'backstopRequiredForAutomaticOperation',
     'backstopDriveOk',
     'backstopHomed',
@@ -169,6 +192,7 @@ $symbolSuffixes = @(
     'stackBufferConveyor2Run',
     'stackBufferConveyor3Run',
     'lineSpeedReductionRequest',
+    'stackerUnloadActive',
 
     # EN: Relevant configuration values captured with each sample.
     # PT: Valores de configuracao relevantes capturados em cada amostra.
@@ -178,31 +202,55 @@ $symbolSuffixes = @(
     'machineConfig.elevatorPositionKp',
     'machineConfig.elevatorAutomaticUpSpeedMmps',
     'machineConfig.elevatorAutomaticDownSpeedMmps',
+    'machineConfig.elevatorHomingSpeedMmps',
+    'machineConfig.elevatorHomingReleaseSpeedMmps',
+    'machineConfig.elevatorHomePositionMm',
+    'machineConfig.elevatorHomeSettleDelay',
+    'machineConfig.elevatorHomingTimeout',
     'machineConfig.elevatorLevelingSpeed1Mmps',
-    'machineConfig.elevatorLevelingSpeed2Mmps'
+    'machineConfig.elevatorLevelingSpeed2Mmps',
+    'machineConfig.sheetStackDischargeTime',
+    'machineConfig.sheetStackDischargeConveyorSpeedMPM',
+    'machineConfig.maximumSpeedMPM'
 )
 
 $derivedColumnNames = @(
     'Derived.PlatformClear',
     'Derived.ElevatorState30Reason',
+    'Derived.ElevatorHomeWaitReason',
     'Derived.DischargeWaitReason',
     'Derived.Anomaly'
 )
 
 $eventSuffixes = @(
     'packageCompleteCmd',
+    'resetCmd',
     'sheetStackDischargeControlState',
     'sheetStackDischargePending',
     'sheetStackDischargeActive',
     'sheetStackDischargeFault',
     'sheetStackDischargeFaultCode',
     'sheetStackDischargeConveyorRunRequest',
+    'elevatorHomeDischargeConveyorRunRequest',
+    'sheetStackDischargeConveyorManualRunCmd',
     'sheetStackDischargeConveyorRun',
+    'sheetStackDischargeConveyorState',
     'elevatorControlState',
     'elevatorState',
     'elevatorAutoCmd',
+    'elevatorAutoHomePending',
+    'elevatorAutoHomeRequest',
+    'rElevatorHome',
     'elevatorHomed',
     'elevatorReadyForAutomaticCycle',
+    'elevatorHomeLimitReached',
+    'elevatorHomeLimitFallingEdge',
+    'elevatorHomeDischargeComplete',
+    'tonElevatorHomeDischargeMinimumRun.Q',
+    'tonElevatorHomingTimeout.Q',
+    'tonElevatorHomeSettleDelay.Q',
+    'elevatorSetEncoderPositionTrigger',
+    'elevatorSetEncoderPosition',
     'elevatorTargetOverrideActive',
     'elevatorTargetOverridePositionMm',
     'elevatorPositionMm',
@@ -224,8 +272,10 @@ $eventSuffixes = @(
     'elevatorStackPresentSensor',
     'elevatorStackExitClearSensor',
     'elevatorPlatformClearDetected',
+    'backstopHomeRunning',
     'stackBufferFull',
     'Derived.ElevatorState30Reason',
+    'Derived.ElevatorHomeWaitReason',
     'Derived.DischargeWaitReason',
     'Derived.Anomaly'
 )
@@ -489,6 +539,62 @@ function Get-ElevatorState30Reason {
 }
 
 
+function Get-ElevatorHomeWaitReason {
+    param($Sample)
+
+    $controlState = Get-SampleValue $Sample 'elevatorControlState'
+
+    if ($null -eq $controlState) {
+        return 'STATE_UNAVAILABLE'
+    }
+
+    switch ([int]$controlState) {
+        10 {
+            if ([bool](Get-SampleValue $Sample 'elevatorLowerLimit')) {
+                return 'LOWER_LIMIT_REACHED'
+            }
+
+            if (-not [bool](Get-SampleValue $Sample 'elevatorHomeDownAllowed')) {
+                return 'HOME_DOWN_NOT_ALLOWED'
+            }
+
+            return 'HOME_DOWN_SEARCH'
+        }
+        11 { return 'HOME_RELEASE_LOWER_LIMIT' }
+        12 { return 'HOME_SETTLE' }
+        13 { return 'HOME_SET_ENCODER' }
+        14 {
+            if ([bool](Get-SampleValue $Sample 'elevatorHomeDischargeComplete')) {
+                return 'MOVE_TO_UPPER_POSITION'
+            }
+
+            if (-not [bool](Get-SampleValue $Sample 'elevatorHomeDischargeConveyorRunRequest')) {
+                return 'WAIT_HOME_CONVEYOR_REQUEST'
+            }
+
+            if (-not [bool](Get-SampleValue $Sample 'sheetStackDischargeConveyorRun')) {
+                return 'WAIT_HOME_CONVEYOR_RUN'
+            }
+
+            if (-not [bool](Get-SampleValue $Sample 'tonElevatorHomeDischargeMinimumRun.Q')) {
+                return 'WAIT_HOME_CONVEYOR_MINIMUM_TIME'
+            }
+
+            if (-not [bool](Get-SampleValue $Sample 'elevatorStackExitClearSensor')) {
+                return 'WAIT_EXIT_CLEAR_SENSOR'
+            }
+
+            if ([bool](Get-SampleValue $Sample 'elevatorStackPresentSensor')) {
+                return 'WAIT_STACK_PRESENT_SENSOR_CLEAR'
+            }
+
+            return 'HOME_CLEAR_READY'
+        }
+        default { return '' }
+    }
+}
+
+
 function Get-DischargeWaitReason {
     param($Sample)
 
@@ -569,6 +675,25 @@ function Get-Anomaly {
     $overrideActive = [bool](Get-SampleValue $Sample 'elevatorTargetOverrideActive')
     $elevatorHomed = [bool](Get-SampleValue $Sample 'elevatorHomed')
     $elevatorFault = [bool](Get-SampleValue $Sample 'elevatorFault')
+    $homeDischargeRequest =
+        [bool](Get-SampleValue $Sample 'elevatorHomeDischargeConveyorRunRequest')
+    $homeDischargeComplete =
+        [bool](Get-SampleValue $Sample 'elevatorHomeDischargeComplete')
+    $elevatorSignedSpeed =
+        [double](Get-SampleValue $Sample 'elevatorSignedSpeedRefMmps')
+
+    if (($null -ne $elevatorState) -and
+        ([int]$elevatorState -in @(11, 12, 13)) -and
+        (-not $homeDischargeRequest)) {
+        return 'HOME_CONVEYOR_REQUEST_MISSING'
+    }
+
+    if (($null -ne $elevatorState) -and
+        ([int]$elevatorState -eq 14) -and
+        (-not $homeDischargeComplete) -and
+        ([Math]::Abs($elevatorSignedSpeed) -gt 0.000001)) {
+        return 'HOME_ASCENT_BEFORE_CLEAR_CONFIRMATION'
+    }
 
     if (($null -ne $dischargeState) -and
         ([int]$dischargeState -in @(20, 30, 50)) -and
@@ -730,6 +855,7 @@ try {
 
             $sample['Derived.PlatformClear'] = Get-PlatformClear $sample
             $sample['Derived.ElevatorState30Reason'] = Get-ElevatorState30Reason $sample
+            $sample['Derived.ElevatorHomeWaitReason'] = Get-ElevatorHomeWaitReason $sample
             $sample['Derived.DischargeWaitReason'] = Get-DischargeWaitReason $sample
             $sample['Derived.Anomaly'] = Get-Anomaly $sample
 
@@ -786,7 +912,7 @@ try {
 
             if ($loggerStopwatch.ElapsedMilliseconds -ge $nextConsoleUpdateMs) {
                 Write-Host (
-                    "{0} D={1} E={2} Pos={3} Target={4} InPos={5} Reason={6} Anomaly={7}" -f
+                    "{0} D={1} E={2} Pos={3} Target={4} InPos={5} Reason={6} Home={7} Anomaly={8}" -f
                     $timestampLocal,
                     (ConvertTo-LogValue $sample['sheetStackDischargeControlState']),
                     (ConvertTo-LogValue $sample['elevatorControlState']),
@@ -794,6 +920,7 @@ try {
                     (ConvertTo-LogValue $sample['elevatorTargetPositionMm']),
                     (ConvertTo-LogValue $sample['elevatorInPosition']),
                     (ConvertTo-LogValue $sample['Derived.DischargeWaitReason']),
+                    (ConvertTo-LogValue $sample['Derived.ElevatorHomeWaitReason']),
                     (ConvertTo-LogValue $sample['Derived.Anomaly'])
                 )
 

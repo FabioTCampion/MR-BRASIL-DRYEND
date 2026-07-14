@@ -18,10 +18,10 @@ Também é possível executar `Start-ComplexStackerAdsLog.cmd` com duplo clique.
 
 ## Captura com tempo definido
 
-Exemplo para registrar cinco minutos com uma amostra a cada 100 ms:
+Exemplo para registrar cinco minutos com uma amostra a cada 50 ms:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Tools\AdsLogger\Start-ComplexStackerAdsLog.ps1 -DurationSeconds 300 -SampleIntervalMs 100
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Tools\AdsLogger\Start-ComplexStackerAdsLog.ps1 -DurationSeconds 300 -SampleIntervalMs 50
 ```
 
 ## Comunicação padrão
@@ -39,7 +39,7 @@ Esses valores podem ser substituídos por parâmetros:
 .\Tools\AdsLogger\Start-ComplexStackerAdsLog.ps1 `
     -AmsNetId '192.168.30.79.1.1' `
     -AdsPort 851 `
-    -SampleIntervalMs 100
+    -SampleIntervalMs 50
 ```
 
 ## Arquivos gerados
@@ -51,16 +51,17 @@ complex-stacker-YYYYMMDD-HHMMSS.csv
 complex-stacker-YYYYMMDD-HHMMSS.events.txt
 ```
 
-- O CSV contém um snapshot sincronizado de 105 símbolos por amostra.
+- O CSV contém um snapshot sincronizado de 137 símbolos por amostra.
 - O arquivo `events.txt` registra apenas conexão, erros e mudanças importantes.
 - Os arquivos de log são ignorados pelo Git para evitar commits muito grandes.
 
 ## Diagnósticos calculados
 
-O CSV adiciona quatro colunas derivadas:
+O CSV adiciona cinco colunas derivadas:
 
 - `Derived.PlatformClear`: reproduz a condição de plataforma livre.
 - `Derived.ElevatorState30Reason`: explica por que o elevador permanece no estado 30.
+- `Derived.ElevatorHomeWaitReason`: explica cada espera do homing entre o limite inferior e a subida final.
 - `Derived.DischargeWaitReason`: informa o que cada passo do descarte está aguardando.
 - `Derived.Anomaly`: destaca combinações incompatíveis, como override ativo com elevador fora do estado 40.
 
