@@ -101,7 +101,7 @@ ARK_P1_050_AO02();
                           <v n="LValue">false</v>
                           <v n="Boolean">false</v>
                           <v n="IsInstance">true</v>
-                          <v n="Id">93L</v>
+                          <v n="Id">105L</v>
                         </o>
                         <o n="OutputItems" t="OutputItemList">
                           <l2 n="OutputItems" cet="Operand">
@@ -340,6 +340,25 @@ ARK_P1_050_AO02();
                               <v n="LValue">false</v>
                               <v n="Boolean">false</v>
                               <v n="IsInstance">false</v>
+                              <v n="Id">102L</v>
+                            </o>
+                            <v n="Id">101L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
                               <v n="Id">29L</v>
                             </o>
                             <v n="Id">28L</v>
@@ -400,6 +419,25 @@ ARK_P1_050_AO02();
                               <v n="Id">35L</v>
                             </o>
                             <v n="Id">34L</v>
+                          </o>
+                          <o>
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">104L</v>
+                            </o>
+                            <v n="Id">103L</v>
                           </o>
                           <o>
                             <o n="Operand" t="Operand">
@@ -524,10 +562,12 @@ ARK_P1_050_AO02();
                             <v>upperKnifeHomeSensor</v>
                             <v>upperKnifePaperSensor</v>
                             <v>upperLevelEnabled</v>
+                            <v>upperStackerUnloadAccepted</v>
                             <v>lowerKnifeCounterReset</v>
                             <v>lowerKnifeHomeSensor</v>
                             <v>lowerKnifePaperSensor</v>
                             <v>lowerLevelEnabled</v>
+                            <v>lowerStackerUnloadAccepted</v>
                             <v>measuringWheelPaperPresence</v>
                             <v>measuringWheelPulse</v>
                             <v>doubleFacerSpeedMPM</v>
@@ -536,6 +576,8 @@ ARK_P1_050_AO02();
                             <v>nextOrder</v>
                           </l2>
                           <l2 n="Types" cet="String">
+                            <v>BOOL</v>
+                            <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
@@ -580,7 +622,7 @@ ARK_P1_050_AO02();
                         <n n="STSnippet" />
                         <v n="ContainsExtensibleInputs">false</v>
                         <v n="ProvidesSTSnippet">false</v>
-                        <v n="Id">94L</v>
+                        <v n="Id">106L</v>
                       </o>
                     </l2>
                     <l2 n="Connectors" />

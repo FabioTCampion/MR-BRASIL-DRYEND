@@ -10868,7 +10868,7 @@ END_VAR
                             <v n="LValue">false</v>
                             <v n="Boolean">false</v>
                             <v n="IsInstance">true</v>
-                            <v n="Id">442L</v>
+                            <v n="Id">674L</v>
                           </o>
                           <o n="OutputItems" t="OutputItemList">
                             <l2 n="OutputItems" cet="Operand">
@@ -10952,6 +10952,54 @@ END_VAR
                                 <v n="Boolean">false</v>
                                 <v n="IsInstance">false</v>
                                 <v n="Id">448L</v>
+                              </o>
+                              <o>
+                                <v n="Operand">""</v>
+                                <n n="Type" />
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">true</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">666L</v>
+                              </o>
+                              <o>
+                                <v n="Operand">"lowerStackerExternalCounterReset"</v>
+                                <v n="Type">"BOOL"</v>
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">true</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">656L</v>
+                              </o>
+                              <o>
+                                <v n="Operand">""</v>
+                                <n n="Type" />
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">true</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">657L</v>
                               </o>
                               <o>
                                 <v n="Operand">"STK_P2_050_DO1.digitalOutput_09"</v>
@@ -11352,6 +11400,22 @@ END_VAR
                                 <v n="Boolean">false</v>
                                 <v n="IsInstance">false</v>
                                 <v n="Id">473L</v>
+                              </o>
+                              <o>
+                                <v n="Operand">""</v>
+                                <n n="Type" />
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">true</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">669L</v>
                               </o>
                               <o>
                                 <v n="Operand">""</v>
@@ -12250,6 +12314,11 @@ END_VAR
                               <v n="Extensible">false</v>
                             </o>
                             <o>
+                              <v n="Flags">0</v>
+                              <v n="Fixed">false</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <o>
                               <v n="Flags">1</v>
                               <v n="Fixed">true</v>
                               <v n="Extensible">false</v>
@@ -12381,6 +12450,11 @@ END_VAR
                             </o>
                             <o>
                               <v n="Flags">1</v>
+                              <v n="Fixed">true</v>
+                              <v n="Extensible">false</v>
+                            </o>
+                            <o>
+                              <v n="Flags">0</v>
                               <v n="Fixed">true</v>
                               <v n="Extensible">false</v>
                             </o>
@@ -12663,25 +12737,6 @@ END_VAR
                               <l2 n="InputItems" cet="BoxTreeOperand">
                                 <o>
                                   <o n="Operand" t="Operand">
-                                    <v n="Operand">"STKL_050_DIO2.digitalInput_10"</v>
-                                    <v n="Type">"BOOL"</v>
-                                    <v n="Comment">""</v>
-                                    <v n="SymbolComment">""</v>
-                                    <v n="Address">""</v>
-                                    <o n="Flags" t="Flags">
-                                      <v n="Flags">0</v>
-                                      <v n="Fixed">false</v>
-                                      <v n="Extensible">false</v>
-                                    </o>
-                                    <v n="LValue">false</v>
-                                    <v n="Boolean">false</v>
-                                    <v n="IsInstance">false</v>
-                                    <v n="Id">548L</v>
-                                  </o>
-                                  <v n="Id">547L</v>
-                                </o>
-                                <o>
-                                  <o n="Operand" t="Operand">
                                     <v n="Operand">"lowerStackerUnload"</v>
                                     <v n="Type">"BOOL"</v>
                                     <v n="Comment">""</v>
@@ -12776,6 +12831,25 @@ END_VAR
                               <v n="ContainsExtensibleInputs">false</v>
                               <v n="ProvidesSTSnippet">false</v>
                               <v n="Id">546L</v>
+                            </o>
+                            <o t="BoxTreeOperand">
+                              <o n="Operand" t="Operand">
+                                <v n="Operand">"STKL_050_DIO2.digitalInput_10"</v>
+                                <v n="Type">"BOOL"</v>
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">false</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">659L</v>
+                              </o>
+                              <v n="Id">658L</v>
                             </o>
                             <o t="BoxTreeOperand">
                               <o n="Operand" t="Operand">
@@ -13608,6 +13682,25 @@ END_VAR
                               </o>
                               <v n="Id">629L</v>
                             </o>
+                            <o t="BoxTreeOperand">
+                              <o n="Operand" t="Operand">
+                                <v n="Operand">""</v>
+                                <n n="Type" />
+                                <v n="Comment">""</v>
+                                <v n="SymbolComment">""</v>
+                                <v n="Address">""</v>
+                                <o n="Flags" t="Flags">
+                                  <v n="Flags">0</v>
+                                  <v n="Fixed">false</v>
+                                  <v n="Extensible">false</v>
+                                </o>
+                                <v n="LValue">false</v>
+                                <v n="Boolean">false</v>
+                                <v n="IsInstance">false</v>
+                                <v n="Id">671L</v>
+                              </o>
+                              <v n="Id">670L</v>
+                            </o>
                             <o t="BoxTreeBox">
                               <v n="BoxType">"OR"</v>
                               <o n="Instance" t="Operand">
@@ -13725,6 +13818,7 @@ END_VAR
                               <v>lineSpeedMPM</v>
                               <v>sheetLengthMm</v>
                               <v>packageCompleteCmd</v>
+                              <v>stackerUnloadCmd</v>
                               <v>sheetConveyorsSpeedUpCmd</v>
                               <v>machineConfig</v>
                               <v>safetyCircuitOk</v>
@@ -13754,6 +13848,7 @@ END_VAR
                               <v>backstopMaxLimit</v>
                               <v>backstopMinLimit</v>
                               <v>backstopSafeMinLimit</v>
+                              <v>sheetStackAlignmentBrushEnableCmd</v>
                               <v>sheetStackDischargeConveyorManualRunCmd</v>
                               <v>noCrushRollersDownCmd</v>
                             </l2>
@@ -13763,6 +13858,7 @@ END_VAR
                               <v>BOOL</v>
                               <v>REAL</v>
                               <v>REAL</v>
+                              <v>BOOL</v>
                               <v>BOOL</v>
                               <v>BOOL</v>
                               <v>SimpleStackerConfig_TypeStruct</v>
@@ -13795,6 +13891,7 @@ END_VAR
                               <v>BOOL</v>
                               <v>BOOL</v>
                               <v>BOOL</v>
+                              <v>BOOL</v>
                             </l2>
                           </o>
                           <o n="OutputParam" t="ParamList">
@@ -13805,6 +13902,9 @@ END_VAR
                               <v>alarmActive</v>
                               <v>stopMachinePulse</v>
                               <v>reset</v>
+                              <v>stackerUnloadActive</v>
+                              <v>stackerUnloadAccepted</v>
+                              <v>externalCounterReset</v>
                               <v>sheetConveyor1Run</v>
                               <v>sheetConveyor2Run</v>
                               <v>sheetConveyor3Run</v>
@@ -13830,6 +13930,7 @@ END_VAR
                               <v>brakeBrushValve</v>
                               <v>backstopUpValve</v>
                               <v>noCrushRollersUpDownValve</v>
+                              <v>sheetStackAlignmentBrush</v>
                               <v>deviceState</v>
                               <v>faultActive</v>
                               <v>synchronizedConveyorsRunning</v>
@@ -13900,6 +14001,9 @@ END_VAR
                               <v>BOOL</v>
                               <v>BOOL</v>
                               <v>BOOL</v>
+                              <v>BOOL</v>
+                              <v>BOOL</v>
+                              <v>BOOL</v>
                               <v>REAL</v>
                               <v>REAL</v>
                               <v>REAL</v>
@@ -13909,6 +14013,7 @@ END_VAR
                               <v>BOOL</v>
                               <v>BOOL</v>
                               <v>REAL</v>
+                              <v>BOOL</v>
                               <v>BOOL</v>
                               <v>BOOL</v>
                               <v>BOOL</v>
@@ -13977,7 +14082,7 @@ END_VAR
                           <n n="STSnippet" />
                           <v n="ContainsExtensibleInputs">false</v>
                           <v n="ProvidesSTSnippet">false</v>
-                          <v n="Id">443L</v>
+                          <v n="Id">675L</v>
                         </o>
                         <v n="Id">640L</v>
                       </o>
@@ -17185,8 +17290,7 @@ VAR_INPUT
 END_VAR
 
 VAR
-	
-//ARK_P1_050_AO01.Channel2
+
 END_VAR
 
 ]]></Declaration>
@@ -17224,7 +17328,7 @@ END_VAR
                           <v n="LValue">false</v>
                           <v n="Boolean">false</v>
                           <v n="IsInstance">true</v>
-                          <v n="Id">957L</v>
+                          <v n="Id">1001L</v>
                         </o>
                         <o n="OutputItems" t="OutputItemList">
                           <l2 n="OutputItems" cet="Operand">
@@ -17308,6 +17412,54 @@ END_VAR
                               <v n="Boolean">false</v>
                               <v n="IsInstance">false</v>
                               <v n="Id">670L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">998L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">"upperStackerExternalCounterReset"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">978L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">979L</v>
                             </o>
                             <o>
                               <v n="Operand">"STK_P2_050_DO1.digitalOutput_01"</v>
@@ -17915,6 +18067,22 @@ END_VAR
                               <v n="LValue">true</v>
                               <v n="Boolean">false</v>
                               <v n="IsInstance">false</v>
+                              <v n="Id">1003L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
                               <v n="Id">699L</v>
                             </o>
                             <o>
@@ -18475,6 +18643,22 @@ END_VAR
                               <v n="LValue">true</v>
                               <v n="Boolean">false</v>
                               <v n="IsInstance">false</v>
+                              <v n="Id">980L</v>
+                            </o>
+                            <o>
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">true</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
                               <v n="Id">732L</v>
                             </o>
                             <o>
@@ -18927,27 +19111,32 @@ END_VAR
                           </o>
                           <o>
                             <v n="Flags">0</v>
-                            <v n="Fixed">true</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                           <o>
                             <v n="Flags">0</v>
-                            <v n="Fixed">true</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                           <o>
                             <v n="Flags">0</v>
-                            <v n="Fixed">true</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                           <o>
                             <v n="Flags">0</v>
-                            <v n="Fixed">true</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                           <o>
                             <v n="Flags">0</v>
-                            <v n="Fixed">true</v>
+                            <v n="Fixed">false</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <o>
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                           <o>
@@ -19128,6 +19317,11 @@ END_VAR
                           <o>
                             <v n="Flags">0</v>
                             <v n="Fixed">true</v>
+                            <v n="Extensible">false</v>
+                          </o>
+                          <o>
+                            <v n="Flags">0</v>
+                            <v n="Fixed">false</v>
                             <v n="Extensible">false</v>
                           </o>
                         </l2>
@@ -19348,25 +19542,6 @@ END_VAR
                               </o>
                               <o>
                                 <o n="Operand" t="Operand">
-                                  <v n="Operand">"STKU_050_DIO1.digitalInput_06"</v>
-                                  <v n="Type">"BOOL"</v>
-                                  <v n="Comment">""</v>
-                                  <v n="SymbolComment">""</v>
-                                  <v n="Address">""</v>
-                                  <o n="Flags" t="Flags">
-                                    <v n="Flags">0</v>
-                                    <v n="Fixed">false</v>
-                                    <v n="Extensible">false</v>
-                                  </o>
-                                  <v n="LValue">false</v>
-                                  <v n="Boolean">false</v>
-                                  <v n="IsInstance">false</v>
-                                  <v n="Id">770L</v>
-                                </o>
-                                <v n="Id">769L</v>
-                              </o>
-                              <o>
-                                <o n="Operand" t="Operand">
                                   <v n="Operand">"instFB_AutomaticOrderChange_V1.topStackerDischarge"</v>
                                   <v n="Type">"BOOL"</v>
                                   <v n="Comment">""</v>
@@ -19423,6 +19598,25 @@ END_VAR
                             <v n="ContainsExtensibleInputs">false</v>
                             <v n="ProvidesSTSnippet">false</v>
                             <v n="Id">764L</v>
+                          </o>
+                          <o t="BoxTreeOperand">
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">"STKU_050_DIO1.digitalInput_06"</v>
+                              <v n="Type">"BOOL"</v>
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">982L</v>
+                            </o>
+                            <v n="Id">981L</v>
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
@@ -19559,7 +19753,7 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_P2_100_UG8.status.fault"</v>
+                              <v n="Operand">"STKU_P2_100_UG9.status.fault"</v>
                               <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
@@ -19578,7 +19772,7 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">"STKU_P2_100_UG9.status.fault"</v>
+                              <v n="Operand">"STKU_P2_100_UG8.status.fault"</v>
                               <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
@@ -20241,6 +20435,25 @@ END_VAR
                             </o>
                             <v n="Id">935L</v>
                           </o>
+                          <o t="BoxTreeOperand">
+                            <o n="Operand" t="Operand">
+                              <v n="Operand">""</v>
+                              <n n="Type" />
+                              <v n="Comment">""</v>
+                              <v n="SymbolComment">""</v>
+                              <v n="Address">""</v>
+                              <o n="Flags" t="Flags">
+                                <v n="Flags">0</v>
+                                <v n="Fixed">false</v>
+                                <v n="Extensible">false</v>
+                              </o>
+                              <v n="LValue">false</v>
+                              <v n="Boolean">false</v>
+                              <v n="IsInstance">false</v>
+                              <v n="Id">1005L</v>
+                            </o>
+                            <v n="Id">1004L</v>
+                          </o>
                         </l2>
                         <o n="InputParam" t="ParamList">
                           <l2 n="Names" cet="String">
@@ -20250,6 +20463,7 @@ END_VAR
                             <v>lineSpeedMPM</v>
                             <v>sheetLengthMm</v>
                             <v>packageCompleteCmd</v>
+                            <v>stackerUnloadCmd</v>
                             <v>sheetConveyorsSpeedUpCmd</v>
                             <v>machineConfig</v>
                             <v>safetyCircuitOk</v>
@@ -20293,6 +20507,7 @@ END_VAR
                             <v>sheetStackDischargeConveyorManualRunCmd</v>
                             <v>noCrushRollersDownCmd</v>
                             <v>stackBufferConveyorsRunCmd</v>
+                            <v>sheetStackAlignmentBrushEnableCmd</v>
                           </l2>
                           <l2 n="Types" cet="String">
                             <v>BOOL</v>
@@ -20300,6 +20515,7 @@ END_VAR
                             <v>BOOL</v>
                             <v>REAL</v>
                             <v>REAL</v>
+                            <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>ComplexStackerConfig_TypeStruct</v>
@@ -20344,6 +20560,7 @@ END_VAR
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
+                            <v>BOOL</v>
                           </l2>
                         </o>
                         <o n="OutputParam" t="ParamList">
@@ -20354,6 +20571,9 @@ END_VAR
                             <v>alarmActive</v>
                             <v>stopMachinePulse</v>
                             <v>reset</v>
+                            <v>stackerUnloadActive</v>
+                            <v>stackerUnloadAccepted</v>
+                            <v>externalCounterReset</v>
                             <v>sheetConveyor1Run</v>
                             <v>sheetConveyor2Run</v>
                             <v>sheetConveyor3Run</v>
@@ -20391,6 +20611,7 @@ END_VAR
                             <v>brakeBrushValve</v>
                             <v>backstopUpValve</v>
                             <v>noCrushRollersUpDownValve</v>
+                            <v>sheetStackAlignmentBrush</v>
                             <v>deviceState</v>
                             <v>faultActive</v>
                             <v>synchronizedConveyorsRunning</v>
@@ -20426,6 +20647,7 @@ END_VAR
                             <v>elevatorInPosition</v>
                             <v>elevatorAtMinPosition</v>
                             <v>elevatorAtMaxPosition</v>
+                            <v>elevatorManualLowSpeedZoneActive</v>
                             <v>elevatorFault</v>
                             <v>elevatorFaultCode</v>
                             <v>elevatorTargetPositionMm</v>
@@ -20475,6 +20697,9 @@ END_VAR
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
+                            <v>BOOL</v>
                             <v>REAL</v>
                             <v>REAL</v>
                             <v>REAL</v>
@@ -20490,6 +20715,7 @@ END_VAR
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>REAL</v>
+                            <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
@@ -20528,6 +20754,7 @@ END_VAR
                             <v>BOOL</v>
                             <v>REAL</v>
                             <v>STRING(30)</v>
+                            <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
                             <v>BOOL</v>
@@ -20566,7 +20793,7 @@ END_VAR
                         <n n="STSnippet" />
                         <v n="ContainsExtensibleInputs">false</v>
                         <v n="ProvidesSTSnippet">false</v>
-                        <v n="Id">958L</v>
+                        <v n="Id">1002L</v>
                       </o>
                     </l2>
                     <l2 n="Connectors" />

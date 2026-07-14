@@ -25,9 +25,16 @@ VAR_INPUT
     //==============================================================
     // Package command input
     //==============================================================
-    // EN: Rising edge starts package separation cycle.
-    // PT: Borda de subida inicia o ciclo de separação do pacote.
+    // EN: Maintained automatic request. It is accepted once and remains
+    //     blocked until the command returns to FALSE.
+    // PT: Solicitação automática mantida. É aceita uma vez e permanece
+    //     bloqueada até o comando retornar para FALSE.
     packageCompleteCmd                  : BOOL;
+
+    // EN: Rising edge requests a local stack unload.
+    // PT: Borda de subida solicita um descarte local da pilha.
+    stackerUnloadCmd                    : BOOL;
+
 	sheetConveyorsSpeedUpCmd : BOOL;
 
     //==============================================================
@@ -135,6 +142,10 @@ VAR_INPUT
     //==============================================================
     // Sheet handling command inputs
     //==============================================================
+	// EN: Enables the sheet stack alignment brush.
+	// PT: Habilita a vassoura de alinhamento da pilha de chapas.
+	sheetStackAlignmentBrushEnableCmd        : BOOL;
+
 	sheetStackDischargeConveyorManualRunCmd : BOOL;
     noCrushRollersDownCmd                 	: BOOL;
 
@@ -149,6 +160,29 @@ VAR_OUTPUT
 	alarmActive	: BOOL;
 	stopMachinePulse : BOOL;
 	reset 	: BOOL;
+
+	// EN: TRUE during an accepted unload sequence or while a stacker axis
+	//     executes homing. Intended to command an external warning siren.
+	// PT: TRUE durante uma sequência de descarte aceita ou enquanto um eixo
+	//     do stacker executa homing. Destinada ao comando de uma sirene externa.
+	stackerUnloadActive                 : BOOL;
+
+	//==============================================================
+	// EN: Stack unload handshake outputs
+	// PT: Saídas de handshake do descarte da pilha
+	//==============================================================
+	// EN: One-scan pulse when a local unload request is accepted.
+	//     It can be used to reset the external pile quantity in Metrics.
+	// PT: Pulso de um ciclo quando um pedido local de descarte é aceito.
+	//     Pode ser usado para resetar a quantidade externa da pilha no Metrics.
+	stackerUnloadAccepted               : BOOL;
+
+	// EN: 20 ms pulse to reset the external stack counter after any
+	//     automatic or local unload request is accepted.
+	// PT: Pulso de 20 ms para resetar o contador externo da pilha após
+	//     qualquer pedido automático ou local de descarte ser aceito.
+	externalCounterReset                : BOOL;
+
     //==============================================================
     // Synchronized conveyor drive outputs
     //==============================================================
@@ -242,6 +276,12 @@ VAR_OUTPUT
     brakeBrushValve                     : BOOL;
     backstopUpValve                     : BOOL;
     noCrushRollersUpDownValve               : BOOL;
+
+	// EN: Sheet stack alignment brush output.
+	//     TRUE = lowered/engaged; FALSE = raised/disengaged.
+	// PT: Saída da vassoura de alinhamento da pilha de chapas.
+	//     TRUE = abaixada/acionada; FALSE = levantada/desacionada.
+	sheetStackAlignmentBrush              : BOOL;
 
 
     //==============================================================
@@ -477,7 +517,7 @@ VAR
     //==============================================================
     startCmdOld                         : BOOL;
     stopCmdOld                          : BOOL;
-    packageCompleteCmdOld               : BOOL;
+    stackerUnloadCmdOld                  : BOOL;
 
     backstopHomeCmdOld                  : BOOL;
 
@@ -667,13 +707,26 @@ VAR
 	// Sheet stack discharge state machine
 	//==============================================================
 	sheetStackDischargeControlState         : INT;
+
+	// EN: Keeps the alignment brush raised throughout the discharge cycle.
+	// PT: Mantém a vassoura de alinhamento levantada durante todo o descarte.
+	sheetStackAlignmentBrushLiftedForDischarge : BOOL;
 	
 	
 	//==============================================================
-	// Sheet stack discharge edge detection
+	// Sheet stack discharge request control
 	//==============================================================
-	packageCompleteCmdOldDischarge          : BOOL;
-	rPackageCompleteDischarge               : BOOL;
+	// EN: Prevents a maintained automatic request from being accepted
+	//     more than once before packageCompleteCmd returns to FALSE.
+	// PT: Impede que uma solicitação automática mantida seja aceita mais
+	//     de uma vez antes de packageCompleteCmd retornar para FALSE.
+	packageCompleteCmdAccepted              : BOOL;
+
+	// EN: Internal one-scan event generated for any accepted unload source.
+	// PT: Evento interno de um scan gerado para qualquer fonte de descarte aceita.
+	dischargeRequestAccepted                : BOOL;
+
+	tpExternalCounterReset                  : TP;
 	
 	
 	//==============================================================
@@ -733,6 +786,11 @@ VAR
 	//==============================================================
 	backstopAutoHomeRequest        : BOOL;
 	conveyorLevelerAutoHomeRequest : BOOL;
+
+	// EN: Latched start requests awaiting valid homing permissives.
+	// PT: Pedidos de partida memorizados aguardando permissivos válidos de homing.
+	backstopAutoHomePending        : BOOL;
+	conveyorLevelerAutoHomePending : BOOL;
 	
 	//==============================================================
 	// Conveyor leveler home request command control
@@ -752,13 +810,13 @@ END_VAR]]></Declaration>
 
 _SheetConveyorGroupControl();
 _ConveyorSpeedControl();
-
 _SheetStackDischargeControl();
 
 _BackstopControl();
 _ConveyorLevelerControl();
+_SheetStackAlignmentBrushControl();
 _SheetStackDischargeConveyorControl();
-_MachineAuxilary();
+_MachineAuxiliary();
 _HmiStatus();
 _AlarmControl();]]></ST>
     </Implementation>
@@ -1046,9 +1104,20 @@ backstopHomeRequestCombined :=
         )
     );
 
+// EN: The automatic pulse is accepted directly so a maintained manual home
+//     command cannot hide the mandatory start-triggered request.
+// PT: O pulso automático é aceito diretamente para que um comando manual de
+//     home mantido não esconda o pedido obrigatório gerado pela partida.
 rBackstopHome :=
-    backstopHomeRequestCombined AND
-    NOT backstopHomeRequestCombinedOld;
+    (
+        backstopHomeRequestCombined AND
+        NOT backstopHomeRequestCombinedOld
+    ) OR
+    (
+        systemRunEnable AND
+        backstopAutoCmd AND
+        backstopAutoHomeRequest
+    );
 
 backstopHomeRequestCombinedOld :=
     backstopHomeRequestCombined;
@@ -1381,6 +1450,10 @@ ELSE
     // EN: Homing has priority over manual and automatic positioning.
     IF rBackstopHome AND NOT backstopFault THEN
         backstopControlState := 10;
+
+        // EN: Consume the pending request only after homing is accepted.
+        // PT: Consome o pedido pendente somente após o homing ser aceito.
+        backstopAutoHomePending := FALSE;
     END_IF;
 
 
@@ -1972,9 +2045,20 @@ conveyorLevelerHomeRequestCombined :=
         conveyorLevelerAutoHomeRequest
     );
 
+// EN: The automatic pulse is accepted directly so a maintained manual home
+//     command cannot hide the mandatory start-triggered request.
+// PT: O pulso automático é aceito diretamente para que um comando manual de
+//     home mantido não esconda o pedido obrigatório gerado pela partida.
 rConveyorLevelerHome :=
-    conveyorLevelerHomeRequestCombined AND
-    NOT conveyorLevelerHomeRequestCombinedOld;
+    (
+        conveyorLevelerHomeRequestCombined AND
+        NOT conveyorLevelerHomeRequestCombinedOld
+    ) OR
+    (
+        systemRunEnable AND
+        conveyorLevelerAutoCmd AND
+        conveyorLevelerAutoHomeRequest
+    );
 
 conveyorLevelerHomeRequestCombinedOld :=
     conveyorLevelerHomeRequestCombined;
@@ -2185,6 +2269,10 @@ ELSE
     // EN: Homing has priority over manual and automatic leveling.
     IF rConveyorLevelerHome AND NOT conveyorLevelerFault THEN
         conveyorLevelerControlState := 10;
+
+        // EN: Consume the pending request only after homing is accepted.
+        // PT: Consome o pedido pendente somente após o homing ser aceito.
+        conveyorLevelerAutoHomePending := FALSE;
     END_IF;
 
 
@@ -2593,7 +2681,6 @@ END_IF;]]></ST>
 //==============================================================
 METHOD _ConveyorSpeedControl
 VAR
-    rPackageComplete                  : BOOL;
     packageGapReady                   : BOOL;
     validCycleTimeS                   : REAL;
 
@@ -2621,14 +2708,7 @@ sheetConveyor3SeparationFinished    := FALSE;
 
 
 //==============================================================
-// 2) Edge detection
-//==============================================================
-rPackageComplete := packageCompleteCmd AND NOT packageCompleteCmdOld;
-packageCompleteCmdOld := packageCompleteCmd;
-
-
-//==============================================================
-// 3) Enable and scan time
+// 2) Enable and scan time
 //==============================================================
 speedControlEnabled :=
     sheetConveyor1Run AND
@@ -2830,7 +2910,11 @@ ELSE
             sheetConveyor2TargetSpeedMPM  := sheetConveyor2BaseSpeedMPM;
             sheetConveyor3TargetSpeedMPM  := sheetConveyor3BaseSpeedMPM;
 
-            IF rPackageComplete AND packageGapReady THEN
+            // EN: Separation starts only from an accepted unload request.
+            //     Readiness was validated when the request was accepted.
+            // PT: A separação inicia somente por um pedido de descarte aceito.
+            //     A prontidão foi validada no momento do aceite.
+            IF dischargeRequestAccepted THEN
                 packageSeparationState := 10;
             END_IF
 
@@ -3368,29 +3452,63 @@ hmiStatus.sheetStackDischargeConveyorDriveOk :=
     sheetStackDischargeConveyorDriveOk;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="_MachineAuxilary" Id="{6f849f52-f42b-4bbe-842e-f73df083813a}">
-      <Declaration><![CDATA[METHOD _MachineAuxilary
+    <Method Name="_MachineAuxiliary" Id="{6f849f52-f42b-4bbe-842e-f73df083813a}">
+      <Declaration><![CDATA[//==============================================================
+// SIMPLE STACKER — MACHINE AUXILIARY CONTROL
+// EN: Maps auxiliary commands/status and generates the external
+//     counter reset pulse after an unload request is accepted.
+// PT: Mapeia comandos/status auxiliares e gera o pulso de reset do
+//     contador externo após o aceite de um pedido de descarte.
+//==============================================================
+METHOD _MachineAuxiliary
 VAR_INPUT
-END_VAR
-(*
-
-
-
-stopMachinePulse :=
-    NOT safetyCircuitOk OR
-    NOT sheetConveyor1DriveOk OR
-    NOT sheetConveyor2DriveOk OR
-    NOT sheetConveyor3DriveOk;
-	NOT backstopDriveOk
-	NOT conveyorLevelerDriveOk
-*)]]></Declaration>
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[noCrushRollersUpDownValve := noCrushRollersDownCmd;
+        <ST><![CDATA[//==============================================================
+// 1) Auxiliary command mapping
+//==============================================================
+noCrushRollersUpDownValve := noCrushRollersDownCmd;
 
 stackerRunning := systemRunEnable;
 
+reset := resetCmd;
 
-reset := resetCmd;]]></ST>
+
+//==============================================================
+// 2) Active unload and homing warning status
+//==============================================================
+// EN: Include the pending separation phase so the warning starts in the
+//     acceptance scan. Homing is detected from the current axis states so
+//     the siren remains active throughout each complete homing sequence.
+// PT: Inclui a fase pendente de separação para o aviso iniciar no scan do
+//     aceite. O homing é detectado pelos estados atuais dos eixos para manter
+//     a sirene ativa durante toda a sequência de referenciamento.
+stackerUnloadActive :=
+    sheetStackDischargePending OR
+    sheetStackDischargeActive OR
+    (
+        (backstopControlState >= 10) AND
+        (backstopControlState <= 14)
+    ) OR
+    (
+        (conveyorLevelerControlState >= 10) AND
+        (conveyorLevelerControlState <= 12)
+    );
+
+
+//==============================================================
+// 3) External counter reset pulse
+//==============================================================
+// EN: Every accepted automatic or local unload request generates one
+//     20 ms pulse. Rejected input requests do not reset the counter.
+// PT: Todo pedido automático ou local de descarte aceito gera um pulso
+//     de 20 ms. Solicitações rejeitadas não resetam o contador.
+tpExternalCounterReset(
+    IN := dischargeRequestAccepted,
+    PT := T#20MS
+);
+
+externalCounterReset := tpExternalCounterReset.Q;]]></ST>
       </Implementation>
     </Method>
     <Method Name="_SheetConveyorGroupControl" Id="{19f1d6e7-5787-4c72-87e5-da20e6c42460}">
@@ -3513,6 +3631,88 @@ ELSE
 END_CASE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="_SheetStackAlignmentBrushControl" Id="{8878208a-fb3c-4d46-9b88-ee4be3ba4eb0}">
+      <Declaration><![CDATA[//==============================================================
+// SIMPLE STACKER — SHEET STACK ALIGNMENT BRUSH CONTROL
+// EN: Keeps the brush engaged during production and moves it clear
+//     while the automatic stack discharge sequence is in progress.
+// PT: Mantém a vassoura acionada durante a produção e a retira
+//     durante a sequência automática de descarte da pilha.
+//==============================================================
+METHOD _SheetStackAlignmentBrushControl
+VAR
+	// EN: Relevant fault condition for the alignment brush behavior.
+	// PT: Condição de falha relevante para o comportamento da vassoura.
+	sheetStackAlignmentBrushFaultActive : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//==============================================================
+// 2) Automatic discharge memory
+//==============================================================
+// EN: Manual mode or a relevant fault cancels the discharge memory.
+//     When enabled, the brush must remain lowered in both conditions.
+// PT: O modo manual ou uma falha relevante cancela a memória do descarte.
+//     Quando habilitada, a vassoura deve permanecer abaixada nas duas condições.
+IF NOT conveyorLevelerAutoCmd THEN
+
+    sheetStackAlignmentBrushLiftedForDischarge := FALSE;
+
+
+// EN: Raise the brush only after discharge positioning starts.
+//     WAIT_SEPARATION (state 5) intentionally keeps it lowered.
+// PT: Levanta a vassoura somente após iniciar o posicionamento de descarte.
+//     WAIT_SEPARATION (estado 5) mantém a vassoura abaixada intencionalmente.
+ELSIF (sheetStackDischargeControlState = 10) OR
+      (sheetStackDischargeControlState = 20) OR
+      (sheetStackDischargeControlState = 30) OR
+      (sheetStackDischargeControlState = 40) OR
+      (sheetStackDischargeControlState = 50) THEN
+
+    sheetStackAlignmentBrushLiftedForDischarge := TRUE;
+
+
+// EN: Lower the brush again only after the discharge sequence has ended
+//     and automatic leveling has effectively resumed.
+// PT: Abaixa novamente a vassoura somente após o fim do descarte
+//     e o nivelamento automático ter sido efetivamente retomado.
+ELSIF (sheetStackDischargeControlState = 0) AND
+      NOT sheetStackDischargePending AND
+      NOT sheetStackDischargeActive AND
+      (conveyorLevelerControlState = 30) THEN
+
+    sheetStackAlignmentBrushLiftedForDischarge := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 3) Physical output
+//==============================================================
+// EN: The enable command has the highest priority. When disabled,
+//     the brush is always raised, without clearing the discharge memory.
+// PT: O comando de habilitação tem prioridade máxima. Quando desabilitada,
+//     a vassoura permanece levantada sem apagar a memória do descarte.
+IF NOT sheetStackAlignmentBrushEnableCmd THEN
+
+    sheetStackAlignmentBrush := FALSE;
+
+
+// EN: In manual mode or fault, keep the enabled brush lowered.
+// PT: No modo manual ou em falha, mantém a vassoura habilitada abaixada.
+ELSIF NOT conveyorLevelerAutoCmd THEN
+
+    sheetStackAlignmentBrush := TRUE;
+
+
+ELSE
+
+    sheetStackAlignmentBrush :=
+        NOT sheetStackAlignmentBrushLiftedForDischarge;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_SheetStackDischargeControl" Id="{51ae784c-22a2-4bb1-9f41-bbb87254176f}">
       <Declaration><![CDATA[//==============================================================
 // SIMPLE STACKER — SHEET STACK DISCHARGE CONTROL
@@ -3552,7 +3752,10 @@ END_CASE;]]></ST>
 //==============================================================
 METHOD _SheetStackDischargeControl
 VAR
-    abortCycle : BOOL;
+    abortCycle             : BOOL;
+    automaticUnloadRequest : BOOL;
+    localUnloadRequest     : BOOL;
+    unloadRequest          : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -3563,6 +3766,11 @@ END_VAR
 //==============================================================
 sheetStackDischargeStarted  := FALSE;
 sheetStackDischargeFinished := FALSE;
+
+// EN: The acceptance output is a one-scan pulse.
+// PT: A saída de aceite é um pulso de um ciclo.
+stackerUnloadAccepted := FALSE;
+dischargeRequestAccepted := FALSE;
 
 
 //==============================================================
@@ -3580,13 +3788,33 @@ conveyorLevelerTargetOverridePositionMm := 0.0;
 
 
 //==============================================================
-// 3) Edge detection
+// 3) Unload request handling
 //==============================================================
-// EN: Separate edge detector to avoid interfering with conveyor speed control.
-rPackageCompleteDischarge :=
-    packageCompleteCmd AND NOT packageCompleteCmdOldDischarge;
+// EN: The automatic command is level-controlled and remains available until
+//     accepted. After acceptance it is blocked until the command returns low.
+// PT: O comando automático é controlado por nível e permanece disponível até
+//     ser aceito. Após o aceite fica bloqueado até o comando retornar para zero.
+IF NOT packageCompleteCmd THEN
+    packageCompleteCmdAccepted := FALSE;
+END_IF;
 
-packageCompleteCmdOldDischarge := packageCompleteCmd;
+automaticUnloadRequest :=
+    packageCompleteCmd AND NOT packageCompleteCmdAccepted;
+
+// EN: The local command is momentary and evaluated only on its rising edge.
+// PT: O comando local é momentâneo e avaliado somente em sua borda de subida.
+localUnloadRequest :=
+    stackerUnloadCmd AND NOT stackerUnloadCmdOld;
+
+stackerUnloadCmdOld := stackerUnloadCmd;
+
+// EN: Automatic request has priority when both sources occur together.
+// PT: A solicitação automática tem prioridade quando as duas fontes ocorrem juntas.
+IF automaticUnloadRequest THEN
+    localUnloadRequest := FALSE;
+END_IF;
+
+unloadRequest := automaticUnloadRequest OR localUnloadRequest;
 
 
 //==============================================================
@@ -3656,17 +3884,56 @@ END_IF;
 
 
 //==============================================================
-// 7) Arm discharge sequence from packageCompleteCmd
+// 7) Accept and arm the discharge sequence
 //==============================================================
-// EN: packageCompleteCmd is ignored if stacker is not running or if
-//     any relevant drive/safety fault is active.
-IF rPackageCompleteDischarge AND
+// EN: A request is accepted only when separation is ready, the stacker is
+//     running, every automatic axis has completed homing and no relevant
+//     drive/safety fault is active.
+// PT: Uma solicitação é aceita somente quando a separação está pronta, o
+//     stacker está rodando, todos os eixos automáticos concluíram o homing e
+//     não existe falha relevante de drive/segurança.
+IF unloadRequest AND
+   sheetStackSeparationReady AND
+   (packageSeparationState = 0) AND
    synchronizedConveyorsRunning AND
+   (
+       NOT backstopAutoCmd OR
+       (
+           backstopHomed AND
+           NOT backstopAutoHomePending AND
+           NOT (
+               (backstopControlState >= 10) AND
+               (backstopControlState <= 14)
+           )
+       )
+   ) AND
+   (
+       NOT conveyorLevelerAutoCmd OR
+       (
+           conveyorLevelerHomed AND
+           NOT conveyorLevelerAutoHomePending AND
+           NOT (
+               (conveyorLevelerControlState >= 10) AND
+               (conveyorLevelerControlState <= 12)
+           )
+       )
+   ) AND
    NOT sheetStackDischargeFaultCondition AND
    NOT sheetStackDischargeActive AND
    NOT sheetStackDischargePending THEN
 
     sheetStackDischargePending := TRUE;
+	dischargeRequestAccepted := TRUE;
+
+    // EN: Automatic unload does not reset Metrics a second time. Only an
+    //     accepted local request generates stackerUnloadAccepted.
+    // PT: O descarte automático não reseta o Metrics uma segunda vez. Somente
+    //     um pedido local aceito gera stackerUnloadAccepted.
+    IF automaticUnloadRequest THEN
+        packageCompleteCmdAccepted := TRUE;
+    ELSE
+        stackerUnloadAccepted := TRUE;
+    END_IF;
 
     // EN: Clear current-cycle flags when a new cycle is accepted.
     sheetStackDischargeFault := FALSE;
@@ -4401,31 +4668,112 @@ END_IF;
 
 
 //==============================================================
-// 4) Automatic homing on system start
+// 4) Mandatory reference renewal on every system start
 //==============================================================
-// EN: Auto-home is generated only on the rising edge of startCmd.
-//     Each axis must be enabled in automatic mode.
-//     This prevents automatic movement of axes intentionally left in manual.
+// EN: A stopped or safety-disabled system cancels pending automatic requests.
+//     A new rising edge of startCmd is required before automatic homing.
+// PT: O sistema parado ou sem segurança cancela pedidos automáticos pendentes.
+//     Uma nova borda de startCmd será necessária antes do homing automático.
+IF NOT systemRunEnable THEN
+
+    backstopAutoHomePending := FALSE;
+    conveyorLevelerAutoHomePending := FALSE;
+
+END_IF;
+
+
+// EN: Every valid start invalidates the previous position references.
+//     An axis already executing homing continues its current cycle.
+//     Automatic movement is armed only for axes selected in automatic mode.
+// PT: Toda partida válida invalida as referências de posição anteriores.
+//     Um eixo que já executa homing continua seu ciclo atual.
+//     O movimento automático é armado somente para eixos em modo automático.
 IF rStartCmd AND systemRunEnable THEN
 
-    // Backstop auto-home
-    IF backstopAutoCmd AND
-       NOT backstopHomed AND
-       NOT backstopFault THEN
+    IF NOT (
+        (backstopControlState >= 10) AND
+        (backstopControlState <= 14)
+    ) THEN
 
-        backstopAutoHomeRequest := TRUE;
+        backstopHomed := FALSE;
+        backstopInPosition := FALSE;
+        backstopAutoHomePending := backstopAutoCmd;
+
+    ELSE
+
+        backstopAutoHomePending := FALSE;
+
+    END_IF;
+
+
+    IF NOT (
+        (conveyorLevelerControlState >= 10) AND
+        (conveyorLevelerControlState <= 12)
+    ) THEN
+
+        conveyorLevelerHomed := FALSE;
+        conveyorLevelerInPosition := FALSE;
+        conveyorLevelerAutoHomePending := conveyorLevelerAutoCmd;
+
+    ELSE
+
+        conveyorLevelerAutoHomePending := FALSE;
 
     END_IF;
 
+END_IF;
 
-    // Conveyor leveler auto-home
-    IF conveyorLevelerAutoCmd AND
-       NOT conveyorLevelerHomed AND
-       NOT conveyorLevelerFault THEN
 
-        conveyorLevelerAutoHomeRequest := TRUE;
+// EN: Leaving automatic mode cancels automatic movement. The invalidated
+//     reference remains invalid until a manual home or a new automatic start.
+// PT: Sair do modo automático cancela o movimento automático. A referência
+//     invalidada permanece inválida até um home manual ou nova partida automática.
+IF NOT backstopAutoCmd THEN
+    backstopAutoHomePending := FALSE;
+END_IF;
 
-    END_IF;
+IF NOT conveyorLevelerAutoCmd THEN
+    conveyorLevelerAutoHomePending := FALSE;
+END_IF;
+
+
+//==============================================================
+// 5) Release pending homing requests when every permissive is valid
+//==============================================================
+// EN: The pending memory prevents the start request from being lost while
+//     drive-ready, reset or discharge permissives are not yet available.
+// PT: A memória pendente evita perder o pedido de partida enquanto os
+//     permissivos de drive pronto, reset ou descarte ainda não estão disponíveis.
+IF backstopAutoHomePending AND
+   systemRunEnable AND
+   safetyCircuitOk AND
+   backstopAutoCmd AND
+   backstopDriveOk AND
+   NOT backstopFault AND
+   NOT backstopSafeMaxLimit AND
+   NOT backstopSafeMinLimit AND
+   NOT sheetStackDischargePending AND
+   NOT sheetStackDischargeActive AND
+   (sheetStackDischargeControlState = 0) THEN
+
+    backstopAutoHomeRequest := TRUE;
+
+END_IF;
+
+
+IF conveyorLevelerAutoHomePending AND
+   systemRunEnable AND
+   safetyCircuitOk AND
+   conveyorLevelerAutoCmd AND
+   conveyorLevelerDriveOk AND
+   NOT conveyorLevelerFault AND
+   NOT conveyorLevelerUpperSafetyLimit AND
+   NOT conveyorLevelerLowerSafetyLimit AND
+   NOT sheetStackDischargePending AND
+   NOT sheetStackDischargeActive AND
+   (sheetStackDischargeControlState = 0) THEN
+
+    conveyorLevelerAutoHomeRequest := TRUE;
 
 END_IF;]]></ST>
       </Implementation>
@@ -4449,8 +4797,7 @@ END_IF;]]></ST>
     <LineIds Name="FB_SimpleSheetStackerControl._ConveyorSpeedControl">
       <LineId Id="3" Count="63" />
       <LineId Id="497" Count="13" />
-      <LineId Id="77" Count="403" />
-      <LineId Id="2" Count="0" />
+      <LineId Id="77" Count="401" />
     </LineIds>
     <LineIds Name="FB_SimpleSheetStackerControl._ExternalCommands">
       <LineId Id="5" Count="0" />
@@ -4459,20 +4806,34 @@ END_IF;]]></ST>
       <LineId Id="3" Count="255" />
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SimpleSheetStackerControl._MachineAuxilary">
+    <LineIds Name="FB_SimpleSheetStackerControl._MachineAuxiliary">
       <LineId Id="2" Count="0" />
       <LineId Id="7" Count="0" />
       <LineId Id="6" Count="0" />
       <LineId Id="20" Count="1" />
       <LineId Id="19" Count="0" />
+      <LineId Id="9" Count="9" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="22" Count="2" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="37" Count="2" />
+      <LineId Id="29" Count="7" />
+      <LineId Id="40" Count="0" />
     </LineIds>
     <LineIds Name="FB_SimpleSheetStackerControl._SheetConveyorGroupControl">
       <LineId Id="3" Count="106" />
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_SimpleSheetStackerControl._SheetStackAlignmentBrushControl">
+      <LineId Id="14" Count="8" />
+      <LineId Id="24" Count="45" />
+      <LineId Id="71" Count="7" />
+      <LineId Id="80" Count="1" />
+    </LineIds>
     <LineIds Name="FB_SimpleSheetStackerControl._SheetStackDischargeControl">
       <LineId Id="3" Count="621" />
       <LineId Id="2" Count="0" />
+      <LineId Id="626" Count="39" />
     </LineIds>
     <LineIds Name="FB_SimpleSheetStackerControl._SheetStackDischargeConveyorControl">
       <LineId Id="3" Count="121" />

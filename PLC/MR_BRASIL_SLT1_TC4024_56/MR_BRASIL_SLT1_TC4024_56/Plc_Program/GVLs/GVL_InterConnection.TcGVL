@@ -6,6 +6,8 @@ VAR_GLOBAL
 	
 	upperStackerUnload : BOOL;
 	lowerStackerUnload : BOOL;
+	upperStackerExternalCounterReset : BOOL;
+	lowerStackerExternalCounterReset : BOOL;
 
 END_VAR]]></Declaration>
   </GVL>

@@ -22,6 +22,10 @@ VAR_INPUT
     upperKnifePaperSensor   		: BOOL;   // Upper level paper presence
     upperLevelEnabled               : BOOL;   // Upper level enabled
 
+    // EN: External upper-level command that resets only the active pile quantity.
+    // PT: Comando externo do nível superior que zera somente a quantidade da pilha ativa.
+    upperStackerUnloadAccepted      : BOOL;
+
     //────────────────────────────────────────────
     // LOWER KNIFE / LEVEL — COUNTERS & SENSORS
     //────────────────────────────────────────────
@@ -29,6 +33,10 @@ VAR_INPUT
     lowerKnifeHomeSensor            : BOOL;   // Lower level home sensor (counter pulse)
     lowerKnifePaperSensor   		: BOOL;   // Lower level paper presence
     lowerLevelEnabled               : BOOL;   // Lower level enabled
+
+    // EN: External lower-level command that resets only the active pile quantity.
+    // PT: Comando externo do nível inferior que zera somente a quantidade da pilha ativa.
+    lowerStackerUnloadAccepted      : BOOL;
 
     //────────────────────────────────────────────
     // MEASURING WHEEL
@@ -71,7 +79,12 @@ VAR_OUTPUT
     // EXT COMMANDS
     //────────────────────────────────────────────
 
+    // EN: Timed automatic unload pulse for the upper stacker.
+    // PT: Pulso temporizado de descarte automático do stacker superior.
 	upperStackerUnload		: BOOL;
+
+    // EN: Timed automatic unload pulse for the lower stacker.
+    // PT: Pulso temporizado de descarte automático do stacker inferior.
 	lowerStackerUnload		: BOOL;
 
 END_VAR
@@ -82,9 +95,11 @@ END_VAR
 //======================================================================
 VAR
 
+    // EN: Extends automatic unload requests for external stacker interfaces.
+    // PT: Prolonga os pedidos automáticos para interfaces de stackers externos.
+    instTPUpperStackerUnload        : TP;
+    instTPLowerStackerUnload        : TP;
 
-	instTPUpperStackerUnload		: TP;
-	instTPLowerStackerUnload		: TP;
     //────────────────────────────────────────────
     // EDGE DETECTION / STATE
     //────────────────────────────────────────────
@@ -92,6 +107,13 @@ VAR
 
     upperLevelHomeSensorOld         : BOOL;
     lowerLevelHomeSensorOld         : BOOL;
+
+    // EN: External pile reset commands are processed only on rising edges.
+    // PT: Os comandos externos de reset da pilha são processados somente nas bordas de subida.
+    upperStackerResetOld            : BOOL;
+    lowerStackerResetOld            : BOOL;
+    rUpperStackerReset              : BOOL;
+    rLowerStackerReset              : BOOL;
 
     //────────────────────────────────────────────
     // SHEET COUNTERS
@@ -571,16 +593,64 @@ END_IF
     <Action Name="ACT_SheetCounter" Id="{528469a2-c855-4a07-b5e7-3ab4e7125ca5}">
       <Implementation>
         <ST><![CDATA[//==========================================================
-// Default unload pulse requests
-// These variables are used first as one-scan trigger requests.
-// At the end of the code, they are overwritten with TP.Q.
+// 1) Default automatic unload triggers
 //==========================================================
+// EN: These one-scan triggers are extended by the TP instances at the end.
+// PT: Estes gatilhos de um scan são prolongados pelas instâncias TP ao final.
 upperStackerUnload := FALSE;
 lowerStackerUnload := FALSE;
 
 
 //==========================================================
-// Sheet counting and stacker unload logic
+// 2) External pile reset edge detection
+//==========================================================
+// EN: Process each external reset only once, even if it remains TRUE for
+//     several FAST-task scans.
+// PT: Processa cada reset externo somente uma vez, mesmo que permaneça TRUE
+//     durante vários scans da tarefa FAST.
+rUpperStackerReset :=
+    upperStackerUnloadAccepted AND NOT upperStackerResetOld;
+
+rLowerStackerReset :=
+    lowerStackerUnloadAccepted AND NOT lowerStackerResetOld;
+
+upperStackerResetOld := upperStackerUnloadAccepted;
+lowerStackerResetOld := lowerStackerUnloadAccepted;
+
+
+//==========================================================
+// 3) Reset only the pile quantity selected for each level
+//==========================================================
+// EN: Reset is performed before sheet counting. A valid sheet edge in the
+//     same scan therefore becomes the first sheet of the new pile.
+// PT: O reset é executado antes da contagem. Uma borda válida de chapa no
+//     mesmo scan passa a ser a primeira chapa da nova pilha.
+CASE currentOrder.levelSelector OF
+
+    E_LevelSelector.eUpperOnly:
+        IF rUpperStackerReset THEN
+            currentOrder.order1.pileQuantityProduced := 0;
+        END_IF
+
+    E_LevelSelector.eLowerOnly:
+        IF rLowerStackerReset THEN
+            currentOrder.order1.pileQuantityProduced := 0;
+        END_IF
+
+    E_LevelSelector.eBoth:
+        IF rLowerStackerReset THEN
+            currentOrder.order1.pileQuantityProduced := 0;
+        END_IF
+
+        IF rUpperStackerReset THEN
+            currentOrder.order2.pileQuantityProduced := 0;
+        END_IF
+
+END_CASE;
+
+
+//==========================================================
+// 4) Sheet counting
 //==========================================================
 CASE currentOrder.levelSelector OF
 
@@ -590,35 +660,18 @@ CASE currentOrder.levelSelector OF
     //==========================================================
     E_LevelSelector.eUpperOnly:
 
-        // Rising edge detection from upper knife home sensor
+        // EN: Count one valid upper knife home-sensor rising edge.
+        // PT: Conta uma borda de subida válida do sensor de home da faca superior.
         IF upperKnifeHomeSensor AND NOT upperLevelHomeSensorOld AND upperKnifePaperSensor THEN
 
             upperKnifelSheetCounter := upperKnifelSheetCounter + 1;
-            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
-
-            // Track pile building for upper level
-            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
-
-            // Check if the current pile is complete
-            IF (currentOrder.order1.pileQuantity > 0) AND
-               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
-
-                currentOrder.order1.pileQuantityProduced := 0;
-                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
-
-                // Send unload pulse to upper stacker
-                upperStackerUnload := TRUE;
-
-                // Update remaining pile count
-                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
-                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
-                END_IF
-
-            END_IF
+            currentOrder.order1.numberOfCutsProduced :=
+                currentOrder.order1.numberOfCutsProduced + 1;
+            currentOrder.order1.pileQuantityProduced :=
+                currentOrder.order1.pileQuantityProduced + 1;
 
         END_IF
 
-        // Store previous state for edge detection
         upperLevelHomeSensorOld := upperKnifeHomeSensor;
 
 
@@ -628,35 +681,17 @@ CASE currentOrder.levelSelector OF
     //==========================================================
     E_LevelSelector.eLowerOnly:
 
-        // Rising edge detection from lower knife home sensor
+        // EN: Count one valid lower knife home-sensor rising edge.
+        // PT: Conta uma borda de subida válida do sensor de home da faca inferior.
         IF lowerKnifeHomeSensor AND NOT lowerLevelHomeSensorOld AND lowerKnifePaperSensor THEN
 
-            // lowerKnifelSheetCounter := lowerKnifelSheetCounter + 1;
-            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
-
-            // Track pile building for lower level
-            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
-
-            // Check if the current pile is complete
-            IF (currentOrder.order1.pileQuantity > 0) AND
-               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
-
-                currentOrder.order1.pileQuantityProduced := 0;
-                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
-
-                // Send unload pulse to lower stacker
-                lowerStackerUnload := TRUE;
-
-                // Update remaining pile count
-                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
-                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
-                END_IF
-
-            END_IF
+            currentOrder.order1.numberOfCutsProduced :=
+                currentOrder.order1.numberOfCutsProduced + 1;
+            currentOrder.order1.pileQuantityProduced :=
+                currentOrder.order1.pileQuantityProduced + 1;
 
         END_IF
 
-        // Store previous state for edge detection
         lowerLevelHomeSensorOld := lowerKnifeHomeSensor;
 
 
@@ -673,28 +708,10 @@ CASE currentOrder.levelSelector OF
         //======================================================
         IF lowerKnifeHomeSensor AND NOT lowerLevelHomeSensorOld AND lowerKnifePaperSensor THEN
 
-            // lowerKnifelSheetCounter := lowerKnifelSheetCounter + 1;
-            currentOrder.order1.numberOfCutsProduced := currentOrder.order1.numberOfCutsProduced + 1;
-
-            // Track pile building for lower level
-            currentOrder.order1.pileQuantityProduced := currentOrder.order1.pileQuantityProduced + 1;
-
-            // Check if the current pile is complete
-            IF (currentOrder.order1.pileQuantity > 0) AND
-               (currentOrder.order1.pileQuantityProduced > currentOrder.order1.pileQuantity) THEN
-
-                currentOrder.order1.pileQuantityProduced := 0;
-                currentOrder.order1.pileCounter := currentOrder.order1.pileCounter + 1;
-
-                // Send unload pulse to lower stacker
-                lowerStackerUnload := TRUE;
-
-                // Update remaining pile count
-                IF currentOrder.order1.pileQuantityRemaining > 0 THEN
-                    currentOrder.order1.pileQuantityRemaining := currentOrder.order1.pileQuantityRemaining - 1;
-                END_IF
-
-            END_IF
+            currentOrder.order1.numberOfCutsProduced :=
+                currentOrder.order1.numberOfCutsProduced + 1;
+            currentOrder.order1.pileQuantityProduced :=
+                currentOrder.order1.pileQuantityProduced + 1;
 
         END_IF
 
@@ -706,31 +723,13 @@ CASE currentOrder.levelSelector OF
         IF upperKnifeHomeSensor AND NOT upperLevelHomeSensorOld AND upperKnifePaperSensor THEN
 
             upperKnifelSheetCounter := upperKnifelSheetCounter + 1;
-            currentOrder.order2.numberOfCutsProduced := currentOrder.order2.numberOfCutsProduced + 1;
-
-            // Track pile building for upper level
-            currentOrder.order2.pileQuantityProduced := currentOrder.order2.pileQuantityProduced + 1;
-
-            // Check if the current pile is complete
-            IF (currentOrder.order2.pileQuantity > 0) AND
-               (currentOrder.order2.pileQuantityProduced > currentOrder.order2.pileQuantity) THEN
-
-                currentOrder.order2.pileQuantityProduced := 0;
-                currentOrder.order2.pileCounter := currentOrder.order2.pileCounter + 1;
-
-                // Send unload pulse to upper stacker
-                upperStackerUnload := TRUE;
-
-                // Update remaining pile count
-                IF currentOrder.order2.pileQuantityRemaining > 0 THEN
-                    currentOrder.order2.pileQuantityRemaining := currentOrder.order2.pileQuantityRemaining - 1;
-                END_IF
-
-            END_IF
+            currentOrder.order2.numberOfCutsProduced :=
+                currentOrder.order2.numberOfCutsProduced + 1;
+            currentOrder.order2.pileQuantityProduced :=
+                currentOrder.order2.pileQuantityProduced + 1;
 
         END_IF
 
-        // Store previous states for edge detection
         lowerLevelHomeSensorOld := lowerKnifeHomeSensor;
         upperLevelHomeSensorOld := upperKnifeHomeSensor;
 
@@ -738,30 +737,113 @@ END_CASE;
 
 
 //==========================================================
-// Order 1 counter reset
+// 5) Order 1 full counter reset
 //==========================================================
+// EN: Existing order reset keeps its original full-reset behavior.
+// PT: O reset existente da ordem mantém seu comportamento de reset completo.
 IF currentOrder.order1.counterReset THEN
     currentOrder.order1.numberOfCutsProduced := 0;
     currentOrder.order1.pileQuantityProduced := 0;
     currentOrder.order1.pileCounter := 0;
     currentOrder.order1.pileQuantityRemaining := 0;
+
 END_IF;
 
 
 //==========================================================
-// Order 2 counter reset
+// 6) Order 2 full counter reset
 //==========================================================
+// EN: Existing order reset keeps its original full-reset behavior.
+// PT: O reset existente da ordem mantém seu comportamento de reset completo.
 IF currentOrder.order2.counterReset THEN
     currentOrder.order2.numberOfCutsProduced := 0;
     currentOrder.order2.pileQuantityProduced := 0;
     currentOrder.order2.pileCounter := 0;
     currentOrder.order2.pileQuantityRemaining := 0;
+
 END_IF;
 
 
 //==========================================================
-// Stacker unload pulse timers
+// 7) Close completed piles and trigger automatic unload
 //==========================================================
+// EN: Reaching the configured quantity closes and resets the pile immediately;
+//     it also generates the unload trigger for the selected level.
+// PT: Atingir a quantidade configurada fecha e zera a pilha imediatamente;
+//     também gera o gatilho de descarte para o nível selecionado.
+CASE currentOrder.levelSelector OF
+
+    E_LevelSelector.eUpperOnly:
+        IF (currentOrder.order1.pileQuantity > 0) AND
+           (currentOrder.order1.pileQuantityProduced >= currentOrder.order1.pileQuantity) THEN
+
+            currentOrder.order1.pileQuantityProduced := 0;
+            currentOrder.order1.pileCounter :=
+                currentOrder.order1.pileCounter + 1;
+            upperStackerUnload := TRUE;
+
+            IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                currentOrder.order1.pileQuantityRemaining :=
+                    currentOrder.order1.pileQuantityRemaining - 1;
+            END_IF
+
+        END_IF
+
+    E_LevelSelector.eLowerOnly:
+        IF (currentOrder.order1.pileQuantity > 0) AND
+           (currentOrder.order1.pileQuantityProduced >= currentOrder.order1.pileQuantity) THEN
+
+            currentOrder.order1.pileQuantityProduced := 0;
+            currentOrder.order1.pileCounter :=
+                currentOrder.order1.pileCounter + 1;
+            lowerStackerUnload := TRUE;
+
+            IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                currentOrder.order1.pileQuantityRemaining :=
+                    currentOrder.order1.pileQuantityRemaining - 1;
+            END_IF
+
+        END_IF
+
+    E_LevelSelector.eBoth:
+        IF (currentOrder.order1.pileQuantity > 0) AND
+           (currentOrder.order1.pileQuantityProduced >= currentOrder.order1.pileQuantity) THEN
+
+            currentOrder.order1.pileQuantityProduced := 0;
+            currentOrder.order1.pileCounter :=
+                currentOrder.order1.pileCounter + 1;
+            lowerStackerUnload := TRUE;
+
+            IF currentOrder.order1.pileQuantityRemaining > 0 THEN
+                currentOrder.order1.pileQuantityRemaining :=
+                    currentOrder.order1.pileQuantityRemaining - 1;
+            END_IF
+
+        END_IF
+
+        IF (currentOrder.order2.pileQuantity > 0) AND
+           (currentOrder.order2.pileQuantityProduced >= currentOrder.order2.pileQuantity) THEN
+
+            currentOrder.order2.pileQuantityProduced := 0;
+            currentOrder.order2.pileCounter :=
+                currentOrder.order2.pileCounter + 1;
+            upperStackerUnload := TRUE;
+
+            IF currentOrder.order2.pileQuantityRemaining > 0 THEN
+                currentOrder.order2.pileQuantityRemaining :=
+                    currentOrder.order2.pileQuantityRemaining - 1;
+            END_IF
+
+        END_IF
+
+END_CASE;
+
+
+//==========================================================
+// 8) Extend automatic unload pulses
+//==========================================================
+// EN: A 500 ms pulse is compatible with integrated and third-party stackers.
+// PT: Um pulso de 500 ms é compatível com stackers integrados e de terceiros.
 instTPUpperStackerUnload(
     IN := upperStackerUnload,
     PT := T#500MS
@@ -772,10 +854,6 @@ instTPLowerStackerUnload(
     PT := T#500MS
 );
 
-
-//==========================================================
-// Final unload outputs
-//==========================================================
 upperStackerUnload := instTPUpperStackerUnload.Q;
 lowerStackerUnload := instTPLowerStackerUnload.Q;]]></ST>
       </Implementation>
