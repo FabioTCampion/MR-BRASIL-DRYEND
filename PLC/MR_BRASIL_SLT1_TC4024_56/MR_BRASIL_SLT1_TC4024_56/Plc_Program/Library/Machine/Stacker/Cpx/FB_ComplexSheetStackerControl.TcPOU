@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <POU Name="FB_ComplexSheetStackerControl" Id="{48f3d714-da40-448b-b8a6-71c59012c754}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ComplexSheetStackerControl
@@ -98,16 +98,18 @@ VAR_INPUT
 	// PT: Inicia o ciclo de homing do elevador.
 	elevatorHomeCmd              : BOOL;
 	
-	// EN: Enables automatic leveling according to stack height.
-	// PT: Habilita nivelamento automático conforme altura da pilha.
+	// EN: Enables elevator automatic mode. Auto-home is requested on
+	//     startCmd and automatic leveling uses the stack level sensor.
+	// PT: Habilita o modo automático do elevador. O auto-home é solicitado
+	//     no startCmd e o nivelamento automático usa o sensor de nível da pilha.
 	elevatorAutoCmd              : BOOL;
 	
-	// EN: Manual up command.
-	// PT: Comando manual para subir.
+	// EN: Jog-up command in manual mode or during automatic leveling.
+	// PT: Comando de jog para subir no manual ou durante o nivelamento automático.
 	elevatorUpCmd                : BOOL;
 	
-	// EN: Manual down command.
-	// PT: Comando manual para descer.
+	// EN: Jog-down command in manual mode or during automatic leveling.
+	// PT: Comando de jog para descer no manual ou durante o nivelamento automático.
 	elevatorDownCmd              : BOOL;
 
 
@@ -200,6 +202,12 @@ VAR_OUTPUT
 	// PT: Saída de liberação do freio magnético. TRUE = freio liberado.
 	elevatorBrakeRelease         : BOOL;	
 
+	// EN: Enables the elevator servo together with the stacker control.
+	//     The servo remains enabled while stopped with zero speed reference.
+	// PT: Habilita o servo do elevador junto com o controle do stacker.
+	//     O servo permanece habilitado quando parado com referência zero.
+	elevatorDriveEnable          : BOOL;
+
     //==============================================================
     // Backstop drive outputs
     //==============================================================
@@ -240,7 +248,12 @@ VAR_OUTPUT
     sheetConveyor2SpeedRefMPM           : REAL;
     sheetConveyor3SpeedRefMPM           : REAL;
     sheetConveyor4SpeedRefMPM           : REAL;
-    elevatorSpeedRefMmps          : REAL;
+
+    // EN: Signed elevator speed reference [mm/s]. Positive moves up
+    //     and negative moves down.
+    // PT: Referência de velocidade com sinal do elevador [mm/s].
+    //     Positivo sobe e negativo desce.
+    elevatorSpeedRefMmps                 : REAL;
 	// EN: Sheet stack discharge conveyor speed reference [m/min].
 	// PT: Referência de velocidade da esteira de descarga da pilha [m/min].
 	sheetStackDischargeConveyorSpeedRefMPM  : REAL;
@@ -404,6 +417,25 @@ VAR_OUTPUT
 	
 	elevatorHomed                : BOOL;
 	elevatorInPosition           : BOOL;
+
+	// EN: TRUE when the homed elevator is at or below the configured
+	//     minimum position considering the position tolerance.
+	// PT: TRUE quando o elevador referenciado está na posição mínima
+	//     configurada ou abaixo dela, considerando a tolerância.
+	elevatorAtMinPosition        : BOOL;
+
+	// EN: TRUE when the homed elevator is at or above the configured
+	//     maximum position considering the position tolerance.
+	// PT: TRUE quando o elevador referenciado está na posição máxima
+	//     configurada ou acima dela, considerando a tolerância.
+	elevatorAtMaxPosition        : BOOL;
+
+	// EN: TRUE while manual jog speed is reduced near the endpoint
+	//     toward which the elevator is moving.
+	// PT: TRUE enquanto a velocidade do jog manual estiver reduzida próximo
+	//     da extremidade para a qual o elevador está se movimentando.
+	elevatorManualLowSpeedZoneActive : BOOL;
+
 	elevatorFault                : BOOL;
 	elevatorFaultCode            : INT;
 	
@@ -653,13 +685,19 @@ VAR
 	// Elevator homing
 	//==============================================================
 	elevatorHomeLimitReached            : BOOL;
-	elevatorHomeMoveAllowed             : BOOL;
+	elevatorHomeDownAllowed             : BOOL;
+	elevatorHomeReleaseAllowed          : BOOL;
+	elevatorManualCommandArmed          : BOOL;
+	elevatorManualCommandRequest        : BOOL;
+	elevatorReadyForAutomaticCycle      : BOOL;
 	
 	
 	//==============================================================
 	// Elevator timers
 	//==============================================================
 	tonElevatorHomingTimeout            : TON;
+	tonElevatorHomeSettleDelay          : TON;
+	tonElevatorLevelingSpeed2Delay      : TON;
 	
 	// EN: Delay after brake release before motor movement.
 	// PT: Atraso após liberar o freio antes de movimentar o motor.
@@ -749,6 +787,9 @@ VAR
 	// Sheet stack discharge timers
 	//==============================================================
 	tonSheetStackDischarge                  : TON;
+	tonSheetStackDischargePlatformClearTimeout : TON;
+	elevatorPlatformClearDetected           : BOOL;
+	elevatorStackPresentAtDischargeStart    : BOOL;
 	
 	
 	//==============================================================
@@ -762,6 +803,7 @@ VAR
 	//==============================================================
 	backstopTargetOverrideActive            : BOOL;
 	backstopTargetOverridePositionMm        : REAL;
+	backstopRequiredForAutomaticOperation   : BOOL;
 	
 	
 	//==============================================================
@@ -837,6 +879,7 @@ _ConveyorSpeedControl();
 _SheetStackDischargeControl();
 
 _BackstopControl();
+_ElevatorControl();
 _SheetStackDischargeConveyorControl();
 _StackBufferConveyorsControl();
 _MachineAuxilary();
@@ -875,10 +918,16 @@ ELSE
     hmiAlarms.systemFaultActive :=
         hmiAlarms.systemFaultActive OR
         faultActive OR
-        backstopFault OR
+        (
+            backstopRequiredForAutomaticOperation AND
+            backstopFault
+        ) OR
         elevatorFault OR
         sheetStackDischargeFault OR
-        sheetStackDischargeConveyorFault;
+        sheetStackDischargeConveyorFault OR
+        NOT stackBufferConveyor1DriveOk OR
+        NOT stackBufferConveyor2DriveOk OR
+        NOT stackBufferConveyor3DriveOk;
 
     hmiAlarms.systemNotEnabled :=
         hmiAlarms.systemNotEnabled OR
@@ -911,6 +960,33 @@ ELSE
         NOT sheetConveyor2DriveOk OR
         NOT sheetConveyor3DriveOk OR
         NOT sheetConveyor4DriveOk;
+
+
+    //==============================================================
+    // 2.1) Stack buffer conveyor alarms
+    // EN: Buffer drive faults are alarmed without stopping the main
+    //     synchronized conveyor group automatically.
+    // PT: Falhas dos drives do buffer geram alarme sem parar automaticamente
+    //     o grupo principal de esteiras sincronizadas.
+    //==============================================================
+    hmiAlarms.stackBufferConveyor1DriveNotOk :=
+        hmiAlarms.stackBufferConveyor1DriveNotOk OR
+        NOT stackBufferConveyor1DriveOk;
+
+    hmiAlarms.stackBufferConveyor2DriveNotOk :=
+        hmiAlarms.stackBufferConveyor2DriveNotOk OR
+        NOT stackBufferConveyor2DriveOk;
+
+    hmiAlarms.stackBufferConveyor3DriveNotOk :=
+        hmiAlarms.stackBufferConveyor3DriveNotOk OR
+        NOT stackBufferConveyor3DriveOk;
+
+    hmiAlarms.stackBufferConveyorGroupFault :=
+        hmiAlarms.stackBufferConveyorGroupFault OR
+        NOT safetyCircuitOk OR
+        NOT stackBufferConveyor1DriveOk OR
+        NOT stackBufferConveyor2DriveOk OR
+        NOT stackBufferConveyor3DriveOk;
 
  //   hmiAlarms.synchronizedConveyorsNotRunning :=
  //       hmiAlarms.synchronizedConveyorsNotRunning OR
@@ -1301,10 +1377,13 @@ END_IF;
 //==============================================================
 // 5.2) Active target selection
 //==============================================================
-// EN: Override target is accepted only when automatic mode is enabled.
-//     Without override or positioning request, target remains latched,
-//     but the axis does not move.
-IF systemRunEnable AND backstopAutoCmd AND backstopTargetOverrideActive THEN
+// EN: Discharge override is accepted only while the backstop is in automatic.
+//     In manual mode the backstop is completely independent from the cycle.
+// PT: O override de descarte é aceito somente com o backstop em automático.
+//     No modo manual o backstop fica completamente independente do ciclo.
+IF systemRunEnable AND
+   backstopAutoCmd AND
+   backstopTargetOverrideActive THEN
 
     backstopTargetPositionMm :=
         LIMIT(
@@ -1482,9 +1561,12 @@ ELSE
             tonBackstopHomeSettleDelay(IN := FALSE);
 
             // EN: Manual is allowed even with auto enabled,
-            //     but not during automatic cycle override.
+            //     but not during an automatic cycle override.
             IF (backstopOpenCmd OR backstopCloseCmd) AND
-               NOT backstopTargetOverrideActive THEN
+               NOT (
+                   backstopAutoCmd AND
+                   backstopTargetOverrideActive
+               ) THEN
 
                 backstopControlState := 20;
 
@@ -1736,8 +1818,12 @@ ELSE
             tonBackstopHomingTimeout(IN := FALSE);
             tonBackstopHomeSettleDelay(IN := FALSE);
 
-            // EN: If automatic override starts, manual is cancelled.
-            IF backstopAutoCmd AND backstopTargetOverrideActive THEN
+            // EN: An automatic override cancels manual control only when
+            //     the backstop itself is enabled in automatic mode.
+            // PT: O override automático cancela o controle manual somente
+            //     quando o próprio backstop está habilitado em automático.
+            IF backstopAutoCmd AND
+               backstopTargetOverrideActive THEN
 
                 backstopSignedSpeedRefMmps := 0.0;
                 backstopControlState := 30;
@@ -1806,6 +1892,10 @@ ELSE
             tonBackstopHomingTimeout(IN := FALSE);
             tonBackstopHomeSettleDelay(IN := FALSE);
 
+            // EN: Manual mode always cancels automatic positioning,
+            //     regardless of any external override request.
+            // PT: O modo manual sempre cancela o posicionamento automático,
+            //     independentemente de qualquer pedido externo de override.
             IF NOT backstopAutoCmd THEN
 
                 backstopSignedSpeedRefMmps := 0.0;
@@ -2634,6 +2724,942 @@ sheetConveyor3TrackingDistanceM := sheetConveyor3OpeningDistanceM;
 sheetConveyor4TrackingDistanceM := sheetConveyor4OpeningDistanceM;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="_ElevatorControl" Id="{02ae8aac-d808-47f5-84f8-70101e7732c2}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER - ELEVATOR CONTROL
+// EN: Controls homing, manual movement, automatic leveling,
+//     discharge positioning and magnetic brake timing.
+// PT: Controla homing, movimento manual, nivelamento automático,
+//     posicionamento de descarga e temporização do freio magnético.
+//
+// Signed speed: positive = up; negative = down.
+// Velocidade com sinal: positivo = subir; negativo = descer.
+//
+// State code:
+// 0  = STOP
+// 10 = HOME_DOWN_SEARCH
+// 11 = HOME_RELEASE_SENSOR
+// 12 = HOME_SETTLE
+// 13 = HOME_SET_ENCODER
+// 14 = HOME_MOVE_TO_UPPER_POSITION
+// 20 = MANUAL
+// 30 = AUTO_LEVELING
+// 40 = DISCHARGE_POSITIONING
+// 90 = FAULT
+//==============================================================
+METHOD _ElevatorControl
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//==============================================================
+// 1) Default internal commands
+//==============================================================
+elevatorSignedSpeedRefMmps := 0.0;
+elevatorSetEncoderPositionTrigger := FALSE;
+elevatorManualLowSpeedZoneActive := FALSE;
+
+
+//==============================================================
+// 2) Homing request and lower sensor edge detection
+//==============================================================
+elevatorHomeRequestCombined :=
+    systemRunEnable AND
+    (
+        elevatorHomeCmd OR
+        (
+            elevatorAutoCmd AND
+            elevatorAutoHomeRequest
+        )
+    );
+
+rElevatorHome :=
+    elevatorHomeRequestCombined AND
+    NOT elevatorHomeRequestCombinedOld;
+
+elevatorHomeRequestCombinedOld := elevatorHomeRequestCombined;
+
+elevatorHomeLimitReached := elevatorLowerLimit;
+
+elevatorHomeLimitFallingEdge :=
+    elevatorHomeLimitOld AND
+    NOT elevatorHomeLimitReached;
+
+elevatorHomeLimitOld := elevatorHomeLimitReached;
+
+
+//==============================================================
+// 2.1) Manual command rearm
+//==============================================================
+// EN: Manual commands held during homing or discharge must be released
+//     before a new manual movement can start.
+// PT: Comandos manuais mantidos durante homing ou descarte devem ser
+//     liberados antes que um novo movimento manual possa iniciar.
+IF NOT systemRunEnable OR
+   NOT safetyCircuitOk OR
+   NOT elevatorDriveOk OR
+   elevatorFault OR
+   (
+        (elevatorControlState >= 10) AND
+        (elevatorControlState <= 14)
+   ) OR
+   (elevatorControlState = 40) OR
+   (elevatorControlState = 90) OR
+   elevatorTargetOverrideActive OR
+   sheetStackDischargeActive OR
+   sheetStackDischargePending THEN
+
+    elevatorManualCommandArmed := FALSE;
+
+ELSIF NOT elevatorUpCmd AND
+      NOT elevatorDownCmd THEN
+
+    elevatorManualCommandArmed := TRUE;
+
+END_IF;
+
+elevatorManualCommandRequest :=
+    elevatorManualCommandArmed AND
+    (elevatorUpCmd OR elevatorDownCmd);
+
+
+//==============================================================
+// 3) Movement permissions
+//==============================================================
+elevatorUpAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorUpperLimit AND
+    NOT elevatorUpperSafetyLimit AND
+    NOT backstopMaterialInterlockSensor AND
+    (
+        (NOT elevatorHomed) OR
+        (elevatorPositionMm < machineConfig.elevatorMaxPositionMm)
+    );
+
+elevatorDownAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorLowerLimit AND
+    NOT elevatorLowerSafetyLimit AND
+    (
+        (NOT elevatorHomed) OR
+        (elevatorPositionMm > machineConfig.elevatorMinPositionMm)
+    );
+
+// EN: Homing search ignores the normal lower limit until it is detected.
+// PT: A busca de home ignora o limite inferior normal até detectá-lo.
+elevatorHomeDownAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorLowerSafetyLimit;
+
+// EN: Upward release respects the backstop material interlock.
+// PT: A liberação para cima respeita o intertravamento de material do backstop.
+elevatorHomeReleaseAllowed :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorUpperLimit AND
+    NOT elevatorUpperSafetyLimit AND
+    NOT backstopMaterialInterlockSensor;
+
+//==============================================================
+// 4) Target and position feedback
+//==============================================================
+IF elevatorControlState = 14 THEN
+
+    elevatorTargetPositionMm := machineConfig.elevatorMaxPositionMm;
+
+ELSIF elevatorTargetOverrideActive THEN
+
+    elevatorTargetPositionMm :=
+        LIMIT(
+            machineConfig.elevatorMinPositionMm,
+            elevatorTargetOverridePositionMm,
+            machineConfig.elevatorMaxPositionMm
+        );
+
+ELSE
+
+    elevatorTargetPositionMm :=
+        LIMIT(
+            machineConfig.elevatorMinPositionMm,
+            elevatorPositionMm,
+            machineConfig.elevatorMaxPositionMm
+        );
+
+END_IF;
+
+elevatorPositionErrorMm :=
+    elevatorTargetPositionMm - elevatorPositionMm;
+
+elevatorAbsPositionErrorMm := ABS(elevatorPositionErrorMm);
+
+// EN: Proportional position control with independent directional limits.
+//     No minimum speed is forced; the servo may receive zero near the target.
+// PT: Controle proporcional de posição com limites independentes por sentido.
+//     Não força velocidade mínima; o servo pode receber zero próximo ao alvo.
+elevatorRawSpeedRefMmps :=
+    elevatorPositionErrorMm * MAX(0.0, machineConfig.elevatorPositionKp);
+
+elevatorRawSpeedRefMmps :=
+    LIMIT(
+        -ABS(machineConfig.elevatorAutomaticDownSpeedMmps),
+        elevatorRawSpeedRefMmps,
+        ABS(machineConfig.elevatorAutomaticUpSpeedMmps)
+    );
+
+// EN: Endpoint flags depend on actual feedback and remain valid
+//     independently of the active automatic target.
+// PT: As flags de extremidade dependem do feedback real e permanecem
+//     válidas independentemente do alvo automático ativo.
+elevatorAtMinPosition :=
+    elevatorHomed AND
+    (
+        elevatorLowerLimit OR
+        (
+            elevatorPositionMm <=
+            (
+                machineConfig.elevatorMinPositionMm +
+                MAX(0.0, machineConfig.elevatorPositionToleranceMm)
+            )
+        )
+    );
+
+elevatorAtMaxPosition :=
+    elevatorHomed AND
+    (
+        elevatorUpperLimit OR
+        (
+            elevatorPositionMm >=
+            (
+                machineConfig.elevatorMaxPositionMm -
+                MAX(0.0, machineConfig.elevatorPositionToleranceMm)
+            )
+        )
+    );
+
+elevatorInPosition :=
+    elevatorHomed AND
+    (
+        (elevatorAbsPositionErrorMm <= machineConfig.elevatorPositionToleranceMm)
+        OR
+        (
+            elevatorUpperLimit AND
+            (elevatorTargetPositionMm >= machineConfig.elevatorMaxPositionMm)
+        )
+        OR
+        (
+            elevatorLowerLimit AND
+            (elevatorTargetPositionMm <= machineConfig.elevatorMinPositionMm)
+        )
+    );
+
+
+//==============================================================
+// 5) Fault reset
+//==============================================================
+IF resetCmd AND
+   safetyCircuitOk AND
+   elevatorDriveOk AND
+   NOT elevatorUpperSafetyLimit AND
+   NOT elevatorLowerSafetyLimit THEN
+
+    elevatorFault := FALSE;
+    elevatorFaultCode := 0;
+
+    IF elevatorControlState = 90 THEN
+        elevatorControlState := 0;
+    END_IF
+
+END_IF;
+
+
+//==============================================================
+// 6) Invalidate an interrupted homing sequence
+//==============================================================
+// EN: If homing or its final upward movement is interrupted by a
+//     protection/system stop, a new homing cycle is required.
+// PT: Se o homing ou sua subida final for interrompido por proteção/parada,
+//     um novo ciclo de homing será obrigatório.
+IF (elevatorControlState >= 10) AND
+   (elevatorControlState <= 14) AND
+   (
+       NOT systemRunEnable OR
+       NOT safetyCircuitOk OR
+       NOT elevatorDriveOk OR
+       elevatorUpperSafetyLimit OR
+       elevatorLowerSafetyLimit
+   ) THEN
+
+    elevatorHomed := FALSE;
+    elevatorReadyForAutomaticCycle := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 7) General protection
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    elevatorState := 'SAFETY_OFF';
+    elevatorFault := TRUE;
+    elevatorFaultCode := 2;
+    elevatorControlState := 90;
+
+    tonElevatorHomingTimeout(IN := FALSE);
+    tonElevatorHomeSettleDelay(IN := FALSE);
+    tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+
+ELSIF NOT elevatorDriveOk THEN
+
+    elevatorState := 'DRIVE_NOT_OK';
+    elevatorFault := TRUE;
+    elevatorFaultCode := 1;
+    elevatorControlState := 90;
+
+    tonElevatorHomingTimeout(IN := FALSE);
+    tonElevatorHomeSettleDelay(IN := FALSE);
+    tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+
+ELSIF elevatorUpperSafetyLimit THEN
+
+    elevatorState := 'UPPER_SAFE_LIMIT';
+    elevatorFault := TRUE;
+    elevatorFaultCode := 4;
+    elevatorControlState := 90;
+
+    tonElevatorHomingTimeout(IN := FALSE);
+    tonElevatorHomeSettleDelay(IN := FALSE);
+    tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+
+ELSIF elevatorLowerSafetyLimit THEN
+
+    elevatorState := 'LOWER_SAFE_LIMIT';
+    elevatorFault := TRUE;
+    elevatorFaultCode := 5;
+    elevatorControlState := 90;
+
+    tonElevatorHomingTimeout(IN := FALSE);
+    tonElevatorHomeSettleDelay(IN := FALSE);
+    tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+
+ELSIF NOT systemRunEnable THEN
+
+    elevatorState := 'SYSTEM_DISABLED';
+    elevatorSignedSpeedRefMmps := 0.0;
+
+    tonElevatorHomingTimeout(IN := FALSE);
+    tonElevatorHomeSettleDelay(IN := FALSE);
+    tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+    IF elevatorControlState <> 90 THEN
+        elevatorControlState := 0;
+    END_IF
+
+
+ELSE
+
+    //==========================================================
+    // 8) Mode selection
+    //==========================================================
+    // EN: A new home command is ignored while discharge is active/pending.
+    // PT: Novo comando de home é ignorado durante descarte ativo/pendente.
+    IF rElevatorHome AND
+       NOT elevatorFault AND
+       NOT sheetStackDischargeActive AND
+       NOT sheetStackDischargePending THEN
+
+        elevatorControlState := 10;
+
+    END_IF;
+
+    // EN: Discharge override blocks manual and leveling commands.
+    // PT: Override de descarte bloqueia comandos manuais e nivelamento.
+    IF elevatorTargetOverrideActive AND
+       elevatorHomed AND
+       (elevatorControlState <> 10) AND
+       (elevatorControlState <> 11) AND
+       (elevatorControlState <> 12) AND
+       (elevatorControlState <> 13) AND
+       (elevatorControlState <> 14) AND
+       (elevatorControlState <> 90) THEN
+
+        elevatorControlState := 40;
+
+    END_IF;
+
+
+    //==========================================================
+    // 9) Elevator state machine
+    //==========================================================
+    CASE elevatorControlState OF
+
+        0: // STOP
+            elevatorState := 'STOP';
+
+            tonElevatorHomingTimeout(IN := FALSE);
+            tonElevatorHomeSettleDelay(IN := FALSE);
+            tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+            // EN: Manual movement is available with automatic mode off.
+            //     With automatic mode on, it is available only after homing
+            //     and completion of the upper home positioning.
+            // PT: O movimento manual fica disponível com o automático desligado.
+            //     Com o automático ligado, fica disponível somente após o homing
+            //     e a conclusão do posicionamento superior.
+            IF elevatorManualCommandRequest AND
+               (
+                   NOT elevatorAutoCmd OR
+                   (
+                       elevatorHomed AND
+                       elevatorReadyForAutomaticCycle
+                   )
+               ) THEN
+
+                elevatorControlState := 20;
+
+            ELSIF elevatorAutoCmd AND
+                  elevatorHomed AND
+                  elevatorReadyForAutomaticCycle THEN
+
+                elevatorControlState := 30;
+
+            END_IF
+
+
+        10: // HOME_DOWN_SEARCH
+            elevatorState := 'HOME_DOWN';
+            elevatorHomed := FALSE;
+            elevatorReadyForAutomaticCycle := FALSE;
+            elevatorInPosition := FALSE;
+
+            tonElevatorHomingTimeout(
+                IN := TRUE,
+                PT := machineConfig.elevatorHomingTimeout
+            );
+
+            IF tonElevatorHomingTimeout.Q THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+
+                elevatorFault := TRUE;
+                elevatorFaultCode := 3;
+                elevatorState := 'HOME_TIMEOUT';
+                elevatorControlState := 90;
+
+            ELSIF elevatorHomeLimitReached THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+                elevatorControlState := 11;
+
+            ELSIF elevatorHomeDownAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    -ABS(machineConfig.elevatorHomingSpeedMmps);
+
+            END_IF
+
+
+        11: // HOME_RELEASE_SENSOR
+            elevatorState := 'HOME_RELEASE';
+
+            tonElevatorHomingTimeout(
+                IN := TRUE,
+                PT := machineConfig.elevatorHomingTimeout
+            );
+
+            IF tonElevatorHomingTimeout.Q THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+
+                elevatorFault := TRUE;
+                elevatorFaultCode := 3;
+                elevatorState := 'HOME_TIMEOUT';
+                elevatorControlState := 90;
+
+            ELSIF elevatorHomeLimitFallingEdge THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+                tonElevatorHomeSettleDelay(IN := FALSE);
+                elevatorControlState := 12;
+
+            ELSIF elevatorHomeReleaseAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    ABS(machineConfig.elevatorHomingReleaseSpeedMmps);
+
+            END_IF
+
+
+        12: // HOME_SETTLE
+            elevatorState := 'HOME_SETTLE';
+            elevatorSignedSpeedRefMmps := 0.0;
+
+            // EN: Encoder reset is allowed only while the lower sensor
+            //     remains released throughout the settle time.
+            // PT: Reset do encoder é permitido somente se o sensor inferior
+            //     permanecer livre durante todo o tempo de estabilização.
+            IF elevatorHomeLimitReached THEN
+
+                tonElevatorHomeSettleDelay(IN := FALSE);
+                elevatorControlState := 11;
+
+            ELSE
+
+                tonElevatorHomeSettleDelay(
+                    IN := TRUE,
+                    PT := machineConfig.elevatorHomeSettleDelay
+                );
+
+                IF tonElevatorHomeSettleDelay.Q THEN
+                    tonElevatorHomeSettleDelay(IN := FALSE);
+                    elevatorControlState := 13;
+                END_IF
+
+            END_IF
+
+
+        13: // HOME_SET_ENCODER
+            elevatorState := 'HOME_SET_ENCODER';
+            elevatorSignedSpeedRefMmps := 0.0;
+
+            elevatorSetEncoderPositionTrigger := TRUE;
+            elevatorSetEncoderPositionMm := machineConfig.elevatorHomePositionMm;
+
+            elevatorHomed := TRUE;
+            elevatorFault := FALSE;
+            elevatorFaultCode := 0;
+
+            tonElevatorHomingTimeout(IN := FALSE);
+            elevatorControlState := 14;
+
+
+        14: // HOME_MOVE_TO_UPPER_POSITION
+            elevatorState := 'HOME_MOVE_UP';
+
+            tonElevatorHomingTimeout(
+                IN := TRUE,
+                PT := machineConfig.elevatorHomingTimeout
+            );
+
+            IF elevatorInPosition THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+                elevatorReadyForAutomaticCycle := TRUE;
+
+                IF elevatorAutoCmd THEN
+                    elevatorControlState := 30;
+                ELSE
+                    elevatorControlState := 0;
+                END_IF
+
+            ELSIF tonElevatorHomingTimeout.Q THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorHomingTimeout(IN := FALSE);
+
+                elevatorHomed := FALSE;
+                elevatorReadyForAutomaticCycle := FALSE;
+                elevatorFault := TRUE;
+                elevatorFaultCode := 3;
+                elevatorState := 'HOME_UP_TIMEOUT';
+                elevatorControlState := 90;
+
+            ELSIF (elevatorRawSpeedRefMmps > 0.0) AND elevatorUpAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    elevatorRawSpeedRefMmps;
+
+            ELSIF (elevatorRawSpeedRefMmps < 0.0) AND elevatorDownAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    elevatorRawSpeedRefMmps;
+
+            END_IF
+
+
+        20: // MANUAL
+            elevatorState := 'MANUAL';
+
+            tonElevatorHomingTimeout(IN := FALSE);
+            tonElevatorHomeSettleDelay(IN := FALSE);
+            tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+            // EN: Discharge pending/active cancels manual operation.
+            // PT: Descarte pendente/ativo cancela a operação manual.
+            IF sheetStackDischargePending OR
+               sheetStackDischargeActive OR
+               elevatorTargetOverrideActive THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+
+                IF elevatorAutoCmd AND
+                   elevatorHomed AND
+                   elevatorReadyForAutomaticCycle THEN
+
+                    elevatorControlState := 30;
+
+                ELSE
+
+                    elevatorControlState := 0;
+
+                END_IF
+
+
+            ELSIF elevatorAutoCmd AND
+                  (
+                      NOT elevatorHomed OR
+                      NOT elevatorReadyForAutomaticCycle
+                  ) THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                elevatorState := 'AUTO_NO_HOME';
+                elevatorControlState := 0;
+
+            ELSIF elevatorUpCmd AND elevatorDownCmd THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+
+            ELSIF elevatorUpCmd THEN
+
+                IF elevatorUpAllowed THEN
+
+                    // EN: Reduce manual upward speed only while approaching
+                    //     the configured maximum position.
+                    // PT: Reduz a velocidade manual de subida somente durante
+                    //     a aproximação da posição máxima configurada.
+                    elevatorManualLowSpeedZoneActive :=
+                        elevatorHomed AND
+                        (
+                            LIMIT(
+                                0.0,
+                                machineConfig.elevatorManualLowSpeedFactor,
+                                1.0
+                            ) < 1.0
+                        ) AND
+                        (
+                            elevatorPositionMm >=
+                            (
+                                machineConfig.elevatorMaxPositionMm -
+                                MAX(
+                                    0.0,
+                                    machineConfig.elevatorManualLowSpeedZoneMm
+                                )
+                            )
+                        );
+
+                    IF elevatorManualLowSpeedZoneActive THEN
+
+                        elevatorSignedSpeedRefMmps :=
+                            ABS(machineConfig.elevatorManualSpeedMmps) *
+                            LIMIT(
+                                0.0,
+                                machineConfig.elevatorManualLowSpeedFactor,
+                                1.0
+                            );
+
+                    ELSE
+
+                        elevatorSignedSpeedRefMmps :=
+                            ABS(machineConfig.elevatorManualSpeedMmps);
+
+                    END_IF
+
+                ELSE
+                    elevatorSignedSpeedRefMmps := 0.0;
+                END_IF
+
+            ELSIF elevatorDownCmd THEN
+
+                IF elevatorDownAllowed THEN
+
+                    // EN: Reduce manual downward speed only while approaching
+                    //     the configured minimum position.
+                    // PT: Reduz a velocidade manual de descida somente durante
+                    //     a aproximação da posição mínima configurada.
+                    elevatorManualLowSpeedZoneActive :=
+                        elevatorHomed AND
+                        (
+                            LIMIT(
+                                0.0,
+                                machineConfig.elevatorManualLowSpeedFactor,
+                                1.0
+                            ) < 1.0
+                        ) AND
+                        (
+                            elevatorPositionMm <=
+                            (
+                                machineConfig.elevatorMinPositionMm +
+                                MAX(
+                                    0.0,
+                                    machineConfig.elevatorManualLowSpeedZoneMm
+                                )
+                            )
+                        );
+
+                    IF elevatorManualLowSpeedZoneActive THEN
+
+                        elevatorSignedSpeedRefMmps :=
+                            -ABS(machineConfig.elevatorManualSpeedMmps) *
+                            LIMIT(
+                                0.0,
+                                machineConfig.elevatorManualLowSpeedFactor,
+                                1.0
+                            );
+
+                    ELSE
+
+                        elevatorSignedSpeedRefMmps :=
+                            -ABS(machineConfig.elevatorManualSpeedMmps);
+
+                    END_IF
+
+                ELSE
+                    elevatorSignedSpeedRefMmps := 0.0;
+                END_IF
+
+            ELSE
+
+                elevatorSignedSpeedRefMmps := 0.0;
+
+                // EN: When manual intervention ends, automatic leveling
+                //     may immediately evaluate the current level sensor.
+                // PT: Ao terminar a intervenção manual, o nivelamento
+                //     automático pode avaliar imediatamente o sensor atual.
+                IF elevatorAutoCmd AND
+                   elevatorHomed AND
+                   elevatorReadyForAutomaticCycle THEN
+
+                    elevatorControlState := 30;
+
+                ELSE
+
+                    elevatorControlState := 0;
+
+                END_IF
+
+            END_IF
+
+
+        30: // AUTO_LEVELING
+            elevatorState := 'AUTO_LEVELING';
+
+            tonElevatorHomingTimeout(IN := FALSE);
+            tonElevatorHomeSettleDelay(IN := FALSE);
+
+            IF NOT elevatorAutoCmd THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorLevelingSpeed2Delay(IN := FALSE);
+                elevatorControlState := 0;
+
+            ELSIF NOT elevatorHomed OR
+                  NOT elevatorReadyForAutomaticCycle THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorLevelingSpeed2Delay(IN := FALSE);
+                elevatorState := 'AUTO_NO_HOME';
+
+            ELSIF (elevatorUpCmd OR elevatorDownCmd) AND
+                  NOT elevatorManualCommandArmed THEN
+
+                // EN: A command held from homing or discharge inhibits
+                //     leveling but cannot start a manual movement.
+                // PT: Um comando mantido desde o homing ou descarte bloqueia
+                //     o nivelamento, mas não pode iniciar movimento manual.
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+            ELSIF elevatorManualCommandRequest AND
+                  NOT sheetStackDischargePending AND
+                  NOT sheetStackDischargeActive THEN
+
+                // EN: Manual commands have priority over the level sensor.
+                //     The speed-2 delay restarts after manual intervention.
+                // PT: Os comandos manuais têm prioridade sobre o sensor de nível.
+                //     O atraso da velocidade 2 reinicia após a intervenção manual.
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorLevelingSpeed2Delay(IN := FALSE);
+                elevatorControlState := 20;
+
+            ELSIF backstopStackLevelSensor AND
+                  elevatorDownAllowed THEN
+
+                tonElevatorLevelingSpeed2Delay(
+                    IN := TRUE,
+                    PT := machineConfig.elevatorLevelingSpeed2Delay
+                );
+
+                IF tonElevatorLevelingSpeed2Delay.Q THEN
+                    elevatorSignedSpeedRefMmps :=
+                        -ABS(machineConfig.elevatorLevelingSpeed2Mmps);
+                ELSE
+                    elevatorSignedSpeedRefMmps :=
+                        -ABS(machineConfig.elevatorLevelingSpeed1Mmps);
+                END_IF
+
+            ELSE
+
+                elevatorSignedSpeedRefMmps := 0.0;
+                tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+            END_IF
+
+
+        40: // DISCHARGE_POSITIONING
+            elevatorState := 'DISCHARGE_POSITION';
+
+            tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+            IF NOT elevatorTargetOverrideActive THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+
+                IF elevatorAutoCmd AND
+                   elevatorHomed AND
+                   elevatorReadyForAutomaticCycle THEN
+
+                    elevatorControlState := 30;
+
+                ELSE
+
+                    elevatorControlState := 0;
+
+                END_IF
+
+            ELSIF elevatorInPosition THEN
+
+                elevatorSignedSpeedRefMmps := 0.0;
+
+            ELSIF (elevatorRawSpeedRefMmps > 0.0) AND elevatorUpAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    elevatorRawSpeedRefMmps;
+
+            ELSIF (elevatorRawSpeedRefMmps < 0.0) AND elevatorDownAllowed THEN
+
+                elevatorSignedSpeedRefMmps :=
+                    elevatorRawSpeedRefMmps;
+
+            END_IF
+
+
+        90: // FAULT
+            elevatorState := 'FAULT';
+            elevatorSignedSpeedRefMmps := 0.0;
+
+            tonElevatorHomingTimeout(IN := FALSE);
+            tonElevatorHomeSettleDelay(IN := FALSE);
+            tonElevatorLevelingSpeed2Delay(IN := FALSE);
+
+
+        ELSE
+            elevatorControlState := 0;
+
+    END_CASE;
+
+END_IF;
+
+
+//==============================================================
+// 10) Encoder set pulse
+//==============================================================
+tpElevatorSetEncoderPosition(
+    IN := elevatorSetEncoderPositionTrigger,
+    PT := machineConfig.elevatorSetEncoderPulseTime
+);
+
+elevatorSetEncoderPosition := tpElevatorSetEncoderPosition.Q;
+
+
+//==============================================================
+// 11) Servo enable and magnetic brake control
+//==============================================================
+// EN: Keep the servo enabled with zero speed, following the backstop concept.
+//     Drive-ready feedback is not used to avoid a circular enable dependency.
+// PT: Mantém o servo habilitado com velocidade zero, seguindo o backstop.
+//     O retorno de drive pronto não é usado para evitar dependência circular.
+elevatorDriveEnable := systemRunEnable AND safetyCircuitOk;
+
+elevatorMoveRequest :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorFault AND
+    (ABS(elevatorSignedSpeedRefMmps) > 0.0);
+
+IF elevatorMoveRequest THEN
+
+    elevatorBrakeReleaseRequest := TRUE;
+    tonElevatorBrakeHoldDelay(IN := FALSE);
+
+ELSE
+
+    IF elevatorBrakeRelease THEN
+
+        tonElevatorBrakeHoldDelay(
+            IN := TRUE,
+            PT := machineConfig.elevatorBrakeHoldTime
+        );
+
+        elevatorBrakeReleaseRequest :=
+            NOT tonElevatorBrakeHoldDelay.Q;
+
+    ELSE
+
+        tonElevatorBrakeHoldDelay(IN := FALSE);
+        elevatorBrakeReleaseRequest := FALSE;
+
+    END_IF
+
+END_IF;
+
+elevatorBrakeRelease :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorFault AND
+    elevatorBrakeReleaseRequest;
+
+tonElevatorBrakeReleaseDelay(
+    IN := elevatorMoveRequest AND elevatorBrakeRelease,
+    PT := machineConfig.elevatorBrakeReleaseDelay
+);
+
+
+//==============================================================
+// 12) Direction and speed outputs
+//==============================================================
+IF elevatorMoveRequest AND
+   elevatorBrakeRelease AND
+   tonElevatorBrakeReleaseDelay.Q THEN
+
+    elevatorSpeedRefMmps := elevatorSignedSpeedRefMmps;
+    elevatorRunUp := elevatorSignedSpeedRefMmps > 0.0;
+    elevatorRunDown := elevatorSignedSpeedRefMmps < 0.0;
+
+ELSE
+
+    elevatorSpeedRefMmps := 0.0;
+    elevatorRunUp := FALSE;
+    elevatorRunDown := FALSE;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_ExternalCommands" Id="{2305ba90-1f64-48e0-803d-b7af95d3af82}">
       <Declaration><![CDATA[METHOD _ExternalCommands : BOOL
 VAR_INPUT
@@ -2667,7 +3693,10 @@ hmiStatus.safetyCircuitOk :=
 
 hmiStatus.faultActive :=
     faultActive OR
-    backstopFault OR
+    (
+        backstopRequiredForAutomaticOperation AND
+        backstopFault
+    ) OR
     elevatorFault OR
     sheetStackDischargeFault OR
     sheetStackDischargeConveyorFault;
@@ -3085,12 +4114,12 @@ END_CASE;]]></ST>
 // 0  = IDLE
 // 5  = WAIT_SEPARATION
 // 10 = START_DISCHARGE_POSITIONING
-// 20 = WAIT_BACKSTOP_POSITION
-// 30 = RUN_DISCHARGE_CONVEYOR
+// 20 = WAIT_DISCHARGE_POSITION
+// 30 = RUN_DISCHARGE_CONVEYOR_AND_WAIT_CLEAR
 // 40 = START_RETURN_POSITIONING
-// 50 = WAIT_BACKSTOP_RETURN
+// 50 = WAIT_RETURN_POSITION
 // 60 = FINISH
-// 90 = ABORT_TRANSIENT
+// 90 = FAULT_HOLD
 //
 // Last result code
 // 0 = No cycle executed yet
@@ -3108,13 +4137,17 @@ END_CASE;]]></ST>
 // 5  = Elevator drive/control fault
 // 6  = Stacker stopped during cycle
 // 10 = Wait separation timeout
-// 20 = Backstop positioning timeout
+// 20 = Discharge positioning timeout
 // 30 = Discharge conveyor did not start timeout
-// 50 = Backstop return timeout
+// 31 = Elevator platform clear timeout
+// 50 = Return positioning timeout
 //==============================================================
 METHOD _SheetStackDischargeControl
 VAR
     abortCycle : BOOL;
+    backstopDischargeReady : BOOL;
+    backstopAutomaticCycleEnabled : BOOL;
+    elevatorPlatformClear : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -3125,6 +4158,17 @@ END_VAR
 //==============================================================
 sheetStackDischargeStarted  := FALSE;
 sheetStackDischargeFinished := FALSE;
+
+// EN: An empty platform is accepted even when no stack was present
+//     at the beginning of the discharge cycle.
+// PT: Plataforma vazia é aceita mesmo quando não havia pilha
+//     no início do ciclo de descarte.
+elevatorPlatformClear :=
+    NOT elevatorStackPresentAtDischargeStart OR
+    (
+        elevatorStackExitClearSensor AND
+        NOT elevatorStackPresentSensor
+    );
 
 
 //==============================================================
@@ -3152,10 +4196,50 @@ packageCompleteCmdOldDischarge := packageCompleteCmd;
 
 
 //==============================================================
+// 3.1) Backstop participation in the current cycle
+//==============================================================
+// EN: Once manual mode is detected during an accepted cycle, keep the
+//     backstop bypassed until that cycle finishes. Returning the selector
+//     to automatic cannot restart an old backstop movement.
+// PT: Depois que o modo manual for detectado durante um ciclo aceito,
+//     mantém o backstop ignorado até o fim desse ciclo. Retornar o seletor
+//     para automático não reinicia um movimento antigo do backstop.
+IF (
+       sheetStackDischargeActive OR
+       sheetStackDischargePending OR
+       (sheetStackDischargeControlState <> 0)
+   ) AND
+   NOT backstopAutoCmd THEN
+
+    sheetStackDischargeCycleHasManualSkip := TRUE;
+
+END_IF;
+
+
+IF sheetStackDischargeActive OR
+   sheetStackDischargePending OR
+   (sheetStackDischargeControlState <> 0) THEN
+
+    backstopAutomaticCycleEnabled :=
+        backstopAutoCmd AND
+        NOT sheetStackDischargeCycleHasManualSkip;
+
+ELSE
+
+    // EN: Before accepting a new cycle, use the current selector position.
+    // PT: Antes de aceitar um novo ciclo, usa a posição atual do seletor.
+    backstopAutomaticCycleEnabled := backstopAutoCmd;
+
+END_IF;
+
+
+//==============================================================
 // 4) Fault condition
 //==============================================================
-// EN: Elevator feedback is not used for sequence progress,
-//     but its drive/control fault still aborts the cycle.
+// EN: Elevator drive, homing and position feedback are required
+//     for safe discharge sequence progress.
+// PT: Drive, homing e posição do elevador são obrigatórios
+//     para o avanço seguro da sequência de descarte.
 sheetStackDischargeFaultCondition :=
     NOT safetyCircuitOk OR
     NOT sheetConveyor1DriveOk OR
@@ -3164,9 +4248,17 @@ sheetStackDischargeFaultCondition :=
     NOT sheetConveyor4DriveOk OR
     NOT sheetStackDischargeConveyorDriveOk OR
     sheetStackDischargeConveyorFault OR
-    NOT backstopDriveOk OR
-    backstopFault OR
+    (
+        backstopAutomaticCycleEnabled AND
+        (
+            NOT backstopDriveOk OR
+            NOT backstopHomed OR
+            backstopFault
+        )
+    ) OR
     NOT elevatorDriveOk OR
+    NOT elevatorHomed OR
+    NOT elevatorReadyForAutomaticCycle OR
     elevatorFault;
 
 
@@ -3189,12 +4281,18 @@ ELSIF NOT sheetStackDischargeConveyorDriveOk OR
 
     sheetStackDischargeFaultCode := 3;
 
-ELSIF NOT backstopDriveOk OR
-      backstopFault THEN
+ELSIF backstopAutomaticCycleEnabled AND
+      (
+          NOT backstopDriveOk OR
+          NOT backstopHomed OR
+          backstopFault
+      ) THEN
 
     sheetStackDischargeFaultCode := 4;
 
 ELSIF NOT elevatorDriveOk OR
+      NOT elevatorHomed OR
+      NOT elevatorReadyForAutomaticCycle OR
       elevatorFault THEN
 
     sheetStackDischargeFaultCode := 5;
@@ -3222,11 +4320,15 @@ END_IF;
 //==============================================================
 // 7) Arm discharge sequence from packageCompleteCmd
 //==============================================================
-// EN: packageCompleteCmd is ignored if stacker is not running or if
-//     any relevant drive/safety fault is active.
+// EN: packageCompleteCmd is ignored if the elevator is not in automatic,
+//     the stacker is not running or a relevant drive/safety fault is active.
+// PT: packageCompleteCmd é ignorado se o elevador não estiver em automático,
+//     o stacker não estiver rodando ou houver falha relevante de drive/segurança.
 IF rPackageCompleteDischarge AND
+   elevatorAutoCmd AND
    synchronizedConveyorsRunning AND
    NOT sheetStackDischargeFaultCondition AND
+   NOT sheetStackDischargeFault AND
    NOT sheetStackDischargeActive AND
    NOT sheetStackDischargePending THEN
 
@@ -3236,7 +4338,9 @@ IF rPackageCompleteDischarge AND
     sheetStackDischargeFault := FALSE;
     sheetStackDischargeFaultCode := 0;
 
-    sheetStackDischargeCycleHasManualSkip := FALSE;
+    // EN: Manual is a valid bypass. It remains latched for this whole cycle.
+    // PT: Manual é um bypass válido. Permanece memorizado por todo o ciclo.
+    sheetStackDischargeCycleHasManualSkip := NOT backstopAutoCmd;
     sheetStackDischargeCycleHasTimeout := FALSE;
 
 END_IF;
@@ -3245,9 +4349,10 @@ END_IF;
 //==============================================================
 // 8) Immediate abort condition
 //==============================================================
-// EN: Any relevant fault during an active/pending cycle aborts the
-//     sequence and automatically returns to IDLE.
-//     Loss of synchronized conveyor running also aborts the cycle.
+// EN: Faults before discharge positioning cancel the request. Faults after
+//     positioning starts hold safe targets until operator acknowledgement.
+// PT: Falhas antes do posicionamento cancelam o pedido. Após o início,
+//     mantêm os alvos seguros até o reconhecimento do operador.
 abortCycle :=
     (
         sheetStackDischargeActive OR
@@ -3264,32 +4369,89 @@ abortCycle :=
 IF abortCycle THEN
 
     sheetStackDischargeConveyorRunRequest := FALSE;
-
-    backstopTargetOverrideActive := FALSE;
-    elevatorTargetOverrideActive := FALSE;
-
     sheetStackDischargePending := FALSE;
-    sheetStackDischargeActive := FALSE;
 
     tonSheetStackDischarge(IN := FALSE);
     tonSheetStackDischargeStepTimeout(IN := FALSE);
+    tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
 
     sheetStackDischargeFault := TRUE;
 
     sheetStackDischargeLastCycleOk := FALSE;
     sheetStackDischargeLastResultCode := 4;
-    sheetStackDischargeLastFaultStepCode := sheetStackDischargeControlState;
     sheetStackDischargeLastFaultCode := sheetStackDischargeFaultCode;
-
-    sheetStackDischargeState := 'ABORTED';
-    sheetStackDischargeStateCode := 90;
 
     // EN: Do not clear backstopManualInterventionActive here.
     //     If the cycle aborted before return, keeping the memory is safer
     //     for the next cycle.
 
-    // EN: No latched FAULT state. Return to IDLE automatically.
-    sheetStackDischargeControlState := 0;
+    IF sheetStackDischargeControlState <= 5 THEN
+
+        // EN: No discharge movement has started yet.
+        // PT: Nenhum movimento de descarte foi iniciado.
+        sheetStackDischargeActive := FALSE;
+
+        backstopTargetOverrideActive := FALSE;
+        elevatorTargetOverrideActive := FALSE;
+
+        elevatorPlatformClearDetected := FALSE;
+        elevatorStackPresentAtDischargeStart := FALSE;
+
+        sheetStackDischargeLastFaultStepCode :=
+            sheetStackDischargeControlState;
+
+        sheetStackDischargeState := 'ABORTED';
+        sheetStackDischargeStateCode := 90;
+        sheetStackDischargeControlState := 0;
+
+    ELSE
+
+        // EN: Preserve the original failed step while the external
+        //     fault condition remains active in FAULT_HOLD.
+        // PT: Preserva o passo original da falha enquanto a condição
+        //     externa permanecer ativa no FAULT_HOLD.
+        IF sheetStackDischargeControlState <> 90 THEN
+            sheetStackDischargeLastFaultStepCode :=
+                sheetStackDischargeControlState;
+        END_IF;
+
+        sheetStackDischargeActive := TRUE;
+        sheetStackDischargeState := 'FAULT_HOLD';
+        sheetStackDischargeStateCode := 90;
+
+        IF sheetStackDischargeLastFaultStepCode < 40 THEN
+
+            IF backstopAutomaticCycleEnabled THEN
+
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopDischargeOpenTargetMm;
+
+            END_IF;
+
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMinPositionMm;
+
+        ELSE
+
+            IF backstopAutomaticCycleEnabled THEN
+
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopProgrammedDischargeTargetMm;
+
+            END_IF;
+
+            elevatorTargetOverrideActive := TRUE;
+            elevatorTargetOverridePositionMm :=
+                machineConfig.elevatorMaxPositionMm;
+
+        END_IF;
+
+        sheetStackDischargeControlState := 90;
+
+    END_IF
 
 
 ELSE
@@ -3312,6 +4474,9 @@ ELSE
 
             tonSheetStackDischarge(IN := FALSE);
             tonSheetStackDischargeStepTimeout(IN := FALSE);
+            tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+            elevatorPlatformClearDetected := FALSE;
+            elevatorStackPresentAtDischargeStart := FALSE;
 
             IF sheetStackDischargePending THEN
 
@@ -3342,7 +4507,12 @@ ELSE
                 PT := machineConfig.sheetStackDischargeWaitSeparationTimeout
             );
 
-            IF sheetStackSeparationFinished THEN
+            // EN: Complex stacker discharge starts only after conveyor 4
+            //     completes the package separation sequence.
+            // PT: O descarte do stacker complexo inicia somente depois que
+            //     a esteira 4 concluir a sequência de separação do pacote.
+            IF sheetStackSeparationFinished AND
+               sheetConveyor4SeparationFinished THEN
 
                 tonSheetStackDischargeStepTimeout(IN := FALSE);
 
@@ -3377,6 +4547,11 @@ ELSE
             sheetStackDischargePending := FALSE;
             sheetStackDischargeActive := TRUE;
             sheetStackDischargeStarted := TRUE;
+
+            elevatorPlatformClearDetected := FALSE;
+            tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+            elevatorStackPresentAtDischargeStart :=
+                elevatorStackPresentSensor;
 
             tonSheetStackDischarge(IN := FALSE);
             tonSheetStackDischargeStepTimeout(IN := FALSE);
@@ -3434,52 +4609,60 @@ ELSE
                     machineConfig.backstopMaxPositionMm
                 );
 
-            // EN: Request safe backstop opening.
-            //     Backstop control accepts it only in auto.
-            backstopTargetOverrideActive := TRUE;
-            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+            // EN: Request safe backstop opening only when it participates
+            //     in the current automatic cycle. Manual mode is bypassed.
+            // PT: Solicita a abertura segura do backstop somente quando ele
+            //     participa do ciclo automático atual. O modo manual é ignorado.
+            IF backstopAutomaticCycleEnabled THEN
 
-            // EN: Request elevator to move up.
-            //     The sequence does not wait for leveler feedback.
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopDischargeOpenTargetMm;
+
+            END_IF;
+
+            // EN: Request the elevator lower discharge position.
+            // PT: Solicita a posição inferior de descarte do elevador.
             elevatorTargetOverrideActive := TRUE;
             elevatorTargetOverridePositionMm :=
-                machineConfig.elevatorMaxPositionMm;
+                machineConfig.elevatorMinPositionMm;
 
             sheetStackDischargeControlState := 20;
 
 
-        20: // WAIT_BACKSTOP_POSITION
-            sheetStackDischargeState := 'WAIT_BACKSTOP_POSITION';
+        20: // WAIT_DISCHARGE_POSITION
+            sheetStackDischargeState := 'WAIT_DISCHARGE_POS';
             sheetStackDischargeStateCode := 20;
 
             sheetStackDischargeActive := TRUE;
 
-            // EN: Keep safe latched backstop discharge target active.
-            backstopTargetOverrideActive := TRUE;
-            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+            // EN: In manual mode do not command or wait for the backstop.
+            // PT: No modo manual não comanda nem aguarda o backstop.
+            IF backstopAutomaticCycleEnabled THEN
 
-            // EN: Keep elevator up target active.
-            //     Feedback is intentionally ignored for sequence progress.
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopDischargeOpenTargetMm;
+
+                backstopDischargeReady := backstopInPosition;
+
+            ELSE
+
+                backstopTargetOverrideActive := FALSE;
+                backstopDischargeReady := TRUE;
+
+            END_IF;
+
+            // EN: Keep the lower discharge target active and wait for feedback.
+            // PT: Mantém o alvo inferior de descarte e aguarda o feedback.
             elevatorTargetOverrideActive := TRUE;
             elevatorTargetOverridePositionMm :=
-                machineConfig.elevatorMaxPositionMm;
+                machineConfig.elevatorMinPositionMm;
 
-            // EN: If backstop is not in auto, do not wait for it.
-            IF NOT backstopAutoCmd THEN
-
-                sheetStackDischargeCycleHasManualSkip := TRUE;
+            IF backstopDischargeReady AND elevatorInPosition THEN
 
                 tonSheetStackDischargeStepTimeout(IN := FALSE);
-
                 sheetStackDischargeControlState := 30;
-
-
-            ELSIF backstopInPosition THEN
-
-                tonSheetStackDischargeStepTimeout(IN := FALSE);
-
-                sheetStackDischargeControlState := 30;
-
 
             ELSE
 
@@ -3490,12 +4673,9 @@ ELSE
 
                 IF tonSheetStackDischargeStepTimeout.Q THEN
 
-                    // EN: Do not stay trapped waiting for backstop.
-                    //     Continue the cycle, but record timeout diagnostic.
                     tonSheetStackDischargeStepTimeout(IN := FALSE);
 
                     sheetStackDischargeCycleHasTimeout := TRUE;
-
                     sheetStackDischargeFault := TRUE;
                     sheetStackDischargeFaultCode := 20;
 
@@ -3504,7 +4684,13 @@ ELSE
                     sheetStackDischargeLastFaultStepCode := 20;
                     sheetStackDischargeLastFaultCode := 20;
 
-                    sheetStackDischargeControlState := 30;
+                    // EN: Do not start the discharge conveyor without
+                    //     confirmed elevator positioning.
+                    // PT: Não inicia a esteira de descarte sem confirmar
+                    //     o posicionamento do elevador.
+                    sheetStackDischargeControlState := 90;
+                    sheetStackDischargeActive := TRUE;
+                    sheetStackDischargePending := FALSE;
 
                 END_IF
 
@@ -3517,15 +4703,21 @@ ELSE
 
             sheetStackDischargeActive := TRUE;
 
-            // EN: Keep safe latched backstop discharge target active
-            //     while discharging.
-            backstopTargetOverrideActive := TRUE;
-            backstopTargetOverridePositionMm := backstopDischargeOpenTargetMm;
+            // EN: Keep the backstop open only if it participates in this cycle.
+            // PT: Mantém o backstop aberto somente se ele participa deste ciclo.
+            IF backstopAutomaticCycleEnabled THEN
 
-            // EN: Keep elevator up while discharging.
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopDischargeOpenTargetMm;
+
+            END_IF;
+
+            // EN: Keep elevator at the lower discharge position.
+            // PT: Mantém o elevador na posição inferior de descarte.
             elevatorTargetOverrideActive := TRUE;
             elevatorTargetOverridePositionMm :=
-                machineConfig.elevatorMaxPositionMm;
+                machineConfig.elevatorMinPositionMm;
 
             // EN: Request discharge conveyor run.
             //     Physical output is controlled by _SheetStackDischargeConveyorControl.
@@ -3535,6 +4727,7 @@ ELSE
             IF NOT sheetStackDischargeConveyorRun THEN
 
                 tonSheetStackDischarge(IN := FALSE);
+                tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
 
                 tonSheetStackDischargeStepTimeout(
                     IN := TRUE,
@@ -3558,14 +4751,17 @@ ELSE
                     sheetStackDischargeLastFaultStepCode := 30;
                     sheetStackDischargeLastFaultCode := 30;
 
-                    sheetStackDischargeControlState := 40;
+                    sheetStackDischargeControlState := 90;
 
                 END_IF
 
 
             ELSE
 
-                // EN: Conveyor is running. Count real discharge time.
+                // EN: Conveyor is running. Count minimum discharge time
+                //     and wait for a clean elevator platform.
+                // PT: A esteira está em movimento. Conta o tempo mínimo
+                //     e aguarda a plataforma do elevador ficar livre.
                 tonSheetStackDischargeStepTimeout(IN := FALSE);
 
                 tonSheetStackDischarge(
@@ -3573,13 +4769,44 @@ ELSE
                     PT := machineConfig.sheetStackDischargeTime
                 );
 
-                IF tonSheetStackDischarge.Q THEN
+                IF elevatorPlatformClear THEN
+                    elevatorPlatformClearDetected := TRUE;
+                END_IF;
+
+                tonSheetStackDischargePlatformClearTimeout(
+                    IN := NOT elevatorPlatformClearDetected,
+                    PT := machineConfig.sheetStackDischargePlatformClearTimeout
+                );
+
+                IF tonSheetStackDischarge.Q AND
+                   elevatorPlatformClearDetected THEN
 
                     tonSheetStackDischarge(IN := FALSE);
+                    tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
 
                     sheetStackDischargeConveyorRunRequest := FALSE;
 
                     sheetStackDischargeControlState := 40;
+
+                ELSIF tonSheetStackDischargePlatformClearTimeout.Q THEN
+
+                    tonSheetStackDischarge(IN := FALSE);
+                    tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+
+                    sheetStackDischargeConveyorRunRequest := FALSE;
+
+                    sheetStackDischargeCycleHasTimeout := TRUE;
+                    sheetStackDischargeFault := TRUE;
+                    sheetStackDischargeFaultCode := 31;
+
+                    sheetStackDischargeLastCycleOk := FALSE;
+                    sheetStackDischargeLastResultCode := 3;
+                    sheetStackDischargeLastFaultStepCode := 30;
+                    sheetStackDischargeLastFaultCode := 31;
+
+                    // EN: Keep the elevator down and backstop open until reset.
+                    // PT: Mantém o elevador embaixo e o backstop aberto até o reset.
+                    sheetStackDischargeControlState := 90;
 
                 END_IF
 
@@ -3597,56 +4824,60 @@ ELSE
             tonSheetStackDischarge(IN := FALSE);
             tonSheetStackDischargeStepTimeout(IN := FALSE);
 
-            // EN: Request backstop return to the latched programmed target.
-            //     The override remains active until the backstop returns.
-            backstopTargetOverrideActive := TRUE;
-            backstopTargetOverridePositionMm :=
-                backstopProgrammedDischargeTargetMm;
+            // EN: Return the backstop only if it participates in this cycle.
+            // PT: Retorna o backstop somente se ele participa deste ciclo.
+            IF backstopAutomaticCycleEnabled THEN
 
-            // EN: Request elevator to return down.
-            //     The sequence does not wait for leveler feedback.
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopProgrammedDischargeTargetMm;
+
+            END_IF;
+
+            // EN: Request elevator return to the upper production position.
+            // PT: Solicita o retorno do elevador à posição superior de produção.
             elevatorTargetOverrideActive := TRUE;
             elevatorTargetOverridePositionMm :=
-                machineConfig.elevatorMinPositionMm;
+                machineConfig.elevatorMaxPositionMm;
 
             sheetStackDischargeControlState := 50;
 
 
-        50: // WAIT_BACKSTOP_RETURN
-            sheetStackDischargeState := 'WAIT_BACKSTOP_RETURN';
+        50: // WAIT_RETURN_POSITION
+            sheetStackDischargeState := 'WAIT_RETURN_POS';
             sheetStackDischargeStateCode := 50;
 
             sheetStackDischargeActive := TRUE;
 
             sheetStackDischargeConveyorRunRequest := FALSE;
 
-            // EN: Keep backstop return target active.
-            backstopTargetOverrideActive := TRUE;
-            backstopTargetOverridePositionMm :=
-                backstopProgrammedDischargeTargetMm;
+            // EN: In manual mode do not command or wait for backstop return.
+            // PT: No modo manual não comanda nem aguarda o retorno do backstop.
+            IF backstopAutomaticCycleEnabled THEN
 
-            // EN: Keep elevator return target active.
-            //     Feedback is intentionally ignored for sequence progress.
+                backstopTargetOverrideActive := TRUE;
+                backstopTargetOverridePositionMm :=
+                    backstopProgrammedDischargeTargetMm;
+
+                backstopDischargeReady := backstopInPosition;
+
+            ELSE
+
+                backstopTargetOverrideActive := FALSE;
+                backstopDischargeReady := TRUE;
+
+            END_IF;
+
+            // EN: Keep the upper elevator target active and wait for feedback.
+            // PT: Mantém o alvo superior do elevador e aguarda o feedback.
             elevatorTargetOverrideActive := TRUE;
             elevatorTargetOverridePositionMm :=
-                machineConfig.elevatorMinPositionMm;
+                machineConfig.elevatorMaxPositionMm;
 
-            // EN: If backstop is not in auto, do not wait for it.
-            IF NOT backstopAutoCmd THEN
-
-                sheetStackDischargeCycleHasManualSkip := TRUE;
+            IF backstopDischargeReady AND elevatorInPosition THEN
 
                 tonSheetStackDischargeStepTimeout(IN := FALSE);
-
                 sheetStackDischargeControlState := 60;
-
-
-            ELSIF backstopInPosition THEN
-
-                tonSheetStackDischargeStepTimeout(IN := FALSE);
-
-                sheetStackDischargeControlState := 60;
-
 
             ELSE
 
@@ -3657,11 +4888,9 @@ ELSE
 
                 IF tonSheetStackDischargeStepTimeout.Q THEN
 
-                    // EN: Do not stay trapped waiting for return.
                     tonSheetStackDischargeStepTimeout(IN := FALSE);
 
                     sheetStackDischargeCycleHasTimeout := TRUE;
-
                     sheetStackDischargeFault := TRUE;
                     sheetStackDischargeFaultCode := 50;
 
@@ -3670,9 +4899,91 @@ ELSE
                     sheetStackDischargeLastFaultStepCode := 50;
                     sheetStackDischargeLastFaultCode := 50;
 
-                    sheetStackDischargeControlState := 60;
+                    // EN: Do not report a completed cycle without confirmed
+                    //     return positioning.
+                    // PT: Não confirma o ciclo sem o posicionamento de retorno.
+                    sheetStackDischargeActive := TRUE;
+                    sheetStackDischargePending := FALSE;
+                    sheetStackDischargeControlState := 90;
 
                 END_IF
+
+            END_IF
+
+
+        90: // FAULT_HOLD
+            sheetStackDischargeState := 'FAULT_HOLD';
+            sheetStackDischargeStateCode := 90;
+
+            sheetStackDischargeActive := TRUE;
+            sheetStackDischargePending := FALSE;
+            sheetStackDischargeConveyorRunRequest := FALSE;
+
+            tonSheetStackDischarge(IN := FALSE);
+            tonSheetStackDischargeStepTimeout(IN := FALSE);
+            tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+
+            // EN: Before platform clearance, keep the safe discharge
+            //     positions: backstop open and elevator down.
+            // PT: Antes da confirmação de plataforma livre, mantém as
+            //     posições seguras: backstop aberto e elevador embaixo.
+            IF sheetStackDischargeLastFaultStepCode < 40 THEN
+
+                IF backstopAutomaticCycleEnabled THEN
+
+                    backstopTargetOverrideActive := TRUE;
+                    backstopTargetOverridePositionMm :=
+                        backstopDischargeOpenTargetMm;
+
+                END_IF;
+
+                elevatorTargetOverrideActive := TRUE;
+                elevatorTargetOverridePositionMm :=
+                    machineConfig.elevatorMinPositionMm;
+
+            ELSE
+
+                // EN: A return-position timeout occurs only after the
+                //     platform was confirmed clear. Keep the return targets.
+                // PT: Timeout de retorno ocorre somente após confirmar a
+                //     plataforma livre. Mantém os alvos de retorno.
+                IF backstopAutomaticCycleEnabled THEN
+
+                    backstopTargetOverrideActive := TRUE;
+                    backstopTargetOverridePositionMm :=
+                        backstopProgrammedDischargeTargetMm;
+
+                END_IF;
+
+                elevatorTargetOverrideActive := TRUE;
+                elevatorTargetOverridePositionMm :=
+                    machineConfig.elevatorMaxPositionMm;
+
+            END_IF;
+
+            // EN: Reset is an explicit operator acknowledgement.
+            // PT: Reset é uma confirmação explícita do operador.
+            IF resetCmd AND
+               safetyCircuitOk AND
+               (
+                   NOT backstopAutomaticCycleEnabled OR
+                   backstopDriveOk
+               ) AND
+               elevatorDriveOk AND
+               (
+                   elevatorPlatformClear OR
+                   elevatorPlatformClearDetected OR
+                   (sheetStackDischargeLastFaultStepCode >= 40)
+               ) THEN
+
+                sheetStackDischargeFault := FALSE;
+                sheetStackDischargeFaultCode := 0;
+
+                // EN: After acknowledgement, complete the automatic return
+                //     instead of releasing production immediately.
+                // PT: Após o reconhecimento, conclui o retorno automático
+                //     antes de liberar novamente a produção.
+                sheetStackDischargeControlState := 40;
 
             END_IF
 
@@ -3692,6 +5003,9 @@ ELSE
 
             tonSheetStackDischarge(IN := FALSE);
             tonSheetStackDischargeStepTimeout(IN := FALSE);
+            tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+            elevatorPlatformClearDetected := FALSE;
+            elevatorStackPresentAtDischargeStart := FALSE;
 
             IF sheetStackDischargeCycleHasTimeout THEN
 
@@ -3886,111 +5200,6 @@ ELSE
         sheetStackDischargeConveyorSpeedRefMPM := 0.0;
 
     END_IF
-
-END_IF;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="_SystemControl" Id="{f2b38b6a-adbc-4897-aa71-724486624911}">
-      <Declaration><![CDATA[//==============================================================
-// COMPLEX STACKER — SYSTEM CONTROL
-// EN: Master system run enable and automatic homing requests.
-//==============================================================
-METHOD _SystemControl
-
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-//==============================================================
-// 1) Edge detection
-//==============================================================
-rStartCmd := startCmd AND NOT startCmdOld;
-startCmdOld := startCmd;
-
-rStopCmd := stopCmd AND NOT stopCmdOld;
-stopCmdOld := stopCmd;
-
-
-
-//==============================================================
-// 2) Stop machine pulse on critical fault
-//==============================================================
-stopMachineFaultCondition :=
-    NOT safetyCircuitOk OR
-    NOT sheetConveyor1DriveOk OR
-    NOT sheetConveyor2DriveOk OR
-    NOT sheetConveyor3DriveOk OR
-    NOT sheetConveyor4DriveOk OR
-    NOT backstopDriveOk OR
-    NOT elevatorDriveOk OR
-    NOT sheetStackDischargeConveyorDriveOk;
-
-rStopMachineFaultCondition :=
-    stopMachineFaultCondition AND
-    NOT stopMachineFaultConditionOld;
-
-stopMachineFaultConditionOld :=
-    stopMachineFaultCondition;
-
-tpStopMachinePulse(
-    IN := rStopMachineFaultCondition,
-    PT := T#500MS
-);
-
-stopMachinePulse :=
-    tpStopMachinePulse.Q;
-
-
-//==============================================================
-// 2) Default one-scan requests
-//==============================================================
-backstopAutoHomeRequest := FALSE;
-elevatorAutoHomeRequest := FALSE;
-
-
-//==============================================================
-// 3) Master system run enable
-//==============================================================
-IF NOT safetyCircuitOk THEN
-
-    systemRunEnable := FALSE;
-
-ELSIF rStopCmd THEN
-
-    systemRunEnable := FALSE;
-
-ELSIF rStartCmd THEN
-
-    systemRunEnable := TRUE;
-
-END_IF;
-
-
-//==============================================================
-// 4) Automatic homing on system start
-//==============================================================
-// EN: Auto-home is generated only on the rising edge of startCmd.
-//     Each axis must be enabled in automatic mode.
-//     This prevents automatic movement of axes intentionally left in manual.
-IF rStartCmd AND systemRunEnable THEN
-
-    // Backstop auto-home
-    IF backstopAutoCmd AND
-       NOT backstopHomed AND
-       NOT backstopFault THEN
-
-        backstopAutoHomeRequest := TRUE;
-
-    END_IF;
-
-
-    // Elevator auto-home
-    IF elevatorAutoCmd AND
-       NOT elevatorHomed AND
-       NOT elevatorFault THEN
-
-        elevatorAutoHomeRequest := TRUE;
-
-    END_IF;
 
 END_IF;]]></ST>
       </Implementation>
@@ -4239,23 +5448,159 @@ IF stackBufferConveyor3Run THEN
 END_IF;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="_SystemControl" Id="{f2b38b6a-adbc-4897-aa71-724486624911}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER — SYSTEM CONTROL
+// EN: Master system run enable and automatic homing requests.
+//==============================================================
+METHOD _SystemControl
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+//==============================================================
+// 1) Edge detection
+//==============================================================
+rStartCmd := startCmd AND NOT startCmdOld;
+startCmdOld := startCmd;
+
+rStopCmd := stopCmd AND NOT stopCmdOld;
+stopCmdOld := stopCmd;
+
+
+
+//==============================================================
+// 2) Stop machine pulse on critical fault
+//==============================================================
+// EN: A backstop bypassed in manual remains ignored until the current
+//     discharge cycle finishes, even if the selector returns to automatic.
+// PT: Um backstop ignorado em manual permanece fora do ciclo até o descarte
+//     atual terminar, mesmo que o seletor retorne para automático.
+backstopRequiredForAutomaticOperation :=
+    backstopAutoCmd AND
+    NOT (
+        sheetStackDischargeCycleHasManualSkip AND
+        (
+            sheetStackDischargeActive OR
+            sheetStackDischargePending OR
+            (sheetStackDischargeControlState <> 0)
+        )
+    );
+
+
+stopMachineFaultCondition :=
+    NOT safetyCircuitOk OR
+    NOT sheetConveyor1DriveOk OR
+    NOT sheetConveyor2DriveOk OR
+    NOT sheetConveyor3DriveOk OR
+    NOT sheetConveyor4DriveOk OR
+    (
+        backstopRequiredForAutomaticOperation AND
+        NOT backstopDriveOk
+    ) OR
+    NOT elevatorDriveOk OR
+    NOT sheetStackDischargeConveyorDriveOk;
+
+rStopMachineFaultCondition :=
+    stopMachineFaultCondition AND
+    NOT stopMachineFaultConditionOld;
+
+stopMachineFaultConditionOld :=
+    stopMachineFaultCondition;
+
+tpStopMachinePulse(
+    IN := rStopMachineFaultCondition,
+    PT := T#500MS
+);
+
+stopMachinePulse :=
+    tpStopMachinePulse.Q;
+
+
+//==============================================================
+// 2) Default one-scan requests
+//==============================================================
+backstopAutoHomeRequest := FALSE;
+elevatorAutoHomeRequest := FALSE;
+
+
+//==============================================================
+// 3) Master system run enable
+//==============================================================
+IF NOT safetyCircuitOk THEN
+
+    systemRunEnable := FALSE;
+
+ELSIF rStopCmd THEN
+
+    systemRunEnable := FALSE;
+
+ELSIF rStartCmd THEN
+
+    systemRunEnable := TRUE;
+
+END_IF;
+
+
+//==============================================================
+// 4) Automatic homing on system start
+//==============================================================
+// EN: Auto-home is generated only on the rising edge of startCmd.
+//     Each axis must be enabled in automatic mode.
+//     This prevents automatic movement of axes intentionally left in manual.
+IF rStartCmd AND systemRunEnable THEN
+
+    // Backstop auto-home
+    IF backstopAutoCmd AND
+       NOT backstopHomed AND
+       NOT backstopFault THEN
+
+        backstopAutoHomeRequest := TRUE;
+
+    END_IF;
+
+
+    // Elevator auto-home
+    IF elevatorAutoCmd AND
+       NOT elevatorHomed AND
+       NOT elevatorFault THEN
+
+        elevatorAutoHomeRequest := TRUE;
+
+    END_IF;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
     <LineIds Name="FB_ComplexSheetStackerControl">
       <LineId Id="3" Count="11" />
       <LineId Id="2" Count="0" />
+      <LineId Id="16" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._AlarmControl">
       <LineId Id="158" Count="216" />
       <LineId Id="157" Count="0" />
+      <LineId Id="375" Count="33" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._BackstopControl">
       <LineId Id="3" Count="905" />
       <LineId Id="2" Count="0" />
+      <LineId Id="910" Count="8" />
     </LineIds>
-<LineIds Name="FB_ComplexSheetStackerControl._ConveyorSpeedControl">
+    <LineIds Name="FB_ComplexSheetStackerControl._ConveyorSpeedControl">
       <LineId Id="3" Count="63" />
       <LineId Id="497" Count="13" />
       <LineId Id="77" Count="403" />
       <LineId Id="2" Count="0" />
+      <LineId Id="486" Count="10" />
+      <LineId Id="596" Count="13" />
+      <LineId Id="511" Count="84" />
+      <LineId Id="610" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl._ElevatorControl">
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="906" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ExternalCommands">
       <LineId Id="5" Count="0" />
@@ -4263,6 +5608,7 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._HmiStatus">
       <LineId Id="3" Count="255" />
       <LineId Id="2" Count="0" />
+      <LineId Id="260" Count="8" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._MachineAuxilary">
       <LineId Id="2" Count="0" />
@@ -4274,10 +5620,12 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetConveyorGroupControl">
       <LineId Id="3" Count="106" />
       <LineId Id="2" Count="0" />
+      <LineId Id="111" Count="8" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeControl">
       <LineId Id="3" Count="621" />
       <LineId Id="2" Count="0" />
+      <LineId Id="626" Count="184" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl">
       <LineId Id="3" Count="121" />
@@ -4285,6 +5633,7 @@ END_IF;]]></ST>
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._StackBufferConveyorsControl">
       <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="227" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SystemControl">
       <LineId Id="3" Count="9" />
@@ -4293,6 +5642,7 @@ END_IF;]]></ST>
       <LineId Id="74" Count="1" />
       <LineId Id="13" Count="52" />
       <LineId Id="2" Count="0" />
+      <LineId Id="101" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

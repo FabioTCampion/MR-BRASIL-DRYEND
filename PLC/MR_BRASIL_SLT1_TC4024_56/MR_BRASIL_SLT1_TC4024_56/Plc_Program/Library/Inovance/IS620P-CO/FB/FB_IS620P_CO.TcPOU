@@ -187,126 +187,6 @@ _ControlVelocity();
 // PT: Publica o estado genérico final do equipamento ao término do ciclo.
 _UpdateStatus();]]></ST>
     </Implementation>
-    <Method Name="_ReadHardwareInputs" Id="{ddf5eb12-28f0-4b59-8ab3-725167465138}">
-      <Declaration><![CDATA[METHOD PRIVATE _ReadHardwareInputs
-// =============================================================================
-// EN: Reads communication information and converts position and velocity feedback.
-// PT: Lê as informações de comunicação e converte as realimentações de posição e velocidade.
-// =============================================================================
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[// EN: NodeState 0 means no error. Value 64 also represents completed startup without a base error.
-// PT: NodeState 0 significa sem erro. O valor 64 também representa startup concluído sem erro base.
-communicationOkInternal := (HwToPlc.nodeState = 0) OR (HwToPlc.nodeState = 64);
-
-// EN: Both conversion factors must be positive before motion references are accepted.
-// PT: Ambos os fatores de conversão devem ser positivos antes de aceitar referências de movimento.
-configurationValidInternal :=
-    (deviceConfig.positionUnitsPerMm > 0.0) AND
-    (deviceConfig.velocityUnitsPerMmps > 0.0) AND
-    (deviceConfig.maximumVelocityMmps >= 0.0);
-
-rawPosition := HwToPlc.actualPosition;
-rawVelocity := HwToPlc.actualVelocity;
-
-rawPositionMm := _ConvertRawPositionToMm(rawPositionValue := rawPosition);
-actualPositionMm := rawPositionMm + deviceConfig.positionOffsetMm;
-actualVelocityMmps := _ConvertRawVelocityToMmps(rawVelocityValue := rawVelocity);
-positionOffsetMm := deviceConfig.positionOffsetMm;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="_DecodeDriveState" Id="{62aa1c0c-314f-4c52-adac-239968470f77}">
-      <Declaration><![CDATA[METHOD PRIVATE _DecodeDriveState : E_IS620P_CO_STATE
-// =============================================================================
-// EN: Decodes the CiA 402 Power Drive System state using the standard masks.
-// PT: Decodifica o estado CiA 402 Power Drive System usando as máscaras padrão.
-// =============================================================================
-VAR_INPUT
-    statusWordValue : UINT;
-    communicationOk : BOOL;
-END_VAR
-VAR
-    maskedState004F : UINT;
-    maskedState006F : UINT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF NOT communicationOk THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.CommunicationFault;
-    RETURN;
-END_IF;
-
-maskedState004F := statusWordValue AND 16#004F;
-maskedState006F := statusWordValue AND 16#006F;
-
-IF maskedState004F = 16#0000 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.NotReadyToSwitchOn;
-ELSIF maskedState004F = 16#0040 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.SwitchOnDisabled;
-ELSIF maskedState006F = 16#0021 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.ReadyToSwitchOn;
-ELSIF maskedState006F = 16#0023 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.SwitchedOn;
-ELSIF maskedState006F = 16#0027 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.OperationEnabled;
-ELSIF maskedState006F = 16#0007 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.QuickStopActive;
-ELSIF maskedState004F = 16#000F THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.FaultReactionActive;
-ELSIF maskedState004F = 16#0008 THEN
-    _DecodeDriveState := E_IS620P_CO_STATE.Fault;
-ELSE
-    _DecodeDriveState := E_IS620P_CO_STATE.NotReadyToSwitchOn;
-END_IF;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="_ProcessPositionCommands" Id="{dddc7008-bbe9-4b1a-8308-67e3ff969012}">
-      <Declaration><![CDATA[METHOD PRIVATE _ProcessPositionCommands
-// =============================================================================
-// EN: Captures a zero or an assigned engineering position by changing the persistent offset.
-// PT: Captura zero ou uma posição de engenharia definida alterando o offset persistente.
-// =============================================================================
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[positionSetDone := FALSE;
-positionSetRejected := FALSE;
-
-zeroPositionRisingEdge := zeroPosition AND NOT zeroPositionOld;
-setPositionRisingEdge := setPosition AND NOT setPositionOld;
-
-positionSetAllowed :=
-    communicationOkInternal AND
-    configurationValidInternal AND
-    (ABS(actualVelocityMmps) <= ABS(deviceConfig.positionSetMaxVelocityMmps));
-
-// EN: ZeroPosition has priority when both commands arrive in the same PLC cycle.
-// PT: ZeroPosition possui prioridade quando ambos os comandos chegam no mesmo ciclo do PLC.
-IF zeroPositionRisingEdge THEN
-    IF positionSetAllowed THEN
-        deviceConfig.positionOffsetMm := -rawPositionMm;
-        deviceConfig.calibrationValid := TRUE;
-        positionSetDone := TRUE;
-    ELSE
-        positionSetRejected := TRUE;
-    END_IF;
-ELSIF setPositionRisingEdge THEN
-    IF positionSetAllowed THEN
-        deviceConfig.positionOffsetMm := desiredPositionMm - rawPositionMm;
-        deviceConfig.calibrationValid := TRUE;
-        positionSetDone := TRUE;
-    ELSE
-        positionSetRejected := TRUE;
-    END_IF;
-END_IF;
-
-zeroPositionOld := zeroPosition;
-setPositionOld := setPosition;
-
-// EN: Recalculate the published position immediately after an accepted capture.
-// PT: Recalcula a posição publicada imediatamente após uma captura aceita.
-actualPositionMm := rawPositionMm + deviceConfig.positionOffsetMm;
-positionOffsetMm := deviceConfig.positionOffsetMm;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="_ControlDriveState" Id="{ee25d611-1f8b-4bc6-9b6b-36412c401e15}">
       <Declaration><![CDATA[METHOD PRIVATE _ControlDriveState
 // =============================================================================
@@ -413,37 +293,6 @@ IF enable AND
 END_IF;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="_UpdateStatus" Id="{bb8096a3-c599-4a79-a083-b774c28c58ad}">
-      <Declaration><![CDATA[METHOD PRIVATE _UpdateStatus
-// =============================================================================
-// EN: Publishes communication, configuration and CiA 402 state information.
-// PT: Publica informações de comunicação, configuração e estado CiA 402.
-// =============================================================================
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[status.communicationOk := communicationOkInternal;
-status.configurationValid := configurationValidInternal;
-status.ready :=
-    communicationOkInternal AND
-    configurationValidInternal AND
-    (deviceStateInternal = E_IS620P_CO_STATE.OperationEnabled) AND
-    (HwToPlc.modeDisplay = 3);
-status.driveEnabled := deviceStateInternal = E_IS620P_CO_STATE.OperationEnabled;
-status.quickStopActive := deviceStateInternal = E_IS620P_CO_STATE.QuickStopActive;
-status.calibrated := deviceConfig.calibrationValid;
-status.warning := (HwToPlc.statusWord AND 16#0080) <> 0;
-status.fault :=
-    (deviceStateInternal = E_IS620P_CO_STATE.Fault) OR
-    (deviceStateInternal = E_IS620P_CO_STATE.FaultReactionActive);
-status.enableTimeout := enableTimer.Q;
-status.modeSelectionTimeout := modeSelectionTimer.Q;
-status.nodeState := HwToPlc.nodeState;
-status.diagnosticFlag := HwToPlc.diagFlag;
-status.statusWord := HwToPlc.statusWord;
-status.activeMode := HwToPlc.modeDisplay;
-status.deviceState := deviceStateInternal;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="_ConvertRawPositionToMm" Id="{0d519fdb-a541-43d7-a6e5-063d7d54c741}">
       <Declaration><![CDATA[METHOD PRIVATE _ConvertRawPositionToMm : LREAL
 // =============================================================================
@@ -463,7 +312,7 @@ END_VAR]]></Declaration>
 END_IF;
 
 convertedPositionMm :=
-    DINT_TO_LREAL(rawPositionValue) / deviceConfig.positionUnitsPerMm;
+    DINT_TO_LREAL(rawPositionValue) * deviceConfig.positionUnitsPerMm;
 
 IF deviceConfig.directionInverted THEN
     convertedPositionMm := -convertedPositionMm;
@@ -535,7 +384,195 @@ ELSE
 END_IF;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="_DecodeDriveState" Id="{62aa1c0c-314f-4c52-adac-239968470f77}">
+      <Declaration><![CDATA[METHOD PRIVATE _DecodeDriveState : E_IS620P_CO_STATE
+// =============================================================================
+// EN: Decodes the CiA 402 Power Drive System state using the standard masks.
+// PT: Decodifica o estado CiA 402 Power Drive System usando as máscaras padrão.
+// =============================================================================
+VAR_INPUT
+    statusWordValue : UINT;
+    communicationOk : BOOL;
+END_VAR
+VAR
+    maskedState004F : UINT;
+    maskedState006F : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT communicationOk THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.CommunicationFault;
+    RETURN;
+END_IF;
+
+maskedState004F := statusWordValue AND 16#004F;
+maskedState006F := statusWordValue AND 16#006F;
+
+IF maskedState004F = 16#0000 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.NotReadyToSwitchOn;
+ELSIF maskedState004F = 16#0040 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.SwitchOnDisabled;
+ELSIF maskedState006F = 16#0021 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.ReadyToSwitchOn;
+ELSIF maskedState006F = 16#0023 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.SwitchedOn;
+ELSIF maskedState006F = 16#0027 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.OperationEnabled;
+ELSIF maskedState006F = 16#0007 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.QuickStopActive;
+ELSIF maskedState004F = 16#000F THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.FaultReactionActive;
+ELSIF maskedState004F = 16#0008 THEN
+    _DecodeDriveState := E_IS620P_CO_STATE.Fault;
+ELSE
+    _DecodeDriveState := E_IS620P_CO_STATE.NotReadyToSwitchOn;
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_ProcessPositionCommands" Id="{dddc7008-bbe9-4b1a-8308-67e3ff969012}">
+      <Declaration><![CDATA[METHOD PRIVATE _ProcessPositionCommands
+// =============================================================================
+// EN: Captures a zero or an assigned engineering position by changing the persistent offset.
+// PT: Captura zero ou uma posição de engenharia definida alterando o offset persistente.
+// =============================================================================
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[positionSetDone := FALSE;
+positionSetRejected := FALSE;
+
+zeroPositionRisingEdge := zeroPosition AND NOT zeroPositionOld;
+setPositionRisingEdge := setPosition AND NOT setPositionOld;
+
+positionSetAllowed :=
+    communicationOkInternal AND
+    configurationValidInternal AND
+    (ABS(actualVelocityMmps) <= ABS(deviceConfig.positionSetMaxVelocityMmps));
+
+// EN: ZeroPosition has priority when both commands arrive in the same PLC cycle.
+// PT: ZeroPosition possui prioridade quando ambos os comandos chegam no mesmo ciclo do PLC.
+IF zeroPositionRisingEdge THEN
+    IF positionSetAllowed THEN
+        deviceConfig.positionOffsetMm := -rawPositionMm;
+        deviceConfig.calibrationValid := TRUE;
+        positionSetDone := TRUE;
+    ELSE
+        positionSetRejected := TRUE;
+    END_IF;
+ELSIF setPositionRisingEdge THEN
+    IF positionSetAllowed THEN
+        deviceConfig.positionOffsetMm := desiredPositionMm - rawPositionMm;
+        deviceConfig.calibrationValid := TRUE;
+        positionSetDone := TRUE;
+    ELSE
+        positionSetRejected := TRUE;
+    END_IF;
+END_IF;
+
+zeroPositionOld := zeroPosition;
+setPositionOld := setPosition;
+
+// EN: Recalculate the published position immediately after an accepted capture.
+// PT: Recalcula a posição publicada imediatamente após uma captura aceita.
+actualPositionMm := rawPositionMm + deviceConfig.positionOffsetMm;
+positionOffsetMm := deviceConfig.positionOffsetMm;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_ReadHardwareInputs" Id="{ddf5eb12-28f0-4b59-8ab3-725167465138}">
+      <Declaration><![CDATA[METHOD PRIVATE _ReadHardwareInputs
+// =============================================================================
+// EN: Reads communication information and converts position and velocity feedback.
+// PT: Lê as informações de comunicação e converte as realimentações de posição e velocidade.
+// =============================================================================
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// EN: NodeState 0 means no error. Value 64 also represents completed startup without a base error.
+// PT: NodeState 0 significa sem erro. O valor 64 também representa startup concluído sem erro base.
+communicationOkInternal := (HwToPlc.nodeState = 0) OR (HwToPlc.nodeState = 64);
+
+// EN: Both conversion factors must be positive before motion references are accepted.
+// PT: Ambos os fatores de conversão devem ser positivos antes de aceitar referências de movimento.
+configurationValidInternal :=
+    (deviceConfig.positionUnitsPerMm > 0.0) AND
+    (deviceConfig.velocityUnitsPerMmps > 0.0) AND
+    (deviceConfig.maximumVelocityMmps >= 0.0);
+
+rawPosition := HwToPlc.actualPosition;
+rawVelocity := HwToPlc.actualVelocity;
+
+rawPositionMm := _ConvertRawPositionToMm(rawPositionValue := rawPosition);
+actualPositionMm := rawPositionMm + deviceConfig.positionOffsetMm;
+actualVelocityMmps := _ConvertRawVelocityToMmps(rawVelocityValue := rawVelocity);
+positionOffsetMm := deviceConfig.positionOffsetMm;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_UpdateStatus" Id="{bb8096a3-c599-4a79-a083-b774c28c58ad}">
+      <Declaration><![CDATA[METHOD PRIVATE _UpdateStatus
+// =============================================================================
+// EN: Publishes communication, configuration and CiA 402 state information.
+// PT: Publica informações de comunicação, configuração e estado CiA 402.
+// =============================================================================
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[status.communicationOk := communicationOkInternal;
+status.configurationValid := configurationValidInternal;
+status.ready :=
+    communicationOkInternal AND
+    configurationValidInternal AND
+    (deviceStateInternal = E_IS620P_CO_STATE.OperationEnabled) AND
+    (HwToPlc.modeDisplay = 3);
+status.driveEnabled := deviceStateInternal = E_IS620P_CO_STATE.OperationEnabled;
+status.quickStopActive := deviceStateInternal = E_IS620P_CO_STATE.QuickStopActive;
+status.calibrated := deviceConfig.calibrationValid;
+status.warning := (HwToPlc.statusWord AND 16#0080) <> 0;
+status.fault :=
+    (deviceStateInternal = E_IS620P_CO_STATE.Fault) OR
+    (deviceStateInternal = E_IS620P_CO_STATE.FaultReactionActive);
+status.enableTimeout := enableTimer.Q;
+status.modeSelectionTimeout := modeSelectionTimer.Q;
+status.nodeState := HwToPlc.nodeState;
+status.diagnosticFlag := HwToPlc.diagFlag;
+status.statusWord := HwToPlc.statusWord;
+status.activeMode := HwToPlc.modeDisplay;
+status.deviceState := deviceStateInternal;]]></ST>
+      </Implementation>
+    </Method>
     <LineIds Name="FB_IS620P_CO">
+      <LineId Id="2" Count="0" />
+      <LineId Id="4" Count="24" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ControlDriveState">
+      <LineId Id="3" Count="61" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ControlVelocity">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ConvertRawPositionToMm">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ConvertRawVelocityToMmps">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ConvertVelocityToRaw">
+      <LineId Id="3" Count="17" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._DecodeDriveState">
+      <LineId Id="3" Count="25" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ProcessPositionCommands">
+      <LineId Id="3" Count="36" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._ReadHardwareInputs">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_IS620P_CO._UpdateStatus">
+      <LineId Id="3" Count="19" />
       <LineId Id="2" Count="0" />
     </LineIds>
   </POU>

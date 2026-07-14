@@ -65,8 +65,8 @@ VAR_GLOBAL
 	STKU_050_DIO2 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
 	STKU_050_DIO3 : _FB_00BH11; //Ch 1 - IO-Link DIN Rail Input/Output module
 	
-	STKL_P2_100_UG8 : FB_IS620P_CO; //Backstop servo drive
-	STKL_P2_100_UG9 : FB_IS620P_CO; //Lift servo drive
+	STKU_P2_100_UG8 : FB_IS620P_CO; //Backstop servo drive
+	STKU_P2_100_UG9 : FB_IS620P_CO; //Lift servo drive
 
 	statusWord AT %I* : UINT;
 	

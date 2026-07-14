@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="hmiCommandsComplexStacker_TypeStruct" Id="{036ac122-9181-487e-b678-860585119a3b}">
+    <Declaration><![CDATA[TYPE hmiCommandsComplexStacker_TypeStruct :
+STRUCT
+
+    //==============================================================
+    // EN: System master commands
+    // PT: Comandos gerais do sistema
+    //==============================================================
+    // EN: Momentary master start command.
+    // PT: Comando momentâneo de partida geral.
+    startCmd                                : BOOL;
+
+    // EN: Momentary master stop command.
+    // PT: Comando momentâneo de parada geral.
+    stopCmd                                 : BOOL;
+
+    // EN: Momentary fault reset command.
+    // PT: Comando momentâneo de reset das falhas.
+    resetCmd                                : BOOL;
+
+
+    //==============================================================
+    // EN: Sheet conveyor group commands
+    // PT: Comandos do grupo de esteiras de chapas
+    //==============================================================
+    // EN: Momentary speed-up command for the sheet conveyors.
+    // PT: Comando momentâneo para acelerar as esteiras de chapas.
+    sheetConveyorsSpeedUpCmd                : BOOL;
+
+
+    //==============================================================
+    // EN: Package and sheet handling commands
+    // PT: Comandos de pacote e manuseio das chapas
+    //==============================================================
+    // EN: Momentary request to complete and discharge the current package.
+    // PT: Solicitação momentânea para concluir e descarregar o pacote atual.
+    packageCompleteCmd                      : BOOL;
+
+    // EN: Command to lower the no-crush rollers.
+    // PT: Comando para baixar os rolos no-crush.
+    noCrushRollersDownCmd                   : BOOL;
+
+
+    //==============================================================
+    // EN: Elevator commands
+    // PT: Comandos do elevador
+    //==============================================================
+    // EN: Maintained elevator automatic-mode command.
+    // PT: Comando mantido do modo automático do elevador.
+    elevatorAutoCmd                         : BOOL;
+
+    // EN: Momentary elevator homing command.
+    // PT: Comando momentâneo de homing do elevador.
+    elevatorHomeCmd                         : BOOL;
+
+    // EN: Hold-to-run elevator jog-up command.
+    // PT: Comando de jog mantido para subir o elevador.
+    elevatorUpCmd                           : BOOL;
+
+    // EN: Hold-to-run elevator jog-down command.
+    // PT: Comando de jog mantido para descer o elevador.
+    elevatorDownCmd                         : BOOL;
+
+
+    //==============================================================
+    // EN: Backstop commands
+    // PT: Comandos do backstop
+    //==============================================================
+    // EN: Maintained backstop automatic-mode command.
+    // PT: Comando mantido do modo automático do backstop.
+    backstopAutoCmd                         : BOOL;
+
+    // EN: Momentary backstop homing command.
+    // PT: Comando momentâneo de homing do backstop.
+    backstopHomeCmd                         : BOOL;
+
+    // EN: Momentary command to execute programmed backstop positioning.
+    // PT: Comando momentâneo para executar o posicionamento programado do backstop.
+    backstopExecutePositioningCmd           : BOOL;
+
+    // EN: Hold-to-run command to open the backstop.
+    // PT: Comando mantido de jog para abrir o backstop.
+    backstopOpenCmd                         : BOOL;
+
+    // EN: Hold-to-run command to close the backstop.
+    // PT: Comando mantido de jog para fechar o backstop.
+    backstopCloseCmd                        : BOOL;
+
+
+    //==============================================================
+    // EN: Discharge and stack buffer conveyor commands
+    // PT: Comandos das esteiras de descarga e buffer de pilhas
+    //==============================================================
+    // EN: Hold-to-run manual command for the stack discharge conveyor.
+    // PT: Comando manual mantido da esteira de descarga da pilha.
+    sheetStackDischargeConveyorManualRunCmd : BOOL;
+
+    // EN: Hold-to-run manual command for all stack buffer conveyors.
+    // PT: Comando manual mantido para todas as esteiras buffer de pilhas.
+    stackBufferConveyorsRunCmd              : BOOL;
+
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

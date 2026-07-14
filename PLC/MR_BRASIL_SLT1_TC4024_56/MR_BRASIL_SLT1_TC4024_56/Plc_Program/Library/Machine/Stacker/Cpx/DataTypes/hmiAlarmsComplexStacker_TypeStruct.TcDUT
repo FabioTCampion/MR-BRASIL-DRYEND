@@ -22,6 +22,15 @@ STRUCT
     synchronizedConveyorsNotRunning    : BOOL;
 
     //==============================================================
+    // EN: Stack buffer conveyor alarms
+    // PT: Alarmes das esteiras buffer de pilhas
+    //==============================================================
+    stackBufferConveyor1DriveNotOk      : BOOL;
+    stackBufferConveyor2DriveNotOk      : BOOL;
+    stackBufferConveyor3DriveNotOk      : BOOL;
+    stackBufferConveyorGroupFault       : BOOL;
+
+    //==============================================================
     // Sheet stack separation alarms / indications
     //==============================================================
     sheetStackSeparationNotReady       : BOOL;

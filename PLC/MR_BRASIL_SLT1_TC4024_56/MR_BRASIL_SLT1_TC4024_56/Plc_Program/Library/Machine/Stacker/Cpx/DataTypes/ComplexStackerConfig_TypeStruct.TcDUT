@@ -108,14 +108,13 @@ STRUCT
     // PT: Ganho proporcional do controle de posição do elevador [(mm/s)/mm].
     elevatorPositionKp                 : REAL := 5.0;
 
-    // EN: Maximum speed allowed in automatic elevator positioning [mm/s].
-    // PT: Velocidade máxima permitida no posicionamento automático do elevador [mm/s].
-    elevatorAutoMaxSpeedMmps           : REAL := 30.0;
+    // EN: Maximum upward speed for proportional automatic positioning [mm/s].
+    // PT: Velocidade máxima de subida no posicionamento automático proporcional [mm/s].
+    elevatorAutomaticUpSpeedMmps       : REAL := 30.0;
 
-    // EN: Minimum movement speed when the position error is above tolerance [mm/s].
-    // PT: Velocidade mínima de movimento quando o erro de posição estiver acima da tolerância [mm/s].
-    elevatorMinMoveSpeedMmps           : REAL := 5.0;
-
+    // EN: Maximum downward speed for proportional automatic positioning [mm/s].
+    // PT: Velocidade máxima de descida no posicionamento automático proporcional [mm/s].
+    elevatorAutomaticDownSpeedMmps     : REAL := 30.0;
 
     //=================================================================
     // 06 - Elevator: manual movement
@@ -125,9 +124,27 @@ STRUCT
     // PT: Velocidade manual para subir/descer o elevador [mm/s].
     elevatorManualSpeedMmps            : REAL := 50.0;
 
-    // EN: Minimum speed reference required to enable elevator drive run [mm/s].
-    // PT: Referência mínima de velocidade necessária para liberar RUN do acionamento do elevador [mm/s].
-    elevatorRunMinSpeedMmps            : REAL := 0.1;
+    // EN: Distance from each configured endpoint where manual movement
+    //     changes to reduced speed [mm].
+    // PT: Distância a partir de cada extremidade configurada onde o movimento
+    //     manual passa para velocidade reduzida [mm].
+    elevatorManualLowSpeedZoneMm       : REAL := 300.0;
+
+    // EN: Manual speed multiplier inside the low-speed zone [0.0..1.0].
+    // PT: Multiplicador da velocidade manual dentro da zona lenta [0.0..1.0].
+    elevatorManualLowSpeedFactor       : REAL := 0.3;
+
+    // EN: First downward speed while the stack level sensor is active [mm/s].
+    // PT: Primeira velocidade de descida enquanto o sensor de nível estiver acionado [mm/s].
+    elevatorLevelingSpeed1Mmps         : REAL := 5.0;
+
+    // EN: Second downward speed when the stack level sensor remains active [mm/s].
+    // PT: Segunda velocidade de descida quando o sensor de nível permanecer acionado [mm/s].
+    elevatorLevelingSpeed2Mmps         : REAL := 15.0;
+
+    // EN: Time before changing from leveling speed 1 to speed 2.
+    // PT: Tempo antes de mudar da velocidade 1 para a velocidade 2 de nivelamento.
+    elevatorLevelingSpeed2Delay        : TIME := T#2S;
 
 
     //=================================================================
@@ -138,6 +155,10 @@ STRUCT
     // PT: Velocidade de homing do elevador [mm/s].
     elevatorHomingSpeedMmps            : REAL := 30.0;
 
+    // EN: Slow upward speed used to leave the lower home sensor [mm/s].
+    // PT: Velocidade lenta de subida usada para liberar o sensor inferior de home [mm/s].
+    elevatorHomingReleaseSpeedMmps     : REAL := 5.0;
+
     // EN: Maximum allowed time for elevator homing movement.
     // PT: Tempo máximo permitido para o movimento de homing do elevador.
     elevatorHomingTimeout              : TIME := T#30S;
@@ -145,6 +166,14 @@ STRUCT
     // EN: Pulse time for elevator encoder position set command.
     // PT: Tempo do pulso para comando de set da posição do encoder do elevador.
     elevatorSetEncoderPulseTime        : TIME := T#200MS;
+
+    // EN: Stabilization time after leaving the lower home sensor.
+    // PT: Tempo de estabilização após liberar o sensor inferior de home.
+    elevatorHomeSettleDelay            : TIME := T#500MS;
+
+    // EN: Encoder position applied after the lower home sensor is released [mm].
+    // PT: Posição aplicada ao encoder após liberar o sensor inferior de home [mm].
+    elevatorHomePositionMm             : REAL := 10.0;
 
 
     //=================================================================
@@ -241,9 +270,13 @@ STRUCT
     // PT: Referência de velocidade da esteira de descarga da pilha [m/min].
     sheetStackDischargeConveyorSpeedMPM       : REAL := 70.0;
 
-    // EN: Running time for sheet stack discharge conveyor.
-    // PT: Tempo de giro da esteira de descarga da pilha.
+    // EN: Minimum running time for the sheet stack discharge conveyor.
+    // PT: Tempo mínimo de giro da esteira de descarga da pilha.
     sheetStackDischargeTime                   : TIME := T#2S;
+
+    // EN: Maximum time allowed to confirm that the elevator platform is clear.
+    // PT: Tempo máximo permitido para confirmar que a plataforma do elevador está livre.
+    sheetStackDischargePlatformClearTimeout   : TIME := T#30S;
 
 
     //=================================================================

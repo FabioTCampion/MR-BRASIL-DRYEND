@@ -12,6 +12,7 @@ STRUCT
 		lowerKnife								: rotaryKnifeHmiStatus_TypeStruct;	
 		machineMetrics 							: orderHmiStatus_TypeStruct;
 		lowerStacker	: hmiStatusSimpleStacker_TypeStruct;
+		upperStacker	: hmiStatusComplexStacker_TypeStruct;
 
 		
 END_STRUCT

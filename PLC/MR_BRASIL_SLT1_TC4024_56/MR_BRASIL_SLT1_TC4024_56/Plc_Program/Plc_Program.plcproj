@@ -383,6 +383,9 @@
     <Compile Include="Library\Machine\Slitter\FunctionBlocks\FB_SpeedMeter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Library\Machine\Stacker\Cpx\FB_ComplexSheetStackerControl_1.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Library\Machine\Stacker\Simple\DataTypes\hmiAlarmsSimpleStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -396,6 +399,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\hmiAlarmsComplexStacker_TypeStruct.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\hmiCommandsComplexStacker_TypeStruct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\Machine\Stacker\Cpx\DataTypes\hmiStatusComplexStacker_TypeStruct.TcDUT">
@@ -585,17 +591,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <SubObject Include="FB_ComplexSheetStackerControl._AlarmControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._BackstopControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._ConveyorSpeedControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._ExternalCommands" />
-    <SubObject Include="FB_ComplexSheetStackerControl._HmiStatus" />
-    <SubObject Include="FB_ComplexSheetStackerControl._MachineAuxilary" />
-    <SubObject Include="FB_ComplexSheetStackerControl._SheetConveyorGroupControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._SheetStackDischargeControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._StackBufferConveyorsControl" />
-    <SubObject Include="FB_ComplexSheetStackerControl._SystemControl" />
     <SubObject Include="FB_IS620P_CO._ControlDriveState" />
     <SubObject Include="FB_IS620P_CO._ControlVelocity" />
     <SubObject Include="FB_IS620P_CO._ConvertRawPositionToMm" />
