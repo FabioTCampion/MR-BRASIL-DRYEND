@@ -2789,10 +2789,12 @@ elevatorHomeLimitOld := elevatorHomeLimitReached;
 //==============================================================
 // 2.1) Manual command rearm
 //==============================================================
-// EN: Manual commands held during homing or discharge must be released
-//     before a new manual movement can start.
-// PT: Comandos manuais mantidos durante homing ou descarte devem ser
-//     liberados antes que um novo movimento manual possa iniciar.
+// EN: Manual commands held during homing or active discharge positioning
+//     must be released before a new manual movement can start.
+//     Waiting for stack separation keeps leveling and manual control active.
+// PT: Comandos manuais mantidos durante homing ou posicionamento ativo de
+//     descarte devem ser liberados antes que um novo movimento manual inicie.
+//     A espera pela separação mantém o nivelamento e o controle manual ativos.
 IF NOT systemRunEnable OR
    NOT safetyCircuitOk OR
    NOT elevatorDriveOk OR
@@ -2804,8 +2806,7 @@ IF NOT systemRunEnable OR
    (elevatorControlState = 40) OR
    (elevatorControlState = 90) OR
    elevatorTargetOverrideActive OR
-   sheetStackDischargeActive OR
-   sheetStackDischargePending THEN
+   sheetStackDischargeActive THEN
 
     elevatorManualCommandArmed := FALSE;
 
@@ -3298,10 +3299,11 @@ ELSE
             tonElevatorHomeSettleDelay(IN := FALSE);
             tonElevatorLevelingSpeed2Delay(IN := FALSE);
 
-            // EN: Discharge pending/active cancels manual operation.
-            // PT: Descarte pendente/ativo cancela a operação manual.
-            IF sheetStackDischargePending OR
-               sheetStackDischargeActive OR
+            // EN: Waiting for stack separation does not cancel manual operation.
+            //     Active positioning or an elevator override cancels it.
+            // PT: A espera pela separação da pilha não cancela a operação manual.
+            //     O posicionamento ativo ou um override do elevador a cancela.
+            IF sheetStackDischargeActive OR
                elevatorTargetOverrideActive THEN
 
                 elevatorSignedSpeedRefMmps := 0.0;
@@ -3483,9 +3485,13 @@ ELSE
                 elevatorSignedSpeedRefMmps := 0.0;
                 tonElevatorLevelingSpeed2Delay(IN := FALSE);
 
+            // EN: Manual correction remains available while the discharge
+            //     sequence is waiting for stack separation.
+            // PT: A correção manual permanece disponível enquanto a sequência
+            //     de descarte aguarda a separação da pilha.
             ELSIF elevatorManualCommandRequest AND
-                  NOT sheetStackDischargePending AND
-                  NOT sheetStackDischargeActive THEN
+                  NOT sheetStackDischargeActive AND
+                  NOT elevatorTargetOverrideActive THEN
 
                 // EN: Manual commands have priority over the level sensor.
                 //     The speed-2 delay restarts after manual intervention.

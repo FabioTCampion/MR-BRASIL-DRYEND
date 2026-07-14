@@ -18996,7 +18996,7 @@ END_VAR
                             <v n="Extensible">false</v>
                           </o>
                           <o>
-                            <v n="Flags">0</v>
+                            <v n="Flags">1</v>
                             <v n="Fixed">true</v>
                             <v n="Extensible">false</v>
                           </o>
@@ -20129,8 +20129,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO3.digitalInput_05"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20148,8 +20148,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"STKU_050_DIO3.digitalInput_06"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>

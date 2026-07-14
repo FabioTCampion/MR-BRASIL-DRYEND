@@ -36,3 +36,7 @@ _CompileInfo/
 ~$*
 Thumbs.db
 Desktop.ini
+
+# EN: Local ADS diagnostic logs can grow quickly.
+# PT: Logs locais de diagnostico ADS podem crescer rapidamente.
+Tools/AdsLogger/Logs/
