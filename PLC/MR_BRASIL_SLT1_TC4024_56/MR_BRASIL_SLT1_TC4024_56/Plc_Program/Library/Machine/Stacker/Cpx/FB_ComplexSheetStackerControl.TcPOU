@@ -176,6 +176,21 @@ VAR_INPUT
 	// PT: Habilita a operação automática da escova de alinhamento da pilha.
 	sheetStackAlignmentBrushEnableCmd        : BOOL;
 
+	//==============================================================
+	// Input / Entrada
+	//==============================================================
+	paperPressAutoManCmd : BOOL;
+
+	//==============================================================
+	// EN: Independent sheet brush commands
+	// PT: Comandos independentes das escovas de chapas
+	//==============================================================
+	sheetBrush1Cmd       : BOOL;
+	sheetBrush2Cmd       : BOOL;
+	sheetBrush3Cmd       : BOOL;
+	sheetBrush4Cmd       : BOOL;
+	sheetBrushAutoManCmd : BOOL;
+
 END_VAR
 
 
@@ -192,8 +207,8 @@ VAR_OUTPUT
 	//     executes homing. Intended to command an external warning siren.
 	// PT: TRUE durante uma sequência de descarga aceita ou enquanto um eixo
 	//     do stacker executa homing. Destinada ao comando de uma sirene externa.
-	stackerUnloadActive : BOOL;
-
+	stackerBuzzer1 : BOOL;
+	stackerBuzzer2 : BOOL;
 	// EN: One-scan pulse generated when a local unload request is accepted.
 	//     It can be used to reset the external pile quantity in Metrics.
 	// PT: Pulso de um ciclo gerado quando um pedido local de descarga é aceito.
@@ -332,6 +347,7 @@ VAR_OUTPUT
     sheetBrush1Valve                    : BOOL;
     sheetBrush2Valve                    : BOOL;
     sheetBrush3Valve                    : BOOL;
+    sheetBrush4Valve                    : BOOL;
 
     brakeBrushValve                     : BOOL;
     backstopUpValve                     : BOOL;
@@ -343,7 +359,7 @@ VAR_OUTPUT
 	//     FALSE = levantada/desacionada.
 	sheetStackAlignmentBrush              : BOOL;
 
-
+	paperPressSolenoid : BOOL;
     //==============================================================
     // General status outputs
     //==============================================================
@@ -527,6 +543,10 @@ VAR_OUTPUT
 	sheetStackDischargeLastResultCode       : INT;
 	sheetStackDischargeLastFaultStepCode    : INT;
 	sheetStackDischargeLastFaultCode        : INT;	
+
+	// EN: Requests a CiA 402 quick stop while the servo disable delay is active.
+	// PT: Solicita o quick stop CiA 402 durante o atraso de desabilitação do servo.
+	elevatorQuickStop                       : BOOL;
 
 END_VAR
 
@@ -723,6 +743,7 @@ VAR
 	elevatorUpAllowed                   : BOOL;
 	elevatorDownAllowed                 : BOOL;
 	
+	elevatorDriveEnableRequest          : BOOL;
 	elevatorMoveRequest                 : BOOL;
 	elevatorBrakeReleaseRequest         : BOOL;
 	
@@ -752,6 +773,10 @@ VAR
 	tonElevatorHomeSettleDelay          : TON;
 	tonElevatorHomeDischargeMinimumRun  : TON;
 	tonElevatorLevelingSpeed2Delay      : TON;
+
+	// EN: Filters a brief backstop material interlock during an upward request.
+	// PT: Filtra um acionamento breve do intertravamento de material durante a subida.
+	tonElevatorUpBlockedByBackstopAlarm : TON;
 	
 	// EN: Delay after brake release before motor movement.
 	// PT: Atraso após liberar o freio antes de movimentar o motor.
@@ -760,6 +785,10 @@ VAR
 	// EN: Keeps brake released for a short time after movement stops.
 	// PT: Mantém o freio liberado por um tempo após parar o movimento.
 	tonElevatorBrakeHoldDelay           : TON;
+
+	// EN: Keeps the servo enabled while the quick-stop command is processed.
+	// PT: Mantém o servo habilitado durante o processamento do comando de quick stop.
+	tofElevatorDriveDisableDelay        : TOF;
 	
 	
 	//==============================================================
@@ -934,7 +963,11 @@ VAR
 	tonStackBufferStopDelay                 : TON;
 	tonStackBufferTransferTimeout           : TON;
 	tonStackBufferFullSpeedReduction        : TON;
+	stackBufferTransferTimeoutPulse         : BOOL;
 	
+	instTONPaperPressOff: TON;
+	instTONPaperPressOn: TON;
+	paperPressOnPhase: BOOL;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[_SystemControl();
@@ -949,6 +982,8 @@ _ElevatorControl();
 _SheetStackAlignmentBrushControl();
 _SheetStackDischargeConveyorControl();
 _StackBufferConveyorsControl();
+_SheetBrushControl();
+_paperPressControl();
 _MachineAuxiliary();
 _HmiStatus();
 _AlarmControl();]]></ST>
@@ -961,12 +996,91 @@ _AlarmControl();]]></ST>
 METHOD _AlarmControl
 
 VAR
-	hmiAlarmsNotActive: hmiAlarmsComplexStacker_TypeStruct;
+	alarmCompareResult                         : DINT;
+	elevatorHomeReleasePermissivesWithoutBackstop : BOOL;
+	elevatorUpBlockedByBackstopCondition       : BOOL;
+	elevatorUpPermissivesWithoutBackstop       : BOOL;
+	elevatorUpRequestActive                    : BOOL;
+	hmiAlarmsNotActive                         : hmiAlarmsComplexStacker_TypeStruct;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//==============================================================
 // HMI alarms reset / latch logic
 //==============================================================
+
+// EN: Detect an actual upward request before the backstop material sensor
+//     is applied to the elevator movement permissive.
+// PT: Detecta um pedido real de subida antes de aplicar o sensor de material
+//     do backstop ao permissivo de movimento do elevador.
+elevatorUpRequestActive :=
+    (
+        (elevatorControlState = 11) AND
+        elevatorHomeLimitReached
+    ) OR
+    (
+        (elevatorControlState = 14) AND
+        elevatorHomeDischargeComplete AND
+        NOT elevatorInPosition AND
+        (elevatorRawSpeedRefMmps > 0.0)
+    ) OR
+    (
+        (elevatorControlState = 20) AND
+        elevatorManualCommandRequest AND
+        elevatorUpCmd AND
+        NOT elevatorDownCmd
+    ) OR
+    (
+        (elevatorControlState = 40) AND
+        elevatorTargetOverrideActive AND
+        NOT elevatorInPosition AND
+        (elevatorRawSpeedRefMmps > 0.0)
+    );
+
+
+elevatorUpPermissivesWithoutBackstop :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorFault AND
+    NOT elevatorUpperLimit AND
+    NOT elevatorUpperSafetyLimit AND
+    (
+        NOT elevatorHomed OR
+        (elevatorPositionMm < machineConfig.elevatorMaxPositionMm)
+    );
+
+
+elevatorHomeReleasePermissivesWithoutBackstop :=
+    systemRunEnable AND
+    safetyCircuitOk AND
+    elevatorDriveOk AND
+    NOT elevatorFault AND
+    NOT elevatorUpperLimit AND
+    NOT elevatorUpperSafetyLimit;
+
+
+elevatorUpBlockedByBackstopCondition :=
+    backstopMaterialInterlockSensor AND
+    (
+        (
+            (elevatorControlState = 11) AND
+            elevatorHomeLimitReached AND
+            elevatorHomeReleasePermissivesWithoutBackstop
+        ) OR
+        (
+            (elevatorControlState <> 11) AND
+            elevatorUpRequestActive AND
+            elevatorUpPermissivesWithoutBackstop
+        )
+    );
+
+
+// EN: A short delay avoids latching the alarm because of sensor bounce.
+// PT: Um pequeno atraso evita memorizar o alarme devido a repique do sensor.
+tonElevatorUpBlockedByBackstopAlarm(
+    IN := elevatorUpBlockedByBackstopCondition,
+    PT := T#500MS
+);
 
 IF resetCmd THEN
 
@@ -994,7 +1108,8 @@ ELSE
         sheetStackDischargeConveyorFault OR
         NOT stackBufferConveyor1DriveOk OR
         NOT stackBufferConveyor2DriveOk OR
-        NOT stackBufferConveyor3DriveOk;
+        NOT stackBufferConveyor3DriveOk OR
+        stackBufferTransferTimeoutPulse;
 
     hmiAlarms.systemNotEnabled :=
         hmiAlarms.systemNotEnabled OR
@@ -1055,6 +1170,18 @@ ELSE
         NOT stackBufferConveyor2DriveOk OR
         NOT stackBufferConveyor3DriveOk;
 
+    hmiAlarms.stackBufferTransferTimeout :=
+        hmiAlarms.stackBufferTransferTimeout OR
+        stackBufferTransferTimeoutPulse;
+
+    hmiAlarms.stackBufferFull :=
+        hmiAlarms.stackBufferFull OR
+        stackBufferFull;
+
+    hmiAlarms.stackBufferSpeedReductionActive :=
+        hmiAlarms.stackBufferSpeedReductionActive OR
+        lineSpeedReductionRequest;
+
  //   hmiAlarms.synchronizedConveyorsNotRunning :=
  //       hmiAlarms.synchronizedConveyorsNotRunning OR
  //       (
@@ -1102,11 +1229,49 @@ ELSE
 
     hmiAlarms.sheetStackDischargeTimeout :=
         hmiAlarms.sheetStackDischargeTimeout OR
-        sheetStackDischargeLastResultCode = 3;
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastResultCode = 3)
+        );
 
     hmiAlarms.sheetStackDischargeManualSkip :=
         hmiAlarms.sheetStackDischargeManualSkip OR
         sheetStackDischargeLastResultCode = 2;
+
+    hmiAlarms.sheetStackDischargeWaitSeparationTimeout :=
+        hmiAlarms.sheetStackDischargeWaitSeparationTimeout OR
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastFaultCode = 10)
+        );
+
+    hmiAlarms.sheetStackDischargePositioningTimeout :=
+        hmiAlarms.sheetStackDischargePositioningTimeout OR
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastFaultCode = 20)
+        );
+
+    hmiAlarms.sheetStackDischargeConveyorStartTimeout :=
+        hmiAlarms.sheetStackDischargeConveyorStartTimeout OR
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastFaultCode = 30)
+        );
+
+    hmiAlarms.sheetStackDischargePlatformClearTimeout :=
+        hmiAlarms.sheetStackDischargePlatformClearTimeout OR
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastFaultCode = 31)
+        );
+
+    hmiAlarms.sheetStackDischargeReturnTimeout :=
+        hmiAlarms.sheetStackDischargeReturnTimeout OR
+        (
+            sheetStackDischargeFault AND
+            (sheetStackDischargeLastFaultCode = 50)
+        );
 
 
     //==============================================================
@@ -1135,8 +1300,28 @@ ELSE
     hmiAlarms.backstopNotHomed :=
         hmiAlarms.backstopNotHomed OR
         (
+            systemRunEnable AND
             backstopAutoCmd AND
-            NOT backstopHomed
+            NOT backstopHomed AND
+            NOT backstopAutoHomePending AND
+            NOT (
+                (backstopControlState >= 10) AND
+                (backstopControlState <= 14)
+            )
+        );
+
+    hmiAlarms.backstopHomingTimeout :=
+        hmiAlarms.backstopHomingTimeout OR
+        (
+            backstopFault AND
+            (backstopFaultCode = 3)
+        );
+
+    hmiAlarms.backstopInvalidHomeDirection :=
+        hmiAlarms.backstopInvalidHomeDirection OR
+        (
+            backstopFault AND
+            (backstopFaultCode = 5)
         );
 
     (*
@@ -1188,9 +1373,26 @@ ELSE
     hmiAlarms.elevatorNotHomed :=
         hmiAlarms.elevatorNotHomed OR
         (
+            systemRunEnable AND
             elevatorAutoCmd AND
-            NOT elevatorHomed
+            NOT elevatorHomed AND
+            NOT elevatorAutoHomePending AND
+            NOT (
+                (elevatorControlState >= 10) AND
+                (elevatorControlState <= 14)
+            )
         );
+
+    hmiAlarms.elevatorHomingTimeout :=
+        hmiAlarms.elevatorHomingTimeout OR
+        (
+            elevatorFault AND
+            (elevatorFaultCode = 3)
+        );
+
+    hmiAlarms.elevatorUpBlockedByBackstopMaterialInterlock :=
+        hmiAlarms.elevatorUpBlockedByBackstopMaterialInterlock OR
+        tonElevatorUpBlockedByBackstopAlarm.Q;
 
 //    hmiAlarms.elevatorNotInPosition :=
 //        hmiAlarms.elevatorNotInPosition OR
@@ -1219,7 +1421,18 @@ ELSE
         elevatorLowerLimit;
     *)
 
-END_IF;]]></ST>
+END_IF;
+
+
+// EN: The general output follows every latched field in the alarm structure.
+// PT: A saída geral acompanha qualquer campo memorizado na estrutura de alarmes.
+alarmCompareResult := MEMCMP(
+    pBuf1 := ADR(hmiAlarmsNotActive),
+    pBuf2 := ADR(hmiAlarms),
+    n := SIZEOF(hmiAlarms)
+);
+
+alarmActive := alarmCompareResult <> 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="_BackstopControl" Id="{a8131784-f5c8-4a18-af8b-160d5c9efcab}">
@@ -2165,7 +2378,6 @@ IF systemRunEnable AND
        backstopRunFw OR
        backstopRunRev OR
        sheetStackDischargeActive OR
-       sheetStackDischargeConveyorRun OR
        (backstopControlState = 10) OR
        (backstopControlState = 11) OR
        (backstopControlState = 12) OR
@@ -3763,11 +3975,27 @@ elevatorSetEncoderPosition := tpElevatorSetEncoderPosition.Q;
 //==============================================================
 // 12) Servo enable and magnetic brake control
 //==============================================================
-// EN: Keep the servo enabled with zero speed, following the backstop concept.
+// EN: Zero the movement request immediately, command quick stop and keep the
+//     servo enabled only for the configured shutdown delay.
 //     Drive-ready feedback is not used to avoid a circular enable dependency.
-// PT: Mantém o servo habilitado com velocidade zero, seguindo o backstop.
+// PT: Zera a solicitação de movimento imediatamente, comanda o quick stop e
+//     mantém o servo habilitado apenas durante o atraso configurado de desligamento.
 //     O retorno de drive pronto não é usado para evitar dependência circular.
-elevatorDriveEnable := systemRunEnable AND safetyCircuitOk;
+elevatorDriveEnableRequest :=
+    systemRunEnable AND
+    safetyCircuitOk;
+
+tofElevatorDriveDisableDelay(
+    IN := elevatorDriveEnableRequest,
+    PT := machineConfig.elevatorDriveDisableDelay
+);
+
+elevatorDriveEnable :=
+    tofElevatorDriveDisableDelay.Q;
+
+elevatorQuickStop :=
+    NOT elevatorDriveEnableRequest AND
+    tofElevatorDriveDisableDelay.Q;
 
 elevatorMoveRequest :=
     systemRunEnable AND
@@ -4071,6 +4299,12 @@ hmiStatus.elevatorRunDown :=
 hmiStatus.elevatorBrakeRelease :=
     elevatorBrakeRelease;
 
+hmiStatus.elevatorDriveEnable :=
+    elevatorDriveEnable;
+
+hmiStatus.elevatorQuickStop :=
+    elevatorQuickStop;
+
 hmiStatus.elevatorSpeedRefMmps :=
     elevatorSpeedRefMmps;
 
@@ -4088,7 +4322,28 @@ hmiStatus.elevatorFaultCode :=
 
 
 //==============================================================
-// 8) Process values
+// 8) Auxiliary pneumatic output status
+// EN: Mirror the commanded pneumatic outputs for HMI diagnostics.
+// PT: Espelha as saídas pneumáticas comandadas para diagnóstico na HMI.
+//==============================================================
+hmiStatus.paperPressSolenoid :=
+    paperPressSolenoid;
+
+hmiStatus.sheetBrush1Valve :=
+    sheetBrush1Valve;
+
+hmiStatus.sheetBrush2Valve :=
+    sheetBrush2Valve;
+
+hmiStatus.sheetBrush3Valve :=
+    sheetBrush3Valve;
+
+hmiStatus.sheetBrush4Valve :=
+    sheetBrush4Valve;
+
+
+//==============================================================
+// 9) Process values
 //==============================================================
 hmiStatus.lineSpeedMPM :=
     lineSpeedMPM;
@@ -4101,7 +4356,7 @@ hmiStatus.stackHeightMm :=
 
 
 //==============================================================
-// 9) Input / drive status mirror
+// 10) Input / drive status mirror
 //==============================================================
 hmiStatus.sheetConveyor1DriveOk :=
     sheetConveyor1DriveOk;
@@ -4161,7 +4416,7 @@ reset := resetCmd;
 //     O homing é detectado pelos estados atuais dos eixos para manter a
 //     sirene ativa durante toda a sequência de referenciamento.
 //==============================================================
-stackerUnloadActive :=
+stackerBuzzer1 :=
     sheetStackDischargePending OR
     sheetStackDischargeActive OR
     (
@@ -4173,6 +4428,17 @@ stackerUnloadActive :=
         (elevatorControlState <= 14)
     );
 
+stackerBuzzer2 :=
+    sheetStackDischargePending OR
+    sheetStackDischargeActive OR
+    (
+        (backstopControlState >= 10) AND
+        (backstopControlState <= 14)
+    ) OR
+    (
+        (elevatorControlState >= 10) AND
+        (elevatorControlState <= 14)
+    );
 
 //==============================================================
 // 4) External stack counter reset
@@ -4185,6 +4451,97 @@ tpExternalCounterReset(
 );
 
 externalCounterReset := tpExternalCounterReset.Q;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_paperPressControl" Id="{1fbd1c65-1604-42f7-a275-e6e0d18a6746}">
+      <Declaration><![CDATA[METHOD _paperPressControl
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// EN: When disabled, immediately switch off and reset the cycle.
+// PT: Quando desabilitado, desliga imediatamente e reinicia o ciclo.
+IF NOT paperPressAutoManCmd THEN
+
+    paperPressSolenoid := FALSE;
+    paperPressOnPhase := TRUE;
+
+
+    instTONPaperPressOn(IN := FALSE);
+
+    instTONPaperPressOff(IN := FALSE);
+
+
+ELSE
+
+    //==========================================================
+    // ON phase / Fase ligada
+    //==========================================================
+    IF paperPressOnPhase THEN
+
+        paperPressSolenoid := TRUE;
+
+        instTONPaperPressOff(IN := FALSE);
+
+        instTONPaperPressOn(
+            IN := TRUE,
+            PT := machineConfig.paperPressOnTime
+        );
+
+        IF instTONPaperPressOn.Q THEN
+
+            instTONPaperPressOn(IN := FALSE);
+
+            paperPressSolenoid := FALSE;
+            paperPressOnPhase := FALSE;
+
+        END_IF;
+
+    //==========================================================
+    // OFF phase / Fase desligada
+    //==========================================================
+    ELSE
+
+        paperPressSolenoid := FALSE;
+
+        instTONPaperPressOn(IN := FALSE);
+
+        instTONPaperPressOff(
+            IN := TRUE,
+            PT := machineConfig.paperPressOffTime
+        );
+
+        IF instTONPaperPressOff.Q THEN
+
+            instTONPaperPressOff(IN := FALSE);
+
+            paperPressSolenoid := TRUE;
+            paperPressOnPhase := TRUE;
+
+        END_IF;
+
+    END_IF;
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_SheetBrushControl" Id="{4c70e1e1-ef21-4e46-8f8d-e8536cb72918}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER - SHEET BRUSH CONTROL
+// EN: Controls the four independent sheet brushes from manual commands.
+// PT: Controla as quatro escovas independentes pelos comandos manuais.
+//==============================================================
+METHOD _SheetBrushControl
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// EN: The master command only enables the individual brush commands.
+//     This function is intentionally independent of the stacker run state.
+// PT: O comando mestre apenas habilita os comandos individuais das escovas.
+//     Esta função é intencionalmente independente do estado ligado do stacker.
+sheetBrush1Valve := sheetBrushAutoManCmd AND sheetBrush1Cmd;
+sheetBrush2Valve := sheetBrushAutoManCmd AND sheetBrush2Cmd;
+sheetBrush3Valve := sheetBrushAutoManCmd AND sheetBrush3Cmd;
+sheetBrush4Valve := sheetBrushAutoManCmd AND sheetBrush4Cmd;]]></ST>
       </Implementation>
     </Method>
     <Method Name="_SheetConveyorGroupControl" Id="{f14f5fe3-bf14-462b-8073-c7cc7907504e}">
@@ -4340,11 +4697,6 @@ END_VAR]]></Declaration>
 //     memory of a previously active automatic discharge.
 // PT: A operação manual e as falhas forçam a escova para baixo e cancelam
 //     a memória de uma descarga automática anteriormente ativa.
-IF NOT elevatorAutoCmd THEN
-
-    sheetStackAlignmentBrushLiftedForDischarge := FALSE;
-
-ELSE
 
     // EN: WAIT_SEPARATION (state 5) is intentionally excluded so the brush
     //     remains down until elevator discharge positioning actually starts.
@@ -4371,32 +4723,16 @@ ELSE
 
     END_IF
 
-END_IF;
 
+IF noCrushRollersDownCmd AND NOT sheetStackAlignmentBrushLiftedForDischarge THEN
 
-//==============================================================
-// 3) Brush output / Saída da escova
-//==============================================================
-// EN: The enable command has highest priority. When disabled, the brush is
-//     raised, but the automatic discharge memory is preserved.
-// PT: O comando de habilitação tem prioridade máxima. Quando desabilitada,
-//     a escova é levantada, mas a memória da descarga automática é preservada.
-IF NOT sheetStackAlignmentBrushEnableCmd THEN
-
-    sheetStackAlignmentBrush := FALSE;
-
-// EN: With the function enabled, manual mode or a fault keeps the brush down.
-// PT: Com a função habilitada, o modo manual ou uma falha mantém a escova abaixada.
-ELSIF NOT elevatorAutoCmd THEN
-
-    sheetStackAlignmentBrush := TRUE;
+	sheetStackAlignmentBrush := TRUE;
 
 ELSE
 
-    sheetStackAlignmentBrush :=
-        NOT sheetStackAlignmentBrushLiftedForDischarge;
+	sheetStackAlignmentBrush := FALSE;
 
-END_IF;]]></ST>
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="_SheetStackDischargeControl" Id="{6a21452b-a00c-4dc6-803c-d98058ed2a21}">
@@ -4444,6 +4780,7 @@ VAR
     backstopDischargeReady : BOOL;
     backstopAutomaticCycleEnabled : BOOL;
     elevatorPlatformClear : BOOL;
+    restartFaultRecovery : BOOL;
     unloadRequestAvailable : BOOL;
 END_VAR
 ]]></Declaration>
@@ -4701,7 +5038,46 @@ END_IF;
 
 
 //==============================================================
-// 8) Immediate abort condition
+// 8) Start-triggered recovery from fault hold
+//==============================================================
+// EN: A new machine start safely abandons the failed discharge cycle before
+//     the mandatory automatic homing requests are released on the next scan.
+//     Last-cycle diagnostic codes and the accepted package latch are preserved.
+// PT: Uma nova partida da máquina abandona com segurança o ciclo de descarte
+//     com falha antes de liberar os pedidos obrigatórios de homing no próximo scan.
+//     Os diagnósticos do último ciclo e o latch do pacote aceito são preservados.
+restartFaultRecovery :=
+    rStartCmd AND
+    systemRunEnable AND
+    (sheetStackDischargeControlState = 90);
+
+
+IF restartFaultRecovery THEN
+
+    sheetStackDischargeActive := FALSE;
+    sheetStackDischargePending := FALSE;
+    sheetStackDischargeControlState := 0;
+
+    sheetStackDischargeFault := FALSE;
+    sheetStackDischargeFaultCode := 0;
+
+    sheetStackDischargeConveyorRunRequest := FALSE;
+
+    backstopTargetOverrideActive := FALSE;
+    elevatorTargetOverrideActive := FALSE;
+
+    tonSheetStackDischarge(IN := FALSE);
+    tonSheetStackDischargeStepTimeout(IN := FALSE);
+    tonSheetStackDischargePlatformClearTimeout(IN := FALSE);
+
+    elevatorPlatformClearDetected := FALSE;
+    elevatorStackPresentAtDischargeStart := FALSE;
+
+END_IF;
+
+
+//==============================================================
+// 9) Immediate abort condition
 //==============================================================
 // EN: Faults before discharge positioning cancel the request. Faults after
 //     positioning starts hold safe targets until operator acknowledgement.
@@ -4811,7 +5187,7 @@ IF abortCycle THEN
 ELSE
 
     //==============================================================
-    // 9) Sheet stack discharge state machine
+    // 10) Sheet stack discharge state machine
     //==============================================================
     CASE sheetStackDischargeControlState OF
 
@@ -5589,6 +5965,11 @@ END_VAR
         <ST><![CDATA[//==============================================================
 // 1) Common conditions and edge detection
 //==============================================================
+// EN: Default one-scan timeout event.
+// PT: Evento padrão de timeout com duração de um scan.
+stackBufferTransferTimeoutPulse := FALSE;
+
+
 allBufferDrivesOk :=
     stackBufferConveyor1DriveOk AND
     stackBufferConveyor2DriveOk AND
@@ -5600,7 +5981,7 @@ stackBufferFull :=
     stackBufferConveyor3StackPresentSensor;
 
 rElevatorStackExitClear :=
-    elevatorStackExitClearSensor AND
+    elevatorStackExitClearSensor AND elevatorAtMinPosition AND
     NOT elevatorStackExitClearSensorOld;
 
 elevatorStackExitClearSensorOld := elevatorStackExitClearSensor;
@@ -5782,6 +6163,8 @@ ELSE
         );
 
         IF tonStackBufferTransferTimeout.Q THEN
+            stackBufferTransferTimeoutPulse := TRUE;
+
             tonStackBufferTransferTimeout(IN := FALSE);
             tonStackBufferStopDelay(IN := FALSE);
 
@@ -6044,8 +6427,10 @@ END_IF;]]></ST>
     </Method>
     <LineIds Name="FB_ComplexSheetStackerControl">
       <LineId Id="3" Count="11" />
+      <LineId Id="960" Count="0" />
       <LineId Id="2" Count="0" />
       <LineId Id="16" Count="1" />
+      <LineId Id="961" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._AlarmControl">
       <LineId Id="158" Count="216" />
@@ -6053,12 +6438,16 @@ END_IF;]]></ST>
       <LineId Id="375" Count="33" />
       <LineId Id="2" Count="0" />
       <LineId Id="409" Count="2" />
+      <LineId Id="431" Count="152" />
+      <LineId Id="412" Count="18" />
+      <LineId Id="584" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._BackstopControl">
       <LineId Id="3" Count="905" />
       <LineId Id="2" Count="0" />
       <LineId Id="910" Count="7" />
-      <LineId Id="966" Count="25" />
+      <LineId Id="966" Count="4" />
+      <LineId Id="972" Count="19" />
       <LineId Id="945" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ConveyorSpeedControl">
@@ -6081,7 +6470,7 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._HmiStatus">
       <LineId Id="3" Count="255" />
       <LineId Id="2" Count="0" />
-      <LineId Id="260" Count="11" />
+      <LineId Id="260" Count="32" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._MachineAuxiliary">
       <LineId Id="2" Count="0" />
@@ -6091,11 +6480,28 @@ END_IF;]]></ST>
       <LineId Id="19" Count="0" />
       <LineId Id="9" Count="9" />
       <LineId Id="43" Count="2" />
-      <LineId Id="22" Count="20" />
+      <LineId Id="22" Count="18" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="63" Count="9" />
+      <LineId Id="41" Count="1" />
       <LineId Id="46" Count="0" />
       <LineId Id="53" Count="2" />
       <LineId Id="47" Count="5" />
       <LineId Id="56" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl._paperPressControl">
+      <LineId Id="7" Count="6" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="17" Count="50" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl._SheetBrushControl">
+      <LineId Id="3" Count="7" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetConveyorGroupControl">
       <LineId Id="3" Count="106" />
@@ -6103,13 +6509,23 @@ END_IF;]]></ST>
       <LineId Id="111" Count="8" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackAlignmentBrushControl">
-      <LineId Id="15" Count="64" />
-      <LineId Id="2" Count="0" />
+      <LineId Id="15" Count="8" />
+      <LineId Id="29" Count="24" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="105" Count="0" />
+      <LineId Id="103" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="98" Count="0" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeControl">
       <LineId Id="3" Count="621" />
       <LineId Id="2" Count="0" />
-      <LineId Id="626" Count="339" />
+      <LineId Id="626" Count="378" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl">
       <LineId Id="3" Count="50" />
@@ -6119,7 +6535,7 @@ END_IF;]]></ST>
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._StackBufferConveyorsControl">
       <LineId Id="2" Count="0" />
-      <LineId Id="4" Count="246" />
+      <LineId Id="4" Count="253" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SystemControl">
       <LineId Id="3" Count="9" />

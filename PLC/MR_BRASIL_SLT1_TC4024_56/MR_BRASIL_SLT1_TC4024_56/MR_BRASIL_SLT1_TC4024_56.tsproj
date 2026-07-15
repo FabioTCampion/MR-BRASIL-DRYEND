@@ -1951,6 +1951,15 @@ External Setpoint Generation:
 			</ArrayInfo>
 		</DataType>
 		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000010}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..1] OF BYTE</Name>
+			<BitSize>16</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>2</Elements>
+			</ArrayInfo>
+		</DataType>
+		<DataType>
 			<Name GUID="{18071995-0000-0000-0000-00200000000C}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..11] OF BIT</Name>
 			<BitSize>12</BitSize>
 			<BaseType GUID="{18071995-0000-0000-0000-000000000010}">BIT</BaseType>
@@ -1997,9 +2006,10 @@ External Setpoint Generation:
 		<ImageData Id="1006">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ffff0000ff0000ff0000ff0000ff0000ff0000c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1007">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1008">424dd6020000000000003600000028000000100000000e0000000100180000000000a002000000000000000000000000000000000000000000ff00ffff00ffff00ff000000ff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ff000000ff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ff000000ff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ff000000ff00ff000000ff00ff000000ff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff000000000000ff00ff000000000000ff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff000000ff00ffff00ffff00ff000000ff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
-		<ImageData Id="1009">424de6000000000000007600000028000000100000000e00000001000400000000007000000000000000000000001000000010000000ffffff00f1f6f800e5ecee00d2dae000a4a5a800acb5b700969a9c008d9395008489890088908e0099a1a400b8c1c90073787800525a5a003d4445007a838300000000000000000000000000000000000000000000000000000000000000000000000000000000003c75dda4c8c8c883ba55edf6768494722ab3ec94768474621ab2fa5b6474746100000000000000000000000000000000000000000000000000000000000000000000000000000000</ImageData>
-		<ImageData Id="1010">424de6000000000000007600000028000000100000000e000000010004000000000070000000c40e0000c40e000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00fffffffffffffffffffff000000ffffffff0000000000fffff0000000f0000ffff000000fff000fff000000f000f000ff00000f00000f00ff00000000000000ff00f00000f00000ff000f000f000000fff000fff000000ffff0000f0000000fffff0000000000ffffffff000000fffff</ImageData>
-		<ImageData Id="1011">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000000000000000000000000000000000ffffffffffff000000000000000000000000000000ffffffffffffffffffffffff000000000000000000000000ffffffffffff000000000000000000000000000000000000000000ffffffffffffffffffffffff000000000000ffffffffffff000000000000000000ffffffffffffffffff000000000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000000000ffffffffffffffffff000000000000000000ffffffffffff000000000000000000000000ffffffffffff000000000000000000000000000000000000000000ffffffffffff000000000000000000000000000000000000ffffffffffff000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</ImageData>
+		<ImageData Id="1009">424dd6020000000000003600000028000000100000000e0000000100180000000000a002000000000000000000000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff008066008099008066008099008066ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffff00000000ffff000000008099ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff008066ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff008099ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffff00000000ffff000000008066ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffffff000000ffffff0000008099ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ff00ffff00ffff00ffff00ffff008066ff00ffff00ffff00ffff00ffff00ff66009999006666009999006666009999006600ffff00000000ffff000000008099ff00ffff00ffff00ffff00ffff00ff99006666009999006666009999006666009900ffff0000ff00ffff0000ff008066ff00ffff00ffff00ffff00ffff00ff66009999006666009999006666009999006600ffff00ffff00ffff00ffff008099ff00ffff00ffff00ffff00ffff00ff99006666009999006666009999006666009900ffff00000000ffff000000008066ff00ffff00ffff00ffff00ffff00ff66009999006666009999006666009999006600ffff00ffff00ffff00ffff008099ff00ffff00ffff00ffff00ffff00ff99006666009999006666009999006666009900ffff00800000ffff008000008066ff00ffff00ffff00ffff00ffff00ff66009999006666009999006666009999006600ffff00ffff00ffff00ffff008099ff00ffff00ffff00ffff00ffff00ff</ImageData>
+		<ImageData Id="1010">424de6000000000000007600000028000000100000000e00000001000400000000007000000000000000000000001000000010000000ffffff00f1f6f800e5ecee00d2dae000a4a5a800acb5b700969a9c008d9395008489890088908e0099a1a400b8c1c90073787800525a5a003d4445007a838300000000000000000000000000000000000000000000000000000000000000000000000000000000003c75dda4c8c8c883ba55edf6768494722ab3ec94768474621ab2fa5b6474746100000000000000000000000000000000000000000000000000000000000000000000000000000000</ImageData>
+		<ImageData Id="1011">424de6000000000000007600000028000000100000000e000000010004000000000070000000c40e0000c40e000000000000000000000000000000008000008000000080800080000000800080008080000080808000c0c0c0000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00fffffffffffffffffffff000000ffffffff0000000000fffff0000000f0000ffff000000fff000fff000000f000f000ff00000f00000f00ff00000000000000ff00f00000f00000ff000f000f000000fff000fff000000ffff0000f0000000fffff0000000000ffffffff000000fffff</ImageData>
+		<ImageData Id="1012">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff000000000000000000000000000000000000ffffffffffff000000000000000000000000000000ffffffffffffffffffffffff000000000000000000000000ffffffffffff000000000000000000000000000000000000000000ffffffffffffffffffffffff000000000000ffffffffffff000000000000000000ffffffffffffffffff000000000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000ffffffffffffffffffffffffffffff000000000000ffffffffffffffffff000000000000ffffffffffff000000000000000000ffffffffffffffffff000000000000000000ffffffffffff000000000000000000000000ffffffffffff000000000000000000000000000000000000000000ffffffffffff000000000000000000000000000000000000ffffffffffff000000000000000000000000000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff</ImageData>
 	</ImageDatas>
 	<Project ProjectGUID="{9326665A-4A0F-4EDB-9134-521E368C0D83}" TargetNetId="192.168.30.79.1.1" ShowHideConfigurations="#x6">
 		<System>
@@ -2012,8 +2022,8 @@ External Setpoint Generation:
 					<ManualSelect>{BF78CFC7-2E63-42C3-8C07-BB6C346BFB8B}</ManualSelect>
 					<ManualSelect>{66689887-CCBD-452C-AC9A-039D997C6E66}</ManualSelect>
 					<ManualSelect>{6952449D-F68C-49A2-ADE4-8639D85B33A4}</ManualSelect>
-					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 					<ManualSelect>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</ManualSelect>
+					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -3946,7 +3956,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{CBDB8CCC-0F43-46E7-8C82-C97A3A06A577}" Name="Plc_Program" PrjFilePath="Plc_Program\Plc_Program.plcproj" TmcFilePath="Plc_Program\Plc_Program.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{43949DC2-6FCA-052D-3F00-FD91EF0D7A4F}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{C63E3507-6587-C35E-FCE8-4E4CBF8DAC78}">
 					<Name>Plc_Program Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -9118,7 +9128,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<CoeProfile ProfileNo="26219401"/>
 						</EtherCAT>
 					</Box>
-					<Box Id="60" BoxType="9099" BoxFlags="#x00000020">
+					<Box Id="60" Disabled="true" BoxType="9099" BoxFlags="#x00000020">
 						<Name>RK+P1=050-AO2</Name>
 						<ImageId>1006</ImageId>
 						<EtherCAT SlaveType="2" PdiType="#x0405" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="3" FoeType="1" VendorId="#x00000002" ProductCode="#x0fa43052" RevisionNo="#x00140000" InfoDataAddr="true" TimeoutMailbox2="2000" CheckRevisionNoType="3" PortPhys="51" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL4004 4Ch. Ana. Output 0-10V, 12bit" Desc="EL4004" PortABoxInfo="#x0100003b">
@@ -9161,7 +9171,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 					<Box Id="61" BoxType="9099">
 						<Name>RK+P1=050-BE1</Name>
 						<ImageId>1007</ImageId>
-						<EtherCAT CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x23333050" InfoDataState="false" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL9011 End Terminal" Desc="EL9011" PortABoxInfo="#x0100003c"/>
+						<EtherCAT CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x23333050" InfoDataState="false" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL9011 End Terminal" Desc="EL9011" PortABoxInfo="#x0100003b"/>
 					</Box>
 				</Box>
 				<Box Id="70" BoxType="9099">
@@ -9937,10 +9947,177 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<CoeProfile ProfileNo="26219401"/>
 						</EtherCAT>
 					</Box>
+					<Box Id="95" BoxType="9099" BoxFlags="#x00000020">
+						<Name>Term 95 (EL6910)</Name>
+						<ImageId>1009</ImageId>
+						<EtherCAT SlaveType="2" PdiType="#x0005" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="3" FoeType="1" VendorId="#x00000002" ProductCode="#x1afe3052" RevisionNo="#x00140000" InfoDataAddr="true" RepeatSupport="true" TimeoutStateChange1="5000" TimeoutMailbox2="10000" TComSupport="true" PortPhys="51" DebugMemory="8" SafetyLogicSupported="true" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL6910, TwinSAFE PLC" Desc="EL6910" PortABoxInfo="#x0100004d">
+							<SyncMan>001000012600010001000000000100010001001026010000</SyncMan>
+							<SyncMan>001100012200010002000000000100010001001122010000</SyncMan>
+							<SyncMan>001202002400010003000000000000000200001224010000</SyncMan>
+							<SyncMan>001d02002000010004000000000000000200001d20010000</SyncMan>
+							<SyncMan>002e00002400000003000000000000000000002e24000000</SyncMan>
+							<SyncMan>002f00002000000004000000000000000000002f20000000</SyncMan>
+							<Fmmu>0000000000000000001200020100000001000000060000000200000000000000</Fmmu>
+							<Fmmu>0000000000000000001d00010100000002000000060000000300000000000000</Fmmu>
+							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+							<Fmmu>0000000000000000000000020000000001000000060000000400010000000000</Fmmu>
+							<Fmmu>0000000000000000000000010000000002000000060000000500010000000000</Fmmu>
+							<BootStrapData>0010f400f410f400</BootStrapData>
+							<MBoxUserCmdData>004003000a00000000000000030010000000000000000000000000000000000020f3100502000000010000</MBoxUserCmdData>
+							<Pdo Name="FSLOGIC Inputs" Index="#x1bff" Flags="#x0011" SyncMan="3">
+								<Entry Name="Safe Logic State" Index="#xf100" Sub="#x01">
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="Cycle Counter" Index="#xf100" Sub="#x02">
+									<Type>USINT</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="FSLOGIC Outputs" Index="#x17ff" InOut="1" Flags="#x0011" SyncMan="2">
+								<Entry>
+									<Type GUID="{18071995-0000-0000-0000-002000000010}">ARRAY [0..1] OF BYTE</Type>
+								</Entry>
+							</Pdo>
+							<CoeProfile ProfileNo="5001"/>
+						</EtherCAT>
+					</Box>
+					<Box Id="96" BoxType="9099" BoxFlags="#x00000020">
+						<Name>Term 96 (EL1904)</Name>
+						<ImageId>118</ImageId>
+						<EtherCAT SlaveType="2" PdiType="#x0005" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="7" FoeType="1" VendorId="#x00000002" ProductCode="#x07703052" RevisionNo="#x00130000" InfoDataAddr="true" TimeoutMailbox2="2000" CheckRevisionNoType="3" PortPhys="51" MaxSlotCount="1" Type="EL1904, 4 Ch. Safety Input 24V, TwinSAFE" Desc="EL1904" PortABoxInfo="#x0100005f">
+							<SyncMan>001000012600010001000000400000010001001026010000</SyncMan>
+							<SyncMan>001100012200010002000000400000010001001122010000</SyncMan>
+							<SyncMan>001206002400010003000000000000000600001224010000</SyncMan>
+							<SyncMan>001906002000010004000000000000000600001920010000</SyncMan>
+							<Fmmu>0000000000000000001200020100000001000000000000000000000000000000</Fmmu>
+							<Fmmu>0000000000000000001900010100000002000000000000000000000000000000</Fmmu>
+							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+							<BootStrapData>0010f400f410f400</BootStrapData>
+							<Pdo Name="TxPDO" Index="#x1a00" Flags="#x0090" SyncMan="3">
+								<Entry Name="FSOE__FSoE Slave CMD" Index="#x6000" Sub="#x01">
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel1" Index="#x6001" Sub="#x01">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel2" Index="#x6001" Sub="#x02">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel3" Index="#x6001" Sub="#x03">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel4" Index="#x6001" Sub="#x04">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__">
+									<Type GUID="{18071995-0000-0000-0000-002000000004}">ARRAY [0..3] OF BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Slave CRC_0" Index="#x6000" Sub="#x03">
+									<Type>UINT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Slave ConnID" Index="#x6000" Sub="#x02">
+									<Type>UINT</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="RxPDO" Index="#x1600" InOut="1" Flags="#x0090" SyncMan="2">
+								<Entry Name="FSOE__FSoE Master CMD" Index="#x7000" Sub="#x01">
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="FSOE__">
+									<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Master CRC_0" Index="#x7000" Sub="#x03">
+									<Type>UINT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Master ConnID" Index="#x7000" Sub="#x02">
+									<Type>UINT</Type>
+								</Entry>
+							</Pdo>
+							<CoeProfile ProfileNo="5001"/>
+							<Slot Name="">
+								<SlotData>0000010001000400000000000000000000000000000000000000000000000000</SlotData>
+								<ModuleIdent>190</ModuleIdent>
+								<Module Id="#x0309000b" Type="FSOES" Class="190">
+									<Name>Module 1 (FSOES)</Name>
+									<ImageId>118</ImageId>
+									<ModuleData>02000000be00000000000c000000000000000000000000000000000000000000</ModuleData>
+									<PdoIndex>6656</PdoIndex>
+									<PdoIndex>5632</PdoIndex>
+									<CoeProfile ProfileNo="#x00001389"/>
+								</Module>
+							</Slot>
+						</EtherCAT>
+					</Box>
+					<Box Id="97" BoxType="9099" BoxFlags="#x00000020">
+						<Name>Term 97 (EL1904)</Name>
+						<ImageId>118</ImageId>
+						<EtherCAT SlaveType="2" PdiType="#x0005" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="7" FoeType="1" VendorId="#x00000002" ProductCode="#x07703052" RevisionNo="#x00130000" InfoDataAddr="true" TimeoutMailbox2="2000" CheckRevisionNoType="3" PortPhys="51" MaxSlotCount="1" Type="EL1904, 4 Ch. Safety Input 24V, TwinSAFE" Desc="EL1904" PortABoxInfo="#x01000060">
+							<SyncMan>001000012600010001000000400000010001001026010000</SyncMan>
+							<SyncMan>001100012200010002000000400000010001001122010000</SyncMan>
+							<SyncMan>001206002400010003000000000000000600001224010000</SyncMan>
+							<SyncMan>001906002000010004000000000000000600001920010000</SyncMan>
+							<Fmmu>0000000000000000001200020100000001000000000000000000000000000000</Fmmu>
+							<Fmmu>0000000000000000001900010100000002000000000000000000000000000000</Fmmu>
+							<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+							<BootStrapData>0010f400f410f400</BootStrapData>
+							<Pdo Name="TxPDO" Index="#x1a00" Flags="#x0090" SyncMan="3">
+								<Entry Name="FSOE__FSoE Slave CMD" Index="#x6000" Sub="#x01">
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel1" Index="#x6001" Sub="#x01">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel2" Index="#x6001" Sub="#x02">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel3" Index="#x6001" Sub="#x03">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__InputChannel4" Index="#x6001" Sub="#x04">
+									<Type>BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__">
+									<Type GUID="{18071995-0000-0000-0000-002000000004}">ARRAY [0..3] OF BIT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Slave CRC_0" Index="#x6000" Sub="#x03">
+									<Type>UINT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Slave ConnID" Index="#x6000" Sub="#x02">
+									<Type>UINT</Type>
+								</Entry>
+							</Pdo>
+							<Pdo Name="RxPDO" Index="#x1600" InOut="1" Flags="#x0090" SyncMan="2">
+								<Entry Name="FSOE__FSoE Master CMD" Index="#x7000" Sub="#x01">
+									<Type>USINT</Type>
+								</Entry>
+								<Entry Name="FSOE__">
+									<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Master CRC_0" Index="#x7000" Sub="#x03">
+									<Type>UINT</Type>
+								</Entry>
+								<Entry Name="FSOE__FSoE Master ConnID" Index="#x7000" Sub="#x02">
+									<Type>UINT</Type>
+								</Entry>
+							</Pdo>
+							<CoeProfile ProfileNo="5001"/>
+							<Slot Name="">
+								<SlotData>0000010001000400000000000000000000000000000000000000000000000000</SlotData>
+								<ModuleIdent>190</ModuleIdent>
+								<Module Id="#x0309000c" Type="FSOES" Class="190">
+									<Name>Module 1 (FSOES)</Name>
+									<ImageId>118</ImageId>
+									<ModuleData>02000000be00000000000c000000000000000000000000000000000000000000</ModuleData>
+									<PdoIndex>6656</PdoIndex>
+									<PdoIndex>5632</PdoIndex>
+									<CoeProfile ProfileNo="#x00001389"/>
+								</Module>
+							</Slot>
+						</EtherCAT>
+					</Box>
 					<Box Id="78" BoxType="9099" BoxFlags="#x00000020">
 						<Name>STK+P2=050-SO1</Name>
 						<ImageId>118</ImageId>
-						<EtherCAT SlaveType="2" PdiType="#x0005" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="3" FoeType="1" VendorId="#x00000002" ProductCode="#x0b583052" RevisionNo="#x00130000" InfoDataAddr="true" TimeoutMailbox2="2000" CheckRevisionNoType="3" PortPhys="51" MaxSlotCount="2" Type="EL2904, 4 Ch. Safety Output 24V, 0.5A, TwinSAFE" Desc="EL2904" PortABoxInfo="#x0100004d">
+						<EtherCAT SlaveType="2" PdiType="#x0005" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="3" FoeType="1" VendorId="#x00000002" ProductCode="#x0b583052" RevisionNo="#x00130000" InfoDataAddr="true" TimeoutMailbox2="2000" CheckRevisionNoType="3" PortPhys="51" MaxSlotCount="2" Type="EL2904, 4 Ch. Safety Output 24V, 0.5A, TwinSAFE" Desc="EL2904" PortABoxInfo="#x01000061">
 							<SyncMan>001000012600010001000000400000010001001026010000</SyncMan>
 							<SyncMan>001100012200010002000000400000010001001122010000</SyncMan>
 							<SyncMan>001208002400010003000000000000000800001224010000</SyncMan>
@@ -10133,7 +10310,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 				</Box>
 				<Box Id="2" BoxType="9099" BoxFlags="#x00000020">
 					<Name>STK+M=050-BC1</Name>
-					<ImageId>1009</ImageId>
+					<ImageId>1010</ImageId>
 					<EtherCAT SlaveType="2" PdiType="#x0c05" MboxDataLinkLayer="true" StateMBoxPolling="true" CycleMBoxPollingTime="0" CoeType="39" EoeType="1" FoeType="1" VendorId="#x00000036" ProductCode="#x0000504a" RevisionNo="#x00000002" InfoDataAddr="true" TimeoutStateChange1="2000" TimeoutStateChange2="9000" TimeoutMailbox2="2000" DownloadSlotCfg="true" PortPhys="17" IdentificationAdo="308" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="FNI ECT-504-105-M" Desc="FNI ECT-504-105-M" PortABoxInfo="#x0100004f">
 						<SyncMan>001080002600010001000000240080008000001026010000</SyncMan>
 						<SyncMan>801080002200010002000000240080008000801022010000</SyncMan>
@@ -10439,7 +10616,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							</Entry>
 						</Pdo>
 						<CoeProfile ProfileNo="20554"/>
-						<Slot Name="IO-Link Port 0" ImageId="1010">
+						<Slot Name="IO-Link Port 0" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10477,14 +10654,14 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090005" Type="IOL_IO_2_2byte " Class="">
 								<Name>STKL+M=050-DIO1 - IO-Link slave IP67 [Machine drive side]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6656</PdoIndex>
 								<PdoIndex>5632</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 1" ImageId="1010">
+						<Slot Name="IO-Link Port 1" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10522,14 +10699,14 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090004" Type="IOL_IO_2_2byte " Class="">
 								<Name>STKL+M=050-DIO2  - IO-Link slave IP24 [Lower command box]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6657</PdoIndex>
 								<PdoIndex>5633</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 2" ImageId="1010">
+						<Slot Name="IO-Link Port 2" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10567,13 +10744,13 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090003" Type="IOL_I_2byte" Class="">
 								<Name>STKL+M=050-BE1  - IO-Link Sick distance sensor [Backstop]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003110000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6658</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 3" ImageId="1010">
+						<Slot Name="IO-Link Port 3" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10611,14 +10788,14 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090006" Type="IOL_IO_2_2byte " Class="">
 								<Name>STKU+M=050-DIO1  - IO-Link slave IP24 [Lower command box]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6659</PdoIndex>
 								<PdoIndex>5635</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 4" ImageId="1010">
+						<Slot Name="IO-Link Port 4" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10656,14 +10833,14 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090007" Type="IOL_IO_2_2byte " Class="">
 								<Name>STKU+M=050-DIO2  - IO-Link slave IP24 [Uppercommand box]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6660</PdoIndex>
 								<PdoIndex>5636</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 5" ImageId="1010">
+						<Slot Name="IO-Link Port 5" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10701,14 +10878,14 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090008" Type="IOL_IO_2_2byte " Class="">
 								<Name>STKU+M=050-DIO3  - IO-Link slave IP24 [Elevator drive side]</Name>
-								<ImageId>1010</ImageId>
+								<ImageId>1011</ImageId>
 								<ModuleData>3600000003130000000000000000000000000000000000000000000000000000</ModuleData>
 								<PdoIndex>6661</PdoIndex>
 								<PdoIndex>5637</PdoIndex>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 6" ImageId="1010">
+						<Slot Name="IO-Link Port 6" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10746,12 +10923,12 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x03090009" Type="Digital_IN" Class="">
 								<Name>Module 7 (Digital_IN)</Name>
-								<ImageId>1011</ImageId>
+								<ImageId>1012</ImageId>
 								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>
 						</Slot>
-						<Slot Name="IO-Link Port 7" ImageId="1010">
+						<Slot Name="IO-Link Port 7" ImageId="1011">
 							<SlotData>0000010001000000010000001000000000000000000000000000000000000000</SlotData>
 							<ModuleIdent>4353</ModuleIdent>
 							<ModuleIdent>4354</ModuleIdent>
@@ -10789,7 +10966,7 @@ Bit1: Value bigger/equal Limit2]]></Comment>
 							<ModuleIdent>4880</ModuleIdent>
 							<Module Id="#x0309000a" Type="Digital_IN" Class="">
 								<Name>Module 8 (Digital_IN)</Name>
-								<ImageId>1011</ImageId>
+								<ImageId>1012</ImageId>
 								<ModuleData>3600000001110000000000000000000000000000000000000000000000000000</ModuleData>
 								<CoeProfile ProfileNo="#x0000508a"/>
 							</Module>

@@ -114,6 +114,12 @@ STRUCT
     elevatorRunUp                    : BOOL;        // EN: Elevator up run output
     elevatorRunDown                  : BOOL;        // EN: Elevator down run output
     elevatorBrakeRelease             : BOOL;        // EN: Elevator brake release output
+
+    // EN: Elevator servo enable and quick-stop outputs.
+    // PT: Saídas de habilitação e quick stop do servo do elevador.
+    elevatorDriveEnable               : BOOL;
+    elevatorQuickStop                 : BOOL;
+
     elevatorSpeedRefMmps             : REAL;        // EN: Elevator speed reference [mm/s]
 
     elevatorSetEncoderPosition       : BOOL;        // EN: Elevator set encoder pulse
@@ -121,6 +127,22 @@ STRUCT
 
     elevatorFault                    : BOOL;        // EN: Elevator fault
     elevatorFaultCode                : INT;         // EN: Elevator fault code
+
+
+    //==============================================================
+    // EN: Auxiliary pneumatic output status
+    // PT: Estados das saídas pneumáticas auxiliares
+    //==============================================================
+    // EN: Paper press solenoid output.
+    // PT: Saída do solenoide do prensa-papel.
+    paperPressSolenoid                      : BOOL;
+
+    // EN: Sheet brush valve outputs.
+    // PT: Saídas das válvulas das escovas de chapas.
+    sheetBrush1Valve                        : BOOL;
+    sheetBrush2Valve                        : BOOL;
+    sheetBrush3Valve                        : BOOL;
+    sheetBrush4Valve                        : BOOL;
 
 
     //==============================================================

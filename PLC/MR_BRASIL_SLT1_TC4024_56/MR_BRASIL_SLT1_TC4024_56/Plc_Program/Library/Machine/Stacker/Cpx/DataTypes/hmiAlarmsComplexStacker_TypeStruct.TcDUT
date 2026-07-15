@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <DUT Name="hmiAlarmsComplexStacker_TypeStruct" Id="{df56a9cb-fbb6-4c9f-844a-068662347272}">
     <Declaration><![CDATA[TYPE hmiAlarmsComplexStacker_TypeStruct :
@@ -30,6 +30,18 @@ STRUCT
     stackBufferConveyor3DriveNotOk      : BOOL;
     stackBufferConveyorGroupFault       : BOOL;
 
+    // EN: Automatic stack transfer exceeded the configured timeout.
+    // PT: A transferência automática da pilha excedeu o timeout configurado.
+    stackBufferTransferTimeout          : BOOL;
+
+    // EN: All three stack buffer positions are occupied.
+    // PT: As três posições do buffer de pilhas estão ocupadas.
+    stackBufferFull                     : BOOL;
+
+    // EN: Machine speed reduction was requested because the buffer stayed full.
+    // PT: A redução de velocidade da máquina foi solicitada porque o buffer permaneceu cheio.
+    stackBufferSpeedReductionActive     : BOOL;
+
     //==============================================================
     // Sheet stack separation alarms / indications
     //==============================================================
@@ -45,6 +57,14 @@ STRUCT
     sheetStackDischargeTimeout         : BOOL;
     sheetStackDischargeManualSkip      : BOOL;
 
+    // EN: Detailed discharge sequence timeout alarms.
+    // PT: Alarmes detalhados de timeout da sequência de descarte.
+    sheetStackDischargeWaitSeparationTimeout : BOOL;
+    sheetStackDischargePositioningTimeout    : BOOL;
+    sheetStackDischargeConveyorStartTimeout  : BOOL;
+    sheetStackDischargePlatformClearTimeout  : BOOL;
+    sheetStackDischargeReturnTimeout         : BOOL;
+
     //==============================================================
     // Sheet stack discharge conveyor alarms
     //==============================================================
@@ -58,6 +78,11 @@ STRUCT
     backstopFault                      : BOOL;
     backstopNotHomed                   : BOOL;
     backstopNotInPosition              : BOOL;
+
+    // EN: Detailed backstop homing alarms.
+    // PT: Alarmes detalhados do homing do backstop.
+    backstopHomingTimeout              : BOOL;
+    backstopInvalidHomeDirection       : BOOL;
 
     backstopSafeMaxLimitActive         : BOOL;
     backstopSafeMinLimitActive         : BOOL;
@@ -73,6 +98,14 @@ STRUCT
     elevatorFault               : BOOL;
     elevatorNotHomed            : BOOL;
     elevatorNotInPosition       : BOOL;
+
+    // EN: Elevator homing exceeded the configured timeout.
+    // PT: O homing do elevador excedeu o timeout configurado.
+    elevatorHomingTimeout       : BOOL;
+
+    // EN: An upward movement request is blocked by the backstop material sensor.
+    // PT: Um pedido de subida está bloqueado pelo sensor de material do backstop.
+    elevatorUpBlockedByBackstopMaterialInterlock : BOOL;
 
     elevatorUpperSafetyLimitActive : BOOL;
     elevatorLowerSafetyLimitActive : BOOL;

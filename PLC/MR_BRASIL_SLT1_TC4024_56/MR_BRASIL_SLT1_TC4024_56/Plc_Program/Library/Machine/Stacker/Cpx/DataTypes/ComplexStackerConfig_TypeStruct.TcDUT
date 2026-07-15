@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <DUT Name="ComplexStackerConfig_TypeStruct" Id="{4ec25578-348d-4df4-ab1c-a62a2ebef3da}">
     <Declaration><![CDATA[TYPE ComplexStackerConfig_TypeStruct :
@@ -188,7 +188,6 @@ STRUCT
     // PT: Tempo para manter o freio liberado após a parada do movimento.
     elevatorBrakeHoldTime              : TIME := T#2S;
 
-
     //=================================================================
     // 09 - Backstop: position limits
     //=================================================================
@@ -332,6 +331,21 @@ STRUCT
     // PT: Tempo com todas as posições buffer ocupadas antes de solicitar
     //     a redução da velocidade da máquina.
     stackBufferFullSpeedReductionDelay         : TIME := T#10S;
+
+	//==============================================================
+	// Configuration parameters / Parâmetros de configuração
+	//==============================================================
+	paperPressOnTime  : TIME := T#2S;
+	paperPressOffTime : TIME := T#6S;
+
+    //=================================================================
+    // 17 - EN: Elevator servo controlled shutdown
+    //      PT: Desligamento controlado do servo do elevador
+    //=================================================================
+
+    // EN: Time to keep the elevator servo enabled while quick stop is processed.
+    // PT: Tempo para manter o servo do elevador habilitado durante o processamento do quick stop.
+    elevatorDriveDisableDelay          : TIME := T#500MS;
 
 END_STRUCT
 END_TYPE

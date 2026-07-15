@@ -101,6 +101,26 @@ STRUCT
     // PT: Comando manual mantido para todas as esteiras buffer de pilhas.
     stackBufferConveyorsRunCmd              : BOOL;
 
+
+    //==============================================================
+    // EN: Auxiliary pneumatic commands
+    // PT: Comandos pneumáticos auxiliares
+    //==============================================================
+    // EN: Enables the cyclic paper press operation.
+    // PT: Habilita a operação cíclica do prensa-papel.
+    paperPressAutoManCmd                    : BOOL;
+
+    // EN: Enables the four independent sheet brush commands.
+    // PT: Habilita os comandos independentes das quatro escovas de chapas.
+    sheetBrushAutoManCmd                    : BOOL;
+
+    // EN: Individual sheet brush commands.
+    // PT: Comandos individuais das escovas de chapas.
+    sheetBrush1Cmd                          : BOOL;
+    sheetBrush2Cmd                          : BOOL;
+    sheetBrush3Cmd                          : BOOL;
+    sheetBrush4Cmd                          : BOOL;
+
 END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>
