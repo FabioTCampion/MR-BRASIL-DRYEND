@@ -179,16 +179,45 @@ $symbolSuffixes = @(
     'elevatorStackPresentSensor',
     'elevatorStackExitClearSensor',
 
-    # EN: Backstop participation and downstream buffer conditions.
-    # PT: Participacao do backstop e condicoes do buffer de saida.
+    # EN: Backstop homing, position controller and final outputs.
+    # PT: Homing do backstop, controlador de posicao e saidas finais.
     'backstopAutoCmd',
+    'backstopHomeCmd',
+    'backstopAutoHomePending',
+    'backstopAutoHomeRequest',
+    'rBackstopHome',
+    'backstopControlState',
+    'backstopState',
     'backstopHomeRunning',
+    'backstopHomeLimitReached',
+    'backstopHomeLimitFallingEdge',
+    'tonBackstopHomingTimeout.Q',
+    'tonBackstopHomingTimeout.ET',
+    'tonBackstopHomeSettleDelay.Q',
+    'tonBackstopHomeSettleDelay.ET',
+    'backstopSetEncoderPositionTrigger',
+    'backstopSetEncoderPosition',
+    'backstopSetEncoderPositionMm',
     'backstopRequiredForAutomaticOperation',
     'backstopDriveOk',
     'backstopHomed',
     'backstopInPosition',
     'backstopFault',
+    'backstopFaultCode',
     'backstopTargetOverrideActive',
+    'backstopPositionMm',
+    'backstopTargetPositionMm',
+    'backstopPositionErrorMm',
+    'backstopRawSpeedRefMmps',
+    'backstopSignedSpeedRefMmps',
+    'backstopSpeedRefMmps',
+    'backstopRunFw',
+    'backstopRunRev',
+    'backstopMaxLimit',
+    'backstopMinLimit',
+
+    # EN: Downstream buffer conditions.
+    # PT: Condicoes do buffer de saida.
     'stackBufferFull',
     'stackBufferConveyor1StackPresentSensor',
     'stackBufferConveyor2StackPresentSensor',
@@ -214,10 +243,47 @@ $symbolSuffixes = @(
     'machineConfig.elevatorHomingTimeout',
     'machineConfig.elevatorLevelingSpeed1Mmps',
     'machineConfig.elevatorLevelingSpeed2Mmps',
+    'machineConfig.backstopMinPositionMm',
+    'machineConfig.backstopMaxPositionMm',
+    'machineConfig.backstopHomeDirection',
+    'machineConfig.backstopHomePositionMm',
+    'machineConfig.backstopHomingSpeedMmps',
+    'machineConfig.backstopHomingTimeout',
+    'machineConfig.backstopSetEncoderPulseTime',
+    'machineConfig.backstopMinMoveSpeedMmps',
+    'machineConfig.backstopPositionToleranceMm',
+    'machineConfig.backstopPositionKp',
     'machineConfig.sheetStackDischargeTime',
     'machineConfig.sheetStackDischargeConveyorSpeedMPM',
     'machineConfig.maximumSpeedMPM'
 )
+
+#==============================================================
+# EN: Absolute PLC symbols add drive diagnostics outside MAIN.
+# PT: Simbolos absolutos do PLC adicionam diagnosticos do drive fora da MAIN.
+#==============================================================
+$externalSymbolPaths = [ordered]@{
+    'Drive.Backstop.setPosition' = '.STKU_P2_100_UG8.setPosition'
+    'Drive.Backstop.desiredPositionMm' = '.STKU_P2_100_UG8.desiredPositionMm'
+    'Drive.Backstop.setPositionOld' = '.STKU_P2_100_UG8.setPositionOld'
+    'Drive.Backstop.setPositionRisingEdge' = '.STKU_P2_100_UG8.setPositionRisingEdge'
+    'Drive.Backstop.positionSetAllowed' = '.STKU_P2_100_UG8.positionSetAllowed'
+    'Drive.Backstop.positionSetDone' = '.STKU_P2_100_UG8.positionSetDone'
+    'Drive.Backstop.positionSetRejected' = '.STKU_P2_100_UG8.positionSetRejected'
+    'Drive.Backstop.rawPosition' = '.STKU_P2_100_UG8.rawPosition'
+    'Drive.Backstop.rawPositionMm' = '.STKU_P2_100_UG8.rawPositionMm'
+    'Drive.Backstop.actualPositionMm' = '.STKU_P2_100_UG8.actualPositionMm'
+    'Drive.Backstop.actualVelocityMmps' = '.STKU_P2_100_UG8.actualVelocityMmps'
+    'Drive.Backstop.positionOffsetMm' = '.STKU_P2_100_UG8.positionOffsetMm'
+    'Drive.Backstop.communicationOk' = '.STKU_P2_100_UG8.communicationOkInternal'
+    'Drive.Backstop.configurationValid' = '.STKU_P2_100_UG8.configurationValidInternal'
+    'Drive.Backstop.positionSetMaxVelocityMmps' = '.STKU_P2_100_UG8.deviceConfig.positionSetMaxVelocityMmps'
+    'Drive.Backstop.calibrationValid' = '.STKU_P2_100_UG8.deviceConfig.calibrationValid'
+}
+
+$sampleColumnNames =
+    $symbolSuffixes +
+    @($externalSymbolPaths.Keys)
 
 $derivedColumnNames = @(
     'Derived.PlatformClear',
@@ -277,7 +343,35 @@ $eventSuffixes = @(
     'elevatorStackPresentSensor',
     'elevatorStackExitClearSensor',
     'elevatorPlatformClearDetected',
+    'backstopControlState',
+    'backstopState',
+    'backstopAutoHomePending',
+    'backstopAutoHomeRequest',
+    'rBackstopHome',
     'backstopHomeRunning',
+    'backstopHomeLimitReached',
+    'backstopHomeLimitFallingEdge',
+    'backstopSetEncoderPositionTrigger',
+    'backstopSetEncoderPosition',
+    'backstopSetEncoderPositionMm',
+    'backstopPositionMm',
+    'backstopTargetPositionMm',
+    'backstopInPosition',
+    'backstopSignedSpeedRefMmps',
+    'backstopSpeedRefMmps',
+    'backstopFault',
+    'backstopFaultCode',
+    'backstopMaxLimit',
+    'backstopMinLimit',
+    'Drive.Backstop.setPosition',
+    'Drive.Backstop.desiredPositionMm',
+    'Drive.Backstop.setPositionRisingEdge',
+    'Drive.Backstop.positionSetAllowed',
+    'Drive.Backstop.positionSetDone',
+    'Drive.Backstop.positionSetRejected',
+    'Drive.Backstop.actualPositionMm',
+    'Drive.Backstop.actualVelocityMmps',
+    'Drive.Backstop.positionOffsetMm',
     'stackBufferFull',
     'Derived.ElevatorState30Reason',
     'Derived.ElevatorHomeWaitReason',
@@ -315,13 +409,55 @@ function Resolve-ChildSymbol {
 }
 
 
+function Resolve-AbsoluteSymbol {
+    param(
+        $RootSymbols,
+        [string]$AbsolutePath
+    )
+
+    $segments = $AbsolutePath.TrimStart([char]'.').Split('.')
+
+    if ($segments.Count -eq 0) {
+        return $null
+    }
+
+    $currentSymbol = $RootSymbols |
+        Where-Object { $_.InstanceName -eq $segments[0] } |
+        Select-Object -First 1
+
+    if ($null -eq $currentSymbol) {
+        return $null
+    }
+
+    for ($index = 1; $index -lt $segments.Count; $index++) {
+        $nextSymbol = $null
+
+        foreach ($candidate in $currentSymbol.SubSymbols) {
+            if ($candidate.InstanceName -eq $segments[$index]) {
+                $nextSymbol = $candidate
+                break
+            }
+        }
+
+        if ($null -eq $nextSymbol) {
+            return $null
+        }
+
+        $currentSymbol = $nextSymbol
+    }
+
+    return $currentSymbol
+}
+
+
 function New-AdsSession {
     param(
         [string]$TargetAmsNetId,
         [int]$TargetAdsPort,
         [int]$TimeoutMs,
         [string]$RootPath,
-        [string[]]$RequestedSuffixes
+        [string[]]$RequestedSuffixes,
+        [Collections.IDictionary]$RequestedExternalSymbols
     )
 
     $client = New-Object TwinCAT.Ads.TcAdsClient
@@ -370,6 +506,22 @@ function New-AdsSession {
 
             [void]$resolvedSymbols.Add($symbol)
             [void]$resolvedSuffixes.Add($suffix)
+        }
+
+        if ($null -ne $RequestedExternalSymbols) {
+            foreach ($externalSymbol in $RequestedExternalSymbols.GetEnumerator()) {
+                $symbol = Resolve-AbsoluteSymbol `
+                    -RootSymbols $loader.Symbols `
+                    -AbsolutePath ([string]$externalSymbol.Value)
+
+                if ($null -eq $symbol) {
+                    [void]$missingSuffixes.Add([string]$externalSymbol.Key)
+                    continue
+                }
+
+                [void]$resolvedSymbols.Add($symbol)
+                [void]$resolvedSuffixes.Add([string]$externalSymbol.Key)
+            }
         }
 
         if ($resolvedSymbols.Count -eq 0) {
@@ -770,7 +922,7 @@ $headerColumns = @(
     'SampleId',
     'AdsState',
     'ReadDurationMs'
-) + $symbolSuffixes + $derivedColumnNames
+) + $sampleColumnNames + $derivedColumnNames
 
 $csvWriter.WriteLine(
     (($headerColumns | ForEach-Object { ConvertTo-CsvField $_ }) -join ';')
@@ -803,7 +955,8 @@ try {
                     -TargetAdsPort $AdsPort `
                     -TimeoutMs $AdsTimeoutMs `
                     -RootPath $baseSymbolPath `
-                    -RequestedSuffixes $symbolSuffixes
+                    -RequestedSuffixes $symbolSuffixes `
+                    -RequestedExternalSymbols $externalSymbolPaths
 
                 $nowText = (Get-Date).ToString('yyyy-MM-ddTHH:mm:ss.fffK')
                 Write-EventLine $eventWriter $nowText 'ADS_CONNECTED' '<ADS>' '' $session.AdsState
@@ -850,8 +1003,8 @@ try {
 
             $sample = [ordered]@{}
 
-            foreach ($suffix in $symbolSuffixes) {
-                $sample[$suffix] = $null
+            foreach ($columnName in $sampleColumnNames) {
+                $sample[$columnName] = $null
             }
 
             for ($index = 0; $index -lt $session.ResolvedSuffixes.Count; $index++) {
@@ -878,8 +1031,8 @@ try {
                 $readStopwatch.Elapsed.TotalMilliseconds
             )
 
-            foreach ($suffix in $symbolSuffixes) {
-                $rowValues += $sample[$suffix]
+            foreach ($columnName in $sampleColumnNames) {
+                $rowValues += $sample[$columnName]
             }
 
             foreach ($derivedName in $derivedColumnNames) {

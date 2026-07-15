@@ -1761,9 +1761,12 @@ ELSE
                     backstopSignedSpeedRefMmps :=
                         -ABS(machineConfig.backstopManualSpeedMmps);
 
-                    // EN: Store last manual intervention position.
-                    //     Even if operator closes, the discharge sequence will use
-                    //     MAX(programmed position, manual position), so it remains safe.
+                    // EN: Store the last manual intervention position.
+                    //     The discharge opening uses the greater value between the
+                    //     current mechanical position and this stored position.
+                    // PT: Memoriza a última posição de intervenção manual.
+                    //     A abertura de descarga usa o maior valor entre a posição
+                    //     mecânica atual e esta posição memorizada.
                     backstopManualInterventionActive := TRUE;
                     backstopManualInterventionPositionMm := backstopPositionMm;
 
@@ -4098,42 +4101,39 @@ ELSE
 
             //======================================================
             // EN: Define safe opening base position.
-            //
-            // If the operator manually moved the backstop before the
-            // automatic cycle, use the greater value between:
-            // - programmed position
-            // - last manual intervention position
-            //
-            // This prevents the automatic opening override from closing
-            // the backstop onto the material.
-            //
-            // If there was no manual intervention, use only the programmed
-            // position as the base.
+            //     The opening starts from the actual mechanical position,
+            //     independently of a new, smaller programmed sheet length.
+            // PT: Define a posição base segura para abertura.
+            //     A abertura parte da posição mecânica atual, independente
+            //     de uma nova medida programada menor para a chapa.
             //======================================================
+            backstopDischargeOpenBasePositionMm :=
+                backstopPositionMm;
+
             IF backstopManualInterventionActive THEN
 
                 backstopDischargeOpenBasePositionMm :=
                     MAX(
-                        backstopProgrammedDischargeTargetMm,
+                        backstopDischargeOpenBasePositionMm,
                         backstopManualInterventionPositionMm
                     );
-
-            ELSE
-
-                backstopDischargeOpenBasePositionMm :=
-                    backstopProgrammedDischargeTargetMm;
 
             END_IF;
 
             //======================================================
             // EN: Latch safe discharge open target.
-            //     Offset is applied after selecting the safe base.
+            //     Only a non-negative offset is accepted.
+            // PT: Memoriza o alvo seguro de abertura para descarga.
+            //     Somente um offset não negativo é aceito.
             //======================================================
             backstopDischargeOpenTargetMm :=
                 LIMIT(
                     machineConfig.backstopMinPositionMm,
                     backstopDischargeOpenBasePositionMm +
-                        machineConfig.backstopDischargeOpenOffsetMm,
+                        MAX(
+                            0.0,
+                            machineConfig.backstopDischargeOpenOffsetMm
+                        ),
                     machineConfig.backstopMaxPositionMm
                 );
 

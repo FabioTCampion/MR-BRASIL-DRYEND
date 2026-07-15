@@ -178,6 +178,10 @@ STKU_P2_100_UG9(enable := TRUE);
       <Declaration><![CDATA[METHOD _01_SlitterControl
 VAR_INPUT
 END_VAR
+
+//ARK_P1_050_AO02.Channel1
+//ARK_P1_050_AO02.Channel3
+
 ]]></Declaration>
       <Implementation>
         <NWL>
@@ -1617,7 +1621,7 @@ Sliiter 1 control - Function Block
                               <v n="Id">92L</v>
                             </o>
                             <o>
-                              <v n="Operand">"ARK_P1_050_AO02.Channel1"</v>
+                              <v n="Operand">"STK_P2_050_AO4.Channel3"</v>
                               <v n="Type">"REAL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
@@ -1633,7 +1637,7 @@ Sliiter 1 control - Function Block
                               <v n="Id">350L</v>
                             </o>
                             <o>
-                              <v n="Operand">"ARK_P1_050_AO02.Channel3"</v>
+                              <v n="Operand">"STK_P2_050_AO4.Channel4"</v>
                               <v n="Type">"REAL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
@@ -17349,8 +17353,8 @@ END_VAR
                           <l2 n="OutputItems" cet="Operand">
                             <n />
                             <o>
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"hmiStatus.upperStacker"</v>
+                              <v n="Type">"hmiStatusComplexStacker_TypeStruct"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19437,8 +19441,8 @@ END_VAR
                         <l2 n="InputItems">
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"hmiCommands.upperStacker.startCmd"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19456,8 +19460,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"hmiCommands.upperStacker.stopCmd"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -19540,6 +19544,25 @@ END_VAR
                                   <v n="Id">966L</v>
                                 </o>
                                 <v n="Id">965L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"hmiCommands.upperStacker.resetCmd"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1124L</v>
+                                </o>
+                                <v n="Id">1123L</v>
                               </o>
                             </l2>
                             <o n="InputParam" t="ParamList">
@@ -20499,6 +20522,25 @@ END_VAR
                                 </o>
                                 <v n="Id">1028L</v>
                               </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"hmiCommands.upperStacker.elevatorUpCmd"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1134L</v>
+                                </o>
+                                <v n="Id">1133L</v>
+                              </o>
                             </l2>
                             <o n="InputParam" t="ParamList">
                               <l2 n="Names" />
@@ -20587,6 +20629,25 @@ END_VAR
                                   <v n="Id">1035L</v>
                                 </o>
                                 <v n="Id">1034L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"hmiCommands.upperStacker.elevatorDownCmd"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1136L</v>
+                                </o>
+                                <v n="Id">1135L</v>
                               </o>
                             </l2>
                             <o n="InputParam" t="ParamList">
@@ -20706,8 +20767,8 @@ END_VAR
                           </o>
                           <o t="BoxTreeOperand">
                             <o n="Operand" t="Operand">
-                              <v n="Operand">""</v>
-                              <n n="Type" />
+                              <v n="Operand">"hmiCommands.upperStacker.backstopExecutePositioningCmd"</v>
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -20810,6 +20871,25 @@ END_VAR
                                 </o>
                                 <v n="Id">1040L</v>
                               </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"hmiCommands.upperStacker.backstopOpenCmd"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1138L</v>
+                                </o>
+                                <v n="Id">1137L</v>
+                              </o>
                             </l2>
                             <o n="InputParam" t="ParamList">
                               <l2 n="Names" />
@@ -20898,6 +20978,25 @@ END_VAR
                                   <v n="Id">1045L</v>
                                 </o>
                                 <v n="Id">1044L</v>
+                              </o>
+                              <o>
+                                <o n="Operand" t="Operand">
+                                  <v n="Operand">"hmiCommands.upperStacker.backstopCloseCmd"</v>
+                                  <v n="Type">"BOOL"</v>
+                                  <v n="Comment">""</v>
+                                  <v n="SymbolComment">""</v>
+                                  <v n="Address">""</v>
+                                  <o n="Flags" t="Flags">
+                                    <v n="Flags">0</v>
+                                    <v n="Fixed">false</v>
+                                    <v n="Extensible">false</v>
+                                  </o>
+                                  <v n="LValue">false</v>
+                                  <v n="Boolean">false</v>
+                                  <v n="IsInstance">false</v>
+                                  <v n="Id">1140L</v>
+                                </o>
+                                <v n="Id">1139L</v>
                               </o>
                             </l2>
                             <o n="InputParam" t="ParamList">
