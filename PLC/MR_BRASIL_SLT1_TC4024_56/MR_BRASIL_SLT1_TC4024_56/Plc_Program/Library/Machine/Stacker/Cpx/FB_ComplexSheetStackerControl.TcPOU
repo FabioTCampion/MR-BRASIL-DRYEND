@@ -31,6 +31,10 @@ VAR_INPUT
     //     É aceito apenas uma vez e rearmado após o comando ficar FALSE.
     packageCompleteCmd                  : BOOL;
 
+    // EN: Rising edge requests a complete discharge cycle for batch change.
+    // PT: Borda de subida solicita um ciclo completo de descarte para troca de lote.
+    changeBatchCmd                      : BOOL;
+
 	// EN: Local unload request accepted on the rising edge.
 	// PT: Pedido local de descarga aceito na borda de subida.
 	stackerUnloadCmd                     : BOOL;
@@ -181,6 +185,12 @@ VAR_INPUT
 	//==============================================================
 	paperPressAutoManCmd : BOOL;
 
+	// EN: Enables automatic operation of the exhaust fan installed
+	//     on sheet conveyor 1.
+	// PT: Habilita a operação automática do exaustor instalado
+	//     na esteira de chapas 1.
+	sheetConveyor1ExhaustFanCmd : BOOL;
+
 	//==============================================================
 	// EN: Independent sheet brush commands
 	// PT: Comandos independentes das escovas de chapas
@@ -226,6 +236,10 @@ VAR_OUTPUT
     sheetConveyor2Run                   : BOOL;
     sheetConveyor3Run                   : BOOL;
     sheetConveyor4Run                   : BOOL;
+
+	// EN: Sheet conveyor 1 exhaust fan run command.
+	// PT: Comando de acionamento do exaustor da esteira de chapas 1.
+	sheetConveyor1ExhaustFanRun           : BOOL;
 	
 	//==============================================================
 	// Elevator drive outputs
@@ -630,6 +644,9 @@ VAR
 	// EN: Locks the maintained automatic request after it is accepted.
 	// PT: Bloqueia o pedido automático mantido após ele ser aceito.
 	packageCompleteCmdAcceptedLatch       : BOOL;
+	changeBatchCmdOld                     : BOOL;
+	changeBatchRequestPending             : BOOL;
+	changeBatchCycleActive                : BOOL;
 
 	// EN: Local unload command rising-edge detection.
 	// PT: Detecção de borda de subida do comando local de descarga.
@@ -663,6 +680,7 @@ VAR
     //==============================================================
     // Normal speed calculation
     //==============================================================
+    effectiveLineSpeedMPM                : REAL;
     normalStackerSpeedMPM               : REAL;
 
     sheetConveyor1NormalSpeedMPM        : REAL;
@@ -675,6 +693,7 @@ VAR
     //==============================================================
     // Package gap speed calculation
     //==============================================================
+    sheetConveyor1GapSpeedMPM           : REAL;
     sheetConveyor2GapSpeedMPM           : REAL;
     sheetConveyor3GapSpeedMPM           : REAL;
     sheetConveyor4GapSpeedMPM           : REAL;
@@ -968,12 +987,17 @@ VAR
 	instTONPaperPressOff: TON;
 	instTONPaperPressOn: TON;
 	paperPressOnPhase: BOOL;
+
+	// EN: Delays exhaust fan shutdown after line speed drops.
+	// PT: Atrasa o desligamento do exaustor após a queda da velocidade da linha.
+	instTONSheetConveyor1ExhaustFanStopDelay : TON;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[_SystemControl();
 
 _SheetConveyorGroupControl();
 _ConveyorSpeedControl();
+_SheetConveyor1ExhaustFanControl();
 
 _SheetStackDischargeControl();
 
@@ -2491,14 +2515,34 @@ sheetLengthM := MAX(0.0, sheetLengthMm) / 1000.0;
 
 
 //==============================================================
-// 5) Calculate normal stacker speed
+// 5) Select effective line speed during package discharge
+//==============================================================
+effectiveLineSpeedMPM := MAX(0.0, lineSpeedMPM);
+
+// EN: While package separation is active, a low line speed is replaced by
+//     the configured threshold. Outside separation, the actual line speed is used.
+// PT: Durante a separação da pilha, uma velocidade baixa da linha é substituída
+//     pelo limite configurado. Fora da separação, usa-se a velocidade real da linha.
+IF packageSeparationState <> 0 THEN
+
+    effectiveLineSpeedMPM :=
+        MAX(
+            effectiveLineSpeedMPM,
+            MAX(0.0, machineConfig.packageDischargeLineSpeedThresholdMPM)
+        );
+
+END_IF;
+
+
+//==============================================================
+// 6) Calculate normal stacker speed
 //==============================================================
 IF speedControlEnabled THEN
 
     normalStackerSpeedMPM :=
         LIMIT(
             machineConfig.minimumSpeedMPM,
-            MAX(0.0, lineSpeedMPM) *
+            effectiveLineSpeedMPM *
                 MAX(0.0, machineConfig.stackerSpeedRatio),
             machineConfig.maximumSpeedMPM
         );
@@ -2511,7 +2555,7 @@ END_IF;
 
 
 //==============================================================
-// 6) Calculate normal speed for each conveyor
+// 7) Calculate normal speed for each conveyor
 //==============================================================
 sheetConveyor1NormalSpeedMPM :=
     normalStackerSpeedMPM *
@@ -2571,6 +2615,11 @@ sheetConveyor4BaseSpeedMPM :=
 //==============================================================
 // EN: Gap speed also receives the same speed-up reference.
 //     This preserves the real gap differential while allowing operator boost.
+sheetConveyor1GapSpeedMPM :=
+    (sheetConveyor1NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
+    machineConfig.packageGapSpeedOffsetMPM +
+    sheetConveyorsSpeedUpReferenceMPM;
+
 sheetConveyor2GapSpeedMPM :=
     (sheetConveyor2NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
     machineConfig.packageGapSpeedOffsetMPM +
@@ -2693,8 +2742,8 @@ ELSE
             sheetStackSeparationActive    := TRUE;
             sheetStackSeparationStarted   := TRUE;
 
-            sheetStackBrakeActive         := TRUE;
-            brakeValve                    := TRUE;
+            sheetStackBrakeActive         := NOT changeBatchCycleActive;
+            brakeValve                    := NOT changeBatchCycleActive;
 
             // EN: Conveyor 2 tracking starts immediately.
             sheetConveyor2SeparationStarted := TRUE;
@@ -2712,7 +2761,11 @@ ELSE
             sheetConveyor3OpeningDistanceM  := 0.0;
             sheetConveyor4OpeningDistanceM  := 0.0;
 
-            sheetConveyor1TargetSpeedMPM    := sheetConveyor1BaseSpeedMPM;
+            IF changeBatchCycleActive THEN
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1GapSpeedMPM;
+            ELSE
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1BaseSpeedMPM;
+            END_IF;
             sheetConveyor2TargetSpeedMPM    := sheetConveyor2GapSpeedMPM;
             sheetConveyor3TargetSpeedMPM    := sheetConveyor3GapSpeedMPM;
             sheetConveyor4TargetSpeedMPM    := sheetConveyor4GapSpeedMPM;
@@ -2726,8 +2779,8 @@ ELSE
 
             sheetStackSeparationActive    := TRUE;
 
-            sheetStackBrakeActive         := TRUE;
-            brakeValve                    := TRUE;
+            sheetStackBrakeActive         := NOT changeBatchCycleActive;
+            brakeValve                    := NOT changeBatchCycleActive;
 
             sheetConveyor2SeparationActive := TRUE;
             sheetConveyor3SeparationActive := FALSE;
@@ -2737,7 +2790,11 @@ ELSE
             sheetConveyor3HighSpeedActive  := TRUE;
             sheetConveyor4HighSpeedActive  := TRUE;
 
-            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            IF changeBatchCycleActive THEN
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1GapSpeedMPM;
+            ELSE
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1BaseSpeedMPM;
+            END_IF;
             sheetConveyor2TargetSpeedMPM  := sheetConveyor2GapSpeedMPM;
             sheetConveyor3TargetSpeedMPM  := sheetConveyor3GapSpeedMPM;
             sheetConveyor4TargetSpeedMPM  := sheetConveyor4GapSpeedMPM;
@@ -4560,6 +4617,59 @@ sheetBrush3Valve := sheetBrushAutoManCmd AND sheetBrush3Cmd;
 sheetBrush4Valve := sheetBrushAutoManCmd AND sheetBrush4Cmd;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="_SheetConveyor1ExhaustFanControl" Id="{b9cdd732-6a51-4c82-9cde-4db85e632a17}">
+      <Declaration><![CDATA[//==============================================================
+// COMPLEX STACKER - SHEET CONVEYOR 1 EXHAUST FAN CONTROL
+// EN: Controls the exhaust fan according to stacker enable,
+//     operator command and line speed.
+// PT: Controla o exaustor conforme a habilitação do stacker,
+//     o comando do operador e a velocidade da linha.
+//==============================================================
+METHOD _SheetConveyor1ExhaustFanControl
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+// EN: Operator disable or stacker shutdown switches the fan off immediately.
+// PT: A desabilitação pelo operador ou o desligamento do stacker desliga
+//     o exaustor imediatamente.
+IF NOT systemRunEnable OR
+   NOT sheetConveyor1ExhaustFanCmd THEN
+
+    sheetConveyor1ExhaustFanRun := FALSE;
+    instTONSheetConveyor1ExhaustFanStopDelay(IN := FALSE);
+
+// EN: Above the configured threshold, run the fan and reset the stop delay.
+// PT: Acima do limite configurado, liga o exaustor e reinicia o atraso.
+ELSIF lineSpeedMPM > machineConfig.sheetConveyor1ExhaustFanLineSpeedThresholdMPM THEN
+
+    sheetConveyor1ExhaustFanRun := TRUE;
+    instTONSheetConveyor1ExhaustFanStopDelay(IN := FALSE);
+
+// EN: When speed drops, keep an already running fan on until the delay expires.
+//     Enabling the command at low speed does not start the fan.
+// PT: Quando a velocidade cai, mantém o exaustor que já estava ligado até
+//     o fim do atraso. Habilitar o comando em baixa velocidade não liga o exaustor.
+ELSIF sheetConveyor1ExhaustFanRun THEN
+
+    instTONSheetConveyor1ExhaustFanStopDelay(
+        IN := TRUE,
+        PT := machineConfig.sheetConveyor1ExhaustFanStopDelay
+    );
+
+    IF instTONSheetConveyor1ExhaustFanStopDelay.Q THEN
+
+        sheetConveyor1ExhaustFanRun := FALSE;
+
+    END_IF;
+
+ELSE
+
+    sheetConveyor1ExhaustFanRun := FALSE;
+    instTONSheetConveyor1ExhaustFanStopDelay(IN := FALSE);
+
+END_IF;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_SheetConveyorGroupControl" Id="{f14f5fe3-bf14-462b-8073-c7cc7907504e}">
       <Declaration><![CDATA[//==============================================================
 // COMPLEX STACKER — SHEET CONVEYOR GROUP CONTROL
@@ -4793,6 +4903,7 @@ METHOD _SheetStackDischargeControl
 VAR
     abortCycle : BOOL;
     automaticUnloadRequest : BOOL;
+    changeBatchRequest : BOOL;
     backstopDischargeReady : BOOL;
     backstopAutomaticCycleEnabled : BOOL;
     elevatorPlatformClear : BOOL;
@@ -4860,12 +4971,26 @@ automaticUnloadRequest :=
     packageCompleteCmd AND
     NOT packageCompleteCmdAcceptedLatch;
 
+// EN: Preserve a batch-change rising edge until the cycle can be accepted.
+// PT: Preserva a borda de subida da troca de lote até o ciclo poder ser aceito.
+IF changeBatchCmd AND
+   NOT changeBatchCmdOld AND
+   NOT automaticUnloadRequest THEN
+    changeBatchRequestPending := TRUE;
+END_IF;
+
+changeBatchCmdOld := changeBatchCmd;
+changeBatchRequest := changeBatchRequestPending;
+
 
 // EN: The automatic request has priority when both requests arrive together.
 // PT: O pedido automático tem prioridade quando os dois pedidos chegam juntos.
 unloadRequestAvailable := FALSE;
 
 IF automaticUnloadRequest THEN
+    unloadRequestAvailable := TRUE;
+    changeBatchRequest := FALSE;
+ELSIF changeBatchRequest THEN
     unloadRequestAvailable := TRUE;
 ELSIF rStackerUnloadCmd THEN
     unloadRequestAvailable := TRUE;
@@ -4990,6 +5115,8 @@ IF resetCmd AND (sheetStackDischargeControlState = 0) THEN
 
     sheetStackDischargeFault := FALSE;
     sheetStackDischargeFaultCode := 0;
+    changeBatchRequestPending := FALSE;
+    changeBatchCycleActive := FALSE;
 
 END_IF;
 
@@ -5037,7 +5164,12 @@ IF unloadRequestAvailable AND
     //     Este ramo também implementa a prioridade do automático sobre a borda local.
     IF automaticUnloadRequest THEN
         packageCompleteCmdAcceptedLatch := TRUE;
+        changeBatchCycleActive := FALSE;
+    ELSIF changeBatchRequest THEN
+        changeBatchRequestPending := FALSE;
+        changeBatchCycleActive := TRUE;
     ELSE
+        changeBatchCycleActive := FALSE;
         stackerUnloadAccepted := TRUE;
     END_IF;
 
@@ -5076,6 +5208,7 @@ IF restartFaultRecovery THEN
 
     sheetStackDischargeFault := FALSE;
     sheetStackDischargeFaultCode := 0;
+    changeBatchCycleActive := FALSE;
 
     sheetStackDischargeConveyorRunRequest := FALSE;
 
@@ -5116,6 +5249,7 @@ IF abortCycle THEN
 
     sheetStackDischargeConveyorRunRequest := FALSE;
     sheetStackDischargePending := FALSE;
+    changeBatchCycleActive := FALSE;
 
     tonSheetStackDischarge(IN := FALSE);
     tonSheetStackDischargeStepTimeout(IN := FALSE);
@@ -5272,6 +5406,7 @@ ELSE
 
                 sheetStackDischargePending := FALSE;
                 sheetStackDischargeActive := FALSE;
+                changeBatchCycleActive := FALSE;
 
                 sheetStackDischargeFault := TRUE;
                 sheetStackDischargeFaultCode := 10;
@@ -5738,6 +5873,7 @@ ELSE
             sheetStackDischargeActive := FALSE;
             sheetStackDischargePending := FALSE;
             sheetStackDischargeFinished := TRUE;
+            changeBatchCycleActive := FALSE;
 
             sheetStackDischargeConveyorRunRequest := FALSE;
 
@@ -5795,6 +5931,7 @@ ELSE
 
     ELSE
 
+        changeBatchCycleActive := FALSE;
         sheetStackDischargeControlState := 0;
 
     END_CASE;
@@ -6443,7 +6580,7 @@ END_IF;]]></ST>
       <LineId Id="960" Count="0" />
       <LineId Id="2" Count="0" />
       <LineId Id="16" Count="1" />
-      <LineId Id="961" Count="0" />
+      <LineId Id="961" Count="1" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._AlarmControl">
       <LineId Id="158" Count="216" />
@@ -6474,6 +6611,9 @@ END_IF;]]></ST>
       <LineId Id="596" Count="13" />
       <LineId Id="511" Count="84" />
       <LineId Id="610" Count="4" />
+      <LineId Id="620" Count="13" />
+      <LineId Id="615" Count="4" />
+      <LineId Id="634" Count="13" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ElevatorControl">
       <LineId Id="2" Count="0" />
@@ -6528,6 +6668,10 @@ END_IF;]]></ST>
       <LineId Id="3" Count="7" />
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ComplexSheetStackerControl._SheetConveyor1ExhaustFanControl">
+      <LineId Id="3" Count="38" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetConveyorGroupControl">
       <LineId Id="3" Count="106" />
       <LineId Id="2" Count="0" />
@@ -6550,7 +6694,7 @@ END_IF;]]></ST>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeControl">
       <LineId Id="3" Count="621" />
       <LineId Id="2" Count="0" />
-      <LineId Id="626" Count="375" />
+      <LineId Id="626" Count="401" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._SheetStackDischargeConveyorControl">
       <LineId Id="3" Count="50" />

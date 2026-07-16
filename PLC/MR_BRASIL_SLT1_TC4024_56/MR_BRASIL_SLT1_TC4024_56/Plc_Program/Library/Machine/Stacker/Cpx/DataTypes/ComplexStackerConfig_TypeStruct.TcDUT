@@ -71,6 +71,14 @@ STRUCT
     // PT: Offset fixo adicional de velocidade durante a separação de pacote [m/min].
     packageGapSpeedOffsetMPM                  : REAL := 0.0;
 
+    // EN: Minimum line speed used as the conveyor speed calculation reference
+    //     while package separation is active [m/min].
+    //     Set to 0.0 to keep the actual line speed without a discharge override.
+    // PT: Velocidade mínima da linha usada como referência para o cálculo das
+    //     esteiras enquanto a separação da pilha estiver ativa [m/min].
+    //     Usar 0.0 para manter a velocidade real da linha sem sobreposição no descarte.
+    packageDischargeLineSpeedThresholdMPM     : REAL := 0.0;
+
     // EN: Minimum valid differential speed used for separation tracking [m/min].
     // PT: Velocidade diferencial mínima válida usada no rastreamento da separação [m/min].
     minimumOpeningSpeedMPM                    : REAL := 1.0;
@@ -346,6 +354,20 @@ STRUCT
     // EN: Time to keep the elevator servo enabled while quick stop is processed.
     // PT: Tempo para manter o servo do elevador habilitado durante o processamento do quick stop.
     elevatorDriveDisableDelay          : TIME := T#500MS;
+
+    //=================================================================
+    // 18 - Sheet conveyor 1 exhaust fan
+    //=================================================================
+
+    // EN: Minimum line speed required to run the exhaust fan [m/min].
+    // PT: Velocidade mínima da linha necessária para ligar o exaustor [m/min].
+    sheetConveyor1ExhaustFanLineSpeedThresholdMPM : REAL := 10.0;
+
+    // EN: Time to keep the exhaust fan running after line speed drops
+    //     to or below the configured threshold.
+    // PT: Tempo para manter o exaustor ligado após a velocidade da linha cair
+    //     até ou abaixo do limite configurado.
+    sheetConveyor1ExhaustFanStopDelay              : TIME := T#10S;
 
 END_STRUCT
 END_TYPE

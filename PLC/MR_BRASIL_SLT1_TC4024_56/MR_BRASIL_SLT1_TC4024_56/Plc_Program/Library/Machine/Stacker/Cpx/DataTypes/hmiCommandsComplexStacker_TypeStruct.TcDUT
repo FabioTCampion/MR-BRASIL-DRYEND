@@ -110,6 +110,12 @@ STRUCT
     // PT: Habilita a operação cíclica do prensa-papel.
     paperPressAutoManCmd                    : BOOL;
 
+    // EN: Enables automatic operation of the exhaust fan installed
+    //     on sheet conveyor 1.
+    // PT: Habilita a operação automática do exaustor instalado
+    //     na esteira de chapas 1.
+    sheetConveyor1ExhaustFanCmd             : BOOL;
+
     // EN: Enables the four independent sheet brush commands.
     // PT: Habilita os comandos independentes das quatro escovas de chapas.
     sheetBrushAutoManCmd                    : BOOL;

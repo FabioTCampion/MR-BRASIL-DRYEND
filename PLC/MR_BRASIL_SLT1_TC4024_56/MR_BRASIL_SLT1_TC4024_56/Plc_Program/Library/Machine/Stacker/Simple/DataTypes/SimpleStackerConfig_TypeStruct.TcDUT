@@ -69,6 +69,14 @@ STRUCT
     // PT: Offset fixo adicional de velocidade durante a separação de pacote [m/min].
     packageGapSpeedOffsetMPM                  : REAL := 0.0;
 
+    // EN: Minimum line speed used as the conveyor speed calculation reference
+    //     while package separation is active [m/min].
+    //     Set to 0.0 to keep the actual line speed without a discharge override.
+    // PT: Velocidade mínima da linha usada como referência para o cálculo das
+    //     esteiras enquanto a separação da pilha estiver ativa [m/min].
+    //     Usar 0.0 para manter a velocidade real da linha sem sobreposição no descarte.
+    packageDischargeLineSpeedThresholdMPM     : REAL := 0.0;
+
     // EN: Minimum valid differential speed used for separation tracking [m/min].
     // PT: Velocidade diferencial mínima válida usada no rastreamento da separação [m/min].
     minimumOpeningSpeedMPM                    : REAL := 1.0;

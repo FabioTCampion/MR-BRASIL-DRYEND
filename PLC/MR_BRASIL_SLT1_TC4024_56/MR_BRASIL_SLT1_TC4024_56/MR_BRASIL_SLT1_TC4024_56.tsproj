@@ -2787,7 +2787,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -2933,7 +2932,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3079,7 +3077,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3226,7 +3223,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3373,7 +3369,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3519,7 +3514,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3665,7 +3659,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3811,7 +3804,6 @@ External Setpoint Generation:
 					<AxisPara>
 						<Velo RefSearch="20" RefSync="2"/>
 						<PositionAreaControl Enable="false"/>
-						<TargetPosControl Enable="false"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="19">
@@ -3956,7 +3948,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{CBDB8CCC-0F43-46E7-8C82-C97A3A06A577}" Name="Plc_Program" PrjFilePath="Plc_Program\Plc_Program.plcproj" TmcFilePath="Plc_Program\Plc_Program.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{89581C01-25FC-3DAE-DFE2-209D64E6E0B9}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{47D159EF-6ED0-2374-D79F-4B4715A8DD44}">
 					<Name>Plc_Program Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">

@@ -31,6 +31,10 @@ VAR_INPUT
     //     bloqueada até o comando retornar para FALSE.
     packageCompleteCmd                  : BOOL;
 
+    // EN: Rising edge requests a complete discharge cycle for batch change.
+    // PT: Borda de subida solicita um ciclo completo de descarte para troca de lote.
+    changeBatchCmd                      : BOOL;
+
     // EN: Rising edge requests a local stack unload.
     // PT: Borda de subida solicita um descarte local da pilha.
     stackerUnloadCmd                    : BOOL;
@@ -518,6 +522,7 @@ VAR
     startCmdOld                         : BOOL;
     stopCmdOld                          : BOOL;
     stackerUnloadCmdOld                  : BOOL;
+    changeBatchCmdOld                    : BOOL;
 
     backstopHomeCmdOld                  : BOOL;
 
@@ -542,6 +547,7 @@ VAR
     //==============================================================
     // Normal speed calculation
     //==============================================================
+    effectiveLineSpeedMPM                : REAL;
     normalStackerSpeedMPM               : REAL;
 
     sheetConveyor1NormalSpeedMPM        : REAL;
@@ -553,6 +559,7 @@ VAR
     //==============================================================
     // Package gap speed calculation
     //==============================================================
+    sheetConveyor1GapSpeedMPM           : REAL;
     sheetConveyor2GapSpeedMPM           : REAL;
     sheetConveyor3GapSpeedMPM           : REAL;
 
@@ -721,6 +728,8 @@ VAR
 	// PT: Impede que uma solicitação automática mantida seja aceita mais
 	//     de uma vez antes de packageCompleteCmd retornar para FALSE.
 	packageCompleteCmdAccepted              : BOOL;
+	changeBatchRequestPending               : BOOL;
+	changeBatchCycleActive                  : BOOL;
 
 	// EN: Internal one-scan event generated for any accepted unload source.
 	// PT: Evento interno de um scan gerado para qualquer fonte de descarte aceita.
@@ -2750,14 +2759,34 @@ sheetLengthM := MAX(0.0, sheetLengthMm) / 1000.0;
 
 
 //==============================================================
-// 5) Calculate normal stacker speed
+// 5) Select effective line speed during package discharge
+//==============================================================
+effectiveLineSpeedMPM := MAX(0.0, lineSpeedMPM);
+
+// EN: While package separation is active, a low line speed is replaced by
+//     the configured threshold. Outside separation, the actual line speed is used.
+// PT: Durante a separação da pilha, uma velocidade baixa da linha é substituída
+//     pelo limite configurado. Fora da separação, usa-se a velocidade real da linha.
+IF packageSeparationState <> 0 THEN
+
+    effectiveLineSpeedMPM :=
+        MAX(
+            effectiveLineSpeedMPM,
+            MAX(0.0, machineConfig.packageDischargeLineSpeedThresholdMPM)
+        );
+
+END_IF;
+
+
+//==============================================================
+// 6) Calculate normal stacker speed
 //==============================================================
 IF speedControlEnabled THEN
 
     normalStackerSpeedMPM :=
         LIMIT(
             machineConfig.minimumSpeedMPM,
-            MAX(0.0, lineSpeedMPM) *
+            effectiveLineSpeedMPM *
                 MAX(0.0, machineConfig.stackerSpeedRatio),
             machineConfig.maximumSpeedMPM
         );
@@ -2770,7 +2799,7 @@ END_IF;
 
 
 //==============================================================
-// 6) Calculate normal speed for each conveyor
+// 7) Calculate normal speed for each conveyor
 //==============================================================
 sheetConveyor1NormalSpeedMPM :=
     normalStackerSpeedMPM *
@@ -2823,6 +2852,11 @@ sheetConveyor3BaseSpeedMPM :=
 //==============================================================
 // EN: Gap speed also receives the same speed-up reference.
 //     This preserves the real gap differential while allowing operator boost.
+sheetConveyor1GapSpeedMPM :=
+    (sheetConveyor1NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
+    machineConfig.packageGapSpeedOffsetMPM +
+    sheetConveyorsSpeedUpReferenceMPM;
+
 sheetConveyor2GapSpeedMPM :=
     (sheetConveyor2NormalSpeedMPM * MAX(0.0, machineConfig.packageGapSpeedRatio)) +
     machineConfig.packageGapSpeedOffsetMPM +
@@ -2929,8 +2963,8 @@ ELSE
             sheetStackSeparationActive    := TRUE;
             sheetStackSeparationStarted   := TRUE;
 
-            sheetStackBrakeActive         := TRUE;
-            brakeValve                    := TRUE;
+            sheetStackBrakeActive         := NOT changeBatchCycleActive;
+            brakeValve                    := NOT changeBatchCycleActive;
 
             // EN: Conveyor 2 tracking starts immediately.
             sheetConveyor2SeparationStarted := TRUE;
@@ -2945,7 +2979,11 @@ ELSE
             sheetConveyor2OpeningDistanceM  := 0.0;
             sheetConveyor3OpeningDistanceM  := 0.0;
 
-            sheetConveyor1TargetSpeedMPM    := sheetConveyor1BaseSpeedMPM;
+            IF changeBatchCycleActive THEN
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1GapSpeedMPM;
+            ELSE
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1BaseSpeedMPM;
+            END_IF;
             sheetConveyor2TargetSpeedMPM    := sheetConveyor2GapSpeedMPM;
             sheetConveyor3TargetSpeedMPM    := sheetConveyor3GapSpeedMPM;
 
@@ -2958,8 +2996,8 @@ ELSE
 
             sheetStackSeparationActive    := TRUE;
 
-            sheetStackBrakeActive         := TRUE;
-            brakeValve                    := TRUE;
+            sheetStackBrakeActive         := NOT changeBatchCycleActive;
+            brakeValve                    := NOT changeBatchCycleActive;
 
             sheetConveyor2SeparationActive := TRUE;
             sheetConveyor3SeparationActive := FALSE;
@@ -2967,7 +3005,11 @@ ELSE
             sheetConveyor2HighSpeedActive  := TRUE;
             sheetConveyor3HighSpeedActive  := TRUE;
 
-            sheetConveyor1TargetSpeedMPM  := sheetConveyor1BaseSpeedMPM;
+            IF changeBatchCycleActive THEN
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1GapSpeedMPM;
+            ELSE
+                sheetConveyor1TargetSpeedMPM := sheetConveyor1BaseSpeedMPM;
+            END_IF;
             sheetConveyor2TargetSpeedMPM  := sheetConveyor2GapSpeedMPM;
             sheetConveyor3TargetSpeedMPM  := sheetConveyor3GapSpeedMPM;
 
@@ -3757,6 +3799,7 @@ METHOD _SheetStackDischargeControl
 VAR
     abortCycle             : BOOL;
     automaticUnloadRequest : BOOL;
+    changeBatchRequest     : BOOL;
     localUnloadRequest     : BOOL;
     unloadRequest          : BOOL;
 END_VAR
@@ -3804,6 +3847,17 @@ END_IF;
 automaticUnloadRequest :=
     packageCompleteCmd AND NOT packageCompleteCmdAccepted;
 
+// EN: Preserve a batch-change rising edge until the cycle can be accepted.
+// PT: Preserva a borda de subida da troca de lote até o ciclo poder ser aceito.
+IF changeBatchCmd AND
+   NOT changeBatchCmdOld AND
+   NOT automaticUnloadRequest THEN
+    changeBatchRequestPending := TRUE;
+END_IF;
+
+changeBatchCmdOld := changeBatchCmd;
+changeBatchRequest := changeBatchRequestPending;
+
 // EN: The local command is momentary and evaluated only on its rising edge.
 // PT: O comando local é momentâneo e avaliado somente em sua borda de subida.
 localUnloadRequest :=
@@ -3815,9 +3869,13 @@ stackerUnloadCmdOld := stackerUnloadCmd;
 // PT: A solicitação automática tem prioridade quando as duas fontes ocorrem juntas.
 IF automaticUnloadRequest THEN
     localUnloadRequest := FALSE;
+    changeBatchRequest := FALSE;
 END_IF;
 
-unloadRequest := automaticUnloadRequest OR localUnloadRequest;
+unloadRequest :=
+    automaticUnloadRequest OR
+    changeBatchRequest OR
+    localUnloadRequest;
 
 
 //==============================================================
@@ -3882,6 +3940,8 @@ IF resetCmd AND (sheetStackDischargeControlState = 0) THEN
 
     sheetStackDischargeFault := FALSE;
     sheetStackDischargeFaultCode := 0;
+    changeBatchRequestPending := FALSE;
+    changeBatchCycleActive := FALSE;
 
 END_IF;
 
@@ -3934,7 +3994,12 @@ IF unloadRequest AND
     //     um pedido local aceito gera stackerUnloadAccepted.
     IF automaticUnloadRequest THEN
         packageCompleteCmdAccepted := TRUE;
+        changeBatchCycleActive := FALSE;
+    ELSIF changeBatchRequest THEN
+        changeBatchRequestPending := FALSE;
+        changeBatchCycleActive := TRUE;
     ELSE
+        changeBatchCycleActive := FALSE;
         stackerUnloadAccepted := TRUE;
     END_IF;
 
@@ -3976,6 +4041,7 @@ IF abortCycle THEN
 
     sheetStackDischargePending := FALSE;
     sheetStackDischargeActive := FALSE;
+    changeBatchCycleActive := FALSE;
 
     tonSheetStackDischarge(IN := FALSE);
     tonSheetStackDischargeStepTimeout(IN := FALSE);
@@ -4062,6 +4128,7 @@ ELSE
 
                 sheetStackDischargePending := FALSE;
                 sheetStackDischargeActive := FALSE;
+                changeBatchCycleActive := FALSE;
 
                 sheetStackDischargeFault := TRUE;
                 sheetStackDischargeFaultCode := 10;
@@ -4387,6 +4454,7 @@ ELSE
             sheetStackDischargeActive := FALSE;
             sheetStackDischargePending := FALSE;
             sheetStackDischargeFinished := TRUE;
+            changeBatchCycleActive := FALSE;
 
             sheetStackDischargeConveyorRunRequest := FALSE;
 
@@ -4441,6 +4509,7 @@ ELSE
 
     ELSE
 
+        changeBatchCycleActive := FALSE;
         sheetStackDischargeControlState := 0;
 
     END_CASE;

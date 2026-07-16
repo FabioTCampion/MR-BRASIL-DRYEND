@@ -196,6 +196,7 @@ VAR_OUTPUT
 	
 	scoreEnabled			: BOOL;
 	scoreEnabledLamp		: BOOL;
+    homeFinished                        : BOOL;
 
 
 
@@ -416,7 +417,6 @@ VAR
     homeRunning                         : BOOL;
     positioningStarted                  : BOOL;
     haltAxis                            : BOOL;
-    homeFinished                        : BOOL;
 
     // Positioning range checks
     knifePositionSetpointOutOfRange     : BOOL;

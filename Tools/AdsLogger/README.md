@@ -70,3 +70,46 @@ O CSV adiciona cinco colunas derivadas:
 O programa utiliza somente `ReadState` e `SumSymbolRead`. Ele não possui chamadas de escrita ADS e não altera variáveis do PLC.
 
 The program only uses `ReadState` and `SumSymbolRead`. It contains no ADS write calls and does not modify PLC variables.
+
+## Diagnóstico one-shot das posições do slitter
+
+Para validar uma vez as posições das facas e dos vincos do pedido atual, execute:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Tools\AdsLogger\Get-SlitterToolPositionDiagnostic.ps1
+```
+
+Ou execute `Get-SlitterToolPositionDiagnostic.cmd` com duplo clique.
+
+O diagnóstico recalcula os limites e vincos das chapas a partir das medidas do
+`currentOrder`, identifica as ferramentas utilizadas por `knifeEnabledArr` e
+`scorerEnabledArr`, compara posições geradas, offsets, alvos enviados, posições
+atuais e sensores, grava um CSV e um resumo TXT em `Tools\AdsLogger\Logs`, e
+também gera um `.summary.txt` com a composição dos níveis, larguras, aparas e
+uma tabela compacta das ferramentas. Depois encerra automaticamente.
+
+### Monitor automático por mudança de pedido
+
+Para manter o monitor em execução e gerar os três relatórios somente quando as
+medidas, quantidades, tipos ou níveis do pedido mudarem, execute:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Tools\AdsLogger\Start-SlitterOrderDiagnosticMonitor.ps1
+```
+
+Ou abra `Start-SlitterOrderDiagnosticMonitor.cmd`. Na inicialização, o pedido
+atual é registrado como referência sem gerar um log. Depois de uma mudança, o
+monitor aguarda o pedido ficar estável e o posicionamento terminar. Para também
+capturar o pedido presente na inicialização, use `-CaptureInitialOrder`.
+
+### Análise histórica de variação
+
+Para consolidar todos os diagnósticos e ranquear as ferramentas pela variação:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Tools\AdsLogger\Get-SlitterToolVariationReport.ps1
+```
+
+Por padrão, erros absolutos acima de `10 mm` são descartados e registrados em
+um CSV separado. O limite pode ser alterado com `-MaximumAcceptedErrorMm`. O
+monitor automático atualiza esse relatório após cada novo pedido diagnosticado.

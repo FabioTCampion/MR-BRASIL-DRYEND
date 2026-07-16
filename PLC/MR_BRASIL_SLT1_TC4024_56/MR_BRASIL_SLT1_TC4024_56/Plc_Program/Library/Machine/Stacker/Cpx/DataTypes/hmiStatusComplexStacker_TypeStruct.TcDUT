@@ -137,6 +137,10 @@ STRUCT
     // PT: Saída do solenoide do prensa-papel.
     paperPressSolenoid                      : BOOL;
 
+    // EN: Sheet conveyor 1 exhaust fan run output.
+    // PT: Saída de acionamento do exaustor da esteira de chapas 1.
+    sheetConveyor1ExhaustFanRun             : BOOL;
+
     // EN: Sheet brush valve outputs.
     // PT: Saídas das válvulas das escovas de chapas.
     sheetBrush1Valve                        : BOOL;
