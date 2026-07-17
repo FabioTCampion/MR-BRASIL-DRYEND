@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL1008_HWTOPLC_PDOS" Id="{61b8fca0-fc61-4783-a041-e0403fbae902}">
+    <Declaration><![CDATA[TYPE EL1008_HWTOPLC_PDOS :
+STRUCT
+    // EN: EL1008 EtherCAT input process data.
+    // PT: Dados de processo das entradas EtherCAT do EL1008.
+    digitalInput_00 AT %I* : BOOL;
+    digitalInput_01 AT %I* : BOOL;
+    digitalInput_02 AT %I* : BOOL;
+    digitalInput_03 AT %I* : BOOL;
+    digitalInput_04 AT %I* : BOOL;
+    digitalInput_05 AT %I* : BOOL;
+    digitalInput_06 AT %I* : BOOL;
+    digitalInput_07 AT %I* : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

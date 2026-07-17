@@ -11,6 +11,17 @@ STRUCT
     systemFaultActive                  : BOOL;
     systemNotEnabled                   : BOOL;
 
+    // EN: Generic safety feedback diagnostic alarms.
+    // PT: Alarmes genéricos de diagnóstico dos retornos de segurança.
+    safetyFeedback1NotOk               : BOOL;
+    safetyFeedback2NotOk               : BOOL;
+    safetyFeedback3NotOk               : BOOL;
+    safetyFeedback4NotOk               : BOOL;
+    safetyFeedback5NotOk               : BOOL;
+    safetyFeedback6NotOk               : BOOL;
+    safetyFeedback7NotOk               : BOOL;
+    safetyFeedback8NotOk               : BOOL;
+
     //==============================================================
     // Sheet conveyor group alarms
     //==============================================================

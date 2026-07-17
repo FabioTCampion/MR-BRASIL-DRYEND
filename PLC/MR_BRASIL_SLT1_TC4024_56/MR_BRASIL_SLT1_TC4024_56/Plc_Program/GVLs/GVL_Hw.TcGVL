@@ -70,6 +70,8 @@ VAR_GLOBAL
 
 	statusWord AT %I* : UINT;
 	
+    STK_P2_050_SP01     : FB_EL6910;        // Safety processor (TwinSAFE)	
+	ARK_P1_050_DI02     : FB_EL1008;        // Digital inputs card	
 END_VAR
 ]]></Declaration>
   </GVL>

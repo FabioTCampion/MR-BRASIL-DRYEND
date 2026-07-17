@@ -200,6 +200,18 @@ VAR_INPUT
 	sheetBrush3Cmd       : BOOL;
 	sheetBrush4Cmd       : BOOL;
 	sheetBrushAutoManCmd : BOOL;
+	
+	safetyFeedBack1 	: BOOL;
+	safetyFeedBack2 	: BOOL;
+	safetyFeedBack3 	: BOOL;
+	safetyFeedBack4 	: BOOL;
+	safetyFeedBack5 	: BOOL;
+	safetyFeedBack6 	: BOOL;
+	safetyFeedBack7 	: BOOL;
+	safetyFeedBack8 	: BOOL;	
+	safetyFeedBack9 	: BOOL;	
+	safetyFeedBack10 	: BOOL;		
+			
 
 END_VAR
 
@@ -1138,6 +1150,17 @@ ELSE
     hmiAlarms.systemNotEnabled :=
         hmiAlarms.systemNotEnabled OR
         NOT systemRunEnable;
+
+    // EN: These generic safety feedbacks are used only for diagnostics.
+    // PT: Estes retornos genéricos de segurança são usados apenas para diagnóstico.
+    hmiAlarms.safetyFeedback1NotOk := hmiAlarms.safetyFeedback1NotOk OR NOT safetyFeedBack1;
+    hmiAlarms.safetyFeedback2NotOk := hmiAlarms.safetyFeedback2NotOk OR NOT safetyFeedBack2;
+    hmiAlarms.safetyFeedback3NotOk := hmiAlarms.safetyFeedback3NotOk OR NOT safetyFeedBack3;
+    hmiAlarms.safetyFeedback4NotOk := hmiAlarms.safetyFeedback4NotOk OR NOT safetyFeedBack4;
+    hmiAlarms.safetyFeedback5NotOk := hmiAlarms.safetyFeedback5NotOk OR NOT safetyFeedBack5;
+    hmiAlarms.safetyFeedback6NotOk := hmiAlarms.safetyFeedback6NotOk OR NOT safetyFeedBack6;
+    hmiAlarms.safetyFeedback7NotOk := hmiAlarms.safetyFeedback7NotOk OR NOT safetyFeedBack7;
+    hmiAlarms.safetyFeedback8NotOk := hmiAlarms.safetyFeedback8NotOk OR NOT safetyFeedBack8;
 
 
     //==============================================================
@@ -6590,7 +6613,7 @@ END_IF;]]></ST>
       <LineId Id="409" Count="2" />
       <LineId Id="431" Count="152" />
       <LineId Id="412" Count="18" />
-      <LineId Id="584" Count="0" />
+      <LineId Id="584" Count="11" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._BackstopControl">
       <LineId Id="3" Count="905" />

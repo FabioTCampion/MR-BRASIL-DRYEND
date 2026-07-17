@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1">
+  <DUT Name="EL1008_DEV_CONFIG" Id="{b19ff711-d2aa-48a8-b99e-40f6b46c161f}">
+    <Declaration><![CDATA[TYPE EL1008_DEV_CONFIG :
+STRUCT
+    // EN: Enables simulated input values for commissioning and diagnostics.
+    // PT: Habilita valores simulados das entradas para comissionamento e diagnóstico.
+    enableForce          : BOOL;
+    forceDigitalInput_00 : BOOL;
+    forceDigitalInput_01 : BOOL;
+    forceDigitalInput_02 : BOOL;
+    forceDigitalInput_03 : BOOL;
+    forceDigitalInput_04 : BOOL;
+    forceDigitalInput_05 : BOOL;
+    forceDigitalInput_06 : BOOL;
+    forceDigitalInput_07 : BOOL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

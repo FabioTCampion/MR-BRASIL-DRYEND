@@ -113,6 +113,18 @@
     <Compile Include="Library\Beckhoff\CX9020\FB_SavePersistentData.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Library\Beckhoff\EL1008\DataTypes\EL1008_DEV_CONFIG.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1008\DataTypes\EL1008_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1008\DataTypes\EL1008_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\Beckhoff\EL1008\FB_EL1008.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Library\Beckhoff\EL1809\DataTypes\EL1809_DEV_CONFIG.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -189,6 +201,27 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\FB_EL5152.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_ESTOP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_ESTOP_DIGNOSTICS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_ESTOP_STATUS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_HWTOPLC_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\EL6910_PLCTOHW_PDOS.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Library\EL6910 - TwinSAFE PLC\FB_EL6910.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Library\FAS\IO-Link\006B51 - IO-Link Master\DataTypes\_006B51_Channel_State.TcDUT">
@@ -497,6 +530,8 @@
     <Folder Include="Library\AxisControl\DataTypes" />
     <Folder Include="Library\Beckhoff" />
     <Folder Include="Library\Beckhoff\CX9020" />
+    <Folder Include="Library\Beckhoff\EL1008" />
+    <Folder Include="Library\Beckhoff\EL1008\DataTypes" />
     <Folder Include="Library\Beckhoff\EL1809" />
     <Folder Include="Library\Beckhoff\EL1809\DataTypes" />
     <Folder Include="Library\Beckhoff\EL2809" />
@@ -507,6 +542,7 @@
     <Folder Include="Library\Beckhoff\EL4004 - AQ 4 x 0-10V\DataTypes" />
     <Folder Include="Library\Beckhoff\EL5152 -2 x  Encoder Input" />
     <Folder Include="Library\Beckhoff\EL5152 -2 x  Encoder Input\DataTypes" />
+    <Folder Include="Library\EL6910 - TwinSAFE PLC" />
     <Folder Include="Library\FAS" />
     <Folder Include="Library\FAS\IO-Link" />
     <Folder Include="Library\FAS\IO-Link\006B51 - IO-Link Master" />

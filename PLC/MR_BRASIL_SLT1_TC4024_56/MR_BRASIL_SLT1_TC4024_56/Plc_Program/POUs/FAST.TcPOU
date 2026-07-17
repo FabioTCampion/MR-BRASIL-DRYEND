@@ -51,6 +51,7 @@ SLT1_P1_050_DO05();
 SLT1_P1_050_DO06();
 
 ARK_P1_050_DI01();
+ARK_P1_050_DI02();
 ARK_P1_050_DO01();
 ARK_P1_050_DO02();
 
@@ -923,7 +924,9 @@ ARK_P1_050_AO02();
       <LineId Id="414" Count="11" />
       <LineId Id="371" Count="0" />
       <LineId Id="426" Count="0" />
-      <LineId Id="428" Count="1" />
+      <LineId Id="428" Count="0" />
+      <LineId Id="481" Count="0" />
+      <LineId Id="429" Count="0" />
       <LineId Id="432" Count="0" />
       <LineId Id="431" Count="0" />
       <LineId Id="430" Count="0" />
