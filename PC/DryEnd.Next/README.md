@@ -13,6 +13,10 @@ O diagnostico de pedidos le `currentOrder` e `nextOrder`, incluindo dados do
 papel, medidas M1..M5, contadores, pilhas, larguras calculadas, ferramentas
 habilitadas, referencias geradas e flags de fora de faixa.
 
+A interface segue as funcoes da HMI WinForms e possui as telas Producao,
+Pedidos, Historico, Graficos e Diagnostico. Comandos de troca de pedido no PLC
+permanecem visiveis, mas desabilitados nesta fase.
+
 Antes de implementar qualquer funcionalidade, leia:
 
 1. `../../PROJECT_CONTEXT.md`
@@ -60,21 +64,8 @@ runtime. A configuracao ADS fica em `src/DryEnd.Web/appsettings.json`.
 Os simbolos globais deste PLC usam ponto inicial, por exemplo
 `.currentOrder.tableID` e `.nextOrder.tableID`.
 
-### Escrita diagnostica controlada
-
-O teste de escrita de `.currentOrder.fluteType` possui validacao e readback e
-fica desabilitado por padrao (`Ads:EnableDiagnosticWrites = false`). Para um
-teste supervisionado, habilite-o somente no processo atual:
-
-```powershell
-$env:Ads__EnableDiagnosticWrites = 'true'
-dotnet run --project .\src\DryEnd.Web --urls http://localhost:5074
-```
-
-Depois envie `POST /api/diagnostics/current-order/flute-type` com o JSON
-`{ "value": "TESTE-ADS" }`. Reiniciar normalmente o backend volta a bloquear
-esse endpoint. Essa escrita nao usa a porta 10000 nem altera o estado do
-runtime TwinCAT.
+Nesta fase, a camada ADS nao possui operacoes de escrita. Os comandos legados
+permanecem desabilitados na interface ate a etapa de validacao operacional.
 
 ## Banco de dados
 
@@ -82,6 +73,39 @@ A integracao SQL deve receber a connection string por configuracao externa,
 preferencialmente pela variavel de ambiente
 `ConnectionStrings__DryEnd`. Credenciais da HMI WinForms nao devem ser copiadas
 para o repositorio, documentacao ou logs.
+
+A camada de dados usa Dapper sobre interfaces genericas de conexao e dialeto.
+As telas e APIs nao dependem do provedor selecionado. Exemplo para SQL Server:
+
+```powershell
+$env:Database__Provider = 'SqlServer'
+$env:ConnectionStrings__DryEnd = '<connection string externa>'
+```
+
+Para PostgreSQL, altere o provedor e os nomes das tabelas conforme o schema:
+
+```powershell
+$env:Database__Provider = 'PostgreSql'
+$env:Database__OrdersTable = 'public.production_list_plc'
+$env:Database__MachineSpeedTable = 'public.machine_speed_records'
+$env:ConnectionStrings__DryEnd = '<connection string externa>'
+```
+
+O dialeto SQLite tambem esta implementado. O driver permanece como plugin
+opcional porque a versao nativa disponivel durante esta implementacao possuia
+um alerta de vulnerabilidade alto. Quando houver um pacote corrigido, basta
+inclui-lo na implantacao e usar:
+
+```powershell
+$env:Database__Provider = 'Sqlite'
+$env:Database__OrdersTable = 'ProductionList_Plc'
+$env:Database__MachineSpeedTable = 'MachineSpeedRecords'
+$env:ConnectionStrings__DryEnd = 'Data Source=C:\DryEnd\dryend.db'
+```
+
+Cada banco precisa possuir um schema compativel com as tabelas produtivas. As
+diferencas de `TOP/LIMIT`, conversao de texto e retorno de identidade ficam
+isoladas em `ProviderProductionQueries`.
 
 Em 2026-07-17, a instancia configurada na HMI antiga nao estava acessivel deste
 PC (SQL Server error 26). A integracao permanece pendente ate que nome da

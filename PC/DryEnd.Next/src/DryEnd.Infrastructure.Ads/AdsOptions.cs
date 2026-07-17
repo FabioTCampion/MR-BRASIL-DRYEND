@@ -12,7 +12,6 @@ public sealed class AdsOptions
     public int ReconnectDelayMilliseconds { get; set; } = 2_000;
     public string CurrentOrderRoot { get; set; } = ".currentOrder";
     public string NextOrderRoot { get; set; } = ".nextOrder";
-    public bool EnableDiagnosticWrites { get; set; }
 
     public void Validate()
     {

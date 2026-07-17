@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\src\DryEnd.Domain\DryEnd.Domain.csproj" />
     <ProjectReference Include="..\..\src\DryEnd.Application\DryEnd.Application.csproj" />
     <ProjectReference Include="..\..\src\DryEnd.Infrastructure.Ads\DryEnd.Infrastructure.Ads.csproj" />
+    <ProjectReference Include="..\..\src\DryEnd.Infrastructure.Database\DryEnd.Infrastructure.Database.csproj" />
   </ItemGroup>
 
 </Project>

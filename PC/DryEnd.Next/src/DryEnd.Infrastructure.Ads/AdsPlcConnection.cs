@@ -46,36 +46,6 @@ public sealed class AdsPlcConnection : IPlcConnection
         }
     }
 
-    public async Task<DiagnosticWriteResult> WriteCurrentFluteTypeAsync(string value, CancellationToken cancellationToken)
-    {
-        if (!_options.EnableDiagnosticWrites)
-            throw new InvalidOperationException("Diagnostic ADS writes are disabled.");
-        if (string.IsNullOrWhiteSpace(value) || value.Length > 80)
-            throw new ArgumentOutOfRangeException(nameof(value), "Flute type must contain 1 to 80 characters.");
-        if (!IsConnected)
-            throw new InvalidOperationException("ADS client is not connected.");
-
-        var symbol = $"{_options.CurrentOrderRoot}.fluteType";
-        await _operationLock.WaitAsync(cancellationToken);
-        try
-        {
-            var previousValue = await ReadValueAsync<string>(symbol, cancellationToken);
-            var writeResult = await _client.WriteValueAsync(symbol, value, cancellationToken);
-            if (writeResult.Failed)
-                throw new AdsErrorException($"Could not write ADS symbol '{symbol}'.", writeResult.ErrorCode);
-
-            var confirmedValue = await ReadValueAsync<string>(symbol, cancellationToken);
-            if (!string.Equals(value, confirmedValue, StringComparison.Ordinal))
-                throw new InvalidOperationException($"ADS readback mismatch. Expected '{value}', received '{confirmedValue}'.");
-
-            return new DiagnosticWriteResult(symbol, previousValue, confirmedValue, DateTimeOffset.UtcNow);
-        }
-        finally
-        {
-            _operationLock.Release();
-        }
-    }
-
     public Task DisconnectAsync(CancellationToken cancellationToken)
     {
         _client.Disconnect();
@@ -234,9 +204,3 @@ public sealed class AdsPlcConnection : IPlcConnection
         return result.Value!;
     }
 }
-
-public sealed record DiagnosticWriteResult(
-    string Symbol,
-    string PreviousValue,
-    string ConfirmedValue,
-    DateTimeOffset ConfirmedAtUtc);

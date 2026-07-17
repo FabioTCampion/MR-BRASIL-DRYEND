@@ -2,115 +2,83 @@ import { HubConnectionBuilder } from '@microsoft/signalr'
 import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
+type Page = 'production' | 'orders' | 'history' | 'graphs' | 'diagnostics'
 type ToolReference = { index: number; enabled: boolean; positionReferenceMm: number }
-type GeneratedOrder = {
-  numberOfKnives: number; numberOfScorers: number; numberOfSheets: number
-  order1Width: number; order2Width: number; orderTotalWidth: number
-  firstKnifePosition: number; lastKnifePosition: number
-  knives: ToolReference[]; scorers: ToolReference[]; orderNotOk: boolean
-  knivesOutOfRange: number[]; scorersOutOfRange: number[]
-}
-type OrderChannel = {
-  id: number; product: string; client: string; sheetType: number; sheetQuantity: number
-  sheetLength: number; sheetMeasures: number[]; numberOfCuts: number
-  numberOfCutsProduced: number; numberOfCutsRemaining: number; pileQuantity: number
-  pileQuantityProduced: number; pileQuantityRemaining: number; pileCounter: number; scrapCounter: number
-}
-type OrderSnapshot = {
-  startedAt: string; tableId: number; productionListNumber: number; levelSelector: number
-  paperComposition: string; fluteType: string; paperWidth: number; paperLayers: string[]
-  lineSpeed: number; linearMeters: number; linearMetersProduced: number; linearMetersRemaining: number
-  scorerHeightMm: number; plcWatchDog: boolean; aocRequest: boolean; changeOrderRequest: boolean
-  saveSqlFinished: boolean; saveSqlTimeout: boolean; invertOrderLevel: boolean; invertOrderSide: boolean
-  order1: OrderChannel; order2: OrderChannel; generatedOrder: GeneratedOrder
-}
-type MonitorSnapshot = {
-  state: string; data: { currentOrder: OrderSnapshot; nextOrder: OrderSnapshot; capturedAtUtc: string } | null
-  lastSuccessfulReadUtc: string | null; lastError: string | null
+type GeneratedOrder = { numberOfKnives:number; numberOfScorers:number; numberOfSheets:number; order1Width:number; order2Width:number; orderTotalWidth:number; firstKnifePosition:number; lastKnifePosition:number; knives:ToolReference[]; scorers:ToolReference[]; orderNotOk:boolean; knivesOutOfRange:number[]; scorersOutOfRange:number[] }
+type OrderChannel = { id:number; product:string; client:string; sheetType:number; sheetQuantity:number; sheetLength:number; sheetMeasures:number[]; numberOfCuts:number; numberOfCutsProduced:number; numberOfCutsRemaining:number; pileQuantity:number; pileQuantityProduced:number; pileQuantityRemaining:number; pileCounter:number; scrapCounter:number }
+type PlcOrder = { startedAt:string; tableId:number; productionListNumber:number; levelSelector:number; paperComposition:string; fluteType:string; paperWidth:number; paperLayers:string[]; lineSpeed:number; linearMeters:number; linearMetersProduced:number; linearMetersRemaining:number; scorerHeightMm:number; plcWatchDog:boolean; aocRequest:boolean; changeOrderRequest:boolean; saveSqlFinished:boolean; saveSqlTimeout:boolean; invertOrderLevel:boolean; invertOrderSide:boolean; order1:OrderChannel; order2:OrderChannel; generatedOrder:GeneratedOrder }
+type MonitorSnapshot = { state:string; data:{ currentOrder:PlcOrder; nextOrder:PlcOrder; capturedAtUtc:string }|null; lastSuccessfulReadUtc:string|null; lastError:string|null }
+type DatabaseStatus = { configured:boolean; available:boolean; message:string|null }
+type DbOrder = { [key:string]: string|number|null|undefined; id:number; productionSequence:number|null; productionState:number|null; startedAt:string|null; finishedAt:string|null; paperComposition:string; fluteType:string; paperWidth:number; paper1:string; paper2:string; paper3:string; paper4:string; paper5:string; productionListNumber:string; levelSelector:number; order1Id:number|null; order1Product:string; order1Client:string; order1SheetQuantity:number; order1SheetType:number; order1M1:number; order1M2:number; order1M3:number; order1M4:number; order1M5:number; order1SheetLength:number; order1NumberOfCuts:number; order1NumberOfCutsProduced:number|null; order1PileQuantity:number; order2Id:number|null; order2Product:string; order2Client:string; order2SheetQuantity:number|null; order2SheetType:number|null; order2M1:number|null; order2M2:number|null; order2M3:number|null; order2M4:number|null; order2M5:number|null; order2SheetLength:number|null; order2NumberOfCuts:number|null; order2NumberOfCutsProduced:number|null; order2PileQuantity:number|null }
+type SpeedRecord = { dateTime:string; machineSpeed:number }
+
+const initialSnapshot:MonitorSnapshot = { state:'Offline', data:null, lastSuccessfulReadUtc:null, lastError:null }
+const emptyOrder:DbOrder = { id:0,productionSequence:0,productionState:0,startedAt:null,finishedAt:null,paperComposition:'',fluteType:'',paperWidth:0,paper1:'',paper2:'',paper3:'',paper4:'',paper5:'',productionListNumber:'',levelSelector:1,order1Id:null,order1Product:'',order1Client:'',order1SheetQuantity:1,order1SheetType:1,order1M1:0,order1M2:0,order1M3:0,order1M4:0,order1M5:0,order1SheetLength:450,order1NumberOfCuts:1,order1NumberOfCutsProduced:0,order1PileQuantity:1,order2Id:null,order2Product:'',order2Client:'',order2SheetQuantity:null,order2SheetType:null,order2M1:null,order2M2:null,order2M3:null,order2M4:null,order2M5:null,order2SheetLength:null,order2NumberOfCuts:null,order2NumberOfCutsProduced:null,order2PileQuantity:null }
+const levelNames:Record<number,string> = {1:'Superior',2:'Inferior',3:'Ambos'}
+const formatNumber=(value:number,digits=0)=>value.toLocaleString('pt-BR',{maximumFractionDigits:digits})
+const today=()=>new Date().toISOString().slice(0,10)
+
+function usePlcMonitor(){
+  const [snapshot,setSnapshot]=useState(initialSnapshot)
+  useEffect(()=>{ const controller=new AbortController(); fetch('/api/diagnostics',{signal:controller.signal}).then(r=>r.json()).then(setSnapshot).catch(()=>undefined); const connection=new HubConnectionBuilder().withUrl('/hubs/diagnostics').withAutomaticReconnect().build(); connection.on('diagnosticsUpdated',setSnapshot); connection.start().catch(()=>undefined); return()=>{controller.abort();void connection.stop()} },[])
+  return snapshot
 }
 
-const initialSnapshot: MonitorSnapshot = { state: 'Offline', data: null, lastSuccessfulReadUtc: null, lastError: null }
-const levelNames: Record<number, string> = { 1: 'Superior', 2: 'Inferior', 3: 'Ambos' }
-const formatNumber = (value: number, digits = 0) => value.toLocaleString('pt-BR', { maximumFractionDigits: digits })
+function Progress({value,maximum}:{value:number;maximum:number}){const percent=maximum>0?Math.min(100,Math.max(0,value/maximum*100)):0;return <div className="progress"><i style={{width:`${percent}%`}}/></div>}
+function StatusPill({ok,label}:{ok:boolean;label:string}){return <span className={`status ${ok?'online':''}`}><i/>{label}</span>}
 
-function Progress({ value, maximum }: { value: number; maximum: number }) {
-  const percent = maximum > 0 ? Math.min(100, Math.max(0, value / maximum * 100)) : 0
-  return <div className="progress"><i style={{ width: `${percent}%` }} /></div>
-}
+function ChannelCard({name,order}:{name:string;order:OrderChannel}){return <article className="channel-card"><div className="card-heading"><div><p className="eyebrow">{name}</p><h3>{order.product||'Sem produto'}</h3></div><span>OF {order.id}</span></div><p className="client">{order.client||'Cliente não informado'}</p><div className="metric-row"><span>Formato</span><b>{order.sheetQuantity} × {order.sheetLength} mm</b></div><div className="measure-list">{order.sheetMeasures.map((m,i)=><span key={i}>M{i+1}<b>{m} mm</b></span>)}</div><div className="counter-heading"><span>Produção</span><b>{formatNumber(order.numberOfCutsProduced)} / {formatNumber(order.numberOfCuts)}</b></div><Progress value={order.numberOfCutsProduced} maximum={order.numberOfCuts}/><div className="pile-grid"><span>Pilha atual<b>{order.pileCounter} / {order.pileQuantity}</b></span><span>Pilhas produzidas<b>{order.pileQuantityProduced}</b></span><span>Refugo<b>{order.scrapCounter}</b></span></div></article>}
 
-function ChannelCard({ name, order }: { name: string; order: OrderChannel }) {
-  return <article className="channel-card">
-    <div className="card-heading"><div><p className="eyebrow">{name}</p><h3>{order.product || 'Sem produto'}</h3></div><span>#{order.id}</span></div>
-    <p className="client">{order.client || 'Cliente não informado'}</p>
-    <div className="metric-row"><span>Chapas</span><b>{order.sheetQuantity} × {order.sheetLength} mm</b></div>
-    <div className="measure-list">{order.sheetMeasures.map((measure, index) => <span key={index}>M{index + 1}<b>{measure} mm</b></span>)}</div>
-    <div className="counter-heading"><span>Produção</span><b>{formatNumber(order.numberOfCutsProduced)} / {formatNumber(order.numberOfCuts)}</b></div>
-    <Progress value={order.numberOfCutsProduced} maximum={order.numberOfCuts} />
-    <div className="pile-grid">
-      <span>Pilha atual<b>{order.pileCounter} / {order.pileQuantity}</b></span>
-      <span>Pilhas produzidas<b>{order.pileQuantityProduced}</b></span>
-      <span>Refugo<b>{order.scrapCounter}</b></span>
-    </div>
-  </article>
-}
+function ProductionScreen({current,next}:{current:PlcOrder;next:PlcOrder}){
+  const minutes=current.lineSpeed>0?current.linearMetersRemaining/current.lineSpeed:0
+  return <><div className="screen-title"><div><p className="eyebrow">Tela principal</p><h2>Produção atual</h2></div><div className="legacy-actions"><button disabled title="Escrita no PLC temporariamente bloqueada">Trocar pedido</button><button disabled title="Escrita no PLC temporariamente bloqueada">Troca automática</button></div></div><section className="production-hero"><div><span>Lista</span><strong>{current.productionListNumber}</strong><small>Table ID {current.tableId}</small></div><div><span>Papel</span><b>{current.paperWidth} mm · Onda {current.fluteType||'—'}</b><small>{current.paperComposition}</small></div><div><span>Velocidade</span><b>{formatNumber(current.lineSpeed,1)} m/min</b><small>{formatNumber(current.linearMetersRemaining,1)} m restantes</small></div><div><span>Previsão</span><b>{minutes>0?`${Math.floor(minutes/60)}h ${Math.round(minutes%60)}min`:'—'}</b><small>Início: {current.startedAt||'—'}</small></div></section><section className="channels"><ChannelCard name="Pedido 1 · Superior" order={current.order1}/><ChannelCard name="Pedido 2 · Inferior" order={current.order2}/></section><section className="next-order-strip"><div><p className="eyebrow">Próximo pedido no PLC</p><b>Lista {next.productionListNumber}</b></div><span>{next.order1.client||'Sem cliente'} · {next.order1.product||'Sem produto'}</span><span>{next.paperWidth} mm · {next.fluteType||'—'}</span><span>Nível {levelNames[next.levelSelector]??next.levelSelector}</span></section></>}
 
-function ToolTable({ title, tools, outOfRange }: { title: string; tools: ToolReference[]; outOfRange: number[] }) {
-  const enabled = tools.filter(tool => tool.enabled)
-  return <article className="tool-card"><div className="card-heading"><h3>{title}</h3><span>{enabled.length} ativas</span></div>
-    {enabled.length === 0 ? <p className="empty">Nenhuma ferramenta habilitada</p> : <div className="tool-list">
-      {enabled.map(tool => <div className={outOfRange.includes(tool.index) ? 'invalid' : ''} key={tool.index}>
-        <span>{title.slice(0, -1)} {tool.index}</span><b>{formatNumber(tool.positionReferenceMm, 2)} mm</b><i>{outOfRange.includes(tool.index) ? 'Fora de faixa' : 'OK'}</i>
-      </div>)}
-    </div>}
-  </article>
-}
+function DatabaseBanner({status}:{status:DatabaseStatus|null}){if(!status)return <div className="db-banner">Verificando banco de dados…</div>;return <div className={`db-banner ${status.available?'ok':''}`}><b>{status.available?'Banco conectado':'Banco indisponível'}</b><span>{status.available?'Leitura e gravação habilitadas':status.message}</span></div>}
 
-function OrderDiagnostics({ order }: { order: OrderSnapshot }) {
-  const generated = order.generatedOrder
-  const checks = useMemo(() => [
-    { label: 'Quantidade de facas', ok: generated.knives.filter(tool => tool.enabled).length === generated.numberOfKnives },
-    { label: 'Quantidade de vincos', ok: generated.scorers.filter(tool => tool.enabled).length === generated.numberOfScorers },
-    { label: 'Largura gerada', ok: Math.abs(generated.order1Width + generated.order2Width - generated.orderTotalWidth) < 0.1 },
-    { label: 'Status do pedido', ok: !generated.orderNotOk },
-  ], [generated])
+function NumberField({label,value,onChange,min}:{label:string;value:number|null|undefined;onChange:(value:number)=>void;min?:number}){return <label>{label}<input type="number" value={value??0} min={min} onChange={e=>onChange(Number(e.target.value))}/></label>}
+function TextField({label,value,onChange}:{label:string;value:string|null|undefined;onChange:(value:string)=>void}){return <label>{label}<input value={value??''} onChange={e=>onChange(e.target.value)}/></label>}
 
-  return <>
-    <section className="order-banner">
-      <div><p className="eyebrow">Lista de produção</p><strong>{order.productionListNumber}</strong><span>Table ID {order.tableId}</span></div>
-      <div><span>Papel</span><b>{order.paperWidth} mm · Onda {order.fluteType || '—'}</b><small>{order.paperComposition}</small></div>
-      <div><span>Nível</span><b>{levelNames[order.levelSelector] ?? order.levelSelector}</b><small>{order.startedAt || 'Sem horário de início'}</small></div>
-      <div><span>Produção linear</span><b>{formatNumber(order.linearMetersProduced, 1)} m</b><small>{formatNumber(order.linearMetersRemaining, 1)} m restantes</small></div>
-    </section>
-    <section className="channels"><ChannelCard name="Pedido 1 · Superior" order={order.order1} /><ChannelCard name="Pedido 2 · Inferior" order={order.order2} /></section>
-    <section className="generated-summary">
-      <div><span>Largura pedido 1</span><b>{formatNumber(generated.order1Width, 2)} mm</b></div>
-      <div><span>Largura pedido 2</span><b>{formatNumber(generated.order2Width, 2)} mm</b></div>
-      <div><span>Largura total</span><b>{formatNumber(generated.orderTotalWidth, 2)} mm</b></div>
-      <div><span>Primeira / última faca</span><b>{formatNumber(generated.firstKnifePosition, 2)} / {formatNumber(generated.lastKnifePosition, 2)}</b></div>
-    </section>
-    <section className="checks">{checks.map(check => <span className={check.ok ? 'valid' : 'invalid'} key={check.label}><i />{check.label}<b>{check.ok ? 'OK' : 'Verificar'}</b></span>)}</section>
-    <section className="tools"><ToolTable title="Facas" tools={generated.knives} outOfRange={generated.knivesOutOfRange} /><ToolTable title="Vincos" tools={generated.scorers} outOfRange={generated.scorersOutOfRange} /></section>
-  </>
-}
+function OrderForm({order,onChange,onSave,onCancel}:{order:DbOrder;onChange:(order:DbOrder)=>void;onSave:()=>void;onCancel:()=>void}){
+  const set=(key:string,value:string|number|null)=>onChange({...order,[key]:value})
+  const measures=(prefix:'order1'|'order2')=>[1,2,3,4,5].map(i=><NumberField key={i} label={`M${i}`} value={order[`${prefix}M${i}`] as number|null} onChange={v=>set(`${prefix}M${i}`,v)}/>)
+  return <div className="order-editor"><div className="form-grid"><TextField label="Lista de produção" value={order.productionListNumber} onChange={v=>set('productionListNumber',v)}/><NumberField label="Sequência" value={order.productionSequence} onChange={v=>set('productionSequence',v)}/><TextField label="Composição" value={order.paperComposition} onChange={v=>set('paperComposition',v)}/><TextField label="Onda" value={order.fluteType} onChange={v=>set('fluteType',v)}/><NumberField label="Largura do papel" value={order.paperWidth} onChange={v=>set('paperWidth',v)}/><label>Nível<select value={order.levelSelector} onChange={e=>set('levelSelector',Number(e.target.value))}><option value={1}>Superior</option><option value={2}>Inferior</option><option value={3}>Ambos</option></select></label></div><div className="paper-grid">{[1,2,3,4,5].map(i=><TextField key={i} label={`Papel ${i}`} value={order[`paper${i}`] as string} onChange={v=>set(`paper${i}`,v)}/>)}</div><div className="form-orders"><fieldset><legend>Pedido 1</legend><div className="form-grid"><NumberField label="OF" value={order.order1Id} onChange={v=>set('order1Id',v)}/><TextField label="Produto" value={order.order1Product} onChange={v=>set('order1Product',v)}/><TextField label="Cliente" value={order.order1Client} onChange={v=>set('order1Client',v)}/><NumberField label="Quantidade de chapas" value={order.order1SheetQuantity} onChange={v=>set('order1SheetQuantity',v)}/><NumberField label="Comprimento" value={order.order1SheetLength} min={450} onChange={v=>set('order1SheetLength',v)}/><NumberField label="Cortes" value={order.order1NumberOfCuts} min={1} onChange={v=>set('order1NumberOfCuts',v)}/><NumberField label="Tamanho da pilha" value={order.order1PileQuantity} min={1} onChange={v=>set('order1PileQuantity',v)}/></div><div className="measure-fields">{measures('order1')}</div></fieldset>{order.levelSelector===3&&<fieldset><legend>Pedido 2</legend><div className="form-grid"><NumberField label="OF" value={order.order2Id} onChange={v=>set('order2Id',v)}/><TextField label="Produto" value={order.order2Product} onChange={v=>set('order2Product',v)}/><TextField label="Cliente" value={order.order2Client} onChange={v=>set('order2Client',v)}/><NumberField label="Quantidade de chapas" value={order.order2SheetQuantity} onChange={v=>set('order2SheetQuantity',v)}/><NumberField label="Comprimento" value={order.order2SheetLength} min={450} onChange={v=>set('order2SheetLength',v)}/><NumberField label="Cortes" value={order.order2NumberOfCuts} min={1} onChange={v=>set('order2NumberOfCuts',v)}/><NumberField label="Tamanho da pilha" value={order.order2PileQuantity} min={1} onChange={v=>set('order2PileQuantity',v)}/></div><div className="measure-fields">{measures('order2')}</div></fieldset>}</div><div className="form-actions"><button onClick={onCancel}>Cancelar</button><button className="primary" onClick={onSave}>Salvar pedido</button></div></div>}
 
-function App() {
-  const [snapshot, setSnapshot] = useState(initialSnapshot)
-  const [selectedOrder, setSelectedOrder] = useState<'current' | 'next'>('current')
-  useEffect(() => {
-    const controller = new AbortController()
-    fetch('/api/diagnostics', { signal: controller.signal }).then(response => response.json()).then(setSnapshot).catch(() => undefined)
-    const connection = new HubConnectionBuilder().withUrl('/hubs/diagnostics').withAutomaticReconnect().build()
-    connection.on('diagnosticsUpdated', setSnapshot); connection.start().catch(() => undefined)
-    return () => { controller.abort(); void connection.stop() }
-  }, [])
-  const online = snapshot.state === 'Online'
-  const order = selectedOrder === 'current' ? snapshot.data?.currentOrder : snapshot.data?.nextOrder
-  return <main>
-    <header><div><p className="eyebrow">MR Brasil · Dry End</p><h1>Diagnóstico de pedidos</h1></div><span className={`status ${online ? 'online' : ''}`}><i />{snapshot.state}</span></header>
-    <nav><button className={selectedOrder === 'current' ? 'active' : ''} onClick={() => setSelectedOrder('current')}>Pedido atual</button><button className={selectedOrder === 'next' ? 'active' : ''} onClick={() => setSelectedOrder('next')}>Próximo pedido</button><span>ADS · {snapshot.lastSuccessfulReadUtc ? new Date(snapshot.lastSuccessfulReadUtc).toLocaleTimeString('pt-BR') : 'aguardando'}</span></nav>
-    {order ? <OrderDiagnostics order={order} /> : <section className="loading"><b>Aguardando dados válidos do PLC</b><span>{snapshot.lastError}</span></section>}
-    {snapshot.lastError && <aside><b>Diagnóstico de conexão</b><span>{snapshot.lastError}</span></aside>}
-    <footer>Diagnóstico em leitura · Estado do runtime TwinCAT não é alterado</footer>
-  </main>
+function OrdersScreen(){
+  const [status,setStatus]=useState<DatabaseStatus|null>(null),[orders,setOrders]=useState<DbOrder[]>([]),[editing,setEditing]=useState<DbOrder|null>(null),[error,setError]=useState('')
+  const load=()=>{fetch('/api/production-data/status').then(r=>r.json()).then(setStatus);fetch('/api/production-data/orders').then(async r=>{if(!r.ok)throw new Error((await r.json()).detail);return r.json()}).then(setOrders).catch(e=>setError(e.message))}
+  // EN: Load the legacy order queue only when the screen opens.
+  // PT: Carrega a fila de pedidos legada somente ao abrir a tela.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(load,[])
+  const save=async()=>{if(!editing)return;setError('');const method=editing.id?'PUT':'POST',url=editing.id?`/api/production-data/orders/${editing.id}`:'/api/production-data/orders';const response=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(editing)});if(!response.ok){const body=await response.json();setError(body.error??body.detail??'Falha ao salvar');return}setEditing(null);load()}
+  const remove=async(id:number)=>{if(!confirm('Deseja excluir este pedido da fila?'))return;await fetch(`/api/production-data/orders/${id}`,{method:'DELETE'});load()}
+  return <><div className="screen-title"><div><p className="eyebrow">Cadastro</p><h2>Pedidos de produção</h2></div><button className="primary" disabled={!status?.available} onClick={()=>setEditing({...emptyOrder})}>Novo pedido</button></div><DatabaseBanner status={status}/>{error&&<div className="form-error">{error}</div>}{editing?<OrderForm order={editing} onChange={setEditing} onSave={save} onCancel={()=>setEditing(null)}/>:<div className="data-table"><div className="table-head"><span>Seq.</span><span>Lista</span><span>Cliente / Produto</span><span>Formato</span><span>Nível</span><span>Ações</span></div>{orders.map(order=><div className="table-row" key={order.id}><span>{order.productionSequence??'—'}</span><b>{order.productionListNumber}</b><span>{order.order1Client}<small>{order.order1Product}</small></span><span>{order.order1SheetQuantity} × {order.order1SheetLength}</span><span>{levelNames[order.levelSelector]}</span><span className="row-actions"><button onClick={()=>setEditing({...order})}>Editar</button><button onClick={()=>remove(order.id)}>Excluir</button></span></div>)}{orders.length===0&&<div className="empty-row">Nenhum pedido disponível.</div>}</div>}</>}
+
+function HistoryScreen(){
+  const [status,setStatus]=useState<DatabaseStatus|null>(null),[rows,setRows]=useState<DbOrder[]>([]),[mode,setMode]=useState('None'),[search,setSearch]=useState(''),[date,setDate]=useState(today()),[error,setError]=useState('')
+  const load=()=>{fetch('/api/production-data/status').then(r=>r.json()).then(setStatus);const params=new URLSearchParams({mode,search});if(mode==='None')params.set('date',date);fetch(`/api/production-data/history?${params}`).then(async r=>{if(!r.ok)throw new Error((await r.json()).detail);return r.json()}).then(setRows).catch(e=>setError(e.message))}
+  // EN: Load the legacy history default view only when the screen opens.
+  // PT: Carrega a visualização padrão do histórico somente ao abrir a tela.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(load,[])
+  return <><div className="screen-title"><div><p className="eyebrow">Consulta</p><h2>Histórico de produção</h2></div></div><DatabaseBanner status={status}/><div className="filters"><select value={mode} onChange={e=>setMode(e.target.value)}><option value="None">Data</option><option value="Client">Cliente</option><option value="Composition">Composição</option><option value="ProductionList">Lista</option><option value="WorkOrder">OF</option><option value="Product">Produto</option></select>{mode==='None'?<input type="date" value={date} onChange={e=>setDate(e.target.value)}/>:<input placeholder="Pesquisar" value={search} onChange={e=>setSearch(e.target.value)}/>}<button className="primary" onClick={load}>Pesquisar</button></div>{error&&<div className="form-error">{error}</div>}<div className="data-table history"><div className="table-head"><span>Lista</span><span>Início / fim</span><span>Cliente</span><span>Produto</span><span>Produzido</span><span>Estado</span></div>{rows.map(row=><div className="table-row" key={row.id}><b>{row.productionListNumber}</b><span>{row.startedAt?new Date(row.startedAt).toLocaleString('pt-BR'):'—'}<small>{row.finishedAt?new Date(row.finishedAt).toLocaleString('pt-BR'):'Em andamento'}</small></span><span>{row.order1Client}</span><span>{row.order1Product}</span><span>{formatNumber(row.order1NumberOfCutsProduced??0)} / {formatNumber(row.order1NumberOfCuts)}</span><span>{row.productionState}</span></div>)}{rows.length===0&&<div className="empty-row">Nenhum registro encontrado.</div>}</div></>}
+
+function GraphsScreen(){
+  const [status,setStatus]=useState<DatabaseStatus|null>(null),[date,setDate]=useState(today()),[rows,setRows]=useState<SpeedRecord[]>([]),[error,setError]=useState('')
+  const load=()=>{fetch('/api/production-data/status').then(r=>r.json()).then(setStatus);fetch(`/api/production-data/machine-speed?date=${date}`).then(async r=>{if(!r.ok)throw new Error((await r.json()).detail);return r.json()}).then(setRows).catch(e=>setError(e.message))};
+  // EN: Load the current day only when the legacy graph screen opens.
+  // PT: Carrega o dia atual somente ao abrir a tela de gráficos legada.
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(load,[])
+  const points=useMemo(()=>{if(rows.length<2)return '';const max=Math.max(1,...rows.map(r=>r.machineSpeed));return rows.map((r,i)=>`${(i/(rows.length-1))*100},${100-(r.machineSpeed/max)*90}`).join(' ')},[rows])
+  const average=rows.length?rows.reduce((sum,row)=>sum+row.machineSpeed,0)/rows.length:0
+  return <><div className="screen-title"><div><p className="eyebrow">Produção</p><h2>Gráficos e indicadores</h2></div><div className="date-action"><input type="date" value={date} onChange={e=>setDate(e.target.value)}/><button className="primary" onClick={load}>Carregar</button></div></div><DatabaseBanner status={status}/>{error&&<div className="form-error">{error}</div>}<section className="graph-summary"><div><span>Velocidade média</span><b>{formatNumber(average,1)} m/min</b></div><div><span>Amostras</span><b>{rows.length}</b></div><div><span>Velocidade máxima</span><b>{formatNumber(Math.max(0,...rows.map(r=>r.machineSpeed)))} m/min</b></div></section><article className="chart-card"><div className="chart-title"><h3>Velocidade da máquina</h3><span>{date}</span></div>{points?<svg viewBox="0 0 100 100" preserveAspectRatio="none"><polyline points={points}/></svg>:<div className="chart-empty">Sem dados para o período selecionado.</div>}</article></>}
+
+function DiagnosticsScreen({order}:{order:PlcOrder}){const g=order.generatedOrder,tools=(title:string,items:ToolReference[],bad:number[])=><article className="tool-card"><div className="card-heading"><h3>{title}</h3><span>{items.filter(x=>x.enabled).length} ativas</span></div><div className="tool-list">{items.filter(x=>x.enabled).map(x=><div className={bad.includes(x.index)?'invalid':''} key={x.index}><span>{title.slice(0,-1)} {x.index}</span><b>{formatNumber(x.positionReferenceMm,2)} mm</b><i>{bad.includes(x.index)?'Fora de faixa':'OK'}</i></div>)}</div></article>;return <><div className="screen-title"><div><p className="eyebrow">Suporte técnico</p><h2>Diagnóstico das posições geradas</h2></div></div><section className="generated-summary"><div><span>Largura pedido 1</span><b>{g.order1Width} mm</b></div><div><span>Largura pedido 2</span><b>{g.order2Width} mm</b></div><div><span>Largura total</span><b>{g.orderTotalWidth} mm</b></div><div><span>Status</span><b>{g.orderNotOk?'Verificar':'Pedido válido'}</b></div></section><section className="tools">{tools('Facas',g.knives,g.knivesOutOfRange)}{tools('Vincos',g.scorers,g.scorersOutOfRange)}</section></>}
+
+function App(){
+  const snapshot=usePlcMonitor(),[page,setPage]=useState<Page>('production'),current=snapshot.data?.currentOrder,next=snapshot.data?.nextOrder,online=snapshot.state==='Online'
+  const labels:Record<Page,string>={production:'Produção',orders:'Pedidos',history:'Histórico',graphs:'Gráficos',diagnostics:'Diagnóstico'}
+  return <div className="app-shell"><aside className="side-menu"><div className="brand"><i>MR</i><div><b>Dry End</b><span>Production HMI</span></div></div><nav>{(Object.keys(labels) as Page[]).map(item=><button key={item} className={page===item?'active':''} onClick={()=>setPage(item)}><i>{item==='production'?'●':item==='orders'?'▤':item==='history'?'◷':item==='graphs'?'⌁':'◇'}</i>{labels[item]}</button>)}</nav><div className="side-footer"><StatusPill ok={online} label={snapshot.state}/><span>PLC Runtime 1 · 851</span></div></aside><main><header className="top-bar"><div><span>Velocidade da linha</span><b>{current?`${formatNumber(current.lineSpeed,1)} m/min`:'—'}</b></div><div><span>Pedido atual</span><b>{current?.productionListNumber??'—'}</b></div><div><span>Data e hora</span><b>{new Date().toLocaleString('pt-BR')}</b></div></header><div className="screen-content">{!current||!next?<section className="loading"><b>Aguardando dados válidos do PLC</b><span>{snapshot.lastError}</span></section>:<>{page==='production'&&<ProductionScreen current={current} next={next}/>} {page==='orders'&&<OrdersScreen/>} {page==='history'&&<HistoryScreen/>} {page==='graphs'&&<GraphsScreen/>} {page==='diagnostics'&&<DiagnosticsScreen order={current}/>}</>}</div></main></div>
 }
 export default App
