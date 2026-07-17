@@ -36,6 +36,9 @@ public sealed class ProviderDatabaseConnectionFactory(DatabaseOptions options) :
 
 public sealed class ProviderProductionQueries : IProductionQueries
 {
+    private const int QueueStateUpperBoundExclusive = 1;
+    private const int HistoryStateLowerBoundInclusive = 4;
+
     private const string Columns = """
         Id, ProductionSequence, ProductionState, MachineNotRunningTime, StartedAt, FinishedAt,
         PaperComposition, FluteType, PaperWidth, Paper1, Paper2, Paper3, Paper4, Paper5,
@@ -60,13 +63,28 @@ public sealed class ProviderProductionQueries : IProductionQueries
 
     public string Ping => "SELECT 1";
     public string Queue => LimitedSelect(
-        $"{Columns} FROM {_ordersTable} WHERE ProductionState < 2 " +
+        $"{Columns} FROM {_ordersTable} WHERE ProductionState < {QueueStateUpperBoundExclusive} " +
         "ORDER BY CASE WHEN ProductionSequence > 0 THEN 0 ELSE 1 END, ProductionSequence ASC, Id ASC",
         100);
     public string MachineSpeed => $"""
         SELECT Date_Time AS DateTime, Machine_Speed AS MachineSpeed FROM {_speedTable}
         WHERE Date_Time >= @StartDate AND Date_Time < @EndDate ORDER BY Date_Time;
         """;
+    public string InsertMachineSpeed => _provider == DatabaseProvider.SqlServer
+        ? $"""
+          INSERT INTO {_speedTable} (Date_Time, Machine_Speed)
+          SELECT @Slot, @Speed
+          WHERE NOT EXISTS (
+              SELECT 1 FROM {_speedTable} WITH (UPDLOCK, HOLDLOCK) WHERE Date_Time = @Slot
+          );
+          """
+        : $"""
+          INSERT INTO {_speedTable} (Date_Time, Machine_Speed)
+          SELECT @Slot, @Speed
+          WHERE NOT EXISTS (
+              SELECT 1 FROM {_speedTable} WHERE Date_Time = @Slot
+          );
+          """;
     public string InsertOrder => BuildInsert();
     public string UpdateOrder => $"""
         UPDATE {_ordersTable} SET
@@ -84,13 +102,14 @@ public sealed class ProviderProductionQueries : IProductionQueries
           Order2M3=@Order2M3, Order2M4=@Order2M4, Order2M5=@Order2M5,
           Order2SheetLength=@Order2SheetLength, Order2NumberOfCuts=@Order2NumberOfCuts,
           Order2PileQuantity=@Order2PileQuantity
-        WHERE Id=@Id AND ProductionState < 2;
+        WHERE Id=@Id AND ProductionState < {QueueStateUpperBoundExclusive};
         """;
-    public string DeleteOrder => $"DELETE FROM {_ordersTable} WHERE Id=@Id AND ProductionState < 2;";
+    public string DeleteOrder =>
+        $"DELETE FROM {_ordersTable} WHERE Id=@Id AND ProductionState < {QueueStateUpperBoundExclusive};";
 
     public ProductionQuery BuildHistory(OrderSearchMode mode, string? search, DateTime? date)
     {
-        var where = "ProductionState >= 2";
+        var where = $"ProductionState >= {HistoryStateLowerBoundInclusive}";
         object? parameters = null;
         var pattern = $"%{search?.Trim() ?? string.Empty}%";
         switch (mode)

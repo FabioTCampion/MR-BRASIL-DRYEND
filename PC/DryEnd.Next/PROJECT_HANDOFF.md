@@ -9,6 +9,21 @@ agente sem depender do historico da conversa.
 O codigo existente continua sendo a referencia definitiva. Antes de modificar
 arquivos, leia tambem `../../PROJECT_CONTEXT.md` e `../../CONVENTIONS.md`.
 
+## Atualizacao de implementacao em 2026-07-17
+
+- A leitura de `currentOrder` e `nextOrder` esta configurada para 2000 ms.
+- A edicao explicita de `currentOrder` foi autorizada e implementada com
+  readback ADS.
+- A fila SQL e consultada a cada 5000 ms e o primeiro pedido valido e escrito
+  automaticamente em `nextOrder`.
+- O pedido atual e excluido da selecao, valores nulos em campos ativos bloqueiam
+  a transferencia e um `nextOrder` ja ocupado nao e sobrescrito.
+- `tableID` e gravado por ultimo e a configuracao completa e confirmada por
+  readback.
+- A troca de pedido e o handshake SQL ainda nao sao executados pela nova
+  aplicacao.
+- Nenhuma rotina usa `WriteControl` ou a porta ADS 10000.
+
 ## Limite do trabalho
 
 O escopo de alteracao foi limitado a `PC/`.
@@ -317,7 +332,11 @@ PC/DryEnd.Next/
 A separacao e logica; a primeira implantacao continuara sendo um unico servico,
 nao varios processos independentes.
 
-## Plano de execucao
+## Plano de execucao original (historico)
+
+As fases abaixo registram o plano inicial. A prova somente leitura foi
+concluida e as escritas de `currentOrder` e `nextOrder` foram autorizadas em
+2026-07-17 conforme a atualizacao no inicio deste documento.
 
 ### Fase 1 - prova de conceito somente leitura
 
@@ -363,12 +382,13 @@ Habilitar separadamente e com configuracao explicita:
 6. piloto controlado;
 7. retirada gradual do WinForms.
 
-## Criterios de aceitacao da primeira prova
+## Criterios de aceitacao da primeira prova (concluida)
 
 - Executa no PC atual pelo VS Code e `dotnet run`.
 - Conecta usando a rota ADS existente.
 - Le continuamente os simbolos acordados.
-- Nao possui nenhuma chamada de escrita ADS.
+- Na etapa original nao possuia escrita ADS; atualmente as escritas autorizadas
+  possuem validacao e readback.
 - Mostra os dados em uma pagina React.
 - Recupera-se automaticamente de interrupcao de rede.
 - Nao coloca o runtime PLC em RUN.
@@ -378,7 +398,7 @@ Habilitar separadamente e com configuracao explicita:
 
 ## Regras de seguranca para o proximo agente
 
-- Comecar somente com leitura ADS.
+- Manter as escritas limitadas aos fluxos explicitamente autorizados.
 - Nao executar o WinForms e o novo backend como escritores simultaneos.
 - Nao alterar PLC, HMI dedicada, rota ADS ou banco de producao incidentalmente.
 - Nao copiar credenciais do `App.config` para documentacao, codigo ou logs.
@@ -400,5 +420,6 @@ Habilitar separadamente e com configuracao explicita:
 7. Entregar uma pagina de diagnostico mostrando conexao, watchdog,
    `currentOrder.tableID` e `nextOrder.tableID`.
 
-Qualquer mudanca que envolva escrita no PLC deve ser tratada como uma fase
-posterior e exigir autorizacao explicita.
+A escrita de `currentOrder` e `nextOrder` foi autorizada em 2026-07-17.
+Qualquer outro comando ou ampliacao de escrita continua exigindo autorizacao
+explicita.

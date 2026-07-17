@@ -13,6 +13,7 @@ public interface IProductionQueries
     string Ping { get; }
     string Queue { get; }
     string MachineSpeed { get; }
+    string InsertMachineSpeed { get; }
     string InsertOrder { get; }
     string UpdateOrder { get; }
     string DeleteOrder { get; }

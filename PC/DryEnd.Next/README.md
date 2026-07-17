@@ -14,8 +14,10 @@ papel, medidas M1..M5, contadores, pilhas, larguras calculadas, ferramentas
 habilitadas, referencias geradas e flags de fora de faixa.
 
 A interface segue as funcoes da HMI WinForms e possui as telas Producao,
-Pedidos, Historico, Graficos e Diagnostico. Comandos de troca de pedido no PLC
-permanecem visiveis, mas desabilitados nesta fase.
+Pedidos, Historico, Graficos e Diagnostico. A aplicacao permite editar
+explicitamente o pedido atual e sincroniza automaticamente o primeiro pedido
+valido da fila SQL com `nextOrder`. Os comandos que executam a troca de pedido
+permanecem desabilitados nesta fase.
 
 Antes de implementar qualquer funcionalidade, leia:
 
@@ -28,8 +30,9 @@ Antes de implementar qualquer funcionalidade, leia:
 - As alteracoes devem permanecer dentro de `PC/`.
 - `PLC/` e `HMI/` devem ser usados apenas como referencia e contrato.
 - O WinForms atual deve permanecer intacto durante a migracao inicial.
-- A primeira prova de conceito realiza somente leitura no ADS.
-- Futuras escritas de simbolos PLC sao permitidas com validacao e readback.
+- A leitura ADS de `currentOrder` e `nextOrder` ocorre a cada 2000 ms.
+- A edicao explicita de `currentOrder` e a sincronizacao validada de `nextOrder`
+  possuem escrita ADS com readback.
 - E proibido alterar o estado do runtime TwinCAT: nunca usar STOP, RUN, RESET,
   `WriteControl` ou a porta ADS de servico do sistema `10000`.
 
@@ -64,8 +67,45 @@ runtime. A configuracao ADS fica em `src/DryEnd.Web/appsettings.json`.
 Os simbolos globais deste PLC usam ponto inicial, por exemplo
 `.currentOrder.tableID` e `.nextOrder.tableID`.
 
-Nesta fase, a camada ADS nao possui operacoes de escrita. Os comandos legados
-permanecem desabilitados na interface ate a etapa de validacao operacional.
+O sincronizador consulta a fila SQL a cada 5000 ms. Somente pedidos pendentes,
+com sequencia positiva, campos ativos nao nulos e valores compativeis com os
+tipos PLC podem ser enviados. O pedido atual nunca e selecionado e um
+`nextOrder` ocupado por outro `tableID` nunca e sobrescrito automaticamente.
+O `tableID` e gravado por ultimo e todo o pedido e confirmado por readback ADS.
+
+A sincronizacao apenas prepara `nextOrder`; ela nao aciona
+`changeOrderRequest`, nao confirma o handshake SQL e nao altera o estado do
+runtime TwinCAT. Pode ser desabilitada por configuracao:
+
+```json
+"NextOrderSync": {
+  "Enabled": false,
+  "IntervalMilliseconds": 5000
+}
+```
+
+O backend tambem registra `currentOrder.lineSpeed` em `MachineSpeedRecords`
+sem depender do navegador. A velocidade e limitada a `0..300 m/min`, e os
+horarios sao alinhados em intervalos estaveis de 30 segundos. A gravacao ocorre
+somente com snapshot PLC online e valido. A deduplicacao consulta o proprio
+banco em uma transacao serializavel, portanto continua protegida depois de uma
+reinicializacao do servico. A configuracao pode ser alterada externamente:
+
+```json
+"MachineSpeedLogging": {
+  "Enabled": true,
+  "CheckIntervalMilliseconds": 1000,
+  "SlotIntervalSeconds": 30,
+  "MaximumSnapshotAgeSeconds": 10
+}
+```
+
+Snapshots com mais de 10 segundos sao ignorados, mesmo se o ultimo estado
+publicado ainda estiver `Online`. Isso evita registrar uma velocidade obsoleta
+durante uma operacao ADS longa ou uma interrupcao entre leituras.
+
+Esse servico somente le o snapshot ja publicado pelo monitor ADS e grava no
+banco. Ele nao escreve no PLC e nao interfere na sincronizacao de `nextOrder`.
 
 ## Banco de dados
 
@@ -73,6 +113,16 @@ A integracao SQL deve receber a connection string por configuracao externa,
 preferencialmente pela variavel de ambiente
 `ConnectionStrings__DryEnd`. Credenciais da HMI WinForms nao devem ser copiadas
 para o repositorio, documentacao ou logs.
+
+No computador de desenvolvimento, a opcao recomendada e o Secret Manager do
+.NET. O projeto `DryEnd.Web` possui um `UserSecretsId`, portanto a conexao pode
+ser registrada fora do repositorio:
+
+```powershell
+dotnet user-secrets set "ConnectionStrings:DryEnd" `
+    "<connection string externa>" `
+    --project .\src\DryEnd.Web
+```
 
 A camada de dados usa Dapper sobre interfaces genericas de conexao e dialeto.
 As telas e APIs nao dependem do provedor selecionado. Exemplo para SQL Server:
@@ -107,9 +157,11 @@ Cada banco precisa possuir um schema compativel com as tabelas produtivas. As
 diferencas de `TOP/LIMIT`, conversao de texto e retorno de identidade ficam
 isoladas em `ProviderProductionQueries`.
 
-Em 2026-07-17, a instancia configurada na HMI antiga nao estava acessivel deste
-PC (SQL Server error 26). A integracao permanece pendente ate que nome da
-instancia, rede e servico SQL sejam confirmados.
+Em 2026-07-17, a conexao com a instancia produtiva foi validada por
+`192.168.30.10,1433`. Como o nome `FACAO-CCO` nao e resolvido por DNS neste PC,
+o ambiente local usa o endereco IP. O SQL Server possui certificado interno;
+o segredo local mantem criptografia habilitada e usa
+`TrustServerCertificate=True`. Nenhuma credencial foi adicionada ao Git.
 
 ## Ferramentas e scripts
 

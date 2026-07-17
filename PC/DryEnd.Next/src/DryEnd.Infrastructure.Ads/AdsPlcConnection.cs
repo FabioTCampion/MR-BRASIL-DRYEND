@@ -6,7 +6,7 @@ using TwinCAT.Ads.TypeSystem;
 
 namespace DryEnd.Infrastructure.Ads;
 
-public sealed class AdsPlcConnection : IPlcConnection
+public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNextOrderWriter
 {
     private readonly AdsClient _client = new();
     private readonly AdsOptions _options;
@@ -39,6 +39,46 @@ public sealed class AdsPlcConnection : IPlcConnection
             var current = await ReadOrderAsync(_options.CurrentOrderRoot, cancellationToken);
             var next = await ReadOrderAsync(_options.NextOrderRoot, cancellationToken);
             return new PlcDataSnapshot(current, next, DateTimeOffset.UtcNow);
+        }
+        finally
+        {
+            _operationLock.Release();
+        }
+    }
+
+    public async Task<OrderSnapshot> UpdateCurrentOrderAsync(
+        CurrentOrderUpdate update,
+        CancellationToken cancellationToken)
+    {
+        if (!IsConnected)
+            throw new InvalidOperationException("ADS client is not connected.");
+
+        update.ValidateStructure();
+        await _operationLock.WaitAsync(cancellationToken);
+        try
+        {
+            await WriteOrderUpdateAsync(_options.CurrentOrderRoot, update, cancellationToken);
+            return await ReadOrderAsync(_options.CurrentOrderRoot, cancellationToken);
+        }
+        finally
+        {
+            _operationLock.Release();
+        }
+    }
+
+    public async Task<OrderSnapshot> WriteNextOrderAsync(
+        NextOrderUpdate update,
+        CancellationToken cancellationToken)
+    {
+        if (!IsConnected)
+            throw new InvalidOperationException("ADS client is not connected.");
+
+        update.ValidateStructure();
+        await _operationLock.WaitAsync(cancellationToken);
+        try
+        {
+            await WriteNextOrderUpdateAsync(_options.NextOrderRoot, update, cancellationToken);
+            return await ReadOrderAsync(_options.NextOrderRoot, cancellationToken);
         }
         finally
         {
@@ -79,6 +119,115 @@ public sealed class AdsPlcConnection : IPlcConnection
     {
         _client.Dispose();
         return ValueTask.CompletedTask;
+    }
+
+    private async Task WriteOrderUpdateAsync(
+        string root,
+        CurrentOrderUpdate update,
+        CancellationToken cancellationToken)
+    {
+        await WriteValueAsync($"{root}.startedAt", update.StartedAt ?? string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.productionListNumber", update.ProductionListNumber, cancellationToken);
+        await WriteValueAsync($"{root}.levelSelector", update.LevelSelector, cancellationToken);
+        await WriteValueAsync($"{root}.paperComposition", update.PaperComposition ?? string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.fluteType", update.FluteType ?? string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.paperWidth", update.PaperWidth, cancellationToken);
+
+        for (var index = 1; index <= update.PaperLayers.Count; index++)
+            await WriteValueAsync(
+                $"{root}.paper{index}",
+                update.PaperLayers[index - 1] ?? string.Empty,
+                cancellationToken);
+
+        await WriteValueAsync($"{root}.linearMeters", update.LinearMeters, cancellationToken);
+        await WriteValueAsync($"{root}.linearMetersProduced", update.LinearMetersProduced, cancellationToken);
+        await WriteValueAsync($"{root}.linearMetersRemaining", update.LinearMetersRemaining, cancellationToken);
+        await WriteValueAsync($"{root}.scorerHeightMM", update.ScorerHeightMm, cancellationToken);
+        await WriteValueAsync($"{root}.invertOrderLevel", update.InvertOrderLevel, cancellationToken);
+        await WriteValueAsync($"{root}.invertOrderSide", update.InvertOrderSide, cancellationToken);
+        await WriteOrderChannelUpdateAsync($"{root}.order1", update.Order1, cancellationToken);
+        await WriteOrderChannelUpdateAsync($"{root}.order2", update.Order2, cancellationToken);
+
+        // EN: Write the database identity last so it acts as the final field of the update.
+        // PT: Grava a identidade do banco por último para que ela seja o campo final da atualização.
+        await WriteValueAsync($"{root}.tableID", update.TableId, cancellationToken);
+    }
+
+    private async Task WriteOrderChannelUpdateAsync(
+        string root,
+        OrderChannelUpdate update,
+        CancellationToken cancellationToken)
+    {
+        await WriteValueAsync($"{root}.id", update.Id, cancellationToken);
+        await WriteValueAsync($"{root}.product", update.Product ?? string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.client", update.Client ?? string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.sheetType", update.SheetType, cancellationToken);
+        await WriteValueAsync($"{root}.sheetQuantity", update.SheetQuantity, cancellationToken);
+        await WriteValueAsync($"{root}.sheetLength", update.SheetLength, cancellationToken);
+
+        for (var index = 1; index <= update.SheetMeasures.Count; index++)
+            await WriteValueAsync(
+                $"{root}.sheetM{index}",
+                update.SheetMeasures[index - 1],
+                cancellationToken);
+
+        await WriteValueAsync($"{root}.numberOfCuts", update.NumberOfCuts, cancellationToken);
+        await WriteValueAsync($"{root}.numberOfCutsProduced", update.NumberOfCutsProduced, cancellationToken);
+        await WriteValueAsync($"{root}.numberOfCutsRemaining", update.NumberOfCutsRemaining, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantity", update.PileQuantity, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantityProduced", update.PileQuantityProduced, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantityRemaining", update.PileQuantityRemaining, cancellationToken);
+        await WriteValueAsync($"{root}.pileCounter", update.PileCounter, cancellationToken);
+        await WriteValueAsync($"{root}.scrapCounter", update.ScrapCounter, cancellationToken);
+    }
+
+    private async Task WriteNextOrderUpdateAsync(
+        string root,
+        NextOrderUpdate update,
+        CancellationToken cancellationToken)
+    {
+        await WriteValueAsync($"{root}.startedAt", string.Empty, cancellationToken);
+        await WriteValueAsync($"{root}.productionListNumber", update.ProductionListNumber, cancellationToken);
+        await WriteValueAsync($"{root}.levelSelector", update.LevelSelector, cancellationToken);
+        await WriteValueAsync($"{root}.paperComposition", update.PaperComposition, cancellationToken);
+        await WriteValueAsync($"{root}.fluteType", update.FluteType, cancellationToken);
+        await WriteValueAsync($"{root}.paperWidth", update.PaperWidth, cancellationToken);
+
+        for (var index = 1; index <= update.PaperLayers.Count; index++)
+            await WriteValueAsync($"{root}.paper{index}", update.PaperLayers[index - 1], cancellationToken);
+
+        await WriteNextOrderChannelAsync($"{root}.order1", update.Order1, cancellationToken);
+        await WriteNextOrderChannelAsync($"{root}.order2", update.Order2, cancellationToken);
+
+        // EN: The database ID is the commit marker and must always be written last.
+        // PT: O ID do banco funciona como marcador de conclusao e deve ser gravado por ultimo.
+        await WriteValueAsync($"{root}.tableID", update.TableId, cancellationToken);
+    }
+
+    private async Task WriteNextOrderChannelAsync(
+        string root,
+        NextOrderChannelUpdate update,
+        CancellationToken cancellationToken)
+    {
+        await WriteValueAsync($"{root}.id", update.Id, cancellationToken);
+        await WriteValueAsync($"{root}.product", update.Product, cancellationToken);
+        await WriteValueAsync($"{root}.client", update.Client, cancellationToken);
+        await WriteValueAsync($"{root}.sheetType", update.SheetType, cancellationToken);
+        await WriteValueAsync($"{root}.sheetQuantity", update.SheetQuantity, cancellationToken);
+        await WriteValueAsync($"{root}.sheetLength", update.SheetLength, cancellationToken);
+
+        for (var index = 1; index <= update.SheetMeasures.Count; index++)
+            await WriteValueAsync($"{root}.sheetM{index}", update.SheetMeasures[index - 1], cancellationToken);
+
+        await WriteValueAsync($"{root}.numberOfCuts", update.NumberOfCuts, cancellationToken);
+        await WriteValueAsync($"{root}.numberOfCutsProduced", 0, cancellationToken);
+        await WriteValueAsync($"{root}.numberOfCutsRemaining", 0, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantity", update.PileQuantity, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantityProduced", (short)0, cancellationToken);
+        await WriteValueAsync($"{root}.pileQuantityRemaining", (short)0, cancellationToken);
+        await WriteValueAsync($"{root}.pileCounter", (short)0, cancellationToken);
+        await WriteValueAsync($"{root}.scrapCounter", (short)0, cancellationToken);
+        await WriteValueAsync($"{root}.counterReset", false, cancellationToken);
     }
 
     private async Task<OrderSnapshot> ReadOrderAsync(string root, CancellationToken cancellationToken)
@@ -202,5 +351,16 @@ public sealed class AdsPlcConnection : IPlcConnection
         if (result.Failed)
             throw new AdsErrorException($"Could not read ADS symbol '{symbol}'.", result.ErrorCode);
         return result.Value!;
+    }
+
+    private async Task WriteValueAsync<T>(
+        string symbol,
+        T value,
+        CancellationToken cancellationToken)
+        where T : notnull
+    {
+        var result = await _client.WriteValueAsync(symbol, value, cancellationToken);
+        if (result.Failed)
+            throw new AdsErrorException($"Could not write ADS symbol '{symbol}'.", result.ErrorCode);
     }
 }

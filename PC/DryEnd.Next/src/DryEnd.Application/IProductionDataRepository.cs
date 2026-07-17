@@ -12,6 +12,7 @@ public interface IProductionDataRepository
         DateTime? date,
         CancellationToken cancellationToken);
     Task<IReadOnlyList<MachineSpeedRecord>> GetMachineSpeedAsync(DateTime date, CancellationToken cancellationToken);
+    Task<bool> TryAddMachineSpeedAsync(MachineSpeedSample sample, CancellationToken cancellationToken);
     Task<int> CreateAsync(ProductionOrderRecord order, CancellationToken cancellationToken);
     Task<bool> UpdateAsync(ProductionOrderRecord order, CancellationToken cancellationToken);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);

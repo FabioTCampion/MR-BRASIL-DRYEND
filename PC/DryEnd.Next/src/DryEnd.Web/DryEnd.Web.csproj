@@ -11,6 +11,7 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>DryEnd.Next-DryEnd.Web-7a8f105e-4c75-44d7-a77a-e9f903d10b90</UserSecretsId>
   </PropertyGroup>
 
 </Project>
