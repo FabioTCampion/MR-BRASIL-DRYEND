@@ -114,12 +114,116 @@ public sealed class AdsPlcConnection : IPlcConnection
     private async Task<OrderSnapshot> ReadOrderAsync(string root, CancellationToken cancellationToken)
     {
         return new OrderSnapshot(
+            await ReadValueAsync<string>($"{root}.startedAt", cancellationToken),
             await ReadValueAsync<int>($"{root}.tableID", cancellationToken),
             await ReadValueAsync<int>($"{root}.productionListNumber", cancellationToken),
             await ReadValueAsync<short>($"{root}.levelSelector", cancellationToken),
+            await ReadValueAsync<string>($"{root}.paperComposition", cancellationToken),
             await ReadValueAsync<string>($"{root}.fluteType", cancellationToken),
+            await ReadValueAsync<short>($"{root}.paperWidth", cancellationToken),
+            await ReadStringListAsync(root, "paper", 5, cancellationToken),
             await ReadValueAsync<float>($"{root}.lineSpeed", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.plcWatchDog", cancellationToken));
+            await ReadValueAsync<float>($"{root}.linearMeters", cancellationToken),
+            await ReadValueAsync<float>($"{root}.linearMetersProduced", cancellationToken),
+            await ReadValueAsync<float>($"{root}.linearMetersRemaining", cancellationToken),
+            await ReadValueAsync<float>($"{root}.scorerHeightMM", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.plcWatchDog", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.aocRequest", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.changeOrderRequest", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.saveSQLFinished", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.saveSQLTimeOut", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.invertOrderLevel", cancellationToken),
+            await ReadValueAsync<bool>($"{root}.invertOrderSide", cancellationToken),
+            await ReadOrderChannelAsync($"{root}.order1", cancellationToken),
+            await ReadOrderChannelAsync($"{root}.order2", cancellationToken),
+            await ReadGeneratedOrderAsync($"{root}.generatedOrder", cancellationToken));
+    }
+
+    private async Task<OrderChannelSnapshot> ReadOrderChannelAsync(string root, CancellationToken cancellationToken)
+    {
+        var measures = new short[5];
+        for (var index = 1; index <= measures.Length; index++)
+            measures[index - 1] = await ReadValueAsync<short>($"{root}.sheetM{index}", cancellationToken);
+
+        return new OrderChannelSnapshot(
+            await ReadValueAsync<int>($"{root}.id", cancellationToken),
+            await ReadValueAsync<string>($"{root}.product", cancellationToken),
+            await ReadValueAsync<string>($"{root}.client", cancellationToken),
+            await ReadValueAsync<short>($"{root}.sheetType", cancellationToken),
+            await ReadValueAsync<short>($"{root}.sheetQuantity", cancellationToken),
+            await ReadValueAsync<short>($"{root}.sheetLength", cancellationToken),
+            measures,
+            await ReadValueAsync<int>($"{root}.numberOfCuts", cancellationToken),
+            await ReadValueAsync<int>($"{root}.numberOfCutsProduced", cancellationToken),
+            await ReadValueAsync<int>($"{root}.numberOfCutsRemaining", cancellationToken),
+            await ReadValueAsync<short>($"{root}.pileQuantity", cancellationToken),
+            await ReadValueAsync<short>($"{root}.pileQuantityProduced", cancellationToken),
+            await ReadValueAsync<short>($"{root}.pileQuantityRemaining", cancellationToken),
+            await ReadValueAsync<short>($"{root}.pileCounter", cancellationToken),
+            await ReadValueAsync<short>($"{root}.scrapCounter", cancellationToken));
+    }
+
+    private async Task<GeneratedOrderSnapshot> ReadGeneratedOrderAsync(string root, CancellationToken cancellationToken)
+    {
+        var knives = await ReadToolReferencesAsync(root, "knife", 10, cancellationToken);
+        var scorers = await ReadToolReferencesAsync(root, "scorer", 20, cancellationToken);
+        var knivesOutOfRange = await ReadActiveIndexesAsync($"{root}.statusWord.knifeOutOfRangeArr", 5, cancellationToken);
+        var scorersOutOfRange = await ReadActiveIndexesAsync($"{root}.statusWord.scorerOutOfRangeArr", 8, cancellationToken);
+
+        return new GeneratedOrderSnapshot(
+            await ReadValueAsync<short>($"{root}.numberOfKnifes", cancellationToken),
+            await ReadValueAsync<short>($"{root}.numberOfScorers", cancellationToken),
+            await ReadValueAsync<short>($"{root}.numberOfSheets", cancellationToken),
+            await ReadValueAsync<float>($"{root}.order1Width", cancellationToken),
+            await ReadValueAsync<float>($"{root}.order2Width", cancellationToken),
+            await ReadValueAsync<float>($"{root}.orderTotalWidth", cancellationToken),
+            await ReadValueAsync<float>($"{root}.firstKnifePosition", cancellationToken),
+            await ReadValueAsync<float>($"{root}.lastKnifePosition", cancellationToken),
+            knives,
+            scorers,
+            await ReadValueAsync<bool>($"{root}.statusWord.orderNotOk", cancellationToken),
+            knivesOutOfRange,
+            scorersOutOfRange);
+    }
+
+    private async Task<IReadOnlyList<ToolReferenceSnapshot>> ReadToolReferencesAsync(
+        string root,
+        string toolName,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        var result = new List<ToolReferenceSnapshot>(count);
+        for (var index = 1; index <= count; index++)
+        {
+            var enabled = await ReadValueAsync<bool>($"{root}.{toolName}EnabledArr[{index}]", cancellationToken);
+            var position = await ReadValueAsync<float>($"{root}.{toolName}PositionReferenceArr[{index}]", cancellationToken);
+            result.Add(new ToolReferenceSnapshot(index, enabled, position));
+        }
+        return result;
+    }
+
+    private async Task<IReadOnlyList<int>> ReadActiveIndexesAsync(
+        string root,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        var result = new List<int>();
+        for (var index = 1; index <= count; index++)
+            if (await ReadValueAsync<bool>($"{root}[{index}]", cancellationToken))
+                result.Add(index);
+        return result;
+    }
+
+    private async Task<IReadOnlyList<string>> ReadStringListAsync(
+        string root,
+        string name,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        var result = new string[count];
+        for (var index = 1; index <= count; index++)
+            result[index - 1] = await ReadValueAsync<string>($"{root}.{name}{index}", cancellationToken);
+        return result;
     }
 
     private async Task<T> ReadValueAsync<T>(string symbol, CancellationToken cancellationToken)

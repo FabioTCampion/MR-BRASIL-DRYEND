@@ -1,6 +1,7 @@
 using DryEnd.Application;
 using DryEnd.Infrastructure.Ads;
 using DryEnd.Web;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +14,10 @@ builder.Services.AddSingleton(adsOptions);
 builder.Services.AddSingleton<IPlcMonitorStateStore, PlcMonitorStateStore>();
 builder.Services.AddSingleton<AdsPlcConnection>();
 builder.Services.AddSingleton<IPlcConnection>(provider => provider.GetRequiredService<AdsPlcConnection>());
-builder.Services.AddSignalR();
+builder.Services.ConfigureHttpJsonOptions(options =>
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddSignalR().AddJsonProtocol(options =>
+    options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddHostedService<PlcMonitorWorker>();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins("http://localhost:5173").AllowAnyHeader().AllowAnyMethod().AllowCredentials()));

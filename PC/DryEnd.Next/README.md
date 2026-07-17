@@ -9,6 +9,10 @@ A primeira base executavel esta inicializada. Ela contem o monitor ADS,
 API de diagnostico, atualizacao em tempo real por SignalR, painel React e testes
 automatizados.
 
+O diagnostico de pedidos le `currentOrder` e `nextOrder`, incluindo dados do
+papel, medidas M1..M5, contadores, pilhas, larguras calculadas, ferramentas
+habilitadas, referencias geradas e flags de fora de faixa.
+
 Antes de implementar qualquer funcionalidade, leia:
 
 1. `../../PROJECT_CONTEXT.md`
@@ -71,6 +75,17 @@ Depois envie `POST /api/diagnostics/current-order/flute-type` com o JSON
 `{ "value": "TESTE-ADS" }`. Reiniciar normalmente o backend volta a bloquear
 esse endpoint. Essa escrita nao usa a porta 10000 nem altera o estado do
 runtime TwinCAT.
+
+## Banco de dados
+
+A integracao SQL deve receber a connection string por configuracao externa,
+preferencialmente pela variavel de ambiente
+`ConnectionStrings__DryEnd`. Credenciais da HMI WinForms nao devem ser copiadas
+para o repositorio, documentacao ou logs.
+
+Em 2026-07-17, a instancia configurada na HMI antiga nao estava acessivel deste
+PC (SQL Server error 26). A integracao permanece pendente ate que nome da
+instancia, rede e servico SQL sejam confirmados.
 
 ## Ferramentas e scripts
 
