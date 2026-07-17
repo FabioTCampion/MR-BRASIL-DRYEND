@@ -40,3 +40,10 @@ Desktop.ini
 # EN: Local ADS diagnostic logs can grow quickly.
 # PT: Logs locais de diagnostico ADS podem crescer rapidamente.
 Tools/AdsLogger/Logs/
+
+# DryEnd.Next web artifacts
+PC/DryEnd.Next/src/dryend-web-client/node_modules/
+PC/DryEnd.Next/src/dryend-web-client/dist/
+PC/DryEnd.Next/src/dryend-web-client/coverage/
+PC/DryEnd.Next/src/dryend-web-client/playwright-report/
+PC/DryEnd.Next/src/dryend-web-client/test-results/

@@ -5,8 +5,9 @@ Nova aplicacao web para substituir gradualmente a HMI WinForms localizada em
 
 ## Estado atual
 
-O projeto ainda nao foi inicializado. Esta pasta contem somente a documentacao
-de arquitetura e transferencia de contexto para a proxima etapa do trabalho.
+A primeira base executavel esta inicializada. Ela contem o monitor ADS,
+API de diagnostico, atualizacao em tempo real por SignalR, painel React e testes
+automatizados.
 
 Antes de implementar qualquer funcionalidade, leia:
 
@@ -19,7 +20,10 @@ Antes de implementar qualquer funcionalidade, leia:
 - As alteracoes devem permanecer dentro de `PC/`.
 - `PLC/` e `HMI/` devem ser usados apenas como referencia e contrato.
 - O WinForms atual deve permanecer intacto durante a migracao inicial.
-- A primeira prova de conceito deve ser estritamente somente leitura no ADS.
+- A primeira prova de conceito realiza somente leitura no ADS.
+- Futuras escritas de simbolos PLC sao permitidas com validacao e readback.
+- E proibido alterar o estado do runtime TwinCAT: nunca usar STOP, RUN, RESET,
+  `WriteControl` ou a porta ADS de servico do sistema `10000`.
 
 ## Arquitetura acordada
 
@@ -34,3 +38,64 @@ Antes de implementar qualquer funcionalidade, leia:
 
 Consulte `PROJECT_HANDOFF.md` para as decisoes, riscos, plano e criterios de
 aceitacao completos.
+
+## Executar em desenvolvimento
+
+Em dois terminais:
+
+```powershell
+dotnet run --project .\src\DryEnd.Web
+
+Set-Location .\src\dryend-web-client
+npm run dev
+```
+
+O backend tenta reconectar ao PLC automaticamente, sem alterar o estado do
+runtime. A configuracao ADS fica em `src/DryEnd.Web/appsettings.json`.
+
+Os simbolos globais deste PLC usam ponto inicial, por exemplo
+`.currentOrder.tableID` e `.nextOrder.tableID`.
+
+### Escrita diagnostica controlada
+
+O teste de escrita de `.currentOrder.fluteType` possui validacao e readback e
+fica desabilitado por padrao (`Ads:EnableDiagnosticWrites = false`). Para um
+teste supervisionado, habilite-o somente no processo atual:
+
+```powershell
+$env:Ads__EnableDiagnosticWrites = 'true'
+dotnet run --project .\src\DryEnd.Web --urls http://localhost:5074
+```
+
+Depois envie `POST /api/diagnostics/current-order/flute-type` com o JSON
+`{ "value": "TESTE-ADS" }`. Reiniciar normalmente o backend volta a bloquear
+esse endpoint. Essa escrita nao usa a porta 10000 nem altera o estado do
+runtime TwinCAT.
+
+## Ferramentas e scripts
+
+Os scripts de preparacao ficam em `scripts/`:
+
+```powershell
+# Inventario sem alteracoes no computador
+.\scripts\Get-EnvironmentStatus.ps1
+
+# Ambiente de desenvolvimento
+# Executar em uma janela PowerShell aberta como Administrador
+.\scripts\Install-DevelopmentEnvironment.ps1
+
+# Ambiente de desenvolvimento com PowerShell 7 e extensao SQL
+.\scripts\Install-DevelopmentEnvironment.ps1 `
+    -IncludePowerShell7 `
+    -IncludeSqlTools
+
+# Pre-requisitos minimos de um servidor framework-dependent
+.\scripts\Install-ServerPrerequisites.ps1
+```
+
+O perfil de desenvolvimento instala VS Code, .NET 10 SDK, Node.js 24 LTS e
+extensoes do editor. Git e preservado quando ja estiver instalado.
+
+O perfil de servidor instala somente o ASP.NET Core Runtime 10 e valida TwinCAT
+ADS. Node.js, VS Code, Git e IIS nao sao necessarios no servidor. Nenhum script
+altera a rota ADS ou grava credenciais SQL.

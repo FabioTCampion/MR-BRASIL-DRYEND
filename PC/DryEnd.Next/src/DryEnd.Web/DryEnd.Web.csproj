@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\DryEnd.Domain\DryEnd.Domain.csproj" />
+    <ProjectReference Include="..\DryEnd.Application\DryEnd.Application.csproj" />
+    <ProjectReference Include="..\DryEnd.Infrastructure.Ads\DryEnd.Infrastructure.Ads.csproj" />
+    <ProjectReference Include="..\DryEnd.Infrastructure.Database\DryEnd.Infrastructure.Database.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>

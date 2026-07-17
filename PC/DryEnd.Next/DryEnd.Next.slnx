@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DryEnd.Application/DryEnd.Application.csproj" />
+    <Project Path="src/DryEnd.Domain/DryEnd.Domain.csproj" />
+    <Project Path="src/DryEnd.Infrastructure.Ads/DryEnd.Infrastructure.Ads.csproj" />
+    <Project Path="src/DryEnd.Infrastructure.Database/DryEnd.Infrastructure.Database.csproj" />
+    <Project Path="src/DryEnd.Web/DryEnd.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DryEnd.Application.Tests/DryEnd.Application.Tests.csproj" />
+    <Project Path="tests/DryEnd.Domain.Tests/DryEnd.Domain.Tests.csproj" />
+    <Project Path="tests/DryEnd.Infrastructure.Tests/DryEnd.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
