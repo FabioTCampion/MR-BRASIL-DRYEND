@@ -29,8 +29,8 @@ public sealed record NextOrderUpdate(
             throw new ArgumentException("Level selector must be 1, 2 or 3.");
 
         var level = checked((short)(order.LevelSelector ?? throw new ArgumentException("Level selector is required.")));
-        var order1Enabled = level is 1 or 3;
-        var order2Enabled = level is 2 or 3;
+        var order1Enabled = level is 1 or 2 or 3;
+        var order2Enabled = level == 3;
 
         return new NextOrderUpdate(
             order.Id,
@@ -125,10 +125,14 @@ public sealed record NextOrderUpdate(
         if (numberOfCuts is null or <= 0)
             throw new ArgumentException($"{name} number of cuts must be greater than zero.");
 
-        var convertedMeasures = measures
-            .Select((value, index) => RequiredShort(value, 0, short.MaxValue, $"{name} M{index + 1}"))
-            .ToArray();
         var activeMeasureCount = sheetType.Value switch { 0 => 1, 1 => 3, _ => 5 };
+        var convertedMeasures = measures
+            .Select((value, index) => RequiredShort(
+                index >= activeMeasureCount ? value ?? 0 : value,
+                0,
+                short.MaxValue,
+                $"{name} M{index + 1}"))
+            .ToArray();
         if (convertedMeasures.Take(activeMeasureCount).Any(value => value <= 0))
             throw new ArgumentException($"{name} active measures must be greater than zero.");
 

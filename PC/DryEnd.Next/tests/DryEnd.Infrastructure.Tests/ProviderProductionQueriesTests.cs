@@ -45,6 +45,37 @@ public sealed class ProviderProductionQueriesTests
             StringComparison.OrdinalIgnoreCase);
     }
 
+    [Fact]
+    public void HistoryMutations_OnlyTargetCompletedOrders()
+    {
+        var queries = Create(DatabaseProvider.SqlServer);
+
+        Assert.Contains("WHERE Id=@Id AND ProductionState >= 4", queries.UpdateHistory, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("WHERE Id=@Id AND ProductionState >= 4", queries.DeleteHistory, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("WHERE ProductionState >= 4", queries.ClearHistory, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("WHERE Id=@Id AND ProductionState >= 4", queries.RecoverHistory, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void HistoryRecovery_OnlyChangesCompletedOrderStatus()
+    {
+        var query = Create(DatabaseProvider.SqlServer).RecoverHistory;
+
+        Assert.Contains("SET ProductionState=0", query, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("INSERT", query, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void LevelSwap_OnlyTargetsPendingTwoLevelOrders()
+    {
+        var query = Create(DatabaseProvider.SqlServer).SwapPendingOrderLevels;
+
+        Assert.Contains("Order1Id=Order2Id", query, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Order2Id=Order1Id", query, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("ProductionState < 1", query, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("LevelSelector=3", query, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Theory]
     [InlineData(DatabaseProvider.SqlServer, "UPDLOCK")]
     [InlineData(DatabaseProvider.PostgreSql, "WHERE NOT EXISTS")]
@@ -58,6 +89,22 @@ public sealed class ProviderProductionQueriesTests
         Assert.Contains("INSERT INTO", query, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("Date_Time = @Slot", query, StringComparison.OrdinalIgnoreCase);
         Assert.Contains(expectedProtection, query, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Theory]
+    [InlineData(DatabaseProvider.SqlServer, "HistoryCreatedFromPlc = 1")]
+    [InlineData(DatabaseProvider.PostgreSql, "HistoryCreatedFromPlc = TRUE")]
+    [InlineData(DatabaseProvider.Sqlite, "HistoryCreatedFromPlc = 1")]
+    public void OrderQueries_IncludeAuditAndRecoveredHistoryMetadata(
+        DatabaseProvider provider,
+        string expectedBooleanComparison)
+    {
+        var queries = Create(provider);
+
+        Assert.Contains("PlcSourceTableId", queries.Queue, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("HistorySavedAt", queries.InsertOrder, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("LastModifiedBy", queries.UpdateOrder, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains(expectedBooleanComparison, queries.CountRecoveredHistory, StringComparison.OrdinalIgnoreCase);
     }
 
     private static ProviderProductionQueries Create(DatabaseProvider provider) => new(new DatabaseOptions

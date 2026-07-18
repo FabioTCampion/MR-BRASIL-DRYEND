@@ -563,6 +563,16 @@
 			<SI Nm="digitalOutput_15" Tp="BOOL" Ext="35" />
 			<SI Nm="digitalOutput_16" Tp="BOOL" Ext="36" />
 		</DT>
+		<DT Nm="EL3002_DEV_CONFIG" AT="2" Ext="32">
+			<SI Nm="channe12InputHigh" Tp="REAL" Ext="20" />
+			<SI Nm="channe12InputLow" Tp="REAL" Ext="16" />
+			<SI Nm="channe12OutputHigh" Tp="REAL" Ext="28" />
+			<SI Nm="channe12OutputLow" Tp="REAL" Ext="24" />
+			<SI Nm="channel1InputHigh" Tp="REAL" Ext="4" />
+			<SI Nm="channel1InputLow" Tp="REAL" Ext="0" />
+			<SI Nm="channel1OutputHigh" Tp="REAL" Ext="12" />
+			<SI Nm="channel1OutputLow" Tp="REAL" Ext="8" />
+		</DT>
 		<DT Nm="EL3002_DEV_STATUS" AT="2" Ext="7">
 			<SI Nm="Error" Tp="BOOL" Ext="4" />
 			<SI Nm="Limit1" Tp="BOOL" Ext="2" />
@@ -575,16 +585,6 @@
 		<DT Nm="EL3002_CHANNEL" AT="2" Ext="10">
 			<SI Nm="Status" Tp="EL3002_DEV_STATUS" Ext="0" />
 			<SI Nm="Value" Tp="INT" Ext="8" />
-		</DT>
-		<DT Nm="EL3002_DEV_CONFIG" AT="2" Ext="32">
-			<SI Nm="channe12InputHigh" Tp="REAL" Ext="20" />
-			<SI Nm="channe12InputLow" Tp="REAL" Ext="16" />
-			<SI Nm="channe12OutputHigh" Tp="REAL" Ext="28" />
-			<SI Nm="channe12OutputLow" Tp="REAL" Ext="24" />
-			<SI Nm="channel1InputHigh" Tp="REAL" Ext="4" />
-			<SI Nm="channel1InputLow" Tp="REAL" Ext="0" />
-			<SI Nm="channel1OutputHigh" Tp="REAL" Ext="12" />
-			<SI Nm="channel1OutputLow" Tp="REAL" Ext="8" />
 		</DT>
 		<DT Nm="EL3002_HWTOPLC_PDOS" AT="2" Ext="20">
 			<SI Nm="Channel1" Tp="EL3002_CHANNEL" Ext="0" />
@@ -633,6 +633,39 @@
 			<SI Nm="Channel4" Tp="REAL" Ext="80" />
 			<SI Nm="PDOS" Tp="EL4004_PDOS" Ext="84" />
 			<SI Nm="deviceConfig" Tp="EL4004_DEV_CONFIG" Ext="4" />
+		</DT>
+		<DT Nm="EL1008_DEV_CONFIG" AT="2" Ext="9">
+			<SI Nm="enableForce" Tp="BOOL" Ext="0" />
+			<SI Nm="forceDigitalInput_00" Tp="BOOL" Ext="1" />
+			<SI Nm="forceDigitalInput_01" Tp="BOOL" Ext="2" />
+			<SI Nm="forceDigitalInput_02" Tp="BOOL" Ext="3" />
+			<SI Nm="forceDigitalInput_03" Tp="BOOL" Ext="4" />
+			<SI Nm="forceDigitalInput_04" Tp="BOOL" Ext="5" />
+			<SI Nm="forceDigitalInput_05" Tp="BOOL" Ext="6" />
+			<SI Nm="forceDigitalInput_06" Tp="BOOL" Ext="7" />
+			<SI Nm="forceDigitalInput_07" Tp="BOOL" Ext="8" />
+		</DT>
+		<DT Nm="EL1008_HWTOPLC_PDOS" AT="2" Ext="8">
+			<SI Nm="digitalInput_00" Tp="BOOL" Ext="0" />
+			<SI Nm="digitalInput_01" Tp="BOOL" Ext="1" />
+			<SI Nm="digitalInput_02" Tp="BOOL" Ext="2" />
+			<SI Nm="digitalInput_03" Tp="BOOL" Ext="3" />
+			<SI Nm="digitalInput_04" Tp="BOOL" Ext="4" />
+			<SI Nm="digitalInput_05" Tp="BOOL" Ext="5" />
+			<SI Nm="digitalInput_06" Tp="BOOL" Ext="6" />
+			<SI Nm="digitalInput_07" Tp="BOOL" Ext="7" />
+		</DT>
+		<DT Nm="FB_EL1008" AT="2" Ext="32">
+			<SI Nm="PDOS" Tp="EL1008_HWTOPLC_PDOS" Ext="21" />
+			<SI Nm="deviceConfig" Tp="EL1008_DEV_CONFIG" Ext="4" />
+			<SI Nm="digitalInput_01" Tp="BOOL" Ext="13" />
+			<SI Nm="digitalInput_02" Tp="BOOL" Ext="14" />
+			<SI Nm="digitalInput_03" Tp="BOOL" Ext="15" />
+			<SI Nm="digitalInput_04" Tp="BOOL" Ext="16" />
+			<SI Nm="digitalInput_05" Tp="BOOL" Ext="17" />
+			<SI Nm="digitalInput_06" Tp="BOOL" Ext="18" />
+			<SI Nm="digitalInput_07" Tp="BOOL" Ext="19" />
+			<SI Nm="digitalInput_08" Tp="BOOL" Ext="20" />
 		</DT>
 		<DT Nm="ARRAY [1..5] OF INT" AT="3" Tp="INT" Ext="2">
 			<ARI Id="0">
@@ -832,8 +865,8 @@
 			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="34" />
 			<SI Nm="systemRunEnable" Tp="BOOL" Ext="0" />
 		</DT>
-		<DT Nm="hmiStatusComplexStacker_TypeStruct" AT="2" Ext="336">
-			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="332" />
+		<DT Nm="hmiStatusComplexStacker_TypeStruct" AT="2" Ext="340">
+			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="336" />
 			<SI Nm="backstopFault" Tp="BOOL" Ext="236" />
 			<SI Nm="backstopFaultCode" Tp="INT" Ext="238" />
 			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="196" />
@@ -853,44 +886,47 @@
 			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="204" />
 			<SI Nm="deviceState" Tp="STRING(30)" Ext="3" />
 			<SI Nm="elevatorBrakeRelease" Tp="BOOL" Ext="290" />
-			<SI Nm="elevatorDriveOk" Tp="BOOL" Ext="333" />
-			<SI Nm="elevatorFault" Tp="BOOL" Ext="304" />
-			<SI Nm="elevatorFaultCode" Tp="INT" Ext="306" />
+			<SI Nm="elevatorDriveEnable" Tp="BOOL" Ext="291" />
+			<SI Nm="elevatorDriveOk" Tp="BOOL" Ext="337" />
+			<SI Nm="elevatorFault" Tp="BOOL" Ext="308" />
+			<SI Nm="elevatorFaultCode" Tp="INT" Ext="310" />
 			<SI Nm="elevatorHomed" Tp="BOOL" Ext="271" />
 			<SI Nm="elevatorInPosition" Tp="BOOL" Ext="272" />
 			<SI Nm="elevatorPositionErrorMm" Tp="REAL" Ext="284" />
 			<SI Nm="elevatorPositionMm" Tp="REAL" Ext="276" />
+			<SI Nm="elevatorQuickStop" Tp="BOOL" Ext="292" />
 			<SI Nm="elevatorRunDown" Tp="BOOL" Ext="289" />
 			<SI Nm="elevatorRunUp" Tp="BOOL" Ext="288" />
-			<SI Nm="elevatorSetEncoderPosition" Tp="BOOL" Ext="296" />
-			<SI Nm="elevatorSetEncoderPositionMm" Tp="REAL" Ext="300" />
-			<SI Nm="elevatorSpeedRefMmps" Tp="REAL" Ext="292" />
+			<SI Nm="elevatorSetEncoderPosition" Tp="BOOL" Ext="300" />
+			<SI Nm="elevatorSetEncoderPositionMm" Tp="REAL" Ext="304" />
+			<SI Nm="elevatorSpeedRefMmps" Tp="REAL" Ext="296" />
 			<SI Nm="elevatorState" Tp="STRING(30)" Ext="240" />
 			<SI Nm="elevatorTargetPositionMm" Tp="REAL" Ext="280" />
 			<SI Nm="faultActive" Tp="BOOL" Ext="2" />
-			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="316" />
-			<SI Nm="paperPressSolenoid" Tp="BOOL" Ext="308" />
+			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="320" />
+			<SI Nm="paperPressSolenoid" Tp="BOOL" Ext="312" />
 			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="1" />
-			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="309" />
-			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="310" />
-			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="311" />
-			<SI Nm="sheetBrush4Valve" Tp="BOOL" Ext="312" />
-			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="328" />
+			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="314" />
+			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="315" />
+			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="316" />
+			<SI Nm="sheetBrush4Valve" Tp="BOOL" Ext="317" />
+			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="332" />
+			<SI Nm="sheetConveyor1ExhaustFanRun" Tp="BOOL" Ext="313" />
 			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="35" />
 			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="40" />
-			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="329" />
+			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="333" />
 			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="36" />
 			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="44" />
-			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="330" />
+			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="334" />
 			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="37" />
 			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="48" />
-			<SI Nm="sheetConveyor4DriveOk" Tp="BOOL" Ext="331" />
+			<SI Nm="sheetConveyor4DriveOk" Tp="BOOL" Ext="335" />
 			<SI Nm="sheetConveyor4Run" Tp="BOOL" Ext="38" />
 			<SI Nm="sheetConveyor4SpeedRefMPM" Tp="REAL" Ext="52" />
-			<SI Nm="sheetLengthMm" Tp="REAL" Ext="320" />
+			<SI Nm="sheetLengthMm" Tp="REAL" Ext="324" />
 			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="60" />
 			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="107" />
-			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="334" />
+			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="338" />
 			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="160" />
 			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="162" />
 			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="153" />
@@ -911,12 +947,12 @@
 			<SI Nm="sheetStackSeparationDistanceM" Tp="REAL" Ext="64" />
 			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="58" />
 			<SI Nm="sheetStackSeparationTargetDistanceM" Tp="REAL" Ext="68" />
-			<SI Nm="stackHeightMm" Tp="REAL" Ext="324" />
+			<SI Nm="stackHeightMm" Tp="REAL" Ext="328" />
 			<SI Nm="syncConveyorsState" Tp="INT" Ext="56" />
 			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="34" />
 			<SI Nm="systemRunEnable" Tp="BOOL" Ext="0" />
 		</DT>
-		<DT Nm="hmiStatus_TypeStruct" AT="2" Ext="1432">
+		<DT Nm="hmiStatus_TypeStruct" AT="2" Ext="1440">
 			<SI Nm="alarmActive" Tp="BOOL" Ext="0" />
 			<SI Nm="arrKnifeRunningMetersForLubfrication" Tp="ARRAY [1..5] OF INT" Ext="12" />
 			<SI Nm="arrKnifeRunningMetersForSharpening" Tp="ARRAY [1..5] OF INT" Ext="2" />
@@ -3737,8 +3773,8 @@
 			<SI Nm="EN" Tp="BOOL" Ext="1772" />
 			<SI Nm="aocRunning" Tp="BOOL" Ext="24" />
 			<SI Nm="aocSpeedMPM" Tp="REAL" Ext="20" />
-			<SI Nm="arrKnifeRunningMetersForLubfrication" Tp="ARRAY [1..5] OF INT" Ext="1880" />
-			<SI Nm="arrKnifeRunningMetersForSharpening" Tp="ARRAY [1..5] OF INT" Ext="1870" />
+			<SI Nm="arrKnifeRunningMetersForLubfrication" Tp="ARRAY [1..5] OF INT" Ext="1884" />
+			<SI Nm="arrKnifeRunningMetersForSharpening" Tp="ARRAY [1..5] OF INT" Ext="1874" />
 			<SI Nm="autoManualCommand" Tp="BOOL" Ext="12" />
 			<SI Nm="auxiliarTP1" Tp="Tc2_Standard.TP" Ext="225736" />
 			<SI Nm="bAllKnivesInPos" Tp="BOOL" Ext="228801" />
@@ -3763,7 +3799,7 @@
 			<SI Nm="generatePositionsTestOld" Tp="BOOL" Ext="228841" />
 			<SI Nm="haltAxis" Tp="BOOL" Ext="225731" />
 			<SI Nm="hmiStatus" Tp="slitterStatus_TypeStruct" Ext="1896" />
-			<SI Nm="homeFinished" Tp="BOOL" Ext="225732" />
+			<SI Nm="homeFinished" Tp="BOOL" Ext="1779" />
 			<SI Nm="homeRunning" Tp="BOOL" Ext="225729" />
 			<SI Nm="homeSensorKnife1" Tp="BOOL" Ext="46" />
 			<SI Nm="homeSensorKnife2" Tp="BOOL" Ext="47" />
@@ -3780,7 +3816,7 @@
 			<SI Nm="homeSensorScorer8" Tp="BOOL" Ext="58" />
 			<SI Nm="inTargetPosition" Tp="BOOL" Ext="225773" />
 			<SI Nm="innerScorerError" Tp="BOOL" Ext="225721" />
-			<SI Nm="innerScorerPositionSetpointOutOfRange" Tp="BOOL" Ext="225734" />
+			<SI Nm="innerScorerPositionSetpointOutOfRange" Tp="BOOL" Ext="225733" />
 			<SI Nm="innerScorerPositioningFinished" Tp="BOOL" Ext="225717" />
 			<SI Nm="innerScorerPositioningRunning" Tp="BOOL" Ext="225714" />
 			<SI Nm="instFB_AxisControlKnife1_Axis" Tp="FB_SimpleAxisControl" Ext="3136" />
@@ -3817,68 +3853,68 @@
 			<SI Nm="inst_FB_KnifeLubrification" Tp="ARRAY [1..5] OF FB_KnifeLubrification" Ext="2792" />
 			<SI Nm="inst_FB_KnifeSharpening" Tp="ARRAY [1..5] OF FB_KnifeSharpening" Ext="2392" />
 			<SI Nm="inst_GEN_PULSE_1S" Tp="CPNTeck_OSCAT_BASIC.GEN_PULSE" Ext="225852" />
-			<SI Nm="knife1Enabled" Tp="BOOL" Ext="1779" />
+			<SI Nm="knife1Enabled" Tp="BOOL" Ext="1780" />
 			<SI Nm="knife1EnabledCmd" Tp="BOOL" Ext="33" />
 			<SI Nm="knife1EnabledCmdOld" Tp="BOOL" Ext="225760" />
-			<SI Nm="knife1EnabledLamp" Tp="BOOL" Ext="1792" />
-			<SI Nm="knife1Lubrification" Tp="BOOL" Ext="1806" />
+			<SI Nm="knife1EnabledLamp" Tp="BOOL" Ext="1793" />
+			<SI Nm="knife1Lubrification" Tp="BOOL" Ext="1807" />
 			<SI Nm="knife1LubrificationCmd" Tp="BOOL" Ext="65" />
-			<SI Nm="knife1Sharpening" Tp="BOOL" Ext="1811" />
+			<SI Nm="knife1Sharpening" Tp="BOOL" Ext="1812" />
 			<SI Nm="knife1SharpeningCmd" Tp="BOOL" Ext="60" />
-			<SI Nm="knife1SharpeningLamp" Tp="BOOL" Ext="1816" />
+			<SI Nm="knife1SharpeningLamp" Tp="BOOL" Ext="1817" />
 			<SI Nm="knife1_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1712" />
 			<SI Nm="knife1_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="209264" />
-			<SI Nm="knife2Enabled" Tp="BOOL" Ext="1780" />
+			<SI Nm="knife2Enabled" Tp="BOOL" Ext="1781" />
 			<SI Nm="knife2EnabledCmd" Tp="BOOL" Ext="34" />
 			<SI Nm="knife2EnabledCmdOld" Tp="BOOL" Ext="225761" />
-			<SI Nm="knife2EnabledLamp" Tp="BOOL" Ext="1793" />
-			<SI Nm="knife2Lubrification" Tp="BOOL" Ext="1807" />
+			<SI Nm="knife2EnabledLamp" Tp="BOOL" Ext="1794" />
+			<SI Nm="knife2Lubrification" Tp="BOOL" Ext="1808" />
 			<SI Nm="knife2LubrificationCmd" Tp="BOOL" Ext="66" />
-			<SI Nm="knife2Sharpening" Tp="BOOL" Ext="1812" />
+			<SI Nm="knife2Sharpening" Tp="BOOL" Ext="1813" />
 			<SI Nm="knife2SharpeningCmd" Tp="BOOL" Ext="61" />
-			<SI Nm="knife2SharpeningLamp" Tp="BOOL" Ext="1817" />
+			<SI Nm="knife2SharpeningLamp" Tp="BOOL" Ext="1818" />
 			<SI Nm="knife2_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1716" />
 			<SI Nm="knife2_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="209928" />
-			<SI Nm="knife3Enabled" Tp="BOOL" Ext="1781" />
+			<SI Nm="knife3Enabled" Tp="BOOL" Ext="1782" />
 			<SI Nm="knife3EnabledCmd" Tp="BOOL" Ext="35" />
 			<SI Nm="knife3EnabledCmdOld" Tp="BOOL" Ext="225762" />
-			<SI Nm="knife3EnabledLamp" Tp="BOOL" Ext="1794" />
-			<SI Nm="knife3Lubrification" Tp="BOOL" Ext="1808" />
+			<SI Nm="knife3EnabledLamp" Tp="BOOL" Ext="1795" />
+			<SI Nm="knife3Lubrification" Tp="BOOL" Ext="1809" />
 			<SI Nm="knife3LubrificationCmd" Tp="BOOL" Ext="67" />
-			<SI Nm="knife3Sharpening" Tp="BOOL" Ext="1813" />
+			<SI Nm="knife3Sharpening" Tp="BOOL" Ext="1814" />
 			<SI Nm="knife3SharpeningCmd" Tp="BOOL" Ext="62" />
-			<SI Nm="knife3SharpeningLamp" Tp="BOOL" Ext="1818" />
+			<SI Nm="knife3SharpeningLamp" Tp="BOOL" Ext="1819" />
 			<SI Nm="knife3_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1720" />
 			<SI Nm="knife3_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="210592" />
-			<SI Nm="knife4Enabled" Tp="BOOL" Ext="1782" />
+			<SI Nm="knife4Enabled" Tp="BOOL" Ext="1783" />
 			<SI Nm="knife4EnabledCmd" Tp="BOOL" Ext="36" />
 			<SI Nm="knife4EnabledCmdOld" Tp="BOOL" Ext="225763" />
-			<SI Nm="knife4EnabledLamp" Tp="BOOL" Ext="1795" />
-			<SI Nm="knife4Lubrification" Tp="BOOL" Ext="1809" />
+			<SI Nm="knife4EnabledLamp" Tp="BOOL" Ext="1796" />
+			<SI Nm="knife4Lubrification" Tp="BOOL" Ext="1810" />
 			<SI Nm="knife4LubrificationCmd" Tp="BOOL" Ext="68" />
-			<SI Nm="knife4Sharpening" Tp="BOOL" Ext="1814" />
+			<SI Nm="knife4Sharpening" Tp="BOOL" Ext="1815" />
 			<SI Nm="knife4SharpeningCmd" Tp="BOOL" Ext="63" />
-			<SI Nm="knife4SharpeningLamp" Tp="BOOL" Ext="1819" />
+			<SI Nm="knife4SharpeningLamp" Tp="BOOL" Ext="1820" />
 			<SI Nm="knife4_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1724" />
 			<SI Nm="knife4_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="211256" />
-			<SI Nm="knife5Enabled" Tp="BOOL" Ext="1783" />
+			<SI Nm="knife5Enabled" Tp="BOOL" Ext="1784" />
 			<SI Nm="knife5EnabledCmd" Tp="BOOL" Ext="37" />
 			<SI Nm="knife5EnabledCmdOld" Tp="BOOL" Ext="225764" />
-			<SI Nm="knife5EnabledLamp" Tp="BOOL" Ext="1796" />
-			<SI Nm="knife5Lubrification" Tp="BOOL" Ext="1810" />
+			<SI Nm="knife5EnabledLamp" Tp="BOOL" Ext="1797" />
+			<SI Nm="knife5Lubrification" Tp="BOOL" Ext="1811" />
 			<SI Nm="knife5LubrificationCmd" Tp="BOOL" Ext="69" />
-			<SI Nm="knife5Sharpening" Tp="BOOL" Ext="1815" />
+			<SI Nm="knife5Sharpening" Tp="BOOL" Ext="1816" />
 			<SI Nm="knife5SharpeningCmd" Tp="BOOL" Ext="64" />
-			<SI Nm="knife5SharpeningLamp" Tp="BOOL" Ext="1820" />
+			<SI Nm="knife5SharpeningLamp" Tp="BOOL" Ext="1821" />
 			<SI Nm="knife5_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1728" />
 			<SI Nm="knife5_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="211920" />
 			<SI Nm="knifeAxisError" Tp="BOOL" Ext="225720" />
-			<SI Nm="knifeLubrificationPump" Tp="BOOL" Ext="1805" />
+			<SI Nm="knifeLubrificationPump" Tp="BOOL" Ext="1806" />
 			<SI Nm="knifeManualLubrificationCmdArr" Tp="ARRAY [1..20] OF BOOL" Ext="187" />
 			<SI Nm="knifeManualSharpeningCmdArr" Tp="ARRAY [1..20] OF BOOL" Ext="167" />
 			<SI Nm="knifeMotorRun" Tp="BOOL" Ext="225724" />
-			<SI Nm="knifeMotorStart" Tp="BOOL" Ext="1858" />
-			<SI Nm="knifePositionSetpointOutOfRange" Tp="BOOL" Ext="225733" />
+			<SI Nm="knifeMotorStart" Tp="BOOL" Ext="1859" />
+			<SI Nm="knifePositionSetpointOutOfRange" Tp="BOOL" Ext="225732" />
 			<SI Nm="knifePositioningFinished" Tp="BOOL" Ext="225719" />
 			<SI Nm="knifePositioningRunning" Tp="BOOL" Ext="225716" />
 			<SI Nm="knifeRunningMetersArr" Tp="INT" Ext="228806" />
@@ -3890,74 +3926,74 @@
 			<SI Nm="machineConfig" Tp="slitterConfig_TypeStruct" Ext="208" />
 			<SI Nm="measuringWheelPaperPresenceSensor" Tp="BOOL" Ext="30" />
 			<SI Nm="measuringWheelPulseSensor" Tp="BOOL" Ext="32" />
-			<SI Nm="moveSlitterMotorSide" Tp="BOOL" Ext="1842" />
+			<SI Nm="moveSlitterMotorSide" Tp="BOOL" Ext="1843" />
 			<SI Nm="moveSlitterMotorSideCmd" Tp="BOOL" Ext="84" />
-			<SI Nm="moveSlitterMotorSideLamp" Tp="BOOL" Ext="1844" />
+			<SI Nm="moveSlitterMotorSideLamp" Tp="BOOL" Ext="1845" />
 			<SI Nm="moveSlitterMotorSideLimit" Tp="BOOL" Ext="86" />
-			<SI Nm="moveSlitterOperatorSide" Tp="BOOL" Ext="1841" />
+			<SI Nm="moveSlitterOperatorSide" Tp="BOOL" Ext="1842" />
 			<SI Nm="moveSlitterOperatorSideCmd" Tp="BOOL" Ext="83" />
-			<SI Nm="moveSlitterOperatorSideLamp" Tp="BOOL" Ext="1843" />
+			<SI Nm="moveSlitterOperatorSideLamp" Tp="BOOL" Ext="1844" />
 			<SI Nm="moveSlitterOperatorSideLimit" Tp="BOOL" Ext="85" />
 			<SI Nm="nextOrder" Tp="order_TypeStruct" Ext="1768" />
 			<SI Nm="outerScorerError" Tp="BOOL" Ext="225722" />
-			<SI Nm="outerScorerPositionSetpointOutOfRange" Tp="BOOL" Ext="225735" />
+			<SI Nm="outerScorerPositionSetpointOutOfRange" Tp="BOOL" Ext="225734" />
 			<SI Nm="outerScorerPositioningFinished" Tp="BOOL" Ext="225718" />
 			<SI Nm="outerScorerPositioningRunning" Tp="BOOL" Ext="225715" />
-			<SI Nm="outfeedRoll_Down" Tp="BOOL" Ext="1828" />
+			<SI Nm="outfeedRoll_Down" Tp="BOOL" Ext="1829" />
 			<SI Nm="outfeedRoll_DownCmd" Tp="BOOL" Ext="27" />
 			<SI Nm="outfeedRoll_DownCmdOld" Tp="BOOL" Ext="228808" />
 			<SI Nm="outfeedRoll_ManCmd" Tp="BOOL" Ext="25" />
-			<SI Nm="outfeedRoll_Up" Tp="BOOL" Ext="1827" />
+			<SI Nm="outfeedRoll_Up" Tp="BOOL" Ext="1828" />
 			<SI Nm="outfeedRoll_UpCmd" Tp="BOOL" Ext="26" />
 			<SI Nm="outfeedRoll_UpCmdOld" Tp="BOOL" Ext="228809" />
-			<SI Nm="paperDirectionFlap01" Tp="BOOL" Ext="1829" />
+			<SI Nm="paperDirectionFlap01" Tp="BOOL" Ext="1830" />
 			<SI Nm="paperDirectionFlap01Cmd" Tp="BOOL" Ext="94" />
-			<SI Nm="paperDirectionFlap02" Tp="BOOL" Ext="1830" />
+			<SI Nm="paperDirectionFlap02" Tp="BOOL" Ext="1831" />
 			<SI Nm="paperDirectionFlap02Cmd" Tp="BOOL" Ext="95" />
-			<SI Nm="paperDirectionFlap03" Tp="BOOL" Ext="1831" />
+			<SI Nm="paperDirectionFlap03" Tp="BOOL" Ext="1832" />
 			<SI Nm="paperDirectionFlap03Cmd" Tp="BOOL" Ext="96" />
-			<SI Nm="paperDirectionFlap04" Tp="BOOL" Ext="1832" />
+			<SI Nm="paperDirectionFlap04" Tp="BOOL" Ext="1833" />
 			<SI Nm="paperDirectionFlap04Cmd" Tp="BOOL" Ext="97" />
-			<SI Nm="paperDirectionFlap05" Tp="BOOL" Ext="1833" />
+			<SI Nm="paperDirectionFlap05" Tp="BOOL" Ext="1834" />
 			<SI Nm="paperDirectionFlap05Cmd" Tp="BOOL" Ext="98" />
-			<SI Nm="paperDirectionFlap06" Tp="BOOL" Ext="1834" />
+			<SI Nm="paperDirectionFlap06" Tp="BOOL" Ext="1835" />
 			<SI Nm="paperDirectionFlap06Cmd" Tp="BOOL" Ext="99" />
-			<SI Nm="paperDirectionFlap07" Tp="BOOL" Ext="1835" />
+			<SI Nm="paperDirectionFlap07" Tp="BOOL" Ext="1836" />
 			<SI Nm="paperDirectionFlap07Cmd" Tp="BOOL" Ext="100" />
-			<SI Nm="paperDirectionFlap08" Tp="BOOL" Ext="1836" />
+			<SI Nm="paperDirectionFlap08" Tp="BOOL" Ext="1837" />
 			<SI Nm="paperDirectionFlap08Cmd" Tp="BOOL" Ext="101" />
-			<SI Nm="paperDirectionFlap09" Tp="BOOL" Ext="1837" />
+			<SI Nm="paperDirectionFlap09" Tp="BOOL" Ext="1838" />
 			<SI Nm="paperDirectionFlap09Cmd" Tp="BOOL" Ext="102" />
-			<SI Nm="paperDirectionFlap10" Tp="BOOL" Ext="1838" />
+			<SI Nm="paperDirectionFlap10" Tp="BOOL" Ext="1839" />
 			<SI Nm="paperDirectionFlap10Cmd" Tp="BOOL" Ext="103" />
-			<SI Nm="paperDirectionFlap11" Tp="BOOL" Ext="1839" />
+			<SI Nm="paperDirectionFlap11" Tp="BOOL" Ext="1840" />
 			<SI Nm="paperDirectionFlap11Cmd" Tp="BOOL" Ext="104" />
-			<SI Nm="paperDirectionFlap12" Tp="BOOL" Ext="1840" />
+			<SI Nm="paperDirectionFlap12" Tp="BOOL" Ext="1841" />
 			<SI Nm="paperDirectionFlap12Cmd" Tp="BOOL" Ext="105" />
 			<SI Nm="paperDirectionFlapAutoMan" Tp="BOOL" Ext="93" />
 			<SI Nm="paperPresenceSensor" Tp="BOOL" Ext="29" />
-			<SI Nm="paperTrimMotorSideClose" Tp="BOOL" Ext="1848" />
+			<SI Nm="paperTrimMotorSideClose" Tp="BOOL" Ext="1849" />
 			<SI Nm="paperTrimMotorSideCloseCmd" Tp="BOOL" Ext="163" />
-			<SI Nm="paperTrimMotorSideOpen" Tp="BOOL" Ext="1847" />
+			<SI Nm="paperTrimMotorSideOpen" Tp="BOOL" Ext="1848" />
 			<SI Nm="paperTrimMotorSideOpenCmd" Tp="BOOL" Ext="162" />
-			<SI Nm="paperTrimOperatorSideClose" Tp="BOOL" Ext="1846" />
+			<SI Nm="paperTrimOperatorSideClose" Tp="BOOL" Ext="1847" />
 			<SI Nm="paperTrimOperatorSideCloseCmd" Tp="BOOL" Ext="161" />
-			<SI Nm="paperTrimOperatorSideOpen" Tp="BOOL" Ext="1845" />
+			<SI Nm="paperTrimOperatorSideOpen" Tp="BOOL" Ext="1846" />
 			<SI Nm="paperTrimOperatorSideOpenCmd" Tp="BOOL" Ext="160" />
-			<SI Nm="pilotRollUpDown" Tp="BOOL" Ext="1826" />
+			<SI Nm="pilotRollUpDown" Tp="BOOL" Ext="1827" />
 			<SI Nm="pilotRollUpDownCmd" Tp="BOOL" Ext="92" />
 			<SI Nm="positioningAxisError" Tp="BOOL" Ext="225723" />
 			<SI Nm="positioningFinished" Tp="BOOL" Ext="225713" />
 			<SI Nm="positioningRunning" Tp="BOOL" Ext="225712" />
 			<SI Nm="positioningStarted" Tp="BOOL" Ext="225730" />
 			<SI Nm="resetCmd" Tp="BOOL" Ext="11" />
-			<SI Nm="rotaryKnifeInfeedLowerDamper1" Tp="BOOL" Ext="1824" />
+			<SI Nm="rotaryKnifeInfeedLowerDamper1" Tp="BOOL" Ext="1825" />
 			<SI Nm="rotaryKnifeInfeedLowerDamper1Cmd" Tp="BOOL" Ext="90" />
-			<SI Nm="rotaryKnifeInfeedLowerDamper2" Tp="BOOL" Ext="1825" />
+			<SI Nm="rotaryKnifeInfeedLowerDamper2" Tp="BOOL" Ext="1826" />
 			<SI Nm="rotaryKnifeInfeedLowerDamper2Cmd" Tp="BOOL" Ext="91" />
-			<SI Nm="rotaryKnifeInfeedUpperDamper1" Tp="BOOL" Ext="1822" />
+			<SI Nm="rotaryKnifeInfeedUpperDamper1" Tp="BOOL" Ext="1823" />
 			<SI Nm="rotaryKnifeInfeedUpperDamper1Cmd" Tp="BOOL" Ext="88" />
-			<SI Nm="rotaryKnifeInfeedUpperDamper2" Tp="BOOL" Ext="1823" />
+			<SI Nm="rotaryKnifeInfeedUpperDamper2" Tp="BOOL" Ext="1824" />
 			<SI Nm="rotaryKnifeInfeedUpperDamper2Cmd" Tp="BOOL" Ext="89" />
 			<SI Nm="rotaryShearCutPulse" Tp="BOOL" Ext="31" />
 			<SI Nm="safetyFeedback" Tp="BOOL" Ext="28" />
@@ -3965,91 +4001,91 @@
 			<SI Nm="safetyOKLamp" Tp="BOOL" Ext="1774" />
 			<SI Nm="scoreEnabled" Tp="BOOL" Ext="1777" />
 			<SI Nm="scoreEnabledLamp" Tp="BOOL" Ext="1778" />
-			<SI Nm="scorer1Enabled" Tp="BOOL" Ext="1784" />
+			<SI Nm="scorer1Enabled" Tp="BOOL" Ext="1785" />
 			<SI Nm="scorer1EnabledCmd" Tp="BOOL" Ext="38" />
 			<SI Nm="scorer1EnabledCmdOld" Tp="BOOL" Ext="225765" />
-			<SI Nm="scorer1EnabledLamp" Tp="BOOL" Ext="1797" />
+			<SI Nm="scorer1EnabledLamp" Tp="BOOL" Ext="1798" />
 			<SI Nm="scorer1_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1732" />
 			<SI Nm="scorer1_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="212584" />
-			<SI Nm="scorer2Enabled" Tp="BOOL" Ext="1785" />
+			<SI Nm="scorer2Enabled" Tp="BOOL" Ext="1786" />
 			<SI Nm="scorer2EnabledCmd" Tp="BOOL" Ext="39" />
 			<SI Nm="scorer2EnabledCmdOld" Tp="BOOL" Ext="225766" />
-			<SI Nm="scorer2EnabledLamp" Tp="BOOL" Ext="1798" />
+			<SI Nm="scorer2EnabledLamp" Tp="BOOL" Ext="1799" />
 			<SI Nm="scorer2_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1736" />
 			<SI Nm="scorer2_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="213248" />
-			<SI Nm="scorer3Enabled" Tp="BOOL" Ext="1786" />
+			<SI Nm="scorer3Enabled" Tp="BOOL" Ext="1787" />
 			<SI Nm="scorer3EnabledCmd" Tp="BOOL" Ext="40" />
 			<SI Nm="scorer3EnabledCmdOld" Tp="BOOL" Ext="225767" />
-			<SI Nm="scorer3EnabledLamp" Tp="BOOL" Ext="1799" />
+			<SI Nm="scorer3EnabledLamp" Tp="BOOL" Ext="1800" />
 			<SI Nm="scorer3_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1740" />
 			<SI Nm="scorer3_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="213912" />
-			<SI Nm="scorer4Enabled" Tp="BOOL" Ext="1787" />
+			<SI Nm="scorer4Enabled" Tp="BOOL" Ext="1788" />
 			<SI Nm="scorer4EnabledCmd" Tp="BOOL" Ext="41" />
 			<SI Nm="scorer4EnabledCmdOld" Tp="BOOL" Ext="225768" />
-			<SI Nm="scorer4EnabledLamp" Tp="BOOL" Ext="1800" />
+			<SI Nm="scorer4EnabledLamp" Tp="BOOL" Ext="1801" />
 			<SI Nm="scorer4_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1744" />
 			<SI Nm="scorer4_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="214576" />
-			<SI Nm="scorer5Enabled" Tp="BOOL" Ext="1788" />
+			<SI Nm="scorer5Enabled" Tp="BOOL" Ext="1789" />
 			<SI Nm="scorer5EnabledCmd" Tp="BOOL" Ext="42" />
 			<SI Nm="scorer5EnabledCmdOld" Tp="BOOL" Ext="225769" />
-			<SI Nm="scorer5EnabledLamp" Tp="BOOL" Ext="1801" />
+			<SI Nm="scorer5EnabledLamp" Tp="BOOL" Ext="1802" />
 			<SI Nm="scorer5_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1748" />
 			<SI Nm="scorer5_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="215240" />
-			<SI Nm="scorer6Enabled" Tp="BOOL" Ext="1789" />
+			<SI Nm="scorer6Enabled" Tp="BOOL" Ext="1790" />
 			<SI Nm="scorer6EnabledCmd" Tp="BOOL" Ext="43" />
 			<SI Nm="scorer6EnabledCmdOld" Tp="BOOL" Ext="225770" />
-			<SI Nm="scorer6EnabledLamp" Tp="BOOL" Ext="1802" />
+			<SI Nm="scorer6EnabledLamp" Tp="BOOL" Ext="1803" />
 			<SI Nm="scorer6_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1752" />
 			<SI Nm="scorer6_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="215904" />
-			<SI Nm="scorer7Enabled" Tp="BOOL" Ext="1790" />
+			<SI Nm="scorer7Enabled" Tp="BOOL" Ext="1791" />
 			<SI Nm="scorer7EnabledCmd" Tp="BOOL" Ext="44" />
 			<SI Nm="scorer7EnabledCmdOld" Tp="BOOL" Ext="225771" />
-			<SI Nm="scorer7EnabledLamp" Tp="BOOL" Ext="1803" />
+			<SI Nm="scorer7EnabledLamp" Tp="BOOL" Ext="1804" />
 			<SI Nm="scorer7_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1756" />
 			<SI Nm="scorer7_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="216568" />
-			<SI Nm="scorer8Enabled" Tp="BOOL" Ext="1791" />
+			<SI Nm="scorer8Enabled" Tp="BOOL" Ext="1792" />
 			<SI Nm="scorer8EnabledCmd" Tp="BOOL" Ext="45" />
 			<SI Nm="scorer8EnabledCmdOld" Tp="BOOL" Ext="225772" />
-			<SI Nm="scorer8EnabledLamp" Tp="BOOL" Ext="1804" />
+			<SI Nm="scorer8EnabledLamp" Tp="BOOL" Ext="1805" />
 			<SI Nm="scorer8_Axis" Tp="Tc2_MC2.AXIS_REF" Ext="1760" />
 			<SI Nm="scorer8_AxisConfiguration" Tp="LAxisCtrl_typeAxisConfig" Ext="217232" />
-			<SI Nm="scorerHeightDec" Tp="BOOL" Ext="1850" />
+			<SI Nm="scorerHeightDec" Tp="BOOL" Ext="1851" />
 			<SI Nm="scorerHeightDecCmd" Tp="BOOL" Ext="73" />
-			<SI Nm="scorerHeightInc" Tp="BOOL" Ext="1849" />
+			<SI Nm="scorerHeightInc" Tp="BOOL" Ext="1850" />
 			<SI Nm="scorerHeightIncCmd" Tp="BOOL" Ext="72" />
-			<SI Nm="scorerHeightMotorFast" Tp="BOOL" Ext="1853" />
-			<SI Nm="scorerHeightMotorSlow" Tp="BOOL" Ext="1852" />
-			<SI Nm="scorerHeightMotorStart" Tp="BOOL" Ext="1851" />
+			<SI Nm="scorerHeightMotorFast" Tp="BOOL" Ext="1854" />
+			<SI Nm="scorerHeightMotorSlow" Tp="BOOL" Ext="1853" />
+			<SI Nm="scorerHeightMotorStart" Tp="BOOL" Ext="1852" />
 			<SI Nm="scorerHeightPositioningRunning" Tp="BOOL" Ext="225848" />
 			<SI Nm="scorerHeightPositioningState" Tp="INT" Ext="225850" />
 			<SI Nm="scorerMotorRun" Tp="BOOL" Ext="225725" />
-			<SI Nm="scorerMotorStart" Tp="BOOL" Ext="1859" />
+			<SI Nm="scorerMotorStart" Tp="BOOL" Ext="1860" />
 			<SI Nm="scorerTypeDCmd" Tp="BOOL" Ext="76" />
 			<SI Nm="scorerTypeDCmdOld" Tp="BOOL" Ext="225776" />
-			<SI Nm="scorerTypeDLamp" Tp="BOOL" Ext="1856" />
+			<SI Nm="scorerTypeDLamp" Tp="BOOL" Ext="1857" />
 			<SI Nm="scorerTypeDSensor" Tp="BOOL" Ext="79" />
 			<SI Nm="scorerTypeNCmd" Tp="BOOL" Ext="75" />
 			<SI Nm="scorerTypeNCmdOld" Tp="BOOL" Ext="225775" />
-			<SI Nm="scorerTypeNLamp" Tp="BOOL" Ext="1855" />
+			<SI Nm="scorerTypeNLamp" Tp="BOOL" Ext="1856" />
 			<SI Nm="scorerTypeNSensor" Tp="BOOL" Ext="78" />
 			<SI Nm="scorerTypeWCmd" Tp="BOOL" Ext="74" />
 			<SI Nm="scorerTypeWCmdOld" Tp="BOOL" Ext="225774" />
-			<SI Nm="scorerTypeWLamp" Tp="BOOL" Ext="1854" />
+			<SI Nm="scorerTypeWLamp" Tp="BOOL" Ext="1855" />
 			<SI Nm="scorerTypeWSensor" Tp="BOOL" Ext="77" />
-			<SI Nm="slitterCenterGuideRoll" Tp="BOOL" Ext="1821" />
+			<SI Nm="slitterCenterGuideRoll" Tp="BOOL" Ext="1822" />
 			<SI Nm="slitterCenterGuideRollCmd" Tp="BOOL" Ext="87" />
-			<SI Nm="slitterKnifeDriveRef" Tp="REAL" Ext="1860" />
-			<SI Nm="slitterScorerDriveRef" Tp="REAL" Ext="1864" />
+			<SI Nm="slitterKnifeDriveRef" Tp="REAL" Ext="1864" />
+			<SI Nm="slitterScorerDriveRef" Tp="REAL" Ext="1868" />
 			<SI Nm="startCutting" Tp="BOOL" Ext="1775" />
 			<SI Nm="startCuttingCmd" Tp="BOOL" Ext="5" />
 			<SI Nm="startCuttingLamp" Tp="BOOL" Ext="1776" />
-			<SI Nm="startExhaustMotor" Tp="BOOL" Ext="1868" />
+			<SI Nm="startExhaustMotor" Tp="BOOL" Ext="1872" />
 			<SI Nm="startExhaustMotorCmd" Tp="BOOL" Ext="70" />
-			<SI Nm="startExhaustMotorLamp" Tp="BOOL" Ext="1869" />
+			<SI Nm="startExhaustMotorLamp" Tp="BOOL" Ext="1873" />
 			<SI Nm="startTractionMotorCmd" Tp="BOOL" Ext="13" />
 			<SI Nm="stopCuttingCmd" Tp="BOOL" Ext="6" />
 			<SI Nm="stopExhaustMotorCmd" Tp="BOOL" Ext="71" />
-			<SI Nm="tractionEnabledLamp" Tp="BOOL" Ext="1857" />
+			<SI Nm="tractionEnabledLamp" Tp="BOOL" Ext="1858" />
 		</DT>
 		<DT Nm="rotaryKnifeSpeedCurve_TypeConfig" AT="2" Ext="8">
 			<SI Nm="machineSpeed" Tp="REAL" Ext="0" />
@@ -4479,105 +4515,121 @@
 			<SI Nm="upperKnifeSlave1DrvOK" Tp="BOOL" Ext="9" />
 			<SI Nm="upperKnifeSlave2DrvOK" Tp="BOOL" Ext="10" />
 		</DT>
-		<DT Nm="hmiAlarmsSimpleStacker_TypeStruct" AT="2" Ext="34">
-			<SI Nm="backstopDriveNotOk" Tp="BOOL" Ext="17" />
-			<SI Nm="backstopFault" Tp="BOOL" Ext="18" />
-			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="25" />
-			<SI Nm="backstopMaxLimitActive" Tp="BOOL" Ext="23" />
-			<SI Nm="backstopMinLimitActive" Tp="BOOL" Ext="24" />
-			<SI Nm="backstopNotHomed" Tp="BOOL" Ext="19" />
-			<SI Nm="backstopNotInPosition" Tp="BOOL" Ext="20" />
-			<SI Nm="backstopSafeMaxLimitActive" Tp="BOOL" Ext="21" />
-			<SI Nm="backstopSafeMinLimitActive" Tp="BOOL" Ext="22" />
-			<SI Nm="conveyorLevelerDriveNotOk" Tp="BOOL" Ext="26" />
-			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="27" />
-			<SI Nm="conveyorLevelerLowerLimitActive" Tp="BOOL" Ext="33" />
-			<SI Nm="conveyorLevelerLowerSafetyLimitActive" Tp="BOOL" Ext="31" />
-			<SI Nm="conveyorLevelerNotHomed" Tp="BOOL" Ext="28" />
-			<SI Nm="conveyorLevelerNotInPosition" Tp="BOOL" Ext="29" />
-			<SI Nm="conveyorLevelerUpperLimitActive" Tp="BOOL" Ext="32" />
-			<SI Nm="conveyorLevelerUpperSafetyLimitActive" Tp="BOOL" Ext="30" />
+		<DT Nm="hmiAlarmsSimpleStacker_TypeStruct" AT="2" Ext="42">
+			<SI Nm="backstopDriveNotOk" Tp="BOOL" Ext="25" />
+			<SI Nm="backstopFault" Tp="BOOL" Ext="26" />
+			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="33" />
+			<SI Nm="backstopMaxLimitActive" Tp="BOOL" Ext="31" />
+			<SI Nm="backstopMinLimitActive" Tp="BOOL" Ext="32" />
+			<SI Nm="backstopNotHomed" Tp="BOOL" Ext="27" />
+			<SI Nm="backstopNotInPosition" Tp="BOOL" Ext="28" />
+			<SI Nm="backstopSafeMaxLimitActive" Tp="BOOL" Ext="29" />
+			<SI Nm="backstopSafeMinLimitActive" Tp="BOOL" Ext="30" />
+			<SI Nm="conveyorLevelerDriveNotOk" Tp="BOOL" Ext="34" />
+			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="35" />
+			<SI Nm="conveyorLevelerLowerLimitActive" Tp="BOOL" Ext="41" />
+			<SI Nm="conveyorLevelerLowerSafetyLimitActive" Tp="BOOL" Ext="39" />
+			<SI Nm="conveyorLevelerNotHomed" Tp="BOOL" Ext="36" />
+			<SI Nm="conveyorLevelerNotInPosition" Tp="BOOL" Ext="37" />
+			<SI Nm="conveyorLevelerUpperLimitActive" Tp="BOOL" Ext="40" />
+			<SI Nm="conveyorLevelerUpperSafetyLimitActive" Tp="BOOL" Ext="38" />
 			<SI Nm="safetyCircuitNotOk" Tp="BOOL" Ext="0" />
-			<SI Nm="sheetConveyor1DriveNotOk" Tp="BOOL" Ext="3" />
-			<SI Nm="sheetConveyor2DriveNotOk" Tp="BOOL" Ext="4" />
-			<SI Nm="sheetConveyor3DriveNotOk" Tp="BOOL" Ext="5" />
-			<SI Nm="sheetConveyorGroupFault" Tp="BOOL" Ext="6" />
-			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="10" />
-			<SI Nm="sheetStackDischargeConveyorDriveNotOk" Tp="BOOL" Ext="15" />
-			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="16" />
-			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="11" />
-			<SI Nm="sheetStackDischargeLastCycleNotOk" Tp="BOOL" Ext="12" />
-			<SI Nm="sheetStackDischargeManualSkip" Tp="BOOL" Ext="14" />
-			<SI Nm="sheetStackDischargeTimeout" Tp="BOOL" Ext="13" />
-			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="9" />
-			<SI Nm="sheetStackSeparationNotReady" Tp="BOOL" Ext="8" />
-			<SI Nm="synchronizedConveyorsNotRunning" Tp="BOOL" Ext="7" />
-			<SI Nm="systemFaultActive" Tp="BOOL" Ext="1" />
-			<SI Nm="systemNotEnabled" Tp="BOOL" Ext="2" />
-		</DT>
-		<DT Nm="hmiAlarmsComplexStacker_TypeStruct" AT="2" Ext="51">
-			<SI Nm="backstopDriveNotOk" Tp="BOOL" Ext="30" />
-			<SI Nm="backstopFault" Tp="BOOL" Ext="31" />
-			<SI Nm="backstopHomingTimeout" Tp="BOOL" Ext="34" />
-			<SI Nm="backstopInvalidHomeDirection" Tp="BOOL" Ext="35" />
-			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="40" />
-			<SI Nm="backstopMaxLimitActive" Tp="BOOL" Ext="38" />
-			<SI Nm="backstopMinLimitActive" Tp="BOOL" Ext="39" />
-			<SI Nm="backstopNotHomed" Tp="BOOL" Ext="32" />
-			<SI Nm="backstopNotInPosition" Tp="BOOL" Ext="33" />
-			<SI Nm="backstopSafeMaxLimitActive" Tp="BOOL" Ext="36" />
-			<SI Nm="backstopSafeMinLimitActive" Tp="BOOL" Ext="37" />
-			<SI Nm="elevatorDriveNotOk" Tp="BOOL" Ext="41" />
-			<SI Nm="elevatorFault" Tp="BOOL" Ext="42" />
-			<SI Nm="elevatorHomingTimeout" Tp="BOOL" Ext="45" />
-			<SI Nm="elevatorLowerLimitActive" Tp="BOOL" Ext="50" />
-			<SI Nm="elevatorLowerSafetyLimitActive" Tp="BOOL" Ext="48" />
-			<SI Nm="elevatorNotHomed" Tp="BOOL" Ext="43" />
-			<SI Nm="elevatorNotInPosition" Tp="BOOL" Ext="44" />
-			<SI Nm="elevatorUpBlockedByBackstopMaterialInterlock" Tp="BOOL" Ext="46" />
-			<SI Nm="elevatorUpperLimitActive" Tp="BOOL" Ext="49" />
-			<SI Nm="elevatorUpperSafetyLimitActive" Tp="BOOL" Ext="47" />
-			<SI Nm="safetyCircuitNotOk" Tp="BOOL" Ext="0" />
-			<SI Nm="sheetConveyor1DriveNotOk" Tp="BOOL" Ext="3" />
-			<SI Nm="sheetConveyor2DriveNotOk" Tp="BOOL" Ext="4" />
-			<SI Nm="sheetConveyor3DriveNotOk" Tp="BOOL" Ext="5" />
-			<SI Nm="sheetConveyor4DriveNotOk" Tp="BOOL" Ext="6" />
-			<SI Nm="sheetConveyorGroupFault" Tp="BOOL" Ext="7" />
+			<SI Nm="safetyFeedback1NotOk" Tp="BOOL" Ext="3" />
+			<SI Nm="safetyFeedback2NotOk" Tp="BOOL" Ext="4" />
+			<SI Nm="safetyFeedback3NotOk" Tp="BOOL" Ext="5" />
+			<SI Nm="safetyFeedback4NotOk" Tp="BOOL" Ext="6" />
+			<SI Nm="safetyFeedback5NotOk" Tp="BOOL" Ext="7" />
+			<SI Nm="safetyFeedback6NotOk" Tp="BOOL" Ext="8" />
+			<SI Nm="safetyFeedback7NotOk" Tp="BOOL" Ext="9" />
+			<SI Nm="safetyFeedback8NotOk" Tp="BOOL" Ext="10" />
+			<SI Nm="sheetConveyor1DriveNotOk" Tp="BOOL" Ext="11" />
+			<SI Nm="sheetConveyor2DriveNotOk" Tp="BOOL" Ext="12" />
+			<SI Nm="sheetConveyor3DriveNotOk" Tp="BOOL" Ext="13" />
+			<SI Nm="sheetConveyorGroupFault" Tp="BOOL" Ext="14" />
 			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="18" />
-			<SI Nm="sheetStackDischargeConveyorDriveNotOk" Tp="BOOL" Ext="28" />
-			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="29" />
-			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="BOOL" Ext="25" />
+			<SI Nm="sheetStackDischargeConveyorDriveNotOk" Tp="BOOL" Ext="23" />
+			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="24" />
 			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="19" />
 			<SI Nm="sheetStackDischargeLastCycleNotOk" Tp="BOOL" Ext="20" />
 			<SI Nm="sheetStackDischargeManualSkip" Tp="BOOL" Ext="22" />
-			<SI Nm="sheetStackDischargePlatformClearTimeout" Tp="BOOL" Ext="26" />
-			<SI Nm="sheetStackDischargePositioningTimeout" Tp="BOOL" Ext="24" />
-			<SI Nm="sheetStackDischargeReturnTimeout" Tp="BOOL" Ext="27" />
 			<SI Nm="sheetStackDischargeTimeout" Tp="BOOL" Ext="21" />
-			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="BOOL" Ext="23" />
 			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="17" />
 			<SI Nm="sheetStackSeparationNotReady" Tp="BOOL" Ext="16" />
-			<SI Nm="stackBufferConveyor1DriveNotOk" Tp="BOOL" Ext="9" />
-			<SI Nm="stackBufferConveyor2DriveNotOk" Tp="BOOL" Ext="10" />
-			<SI Nm="stackBufferConveyor3DriveNotOk" Tp="BOOL" Ext="11" />
-			<SI Nm="stackBufferConveyorGroupFault" Tp="BOOL" Ext="12" />
-			<SI Nm="stackBufferFull" Tp="BOOL" Ext="14" />
-			<SI Nm="stackBufferSpeedReductionActive" Tp="BOOL" Ext="15" />
-			<SI Nm="stackBufferTransferTimeout" Tp="BOOL" Ext="13" />
-			<SI Nm="synchronizedConveyorsNotRunning" Tp="BOOL" Ext="8" />
+			<SI Nm="synchronizedConveyorsNotRunning" Tp="BOOL" Ext="15" />
 			<SI Nm="systemFaultActive" Tp="BOOL" Ext="1" />
 			<SI Nm="systemNotEnabled" Tp="BOOL" Ext="2" />
 		</DT>
-		<DT Nm="hmiAlarms_TypeStruct" AT="2" Ext="161">
+		<DT Nm="hmiAlarmsComplexStacker_TypeStruct" AT="2" Ext="59">
+			<SI Nm="backstopDriveNotOk" Tp="BOOL" Ext="38" />
+			<SI Nm="backstopFault" Tp="BOOL" Ext="39" />
+			<SI Nm="backstopHomingTimeout" Tp="BOOL" Ext="42" />
+			<SI Nm="backstopInvalidHomeDirection" Tp="BOOL" Ext="43" />
+			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="48" />
+			<SI Nm="backstopMaxLimitActive" Tp="BOOL" Ext="46" />
+			<SI Nm="backstopMinLimitActive" Tp="BOOL" Ext="47" />
+			<SI Nm="backstopNotHomed" Tp="BOOL" Ext="40" />
+			<SI Nm="backstopNotInPosition" Tp="BOOL" Ext="41" />
+			<SI Nm="backstopSafeMaxLimitActive" Tp="BOOL" Ext="44" />
+			<SI Nm="backstopSafeMinLimitActive" Tp="BOOL" Ext="45" />
+			<SI Nm="elevatorDriveNotOk" Tp="BOOL" Ext="49" />
+			<SI Nm="elevatorFault" Tp="BOOL" Ext="50" />
+			<SI Nm="elevatorHomingTimeout" Tp="BOOL" Ext="53" />
+			<SI Nm="elevatorLowerLimitActive" Tp="BOOL" Ext="58" />
+			<SI Nm="elevatorLowerSafetyLimitActive" Tp="BOOL" Ext="56" />
+			<SI Nm="elevatorNotHomed" Tp="BOOL" Ext="51" />
+			<SI Nm="elevatorNotInPosition" Tp="BOOL" Ext="52" />
+			<SI Nm="elevatorUpBlockedByBackstopMaterialInterlock" Tp="BOOL" Ext="54" />
+			<SI Nm="elevatorUpperLimitActive" Tp="BOOL" Ext="57" />
+			<SI Nm="elevatorUpperSafetyLimitActive" Tp="BOOL" Ext="55" />
+			<SI Nm="safetyCircuitNotOk" Tp="BOOL" Ext="0" />
+			<SI Nm="safetyFeedback1NotOk" Tp="BOOL" Ext="3" />
+			<SI Nm="safetyFeedback2NotOk" Tp="BOOL" Ext="4" />
+			<SI Nm="safetyFeedback3NotOk" Tp="BOOL" Ext="5" />
+			<SI Nm="safetyFeedback4NotOk" Tp="BOOL" Ext="6" />
+			<SI Nm="safetyFeedback5NotOk" Tp="BOOL" Ext="7" />
+			<SI Nm="safetyFeedback6NotOk" Tp="BOOL" Ext="8" />
+			<SI Nm="safetyFeedback7NotOk" Tp="BOOL" Ext="9" />
+			<SI Nm="safetyFeedback8NotOk" Tp="BOOL" Ext="10" />
+			<SI Nm="sheetConveyor1DriveNotOk" Tp="BOOL" Ext="11" />
+			<SI Nm="sheetConveyor2DriveNotOk" Tp="BOOL" Ext="12" />
+			<SI Nm="sheetConveyor3DriveNotOk" Tp="BOOL" Ext="13" />
+			<SI Nm="sheetConveyor4DriveNotOk" Tp="BOOL" Ext="14" />
+			<SI Nm="sheetConveyorGroupFault" Tp="BOOL" Ext="15" />
+			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="26" />
+			<SI Nm="sheetStackDischargeConveyorDriveNotOk" Tp="BOOL" Ext="36" />
+			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="37" />
+			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="BOOL" Ext="33" />
+			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="27" />
+			<SI Nm="sheetStackDischargeLastCycleNotOk" Tp="BOOL" Ext="28" />
+			<SI Nm="sheetStackDischargeManualSkip" Tp="BOOL" Ext="30" />
+			<SI Nm="sheetStackDischargePlatformClearTimeout" Tp="BOOL" Ext="34" />
+			<SI Nm="sheetStackDischargePositioningTimeout" Tp="BOOL" Ext="32" />
+			<SI Nm="sheetStackDischargeReturnTimeout" Tp="BOOL" Ext="35" />
+			<SI Nm="sheetStackDischargeTimeout" Tp="BOOL" Ext="29" />
+			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="BOOL" Ext="31" />
+			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="25" />
+			<SI Nm="sheetStackSeparationNotReady" Tp="BOOL" Ext="24" />
+			<SI Nm="stackBufferConveyor1DriveNotOk" Tp="BOOL" Ext="17" />
+			<SI Nm="stackBufferConveyor2DriveNotOk" Tp="BOOL" Ext="18" />
+			<SI Nm="stackBufferConveyor3DriveNotOk" Tp="BOOL" Ext="19" />
+			<SI Nm="stackBufferConveyorGroupFault" Tp="BOOL" Ext="20" />
+			<SI Nm="stackBufferFull" Tp="BOOL" Ext="22" />
+			<SI Nm="stackBufferSpeedReductionActive" Tp="BOOL" Ext="23" />
+			<SI Nm="stackBufferTransferTimeout" Tp="BOOL" Ext="21" />
+			<SI Nm="synchronizedConveyorsNotRunning" Tp="BOOL" Ext="16" />
+			<SI Nm="systemFaultActive" Tp="BOOL" Ext="1" />
+			<SI Nm="systemNotEnabled" Tp="BOOL" Ext="2" />
+		</DT>
+		<DT Nm="hmiAlarms_TypeStruct" AT="2" Ext="177">
 			<SI Nm="lowerStacker" Tp="hmiAlarmsSimpleStacker_TypeStruct" Ext="76" />
 			<SI Nm="rotaryKnife" Tp="hmiAlarmsRotaryKnife_TypeStruct" Ext="53" />
 			<SI Nm="slitter" Tp="hmiAlarmsSlitter_TypeStruct" Ext="0" />
-			<SI Nm="upperStacker" Tp="hmiAlarmsComplexStacker_TypeStruct" Ext="110" />
+			<SI Nm="upperStacker" Tp="hmiAlarmsComplexStacker_TypeStruct" Ext="118" />
 		</DT>
-		<DT Nm="FB_AlarmControl" AT="2" Ext="408">
-			<SI Nm="alarmIndication" Tp="BOOL" Ext="242" />
+		<DT Nm="FB_AlarmControl" AT="2" Ext="440">
+			<SI Nm="alarmIndication" Tp="BOOL" Ext="258" />
 			<SI Nm="alarmsDisplay" Tp="hmiAlarms_TypeStruct" Ext="81" />
-			<SI Nm="alarmsVariables" Tp="hmiAlarms_TypeStruct" Ext="243" />
+			<SI Nm="alarmsVariables" Tp="hmiAlarms_TypeStruct" Ext="259" />
 			<SI Nm="exhaustDepressurized" Tp="BOOL" Ext="46" />
 			<SI Nm="exitGuardOpen" Tp="BOOL" Ext="44" />
 			<SI Nm="infeedGuardOpen" Tp="BOOL" Ext="45" />
@@ -4618,7 +4670,7 @@
 			<SI Nm="lowerScorer12Fault" Tp="BOOL" Ext="38" />
 			<SI Nm="orderFault" Tp="BOOL" Ext="67" />
 			<SI Nm="reset" Tp="BOOL" Ext="4" />
-			<SI Nm="resetOld" Tp="BOOL" Ext="404" />
+			<SI Nm="resetOld" Tp="BOOL" Ext="436" />
 			<SI Nm="safetyCircuitFault" Tp="BOOL" Ext="5" />
 			<SI Nm="scorer1OutOfRange" Tp="BOOL" Ext="73" />
 			<SI Nm="scorer2OutOfRange" Tp="BOOL" Ext="74" />
@@ -4748,40 +4800,41 @@
 			<SI Nm="writePersistentDataErr" Tp="BOOL" Ext="223" />
 			<SI Nm="writePersistentDataErrId" Tp="UDINT" Ext="708" />
 		</DT>
-		<DT Nm="SimpleStackerConfig_TypeStruct" AT="2" Ext="212">
-			<SI Nm="backstopAutoMaxSpeedMmps" Tp="REAL" Ext="168" />
-			<SI Nm="backstopDischargeOpenOffsetMm" Tp="REAL" Ext="192" />
-			<SI Nm="backstopHomeDirection" Tp="INT" Ext="136" />
-			<SI Nm="backstopHomePositionMm" Tp="REAL" Ext="140" />
-			<SI Nm="backstopHomingSpeedMmps" Tp="REAL" Ext="144" />
-			<SI Nm="backstopHomingTimeout" Tp="UDINT" Ext="148" />
-			<SI Nm="backstopManualSpeedMmps" Tp="REAL" Ext="176" />
-			<SI Nm="backstopMaxPositionMm" Tp="REAL" Ext="132" />
-			<SI Nm="backstopMinMoveSpeedMmps" Tp="REAL" Ext="172" />
-			<SI Nm="backstopMinPositionMm" Tp="REAL" Ext="128" />
-			<SI Nm="backstopPositionKp" Tp="REAL" Ext="164" />
-			<SI Nm="backstopPositionToleranceMm" Tp="REAL" Ext="160" />
-			<SI Nm="backstopRunMinSpeedMmps" Tp="REAL" Ext="180" />
-			<SI Nm="backstopSetEncoderPulseTime" Tp="UDINT" Ext="152" />
-			<SI Nm="backstopSheetLengthOffsetMm" Tp="REAL" Ext="156" />
-			<SI Nm="conveyorLevelerAutoMaxSpeedMmps" Tp="REAL" Ext="92" />
-			<SI Nm="conveyorLevelerBrakeHoldTime" Tp="UDINT" Ext="124" />
-			<SI Nm="conveyorLevelerBrakeReleaseDelay" Tp="UDINT" Ext="120" />
-			<SI Nm="conveyorLevelerHomingSpeedMmps" Tp="REAL" Ext="108" />
-			<SI Nm="conveyorLevelerHomingTimeout" Tp="UDINT" Ext="112" />
-			<SI Nm="conveyorLevelerManualSpeedMmps" Tp="REAL" Ext="100" />
-			<SI Nm="conveyorLevelerMaxPositionMm" Tp="REAL" Ext="76" />
-			<SI Nm="conveyorLevelerMinMoveSpeedMmps" Tp="REAL" Ext="96" />
-			<SI Nm="conveyorLevelerMinPositionMm" Tp="REAL" Ext="72" />
-			<SI Nm="conveyorLevelerPositionKp" Tp="REAL" Ext="88" />
-			<SI Nm="conveyorLevelerPositionToleranceMm" Tp="REAL" Ext="84" />
-			<SI Nm="conveyorLevelerRunMinSpeedMmps" Tp="REAL" Ext="104" />
-			<SI Nm="conveyorLevelerSetEncoderPulseTime" Tp="UDINT" Ext="116" />
-			<SI Nm="conveyorLevelerSpeedTrim" Tp="REAL" Ext="68" />
-			<SI Nm="conveyorLevelerStackHeightOffsetMm" Tp="REAL" Ext="80" />
+		<DT Nm="SimpleStackerConfig_TypeStruct" AT="2" Ext="216">
+			<SI Nm="backstopAutoMaxSpeedMmps" Tp="REAL" Ext="172" />
+			<SI Nm="backstopDischargeOpenOffsetMm" Tp="REAL" Ext="196" />
+			<SI Nm="backstopHomeDirection" Tp="INT" Ext="140" />
+			<SI Nm="backstopHomePositionMm" Tp="REAL" Ext="144" />
+			<SI Nm="backstopHomingSpeedMmps" Tp="REAL" Ext="148" />
+			<SI Nm="backstopHomingTimeout" Tp="UDINT" Ext="152" />
+			<SI Nm="backstopManualSpeedMmps" Tp="REAL" Ext="180" />
+			<SI Nm="backstopMaxPositionMm" Tp="REAL" Ext="136" />
+			<SI Nm="backstopMinMoveSpeedMmps" Tp="REAL" Ext="176" />
+			<SI Nm="backstopMinPositionMm" Tp="REAL" Ext="132" />
+			<SI Nm="backstopPositionKp" Tp="REAL" Ext="168" />
+			<SI Nm="backstopPositionToleranceMm" Tp="REAL" Ext="164" />
+			<SI Nm="backstopRunMinSpeedMmps" Tp="REAL" Ext="184" />
+			<SI Nm="backstopSetEncoderPulseTime" Tp="UDINT" Ext="156" />
+			<SI Nm="backstopSheetLengthOffsetMm" Tp="REAL" Ext="160" />
+			<SI Nm="conveyorLevelerAutoMaxSpeedMmps" Tp="REAL" Ext="96" />
+			<SI Nm="conveyorLevelerBrakeHoldTime" Tp="UDINT" Ext="128" />
+			<SI Nm="conveyorLevelerBrakeReleaseDelay" Tp="UDINT" Ext="124" />
+			<SI Nm="conveyorLevelerHomingSpeedMmps" Tp="REAL" Ext="112" />
+			<SI Nm="conveyorLevelerHomingTimeout" Tp="UDINT" Ext="116" />
+			<SI Nm="conveyorLevelerManualSpeedMmps" Tp="REAL" Ext="104" />
+			<SI Nm="conveyorLevelerMaxPositionMm" Tp="REAL" Ext="80" />
+			<SI Nm="conveyorLevelerMinMoveSpeedMmps" Tp="REAL" Ext="100" />
+			<SI Nm="conveyorLevelerMinPositionMm" Tp="REAL" Ext="76" />
+			<SI Nm="conveyorLevelerPositionKp" Tp="REAL" Ext="92" />
+			<SI Nm="conveyorLevelerPositionToleranceMm" Tp="REAL" Ext="88" />
+			<SI Nm="conveyorLevelerRunMinSpeedMmps" Tp="REAL" Ext="108" />
+			<SI Nm="conveyorLevelerSetEncoderPulseTime" Tp="UDINT" Ext="120" />
+			<SI Nm="conveyorLevelerSpeedTrim" Tp="REAL" Ext="72" />
+			<SI Nm="conveyorLevelerStackHeightOffsetMm" Tp="REAL" Ext="84" />
 			<SI Nm="maximumSpeedMPM" Tp="REAL" Ext="8" />
-			<SI Nm="minimumOpeningSpeedMPM" Tp="REAL" Ext="64" />
+			<SI Nm="minimumOpeningSpeedMPM" Tp="REAL" Ext="68" />
 			<SI Nm="minimumSpeedMPM" Tp="REAL" Ext="4" />
+			<SI Nm="packageDischargeLineSpeedThresholdMPM" Tp="REAL" Ext="64" />
 			<SI Nm="packageGapSpeedOffsetMPM" Tp="REAL" Ext="60" />
 			<SI Nm="packageGapSpeedRatio" Tp="REAL" Ext="56" />
 			<SI Nm="rampAccelerationDownMPMps2" Tp="REAL" Ext="24" />
@@ -4795,12 +4848,12 @@
 			<SI Nm="sheetConveyor3LengthM" Tp="REAL" Ext="48" />
 			<SI Nm="sheetConveyor3SpeedTrim" Tp="REAL" Ext="36" />
 			<SI Nm="sheetConveyorsSpeedUpMPM" Tp="REAL" Ext="52" />
-			<SI Nm="sheetStackDischargeConveyorSpeedMPM" Tp="REAL" Ext="184" />
-			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="UDINT" Ext="204" />
-			<SI Nm="sheetStackDischargePositioningTimeout" Tp="UDINT" Ext="200" />
-			<SI Nm="sheetStackDischargeReturnTimeout" Tp="UDINT" Ext="208" />
-			<SI Nm="sheetStackDischargeTime" Tp="UDINT" Ext="188" />
-			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="UDINT" Ext="196" />
+			<SI Nm="sheetStackDischargeConveyorSpeedMPM" Tp="REAL" Ext="188" />
+			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="UDINT" Ext="208" />
+			<SI Nm="sheetStackDischargePositioningTimeout" Tp="UDINT" Ext="204" />
+			<SI Nm="sheetStackDischargeReturnTimeout" Tp="UDINT" Ext="212" />
+			<SI Nm="sheetStackDischargeTime" Tp="UDINT" Ext="192" />
+			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="UDINT" Ext="200" />
 			<SI Nm="stackerSpeedRatio" Tp="REAL" Ext="0" />
 		</DT>
 		<DT Nm="CPNTeck_OSCAT_BASIC.CYCLE_TIME" AT="2" Ext="44">
@@ -4815,861 +4868,538 @@
 			<SI Nm="systime" Tp="UDINT" Ext="20" />
 			<SI Nm="tx" Tp="UDINT" Ext="36" />
 		</DT>
-		<DT Nm="FB_SimpleSheetStackerControl" AT="2" Ext="1836">
-			<SI Nm="alarmActive" Tp="BOOL" Ext="633" />
-			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1066" />
-			<SI Nm="anyFault" Tp="BOOL" Ext="1067" />
-			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1356" />
-			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="262" />
-			<SI Nm="backstopAutoHomePending" Tp="BOOL" Ext="1829" />
-			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="1827" />
-			<SI Nm="backstopAutoTargetPositionMm" Tp="REAL" Ext="1348" />
-			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1362" />
-			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="264" />
-			<SI Nm="backstopControlState" Tp="INT" Ext="1060" />
-			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1004" />
-			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1008" />
-			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="237" />
-			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="261" />
-			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1012" />
-			<SI Nm="backstopFault" Tp="BOOL" Ext="869" />
-			<SI Nm="backstopFaultCode" Tp="INT" Ext="870" />
-			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="260" />
-			<SI Nm="backstopHomeCmdOld" Tp="BOOL" Ext="1065" />
-			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1365" />
-			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1364" />
-			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1360" />
-			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1366" />
-			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="1834" />
-			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="1835" />
-			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="1833" />
-			<SI Nm="backstopHomed" Tp="BOOL" Ext="867" />
-			<SI Nm="backstopInPosition" Tp="BOOL" Ext="868" />
-			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1020" />
-			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="992" />
-			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="996" />
-			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="266" />
-			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="267" />
-			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1361" />
-			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="263" />
-			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="672" />
-			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="876" />
-			<SI Nm="backstopPositionMm" Tp="REAL" Ext="244" />
-			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1016" />
-			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1000" />
-			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1024" />
-			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1352" />
-			<SI Nm="backstopRunFw" Tp="BOOL" Ext="645" />
-			<SI Nm="backstopRunRev" Tp="BOOL" Ext="646" />
-			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="265" />
-			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="268" />
-			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="673" />
-			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="676" />
-			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1028" />
-			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="1680" />
-			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="668" />
-			<SI Nm="backstopState" Tp="STRING(30)" Ext="836" />
-			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="1745" />
-			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1015" />
-			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1014" />
-			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="1748" />
-			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="872" />
-			<SI Nm="backstopUpValve" Tp="BOOL" Ext="685" />
-			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="684" />
-			<SI Nm="brakeValve" Tp="BOOL" Ext="680" />
-			<SI Nm="conveyorLevelerAbsPositionErrorMm" Tp="REAL" Ext="1184" />
-			<SI Nm="conveyorLevelerAutoCmd" Tp="BOOL" Ext="253" />
-			<SI Nm="conveyorLevelerAutoHomePending" Tp="BOOL" Ext="1830" />
-			<SI Nm="conveyorLevelerAutoHomeRequest" Tp="BOOL" Ext="1828" />
-			<SI Nm="conveyorLevelerAutoTargetPositionMm" Tp="REAL" Ext="1172" />
-			<SI Nm="conveyorLevelerBrakeRelease" Tp="BOOL" Ext="644" />
-			<SI Nm="conveyorLevelerBrakeReleaseRequest" Tp="BOOL" Ext="1191" />
-			<SI Nm="conveyorLevelerControlState" Tp="INT" Ext="1140" />
-			<SI Nm="conveyorLevelerDownAllowed" Tp="BOOL" Ext="1189" />
-			<SI Nm="conveyorLevelerDownCmd" Tp="BOOL" Ext="255" />
-			<SI Nm="conveyorLevelerDriveOk" Tp="BOOL" Ext="236" />
-			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="825" />
-			<SI Nm="conveyorLevelerFaultCode" Tp="INT" Ext="826" />
-			<SI Nm="conveyorLevelerHomeCmd" Tp="BOOL" Ext="252" />
-			<SI Nm="conveyorLevelerHomeCmdOld" Tp="BOOL" Ext="1142" />
-			<SI Nm="conveyorLevelerHomeLimitFallingEdge" Tp="BOOL" Ext="1823" />
-			<SI Nm="conveyorLevelerHomeLimitOld" Tp="BOOL" Ext="1822" />
-			<SI Nm="conveyorLevelerHomeLimitReached" Tp="BOOL" Ext="1192" />
-			<SI Nm="conveyorLevelerHomeMoveAllowed" Tp="BOOL" Ext="1193" />
-			<SI Nm="conveyorLevelerHomeRequestCombined" Tp="BOOL" Ext="1831" />
-			<SI Nm="conveyorLevelerHomeRequestCombinedOld" Tp="BOOL" Ext="1832" />
-			<SI Nm="conveyorLevelerHomed" Tp="BOOL" Ext="823" />
-			<SI Nm="conveyorLevelerInPosition" Tp="BOOL" Ext="824" />
-			<SI Nm="conveyorLevelerLowerLimit" Tp="BOOL" Ext="259" />
-			<SI Nm="conveyorLevelerLowerSafetyLimit" Tp="BOOL" Ext="257" />
-			<SI Nm="conveyorLevelerMoveRequest" Tp="BOOL" Ext="1190" />
-			<SI Nm="conveyorLevelerNormalSpeedMPM" Tp="REAL" Ext="1092" />
-			<SI Nm="conveyorLevelerPositionErrorMm" Tp="REAL" Ext="832" />
-			<SI Nm="conveyorLevelerPositionMm" Tp="REAL" Ext="248" />
-			<SI Nm="conveyorLevelerRawSpeedRefMmps" Tp="REAL" Ext="1176" />
-			<SI Nm="conveyorLevelerRunDown" Tp="BOOL" Ext="643" />
-			<SI Nm="conveyorLevelerRunUp" Tp="BOOL" Ext="642" />
-			<SI Nm="conveyorLevelerSetEncoderPosition" Tp="BOOL" Ext="784" />
-			<SI Nm="conveyorLevelerSetEncoderPositionMm" Tp="REAL" Ext="788" />
-			<SI Nm="conveyorLevelerSetEncoderPositionTrigger" Tp="BOOL" Ext="1144" />
-			<SI Nm="conveyorLevelerSignedSpeedRefMmps" Tp="REAL" Ext="1180" />
-			<SI Nm="conveyorLevelerSpeedRefMmps" Tp="REAL" Ext="660" />
-			<SI Nm="conveyorLevelerState" Tp="STRING(30)" Ext="792" />
-			<SI Nm="conveyorLevelerTargetOverrideActive" Tp="BOOL" Ext="1752" />
-			<SI Nm="conveyorLevelerTargetOverridePositionMm" Tp="REAL" Ext="1756" />
-			<SI Nm="conveyorLevelerTargetPositionMm" Tp="REAL" Ext="828" />
-			<SI Nm="conveyorLevelerTargetSpeedMPM" Tp="REAL" Ext="1116" />
-			<SI Nm="conveyorLevelerUpAllowed" Tp="BOOL" Ext="1188" />
-			<SI Nm="conveyorLevelerUpCmd" Tp="BOOL" Ext="254" />
-			<SI Nm="conveyorLevelerUpperLimit" Tp="BOOL" Ext="258" />
-			<SI Nm="conveyorLevelerUpperSafetyLimit" Tp="BOOL" Ext="256" />
-			<SI Nm="deviceState" Tp="STRING(30)" Ext="688" />
-			<SI Nm="dischargeRequestAccepted" Tp="BOOL" Ext="1688" />
-			<SI Nm="externalCounterReset" Tp="BOOL" Ext="638" />
-			<SI Nm="faultActive" Tp="BOOL" Ext="719" />
-			<SI Nm="hmiAlarms" Tp="hmiAlarmsSimpleStacker_TypeStruct" Ext="272" />
-			<SI Nm="hmiStatus" Tp="hmiStatusSimpleStacker_TypeStruct" Ext="308" />
-			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="1628" />
-			<SI Nm="instRampConveyorLeveler" Tp="FB_Gen_SRamp" Ext="1280" />
-			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1424" />
-			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1492" />
-			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1560" />
-			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="1764" />
+		<DT Nm="FB_SimpleSheetStackerControl" AT="2" Ext="1864">
+			<SI Nm="alarmActive" Tp="BOOL" Ext="653" />
+			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1087" />
+			<SI Nm="anyFault" Tp="BOOL" Ext="1088" />
+			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1384" />
+			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="266" />
+			<SI Nm="backstopAutoHomePending" Tp="BOOL" Ext="1857" />
+			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="1855" />
+			<SI Nm="backstopAutoTargetPositionMm" Tp="REAL" Ext="1376" />
+			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1390" />
+			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="268" />
+			<SI Nm="backstopControlState" Tp="INT" Ext="1080" />
+			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1024" />
+			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1028" />
+			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="241" />
+			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="265" />
+			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1032" />
+			<SI Nm="backstopFault" Tp="BOOL" Ext="889" />
+			<SI Nm="backstopFaultCode" Tp="INT" Ext="890" />
+			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="264" />
+			<SI Nm="backstopHomeCmdOld" Tp="BOOL" Ext="1086" />
+			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1393" />
+			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1392" />
+			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1388" />
+			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1394" />
+			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="1862" />
+			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="1863" />
+			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="1861" />
+			<SI Nm="backstopHomed" Tp="BOOL" Ext="887" />
+			<SI Nm="backstopInPosition" Tp="BOOL" Ext="888" />
+			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1040" />
+			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="1012" />
+			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="1016" />
+			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="270" />
+			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="271" />
+			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1389" />
+			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="267" />
+			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="692" />
+			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="896" />
+			<SI Nm="backstopPositionMm" Tp="REAL" Ext="248" />
+			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1036" />
+			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1020" />
+			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1044" />
+			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1380" />
+			<SI Nm="backstopRunFw" Tp="BOOL" Ext="665" />
+			<SI Nm="backstopRunRev" Tp="BOOL" Ext="666" />
+			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="269" />
+			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="272" />
+			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="693" />
+			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="696" />
+			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1048" />
+			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="1708" />
+			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="688" />
+			<SI Nm="backstopState" Tp="STRING(30)" Ext="856" />
+			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="1773" />
+			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1035" />
+			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1034" />
+			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="1776" />
+			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="892" />
+			<SI Nm="backstopUpValve" Tp="BOOL" Ext="705" />
+			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="704" />
+			<SI Nm="brakeValve" Tp="BOOL" Ext="700" />
+			<SI Nm="changeBatchCmd" Tp="BOOL" Ext="17" />
+			<SI Nm="changeBatchCmdOld" Tp="BOOL" Ext="1085" />
+			<SI Nm="changeBatchCycleActive" Tp="BOOL" Ext="1717" />
+			<SI Nm="changeBatchRequestPending" Tp="BOOL" Ext="1716" />
+			<SI Nm="conveyorLevelerAbsPositionErrorMm" Tp="REAL" Ext="1212" />
+			<SI Nm="conveyorLevelerAutoCmd" Tp="BOOL" Ext="257" />
+			<SI Nm="conveyorLevelerAutoHomePending" Tp="BOOL" Ext="1858" />
+			<SI Nm="conveyorLevelerAutoHomeRequest" Tp="BOOL" Ext="1856" />
+			<SI Nm="conveyorLevelerAutoTargetPositionMm" Tp="REAL" Ext="1200" />
+			<SI Nm="conveyorLevelerBrakeRelease" Tp="BOOL" Ext="664" />
+			<SI Nm="conveyorLevelerBrakeReleaseRequest" Tp="BOOL" Ext="1219" />
+			<SI Nm="conveyorLevelerControlState" Tp="INT" Ext="1168" />
+			<SI Nm="conveyorLevelerDownAllowed" Tp="BOOL" Ext="1217" />
+			<SI Nm="conveyorLevelerDownCmd" Tp="BOOL" Ext="259" />
+			<SI Nm="conveyorLevelerDriveOk" Tp="BOOL" Ext="240" />
+			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="845" />
+			<SI Nm="conveyorLevelerFaultCode" Tp="INT" Ext="846" />
+			<SI Nm="conveyorLevelerHomeCmd" Tp="BOOL" Ext="256" />
+			<SI Nm="conveyorLevelerHomeCmdOld" Tp="BOOL" Ext="1170" />
+			<SI Nm="conveyorLevelerHomeLimitFallingEdge" Tp="BOOL" Ext="1851" />
+			<SI Nm="conveyorLevelerHomeLimitOld" Tp="BOOL" Ext="1850" />
+			<SI Nm="conveyorLevelerHomeLimitReached" Tp="BOOL" Ext="1220" />
+			<SI Nm="conveyorLevelerHomeMoveAllowed" Tp="BOOL" Ext="1221" />
+			<SI Nm="conveyorLevelerHomeRequestCombined" Tp="BOOL" Ext="1859" />
+			<SI Nm="conveyorLevelerHomeRequestCombinedOld" Tp="BOOL" Ext="1860" />
+			<SI Nm="conveyorLevelerHomed" Tp="BOOL" Ext="843" />
+			<SI Nm="conveyorLevelerInPosition" Tp="BOOL" Ext="844" />
+			<SI Nm="conveyorLevelerLowerLimit" Tp="BOOL" Ext="263" />
+			<SI Nm="conveyorLevelerLowerSafetyLimit" Tp="BOOL" Ext="261" />
+			<SI Nm="conveyorLevelerMoveRequest" Tp="BOOL" Ext="1218" />
+			<SI Nm="conveyorLevelerNormalSpeedMPM" Tp="REAL" Ext="1116" />
+			<SI Nm="conveyorLevelerPositionErrorMm" Tp="REAL" Ext="852" />
+			<SI Nm="conveyorLevelerPositionMm" Tp="REAL" Ext="252" />
+			<SI Nm="conveyorLevelerRawSpeedRefMmps" Tp="REAL" Ext="1204" />
+			<SI Nm="conveyorLevelerRunDown" Tp="BOOL" Ext="663" />
+			<SI Nm="conveyorLevelerRunUp" Tp="BOOL" Ext="662" />
+			<SI Nm="conveyorLevelerSetEncoderPosition" Tp="BOOL" Ext="804" />
+			<SI Nm="conveyorLevelerSetEncoderPositionMm" Tp="REAL" Ext="808" />
+			<SI Nm="conveyorLevelerSetEncoderPositionTrigger" Tp="BOOL" Ext="1172" />
+			<SI Nm="conveyorLevelerSignedSpeedRefMmps" Tp="REAL" Ext="1208" />
+			<SI Nm="conveyorLevelerSpeedRefMmps" Tp="REAL" Ext="680" />
+			<SI Nm="conveyorLevelerState" Tp="STRING(30)" Ext="812" />
+			<SI Nm="conveyorLevelerTargetOverrideActive" Tp="BOOL" Ext="1780" />
+			<SI Nm="conveyorLevelerTargetOverridePositionMm" Tp="REAL" Ext="1784" />
+			<SI Nm="conveyorLevelerTargetPositionMm" Tp="REAL" Ext="848" />
+			<SI Nm="conveyorLevelerTargetSpeedMPM" Tp="REAL" Ext="1144" />
+			<SI Nm="conveyorLevelerUpAllowed" Tp="BOOL" Ext="1216" />
+			<SI Nm="conveyorLevelerUpCmd" Tp="BOOL" Ext="258" />
+			<SI Nm="conveyorLevelerUpperLimit" Tp="BOOL" Ext="262" />
+			<SI Nm="conveyorLevelerUpperSafetyLimit" Tp="BOOL" Ext="260" />
+			<SI Nm="deviceState" Tp="STRING(30)" Ext="708" />
+			<SI Nm="dischargeRequestAccepted" Tp="BOOL" Ext="1718" />
+			<SI Nm="effectiveLineSpeedMPM" Tp="REAL" Ext="1096" />
+			<SI Nm="externalCounterReset" Tp="BOOL" Ext="658" />
+			<SI Nm="faultActive" Tp="BOOL" Ext="739" />
+			<SI Nm="hmiAlarms" Tp="hmiAlarmsSimpleStacker_TypeStruct" Ext="286" />
+			<SI Nm="hmiStatus" Tp="hmiStatusSimpleStacker_TypeStruct" Ext="328" />
+			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="1656" />
+			<SI Nm="instRampConveyorLeveler" Tp="FB_Gen_SRamp" Ext="1308" />
+			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1452" />
+			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1520" />
+			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1588" />
+			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="1792" />
 			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="8" />
 			<SI Nm="machineConfig" Tp="SimpleStackerConfig_TypeStruct" Ext="20" />
-			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="271" />
-			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="686" />
-			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1076" />
+			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="275" />
+			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="706" />
+			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1100" />
 			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="16" />
-			<SI Nm="packageCompleteCmdAccepted" Tp="BOOL" Ext="1687" />
-			<SI Nm="packageGapDistanceTargetM" Tp="REAL" Ext="1120" />
-			<SI Nm="packageSeparationState" Tp="INT" Ext="1058" />
-			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1013" />
-			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1363" />
-			<SI Nm="rConveyorLevelerHome" Tp="BOOL" Ext="1143" />
-			<SI Nm="rStartCmd" Tp="BOOL" Ext="1825" />
-			<SI Nm="rStopCmd" Tp="BOOL" Ext="1826" />
-			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="966" />
-			<SI Nm="rampReset" Tp="BOOL" Ext="1069" />
-			<SI Nm="reset" Tp="BOOL" Ext="635" />
+			<SI Nm="packageCompleteCmdAccepted" Tp="BOOL" Ext="1715" />
+			<SI Nm="packageGapDistanceTargetM" Tp="REAL" Ext="1148" />
+			<SI Nm="packageSeparationState" Tp="INT" Ext="1078" />
+			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1033" />
+			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1391" />
+			<SI Nm="rConveyorLevelerHome" Tp="BOOL" Ext="1171" />
+			<SI Nm="rStartCmd" Tp="BOOL" Ext="1853" />
+			<SI Nm="rStopCmd" Tp="BOOL" Ext="1854" />
+			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="986" />
+			<SI Nm="rampReset" Tp="BOOL" Ext="1090" />
+			<SI Nm="reset" Tp="BOOL" Ext="655" />
 			<SI Nm="resetCmd" Tp="BOOL" Ext="6" />
-			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="232" />
-			<SI Nm="scanTimeMs" Tp="REAL" Ext="1676" />
-			<SI Nm="scanTimeS" Tp="REAL" Ext="1672" />
-			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="681" />
-			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="682" />
-			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="683" />
-			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="233" />
-			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1080" />
-			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="639" />
-			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="648" />
-			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1104" />
-			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="234" />
-			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1096" />
-			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="762" />
-			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1084" />
-			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1132" />
-			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1124" />
-			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="640" />
-			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="759" />
-			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="761" />
-			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="760" />
-			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="652" />
-			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="768" />
-			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1108" />
-			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="764" />
-			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="235" />
-			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1100" />
-			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="775" />
-			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1088" />
-			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1136" />
-			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1128" />
-			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="641" />
-			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="772" />
-			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="774" />
-			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="773" />
-			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="656" />
-			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="780" />
-			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1112" />
-			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="776" />
-			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="18" />
-			<SI Nm="sheetLengthM" Tp="REAL" Ext="1072" />
+			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="236" />
+			<SI Nm="safetyFeedBack1" Tp="BOOL" Ext="276" />
+			<SI Nm="safetyFeedBack10" Tp="BOOL" Ext="285" />
+			<SI Nm="safetyFeedBack2" Tp="BOOL" Ext="277" />
+			<SI Nm="safetyFeedBack3" Tp="BOOL" Ext="278" />
+			<SI Nm="safetyFeedBack4" Tp="BOOL" Ext="279" />
+			<SI Nm="safetyFeedBack5" Tp="BOOL" Ext="280" />
+			<SI Nm="safetyFeedBack6" Tp="BOOL" Ext="281" />
+			<SI Nm="safetyFeedBack7" Tp="BOOL" Ext="282" />
+			<SI Nm="safetyFeedBack8" Tp="BOOL" Ext="283" />
+			<SI Nm="safetyFeedBack9" Tp="BOOL" Ext="284" />
+			<SI Nm="scanTimeMs" Tp="REAL" Ext="1704" />
+			<SI Nm="scanTimeS" Tp="REAL" Ext="1700" />
+			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="701" />
+			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="702" />
+			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="703" />
+			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="237" />
+			<SI Nm="sheetConveyor1GapSpeedMPM" Tp="REAL" Ext="1120" />
+			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1104" />
+			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="659" />
+			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="668" />
+			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1132" />
+			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="238" />
+			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1124" />
+			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="782" />
+			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1108" />
+			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1160" />
+			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1152" />
+			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="660" />
+			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="779" />
+			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="781" />
+			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="780" />
+			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="672" />
+			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="788" />
+			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1136" />
+			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="784" />
+			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="239" />
+			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1128" />
+			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="795" />
+			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1112" />
+			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1164" />
+			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1156" />
+			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="661" />
+			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="792" />
+			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="794" />
+			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="793" />
+			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="676" />
+			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="800" />
+			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1140" />
+			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="796" />
+			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="19" />
+			<SI Nm="sheetLengthM" Tp="REAL" Ext="1092" />
 			<SI Nm="sheetLengthMm" Tp="REAL" Ext="12" />
-			<SI Nm="sheetStackAlignmentBrush" Tp="BOOL" Ext="687" />
-			<SI Nm="sheetStackAlignmentBrushEnableCmd" Tp="BOOL" Ext="269" />
-			<SI Nm="sheetStackAlignmentBrushLiftedForDischarge" Tp="BOOL" Ext="1686" />
-			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="758" />
-			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="949" />
-			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="1684" />
-			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="238" />
-			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="911" />
-			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="912" />
-			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="270" />
-			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="647" />
-			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="1760" />
-			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="664" />
-			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="880" />
-			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="1820" />
-			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="1821" />
-			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="952" />
-			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="954" />
-			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="1744" />
-			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="951" />
-			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="956" />
-			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="962" />
-			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="960" />
-			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="958" />
-			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="948" />
-			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="950" />
-			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="914" />
-			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="946" />
-			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="755" />
-			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="757" />
-			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="754" />
-			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="756" />
-			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="721" />
-			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="752" />
-			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1068" />
-			<SI Nm="stackHeightMm" Tp="REAL" Ext="240" />
-			<SI Nm="stackerRunning" Tp="BOOL" Ext="632" />
-			<SI Nm="stackerUnloadAccepted" Tp="BOOL" Ext="637" />
-			<SI Nm="stackerUnloadActive" Tp="BOOL" Ext="636" />
-			<SI Nm="stackerUnloadCmd" Tp="BOOL" Ext="17" />
-			<SI Nm="stackerUnloadCmdOld" Tp="BOOL" Ext="1064" />
+			<SI Nm="sheetStackAlignmentBrush" Tp="BOOL" Ext="707" />
+			<SI Nm="sheetStackAlignmentBrushEnableCmd" Tp="BOOL" Ext="273" />
+			<SI Nm="sheetStackAlignmentBrushLiftedForDischarge" Tp="BOOL" Ext="1714" />
+			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="778" />
+			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="969" />
+			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="1712" />
+			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="242" />
+			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="931" />
+			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="932" />
+			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="274" />
+			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="667" />
+			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="1788" />
+			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="684" />
+			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="900" />
+			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="1848" />
+			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="1849" />
+			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="972" />
+			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="974" />
+			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="1772" />
+			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="971" />
+			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="976" />
+			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="982" />
+			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="980" />
+			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="978" />
+			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="968" />
+			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="970" />
+			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="934" />
+			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="966" />
+			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="775" />
+			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="777" />
+			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="774" />
+			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="776" />
+			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="741" />
+			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="772" />
+			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1089" />
+			<SI Nm="stackHeightMm" Tp="REAL" Ext="244" />
+			<SI Nm="stackerRunning" Tp="BOOL" Ext="652" />
+			<SI Nm="stackerUnloadAccepted" Tp="BOOL" Ext="657" />
+			<SI Nm="stackerUnloadActive" Tp="BOOL" Ext="656" />
+			<SI Nm="stackerUnloadCmd" Tp="BOOL" Ext="18" />
+			<SI Nm="stackerUnloadCmdOld" Tp="BOOL" Ext="1084" />
 			<SI Nm="startCmd" Tp="BOOL" Ext="4" />
-			<SI Nm="startCmdOld" Tp="BOOL" Ext="1062" />
+			<SI Nm="startCmdOld" Tp="BOOL" Ext="1082" />
 			<SI Nm="stopCmd" Tp="BOOL" Ext="5" />
-			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1063" />
-			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="964" />
-			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="965" />
-			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="634" />
-			<SI Nm="syncConveyorsState" Tp="INT" Ext="1056" />
-			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="720" />
-			<SI Nm="systemRunEnable" Tp="BOOL" Ext="1824" />
-			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1368" />
-			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1396" />
-			<SI Nm="tonConveyorLevelerBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1252" />
-			<SI Nm="tonConveyorLevelerBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1224" />
-			<SI Nm="tonConveyorLevelerHomingTimeout" Tp="Tc2_Standard.TON" Ext="1196" />
-			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="1716" />
-			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="1792" />
-			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1032" />
-			<SI Nm="tpConveyorLevelerSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1148" />
-			<SI Nm="tpExternalCounterReset" Tp="Tc2_Standard.TP" Ext="1692" />
-			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="968" />
+			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1083" />
+			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="984" />
+			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="985" />
+			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="654" />
+			<SI Nm="syncConveyorsState" Tp="INT" Ext="1076" />
+			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="740" />
+			<SI Nm="systemRunEnable" Tp="BOOL" Ext="1852" />
+			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1396" />
+			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1424" />
+			<SI Nm="tonConveyorLevelerBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1280" />
+			<SI Nm="tonConveyorLevelerBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1252" />
+			<SI Nm="tonConveyorLevelerHomingTimeout" Tp="Tc2_Standard.TON" Ext="1224" />
+			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="1744" />
+			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="1820" />
+			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1052" />
+			<SI Nm="tpConveyorLevelerSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1176" />
+			<SI Nm="tpExternalCounterReset" Tp="Tc2_Standard.TP" Ext="1720" />
+			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="988" />
 		</DT>
-		<DT Nm="FB_SimpleSheetStackerControl_1" AT="2" Ext="1716">
-			<SI Nm="alarmActive" Tp="BOOL" Ext="633" />
-			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1065" />
-			<SI Nm="anyFault" Tp="BOOL" Ext="1066" />
-			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1264" />
-			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="262" />
-			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="1707" />
-			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1270" />
-			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="264" />
-			<SI Nm="backstopControlState" Tp="INT" Ext="1060" />
-			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1004" />
-			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1008" />
-			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="237" />
-			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="261" />
-			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1012" />
-			<SI Nm="backstopFault" Tp="BOOL" Ext="869" />
-			<SI Nm="backstopFaultCode" Tp="INT" Ext="870" />
-			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="260" />
-			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1273" />
-			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1272" />
-			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1268" />
-			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1274" />
-			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="1712" />
-			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="1713" />
-			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="1711" />
-			<SI Nm="backstopHomed" Tp="BOOL" Ext="867" />
-			<SI Nm="backstopInPosition" Tp="BOOL" Ext="868" />
-			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1020" />
-			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="992" />
-			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="996" />
-			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="266" />
-			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="267" />
-			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1269" />
-			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="263" />
-			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="672" />
-			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="876" />
-			<SI Nm="backstopPositionMm" Tp="REAL" Ext="244" />
-			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1016" />
-			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1000" />
-			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1024" />
-			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1260" />
-			<SI Nm="backstopRunFw" Tp="BOOL" Ext="642" />
-			<SI Nm="backstopRunRev" Tp="BOOL" Ext="643" />
-			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="265" />
-			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="268" />
-			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="673" />
-			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="676" />
-			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1028" />
-			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="1588" />
-			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="668" />
-			<SI Nm="backstopState" Tp="STRING(30)" Ext="836" />
-			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="1625" />
-			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1015" />
-			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1014" />
-			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="1628" />
-			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="872" />
-			<SI Nm="backstopUpValve" Tp="BOOL" Ext="685" />
-			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="684" />
-			<SI Nm="brakeValve" Tp="BOOL" Ext="680" />
-			<SI Nm="conveyorLevelerAbsPositionErrorMm" Tp="REAL" Ext="1164" />
-			<SI Nm="conveyorLevelerAutoCmd" Tp="BOOL" Ext="253" />
-			<SI Nm="conveyorLevelerAutoHomeRequest" Tp="BOOL" Ext="1708" />
-			<SI Nm="conveyorLevelerAutoTargetPositionMm" Tp="REAL" Ext="1152" />
-			<SI Nm="conveyorLevelerBrakeRelease" Tp="BOOL" Ext="641" />
-			<SI Nm="conveyorLevelerBrakeReleaseRequest" Tp="BOOL" Ext="1171" />
-			<SI Nm="conveyorLevelerControlState" Tp="INT" Ext="1124" />
-			<SI Nm="conveyorLevelerDownAllowed" Tp="BOOL" Ext="1169" />
-			<SI Nm="conveyorLevelerDownCmd" Tp="BOOL" Ext="255" />
-			<SI Nm="conveyorLevelerDriveOk" Tp="BOOL" Ext="236" />
-			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="825" />
-			<SI Nm="conveyorLevelerFaultCode" Tp="INT" Ext="826" />
-			<SI Nm="conveyorLevelerHomeCmd" Tp="BOOL" Ext="252" />
-			<SI Nm="conveyorLevelerHomeLimitFallingEdge" Tp="BOOL" Ext="1703" />
-			<SI Nm="conveyorLevelerHomeLimitOld" Tp="BOOL" Ext="1702" />
-			<SI Nm="conveyorLevelerHomeLimitReached" Tp="BOOL" Ext="1172" />
-			<SI Nm="conveyorLevelerHomeMoveAllowed" Tp="BOOL" Ext="1173" />
-			<SI Nm="conveyorLevelerHomeRequestCombined" Tp="BOOL" Ext="1709" />
-			<SI Nm="conveyorLevelerHomeRequestCombinedOld" Tp="BOOL" Ext="1710" />
-			<SI Nm="conveyorLevelerHomed" Tp="BOOL" Ext="823" />
-			<SI Nm="conveyorLevelerInPosition" Tp="BOOL" Ext="824" />
-			<SI Nm="conveyorLevelerLowerLimit" Tp="BOOL" Ext="259" />
-			<SI Nm="conveyorLevelerLowerSafetyLimit" Tp="BOOL" Ext="257" />
-			<SI Nm="conveyorLevelerMoveRequest" Tp="BOOL" Ext="1170" />
-			<SI Nm="conveyorLevelerPositionErrorMm" Tp="REAL" Ext="832" />
-			<SI Nm="conveyorLevelerPositionMm" Tp="REAL" Ext="248" />
-			<SI Nm="conveyorLevelerRawSpeedRefMmps" Tp="REAL" Ext="1156" />
-			<SI Nm="conveyorLevelerRunDown" Tp="BOOL" Ext="640" />
-			<SI Nm="conveyorLevelerRunUp" Tp="BOOL" Ext="639" />
-			<SI Nm="conveyorLevelerSetEncoderPosition" Tp="BOOL" Ext="784" />
-			<SI Nm="conveyorLevelerSetEncoderPositionMm" Tp="REAL" Ext="788" />
-			<SI Nm="conveyorLevelerSetEncoderPositionTrigger" Tp="BOOL" Ext="1127" />
-			<SI Nm="conveyorLevelerSignedSpeedRefMmps" Tp="REAL" Ext="1160" />
-			<SI Nm="conveyorLevelerSpeedRefMmps" Tp="REAL" Ext="660" />
-			<SI Nm="conveyorLevelerState" Tp="STRING(30)" Ext="792" />
-			<SI Nm="conveyorLevelerTargetOverrideActive" Tp="BOOL" Ext="1632" />
-			<SI Nm="conveyorLevelerTargetOverridePositionMm" Tp="REAL" Ext="1636" />
-			<SI Nm="conveyorLevelerTargetPositionMm" Tp="REAL" Ext="828" />
-			<SI Nm="conveyorLevelerUpAllowed" Tp="BOOL" Ext="1168" />
-			<SI Nm="conveyorLevelerUpCmd" Tp="BOOL" Ext="254" />
-			<SI Nm="conveyorLevelerUpperLimit" Tp="BOOL" Ext="258" />
-			<SI Nm="conveyorLevelerUpperSafetyLimit" Tp="BOOL" Ext="256" />
-			<SI Nm="deviceState" Tp="STRING(30)" Ext="687" />
-			<SI Nm="faultActive" Tp="BOOL" Ext="718" />
-			<SI Nm="hmiAlarms" Tp="hmiAlarmsSimpleStacker_TypeStruct" Ext="271" />
-			<SI Nm="hmiStatus" Tp="hmiStatusSimpleStacker_TypeStruct" Ext="308" />
-			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="1536" />
-			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1332" />
-			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1400" />
-			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1468" />
-			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="1644" />
+		<DT Nm="FB_SimpleSheetStackerControl_1" AT="2" Ext="1728">
+			<SI Nm="alarmActive" Tp="BOOL" Ext="645" />
+			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1077" />
+			<SI Nm="anyFault" Tp="BOOL" Ext="1078" />
+			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1276" />
+			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="266" />
+			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="1719" />
+			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1282" />
+			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="268" />
+			<SI Nm="backstopControlState" Tp="INT" Ext="1072" />
+			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1016" />
+			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1020" />
+			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="241" />
+			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="265" />
+			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1024" />
+			<SI Nm="backstopFault" Tp="BOOL" Ext="881" />
+			<SI Nm="backstopFaultCode" Tp="INT" Ext="882" />
+			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="264" />
+			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1285" />
+			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1284" />
+			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1280" />
+			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1286" />
+			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="1724" />
+			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="1725" />
+			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="1723" />
+			<SI Nm="backstopHomed" Tp="BOOL" Ext="879" />
+			<SI Nm="backstopInPosition" Tp="BOOL" Ext="880" />
+			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1032" />
+			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="1004" />
+			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="1008" />
+			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="270" />
+			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="271" />
+			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1281" />
+			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="267" />
+			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="684" />
+			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="888" />
+			<SI Nm="backstopPositionMm" Tp="REAL" Ext="248" />
+			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1028" />
+			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1012" />
+			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1036" />
+			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1272" />
+			<SI Nm="backstopRunFw" Tp="BOOL" Ext="654" />
+			<SI Nm="backstopRunRev" Tp="BOOL" Ext="655" />
+			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="269" />
+			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="272" />
+			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="685" />
+			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="688" />
+			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1040" />
+			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="1600" />
+			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="680" />
+			<SI Nm="backstopState" Tp="STRING(30)" Ext="848" />
+			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="1637" />
+			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1027" />
+			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1026" />
+			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="1640" />
+			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="884" />
+			<SI Nm="backstopUpValve" Tp="BOOL" Ext="697" />
+			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="696" />
+			<SI Nm="brakeValve" Tp="BOOL" Ext="692" />
+			<SI Nm="conveyorLevelerAbsPositionErrorMm" Tp="REAL" Ext="1176" />
+			<SI Nm="conveyorLevelerAutoCmd" Tp="BOOL" Ext="257" />
+			<SI Nm="conveyorLevelerAutoHomeRequest" Tp="BOOL" Ext="1720" />
+			<SI Nm="conveyorLevelerAutoTargetPositionMm" Tp="REAL" Ext="1164" />
+			<SI Nm="conveyorLevelerBrakeRelease" Tp="BOOL" Ext="653" />
+			<SI Nm="conveyorLevelerBrakeReleaseRequest" Tp="BOOL" Ext="1183" />
+			<SI Nm="conveyorLevelerControlState" Tp="INT" Ext="1136" />
+			<SI Nm="conveyorLevelerDownAllowed" Tp="BOOL" Ext="1181" />
+			<SI Nm="conveyorLevelerDownCmd" Tp="BOOL" Ext="259" />
+			<SI Nm="conveyorLevelerDriveOk" Tp="BOOL" Ext="240" />
+			<SI Nm="conveyorLevelerFault" Tp="BOOL" Ext="837" />
+			<SI Nm="conveyorLevelerFaultCode" Tp="INT" Ext="838" />
+			<SI Nm="conveyorLevelerHomeCmd" Tp="BOOL" Ext="256" />
+			<SI Nm="conveyorLevelerHomeLimitFallingEdge" Tp="BOOL" Ext="1715" />
+			<SI Nm="conveyorLevelerHomeLimitOld" Tp="BOOL" Ext="1714" />
+			<SI Nm="conveyorLevelerHomeLimitReached" Tp="BOOL" Ext="1184" />
+			<SI Nm="conveyorLevelerHomeMoveAllowed" Tp="BOOL" Ext="1185" />
+			<SI Nm="conveyorLevelerHomeRequestCombined" Tp="BOOL" Ext="1721" />
+			<SI Nm="conveyorLevelerHomeRequestCombinedOld" Tp="BOOL" Ext="1722" />
+			<SI Nm="conveyorLevelerHomed" Tp="BOOL" Ext="835" />
+			<SI Nm="conveyorLevelerInPosition" Tp="BOOL" Ext="836" />
+			<SI Nm="conveyorLevelerLowerLimit" Tp="BOOL" Ext="263" />
+			<SI Nm="conveyorLevelerLowerSafetyLimit" Tp="BOOL" Ext="261" />
+			<SI Nm="conveyorLevelerMoveRequest" Tp="BOOL" Ext="1182" />
+			<SI Nm="conveyorLevelerPositionErrorMm" Tp="REAL" Ext="844" />
+			<SI Nm="conveyorLevelerPositionMm" Tp="REAL" Ext="252" />
+			<SI Nm="conveyorLevelerRawSpeedRefMmps" Tp="REAL" Ext="1168" />
+			<SI Nm="conveyorLevelerRunDown" Tp="BOOL" Ext="652" />
+			<SI Nm="conveyorLevelerRunUp" Tp="BOOL" Ext="651" />
+			<SI Nm="conveyorLevelerSetEncoderPosition" Tp="BOOL" Ext="796" />
+			<SI Nm="conveyorLevelerSetEncoderPositionMm" Tp="REAL" Ext="800" />
+			<SI Nm="conveyorLevelerSetEncoderPositionTrigger" Tp="BOOL" Ext="1139" />
+			<SI Nm="conveyorLevelerSignedSpeedRefMmps" Tp="REAL" Ext="1172" />
+			<SI Nm="conveyorLevelerSpeedRefMmps" Tp="REAL" Ext="672" />
+			<SI Nm="conveyorLevelerState" Tp="STRING(30)" Ext="804" />
+			<SI Nm="conveyorLevelerTargetOverrideActive" Tp="BOOL" Ext="1644" />
+			<SI Nm="conveyorLevelerTargetOverridePositionMm" Tp="REAL" Ext="1648" />
+			<SI Nm="conveyorLevelerTargetPositionMm" Tp="REAL" Ext="840" />
+			<SI Nm="conveyorLevelerUpAllowed" Tp="BOOL" Ext="1180" />
+			<SI Nm="conveyorLevelerUpCmd" Tp="BOOL" Ext="258" />
+			<SI Nm="conveyorLevelerUpperLimit" Tp="BOOL" Ext="262" />
+			<SI Nm="conveyorLevelerUpperSafetyLimit" Tp="BOOL" Ext="260" />
+			<SI Nm="deviceState" Tp="STRING(30)" Ext="699" />
+			<SI Nm="faultActive" Tp="BOOL" Ext="730" />
+			<SI Nm="hmiAlarms" Tp="hmiAlarmsSimpleStacker_TypeStruct" Ext="275" />
+			<SI Nm="hmiStatus" Tp="hmiStatusSimpleStacker_TypeStruct" Ext="320" />
+			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="1548" />
+			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1344" />
+			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1412" />
+			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1480" />
+			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="1656" />
 			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="8" />
 			<SI Nm="machineConfig" Tp="SimpleStackerConfig_TypeStruct" Ext="20" />
-			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="270" />
-			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="686" />
-			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1072" />
+			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="274" />
+			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="698" />
+			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1084" />
 			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="16" />
-			<SI Nm="packageCompleteCmdOld" Tp="BOOL" Ext="1064" />
-			<SI Nm="packageCompleteCmdOldDischarge" Tp="BOOL" Ext="1594" />
-			<SI Nm="packageSeparationState" Tp="INT" Ext="1058" />
-			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1013" />
-			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1271" />
-			<SI Nm="rConveyorLevelerHome" Tp="BOOL" Ext="1126" />
-			<SI Nm="rPackageCompleteDischarge" Tp="BOOL" Ext="1595" />
-			<SI Nm="rStartCmd" Tp="BOOL" Ext="1705" />
-			<SI Nm="rStopCmd" Tp="BOOL" Ext="1706" />
-			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="966" />
-			<SI Nm="rampReset" Tp="BOOL" Ext="1068" />
-			<SI Nm="reset" Tp="BOOL" Ext="635" />
+			<SI Nm="packageCompleteCmdOld" Tp="BOOL" Ext="1076" />
+			<SI Nm="packageCompleteCmdOldDischarge" Tp="BOOL" Ext="1606" />
+			<SI Nm="packageSeparationState" Tp="INT" Ext="1070" />
+			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1025" />
+			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1283" />
+			<SI Nm="rConveyorLevelerHome" Tp="BOOL" Ext="1138" />
+			<SI Nm="rPackageCompleteDischarge" Tp="BOOL" Ext="1607" />
+			<SI Nm="rStartCmd" Tp="BOOL" Ext="1717" />
+			<SI Nm="rStopCmd" Tp="BOOL" Ext="1718" />
+			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="978" />
+			<SI Nm="rampReset" Tp="BOOL" Ext="1080" />
+			<SI Nm="reset" Tp="BOOL" Ext="647" />
 			<SI Nm="resetCmd" Tp="BOOL" Ext="6" />
-			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="232" />
-			<SI Nm="scanTimeMs" Tp="REAL" Ext="1584" />
-			<SI Nm="scanTimeS" Tp="REAL" Ext="1580" />
-			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="681" />
-			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="682" />
-			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="683" />
-			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="233" />
-			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1076" />
-			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="636" />
-			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="648" />
-			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1096" />
-			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="234" />
-			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1088" />
-			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="762" />
-			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1080" />
-			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1116" />
-			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1108" />
-			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="637" />
-			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="759" />
-			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="761" />
-			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="760" />
-			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="652" />
-			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="768" />
-			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1100" />
-			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="764" />
-			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="235" />
-			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1092" />
-			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="775" />
-			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1084" />
-			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1120" />
-			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1112" />
-			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="638" />
-			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="772" />
-			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="774" />
-			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="773" />
-			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="656" />
-			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="780" />
-			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1104" />
-			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="776" />
+			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="236" />
+			<SI Nm="scanTimeMs" Tp="REAL" Ext="1596" />
+			<SI Nm="scanTimeS" Tp="REAL" Ext="1592" />
+			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="693" />
+			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="694" />
+			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="695" />
+			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="237" />
+			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1088" />
+			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="648" />
+			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="660" />
+			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1108" />
+			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="238" />
+			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1100" />
+			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="774" />
+			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1092" />
+			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1128" />
+			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1120" />
+			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="649" />
+			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="771" />
+			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="773" />
+			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="772" />
+			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="664" />
+			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="780" />
+			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1112" />
+			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="776" />
+			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="239" />
+			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1104" />
+			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="787" />
+			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1096" />
+			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1132" />
+			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1124" />
+			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="650" />
+			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="784" />
+			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="786" />
+			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="785" />
+			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="668" />
+			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="792" />
+			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1116" />
+			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="788" />
 			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="17" />
 			<SI Nm="sheetLengthMm" Tp="REAL" Ext="12" />
-			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="758" />
-			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="949" />
-			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="1592" />
-			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="238" />
-			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="911" />
-			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="912" />
-			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="269" />
-			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="644" />
-			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="1640" />
-			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="664" />
-			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="880" />
-			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="1700" />
-			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="1701" />
-			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="952" />
-			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="954" />
-			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="1624" />
-			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="951" />
-			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="956" />
-			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="962" />
-			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="960" />
-			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="958" />
-			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="948" />
-			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="950" />
-			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="914" />
-			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="946" />
-			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="755" />
-			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="757" />
-			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="754" />
-			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="756" />
-			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="720" />
-			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="752" />
-			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1067" />
-			<SI Nm="stackHeightMm" Tp="REAL" Ext="240" />
-			<SI Nm="stackerRunning" Tp="BOOL" Ext="632" />
+			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="770" />
+			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="961" />
+			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="1604" />
+			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="242" />
+			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="923" />
+			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="924" />
+			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="273" />
+			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="656" />
+			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="1652" />
+			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="676" />
+			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="892" />
+			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="1712" />
+			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="1713" />
+			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="964" />
+			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="966" />
+			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="1636" />
+			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="963" />
+			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="968" />
+			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="974" />
+			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="972" />
+			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="970" />
+			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="960" />
+			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="962" />
+			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="926" />
+			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="958" />
+			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="767" />
+			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="769" />
+			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="766" />
+			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="768" />
+			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="732" />
+			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="764" />
+			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1079" />
+			<SI Nm="stackHeightMm" Tp="REAL" Ext="244" />
+			<SI Nm="stackerRunning" Tp="BOOL" Ext="644" />
 			<SI Nm="startCmd" Tp="BOOL" Ext="4" />
-			<SI Nm="startCmdOld" Tp="BOOL" Ext="1062" />
+			<SI Nm="startCmdOld" Tp="BOOL" Ext="1074" />
 			<SI Nm="stopCmd" Tp="BOOL" Ext="5" />
-			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1063" />
-			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="964" />
-			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="965" />
-			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="634" />
-			<SI Nm="syncConveyorsState" Tp="INT" Ext="1056" />
-			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="719" />
-			<SI Nm="systemRunEnable" Tp="BOOL" Ext="1704" />
-			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1276" />
-			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1304" />
-			<SI Nm="tonConveyorLevelerBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1232" />
-			<SI Nm="tonConveyorLevelerBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1204" />
-			<SI Nm="tonConveyorLevelerHomingTimeout" Tp="Tc2_Standard.TON" Ext="1176" />
-			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="1596" />
-			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="1672" />
-			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1032" />
-			<SI Nm="tpConveyorLevelerSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1128" />
-			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="968" />
+			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1075" />
+			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="976" />
+			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="977" />
+			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="646" />
+			<SI Nm="syncConveyorsState" Tp="INT" Ext="1068" />
+			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="731" />
+			<SI Nm="systemRunEnable" Tp="BOOL" Ext="1716" />
+			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1288" />
+			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1316" />
+			<SI Nm="tonConveyorLevelerBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1244" />
+			<SI Nm="tonConveyorLevelerBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1216" />
+			<SI Nm="tonConveyorLevelerHomingTimeout" Tp="Tc2_Standard.TON" Ext="1188" />
+			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="1608" />
+			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="1684" />
+			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1044" />
+			<SI Nm="tpConveyorLevelerSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1140" />
+			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="980" />
 		</DT>
-		<DT Nm="ComplexStackerConfig_TypeStruct" AT="2" Ext="276">
-			<SI Nm="backstopAutoMaxSpeedMmps" Tp="REAL" Ext="204" />
-			<SI Nm="backstopDischargeOpenOffsetMm" Tp="REAL" Ext="232" />
-			<SI Nm="backstopHomeDirection" Tp="INT" Ext="172" />
-			<SI Nm="backstopHomePositionMm" Tp="REAL" Ext="176" />
-			<SI Nm="backstopHomingSpeedMmps" Tp="REAL" Ext="180" />
-			<SI Nm="backstopHomingTimeout" Tp="UDINT" Ext="184" />
-			<SI Nm="backstopManualSpeedMmps" Tp="REAL" Ext="212" />
-			<SI Nm="backstopMaxPositionMm" Tp="REAL" Ext="168" />
-			<SI Nm="backstopMinMoveSpeedMmps" Tp="REAL" Ext="208" />
-			<SI Nm="backstopMinPositionMm" Tp="REAL" Ext="164" />
-			<SI Nm="backstopPositionKp" Tp="REAL" Ext="200" />
-			<SI Nm="backstopPositionToleranceMm" Tp="REAL" Ext="196" />
-			<SI Nm="backstopRunMinSpeedMmps" Tp="REAL" Ext="216" />
-			<SI Nm="backstopSetEncoderPulseTime" Tp="UDINT" Ext="188" />
-			<SI Nm="backstopSheetLengthOffsetMm" Tp="REAL" Ext="192" />
-			<SI Nm="elevatorAutomaticDownSpeedMmps" Tp="REAL" Ext="104" />
-			<SI Nm="elevatorAutomaticUpSpeedMmps" Tp="REAL" Ext="100" />
-			<SI Nm="elevatorBrakeHoldTime" Tp="UDINT" Ext="160" />
-			<SI Nm="elevatorBrakeReleaseDelay" Tp="UDINT" Ext="156" />
-			<SI Nm="elevatorHomePositionMm" Tp="REAL" Ext="152" />
-			<SI Nm="elevatorHomeSettleDelay" Tp="UDINT" Ext="148" />
-			<SI Nm="elevatorHomingReleaseSpeedMmps" Tp="REAL" Ext="136" />
-			<SI Nm="elevatorHomingSpeedMmps" Tp="REAL" Ext="132" />
-			<SI Nm="elevatorHomingTimeout" Tp="UDINT" Ext="140" />
-			<SI Nm="elevatorLevelingSpeed1Mmps" Tp="REAL" Ext="120" />
-			<SI Nm="elevatorLevelingSpeed2Delay" Tp="UDINT" Ext="128" />
-			<SI Nm="elevatorLevelingSpeed2Mmps" Tp="REAL" Ext="124" />
-			<SI Nm="elevatorManualLowSpeedFactor" Tp="REAL" Ext="116" />
-			<SI Nm="elevatorManualLowSpeedZoneMm" Tp="REAL" Ext="112" />
-			<SI Nm="elevatorManualSpeedMmps" Tp="REAL" Ext="108" />
-			<SI Nm="elevatorMaxPositionMm" Tp="REAL" Ext="84" />
-			<SI Nm="elevatorMinPositionMm" Tp="REAL" Ext="80" />
-			<SI Nm="elevatorPositionKp" Tp="REAL" Ext="96" />
-			<SI Nm="elevatorPositionToleranceMm" Tp="REAL" Ext="92" />
-			<SI Nm="elevatorSetEncoderPulseTime" Tp="UDINT" Ext="144" />
-			<SI Nm="elevatorSpeedTrim" Tp="REAL" Ext="76" />
-			<SI Nm="elevatorStackHeightOffsetMm" Tp="REAL" Ext="88" />
-			<SI Nm="maximumSpeedMPM" Tp="REAL" Ext="8" />
-			<SI Nm="minimumOpeningSpeedMPM" Tp="REAL" Ext="72" />
-			<SI Nm="minimumSpeedMPM" Tp="REAL" Ext="4" />
-			<SI Nm="packageGapSpeedOffsetMPM" Tp="REAL" Ext="68" />
-			<SI Nm="packageGapSpeedRatio" Tp="REAL" Ext="64" />
-			<SI Nm="paperPressOffTime" Tp="UDINT" Ext="272" />
-			<SI Nm="paperPressOnTime" Tp="UDINT" Ext="268" />
-			<SI Nm="rampAccelerationDownMPMps2" Tp="REAL" Ext="24" />
-			<SI Nm="rampAccelerationUpMPMps2" Tp="REAL" Ext="20" />
-			<SI Nm="rampVelocityDownMaxMPMps" Tp="REAL" Ext="16" />
-			<SI Nm="rampVelocityUpMaxMPMps" Tp="REAL" Ext="12" />
-			<SI Nm="sheetConveyor1LengthM" Tp="REAL" Ext="44" />
-			<SI Nm="sheetConveyor1SpeedTrim" Tp="REAL" Ext="28" />
-			<SI Nm="sheetConveyor2LengthM" Tp="REAL" Ext="48" />
-			<SI Nm="sheetConveyor2SpeedTrim" Tp="REAL" Ext="32" />
-			<SI Nm="sheetConveyor3LengthM" Tp="REAL" Ext="52" />
-			<SI Nm="sheetConveyor3SpeedTrim" Tp="REAL" Ext="36" />
-			<SI Nm="sheetConveyor4LengthM" Tp="REAL" Ext="56" />
-			<SI Nm="sheetConveyor4SpeedTrim" Tp="REAL" Ext="40" />
-			<SI Nm="sheetConveyorsSpeedUpMPM" Tp="REAL" Ext="60" />
-			<SI Nm="sheetStackDischargeConveyorSpeedMPM" Tp="REAL" Ext="220" />
-			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="UDINT" Ext="244" />
-			<SI Nm="sheetStackDischargePlatformClearTimeout" Tp="UDINT" Ext="228" />
-			<SI Nm="sheetStackDischargePositioningTimeout" Tp="UDINT" Ext="240" />
-			<SI Nm="sheetStackDischargeReturnTimeout" Tp="UDINT" Ext="248" />
-			<SI Nm="sheetStackDischargeTime" Tp="UDINT" Ext="224" />
-			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="UDINT" Ext="236" />
-			<SI Nm="stackBufferConveyorsSpeedMPM" Tp="REAL" Ext="252" />
-			<SI Nm="stackBufferConveyorsStopDelay" Tp="UDINT" Ext="256" />
-			<SI Nm="stackBufferFullSpeedReductionDelay" Tp="UDINT" Ext="264" />
-			<SI Nm="stackBufferTransferTimeout" Tp="UDINT" Ext="260" />
-			<SI Nm="stackerSpeedRatio" Tp="REAL" Ext="0" />
+		<DT Nm="EL5152_STATUS" AT="2" Ext="2">
+			<SI Nm="Extrapolation_stall" Tp="BIT" Ext="0" />
+			<SI Nm="Set_counter_done" Tp="BIT" Ext="0" />
+			<SI Nm="Status_of_input_A" Tp="BIT" Ext="1" />
+			<SI Nm="Status_of_input_B" Tp="BIT" Ext="1" />
+			<SI Nm="Sync_error" Tp="BIT" Ext="1" />
+			<SI Nm="TxPDO_Toggle" Tp="BIT" Ext="1" />
 		</DT>
-		<DT Nm="FB_ComplexSheetStackerControl" AT="2" Ext="2388">
-			<SI Nm="alarmActive" Tp="BOOL" Ext="745" />
-			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1229" />
-			<SI Nm="anyFault" Tp="BOOL" Ext="1230" />
-			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1656" />
-			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="338" />
-			<SI Nm="backstopAutoHomePending" Tp="BOOL" Ext="2225" />
-			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="2223" />
-			<SI Nm="backstopAutoTargetPositionMm" Tp="REAL" Ext="1648" />
-			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1662" />
-			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="340" />
-			<SI Nm="backstopControlState" Tp="INT" Ext="1220" />
-			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1164" />
-			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1168" />
-			<SI Nm="backstopDriveEnable" Tp="BOOL" Ext="762" />
-			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="302" />
-			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="337" />
-			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1172" />
-			<SI Nm="backstopFault" Tp="BOOL" Ext="1029" />
-			<SI Nm="backstopFaultCode" Tp="INT" Ext="1030" />
-			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="336" />
-			<SI Nm="backstopHomeCmdOld" Tp="BOOL" Ext="1228" />
-			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1665" />
-			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1664" />
-			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1660" />
-			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1666" />
-			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="2230" />
-			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="2231" />
-			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="2229" />
-			<SI Nm="backstopHomed" Tp="BOOL" Ext="1027" />
-			<SI Nm="backstopInPosition" Tp="BOOL" Ext="1028" />
-			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1180" />
-			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="1152" />
-			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="1156" />
-			<SI Nm="backstopMaterialInterlockSensor" Tp="BOOL" Ext="312" />
-			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="342" />
-			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="343" />
-			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1661" />
-			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="339" />
-			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="812" />
-			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="1036" />
-			<SI Nm="backstopPositionMm" Tp="REAL" Ext="320" />
-			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1176" />
-			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1160" />
-			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1184" />
-			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1652" />
-			<SI Nm="backstopRequiredForAutomaticOperation" Tp="BOOL" Ext="2148" />
-			<SI Nm="backstopRunFw" Tp="BOOL" Ext="760" />
-			<SI Nm="backstopRunRev" Tp="BOOL" Ext="761" />
-			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="341" />
-			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="344" />
-			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="813" />
-			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="816" />
-			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1188" />
-			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="2048" />
-			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="808" />
-			<SI Nm="backstopStackLevelSensor" Tp="BOOL" Ext="313" />
-			<SI Nm="backstopState" Tp="STRING(30)" Ext="996" />
-			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="2140" />
-			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1175" />
-			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1174" />
-			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="2144" />
-			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="1032" />
-			<SI Nm="backstopUpValve" Tp="BOOL" Ext="826" />
-			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="825" />
-			<SI Nm="brakeValve" Tp="BOOL" Ext="820" />
-			<SI Nm="deviceState" Tp="STRING(30)" Ext="830" />
-			<SI Nm="dischargeRequestAccepted" Tp="BOOL" Ext="1227" />
-			<SI Nm="elevatorAbsPositionErrorMm" Tp="REAL" Ext="1368" />
-			<SI Nm="elevatorAtMaxPosition" Tp="BOOL" Ext="982" />
-			<SI Nm="elevatorAtMinPosition" Tp="BOOL" Ext="981" />
-			<SI Nm="elevatorAutoCmd" Tp="BOOL" Ext="329" />
-			<SI Nm="elevatorAutoHomePending" Tp="BOOL" Ext="2226" />
-			<SI Nm="elevatorAutoHomeRequest" Tp="BOOL" Ext="2224" />
-			<SI Nm="elevatorAutoTargetPositionMm" Tp="REAL" Ext="1356" />
-			<SI Nm="elevatorBrakeRelease" Tp="BOOL" Ext="758" />
-			<SI Nm="elevatorBrakeReleaseRequest" Tp="BOOL" Ext="1375" />
-			<SI Nm="elevatorControlState" Tp="INT" Ext="1324" />
-			<SI Nm="elevatorDownAllowed" Tp="BOOL" Ext="1373" />
-			<SI Nm="elevatorDownCmd" Tp="BOOL" Ext="331" />
-			<SI Nm="elevatorDriveEnable" Tp="BOOL" Ext="759" />
-			<SI Nm="elevatorDriveOk" Tp="BOOL" Ext="301" />
-			<SI Nm="elevatorFault" Tp="BOOL" Ext="984" />
-			<SI Nm="elevatorFaultCode" Tp="INT" Ext="986" />
-			<SI Nm="elevatorHomeCmd" Tp="BOOL" Ext="328" />
-			<SI Nm="elevatorHomeCmdOld" Tp="BOOL" Ext="1326" />
-			<SI Nm="elevatorHomeDischargeComplete" Tp="BOOL" Ext="1383" />
-			<SI Nm="elevatorHomeDischargeConveyorRunRequest" Tp="BOOL" Ext="1382" />
-			<SI Nm="elevatorHomeDownAllowed" Tp="BOOL" Ext="1377" />
-			<SI Nm="elevatorHomeLimitFallingEdge" Tp="BOOL" Ext="2219" />
-			<SI Nm="elevatorHomeLimitOld" Tp="BOOL" Ext="2218" />
-			<SI Nm="elevatorHomeLimitReached" Tp="BOOL" Ext="1376" />
-			<SI Nm="elevatorHomeReleaseAllowed" Tp="BOOL" Ext="1378" />
-			<SI Nm="elevatorHomeRequestCombined" Tp="BOOL" Ext="2227" />
-			<SI Nm="elevatorHomeRequestCombinedOld" Tp="BOOL" Ext="2228" />
-			<SI Nm="elevatorHomed" Tp="BOOL" Ext="979" />
-			<SI Nm="elevatorInPosition" Tp="BOOL" Ext="980" />
-			<SI Nm="elevatorLowerLimit" Tp="BOOL" Ext="335" />
-			<SI Nm="elevatorLowerSafetyLimit" Tp="BOOL" Ext="333" />
-			<SI Nm="elevatorManualCommandArmed" Tp="BOOL" Ext="1379" />
-			<SI Nm="elevatorManualCommandRequest" Tp="BOOL" Ext="1380" />
-			<SI Nm="elevatorManualLowSpeedZoneActive" Tp="BOOL" Ext="983" />
-			<SI Nm="elevatorMoveRequest" Tp="BOOL" Ext="1374" />
-			<SI Nm="elevatorNormalSpeedMPM" Tp="REAL" Ext="1260" />
-			<SI Nm="elevatorPlatformClearDetected" Tp="BOOL" Ext="2136" />
-			<SI Nm="elevatorPositionErrorMm" Tp="REAL" Ext="992" />
-			<SI Nm="elevatorPositionMm" Tp="REAL" Ext="324" />
-			<SI Nm="elevatorRawSpeedRefMmps" Tp="REAL" Ext="1360" />
-			<SI Nm="elevatorReadyForAutomaticCycle" Tp="BOOL" Ext="1381" />
-			<SI Nm="elevatorRunDown" Tp="BOOL" Ext="757" />
-			<SI Nm="elevatorRunUp" Tp="BOOL" Ext="756" />
-			<SI Nm="elevatorSetEncoderPosition" Tp="BOOL" Ext="940" />
-			<SI Nm="elevatorSetEncoderPositionMm" Tp="REAL" Ext="944" />
-			<SI Nm="elevatorSetEncoderPositionTrigger" Tp="BOOL" Ext="1328" />
-			<SI Nm="elevatorSignedSpeedRefMmps" Tp="REAL" Ext="1364" />
-			<SI Nm="elevatorSpeedRefMmps" Tp="REAL" Ext="784" />
-			<SI Nm="elevatorStackExitClearSensor" Tp="BOOL" Ext="311" />
-			<SI Nm="elevatorStackExitClearSensorOld" Tp="BOOL" Ext="2236" />
-			<SI Nm="elevatorStackPresentAtDischargeStart" Tp="BOOL" Ext="2137" />
-			<SI Nm="elevatorStackPresentSensor" Tp="BOOL" Ext="310" />
-			<SI Nm="elevatorState" Tp="STRING(30)" Ext="948" />
-			<SI Nm="elevatorTargetOverrideActive" Tp="BOOL" Ext="2149" />
-			<SI Nm="elevatorTargetOverridePositionMm" Tp="REAL" Ext="2152" />
-			<SI Nm="elevatorTargetPositionMm" Tp="REAL" Ext="988" />
-			<SI Nm="elevatorTargetSpeedMPM" Tp="REAL" Ext="1292" />
-			<SI Nm="elevatorUpAllowed" Tp="BOOL" Ext="1372" />
-			<SI Nm="elevatorUpCmd" Tp="BOOL" Ext="330" />
-			<SI Nm="elevatorUpperLimit" Tp="BOOL" Ext="334" />
-			<SI Nm="elevatorUpperSafetyLimit" Tp="BOOL" Ext="332" />
-			<SI Nm="externalCounterReset" Tp="BOOL" Ext="751" />
-			<SI Nm="faultActive" Tp="BOOL" Ext="861" />
-			<SI Nm="hmiAlarms" Tp="hmiAlarmsComplexStacker_TypeStruct" Ext="355" />
-			<SI Nm="hmiStatus" Tp="hmiStatusComplexStacker_TypeStruct" Ext="408" />
-			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="1996" />
-			<SI Nm="instRampElevator" Tp="FB_Gen_SRamp" Ext="1580" />
-			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1724" />
-			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1792" />
-			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1860" />
-			<SI Nm="instRampSheetConveyor4" Tp="FB_Gen_SRamp" Ext="1928" />
-			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="2160" />
-			<SI Nm="instTONPaperPressOff" Tp="Tc2_Standard.TON" Ext="2328" />
-			<SI Nm="instTONPaperPressOn" Tp="Tc2_Standard.TON" Ext="2356" />
-			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="8" />
-			<SI Nm="lineSpeedReductionRequest" Tp="BOOL" Ext="805" />
-			<SI Nm="machineConfig" Tp="ComplexStackerConfig_TypeStruct" Ext="20" />
-			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="346" />
-			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="827" />
-			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1240" />
-			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="16" />
-			<SI Nm="packageCompleteCmdAcceptedLatch" Tp="BOOL" Ext="1224" />
-			<SI Nm="packageGapDistanceTargetM" Tp="REAL" Ext="1296" />
-			<SI Nm="packageSeparationState" Tp="INT" Ext="1218" />
-			<SI Nm="paperPressAutoManCmd" Tp="BOOL" Ext="349" />
-			<SI Nm="paperPressOnPhase" Tp="BOOL" Ext="2384" />
-			<SI Nm="paperPressSolenoid" Tp="BOOL" Ext="829" />
-			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1173" />
-			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1663" />
-			<SI Nm="rElevatorHome" Tp="BOOL" Ext="1327" />
-			<SI Nm="rElevatorStackExitClear" Tp="BOOL" Ext="2237" />
-			<SI Nm="rStackerUnloadCmd" Tp="BOOL" Ext="1226" />
-			<SI Nm="rStartCmd" Tp="BOOL" Ext="2221" />
-			<SI Nm="rStopCmd" Tp="BOOL" Ext="2222" />
-			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="1126" />
-			<SI Nm="rampReset" Tp="BOOL" Ext="1232" />
-			<SI Nm="reset" Tp="BOOL" Ext="747" />
-			<SI Nm="resetCmd" Tp="BOOL" Ext="6" />
-			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="296" />
-			<SI Nm="scanTimeMs" Tp="REAL" Ext="2044" />
-			<SI Nm="scanTimeS" Tp="REAL" Ext="2040" />
-			<SI Nm="sheetBrush1Cmd" Tp="BOOL" Ext="350" />
-			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="821" />
-			<SI Nm="sheetBrush2Cmd" Tp="BOOL" Ext="351" />
-			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="822" />
-			<SI Nm="sheetBrush3Cmd" Tp="BOOL" Ext="352" />
-			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="823" />
-			<SI Nm="sheetBrush4Cmd" Tp="BOOL" Ext="353" />
-			<SI Nm="sheetBrush4Valve" Tp="BOOL" Ext="824" />
-			<SI Nm="sheetBrushAutoManCmd" Tp="BOOL" Ext="354" />
-			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="297" />
-			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1244" />
-			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="752" />
-			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="768" />
-			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1276" />
-			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="298" />
-			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1264" />
-			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="904" />
-			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1248" />
-			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1312" />
-			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1300" />
-			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="753" />
-			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="901" />
-			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="903" />
-			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="902" />
-			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="772" />
-			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="912" />
-			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1280" />
-			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="908" />
-			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="299" />
-			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1268" />
-			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="919" />
-			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1252" />
-			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1316" />
-			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1304" />
-			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="754" />
-			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="916" />
-			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="918" />
-			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="917" />
-			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="776" />
-			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="924" />
-			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1284" />
-			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="920" />
-			<SI Nm="sheetConveyor4DriveOk" Tp="BOOL" Ext="300" />
-			<SI Nm="sheetConveyor4GapSpeedMPM" Tp="REAL" Ext="1272" />
-			<SI Nm="sheetConveyor4HighSpeedActive" Tp="BOOL" Ext="931" />
-			<SI Nm="sheetConveyor4NormalSpeedMPM" Tp="REAL" Ext="1256" />
-			<SI Nm="sheetConveyor4OpeningDistanceM" Tp="REAL" Ext="1320" />
-			<SI Nm="sheetConveyor4OpeningSpeedMPM" Tp="REAL" Ext="1308" />
-			<SI Nm="sheetConveyor4Run" Tp="BOOL" Ext="755" />
-			<SI Nm="sheetConveyor4SeparationActive" Tp="BOOL" Ext="928" />
-			<SI Nm="sheetConveyor4SeparationFinished" Tp="BOOL" Ext="930" />
-			<SI Nm="sheetConveyor4SeparationStarted" Tp="BOOL" Ext="929" />
-			<SI Nm="sheetConveyor4SpeedRefMPM" Tp="REAL" Ext="780" />
-			<SI Nm="sheetConveyor4TargetDistanceM" Tp="REAL" Ext="936" />
-			<SI Nm="sheetConveyor4TargetSpeedMPM" Tp="REAL" Ext="1288" />
-			<SI Nm="sheetConveyor4TrackingDistanceM" Tp="REAL" Ext="932" />
-			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="18" />
-			<SI Nm="sheetLengthM" Tp="REAL" Ext="1236" />
-			<SI Nm="sheetLengthMm" Tp="REAL" Ext="12" />
-			<SI Nm="sheetStackAlignmentBrush" Tp="BOOL" Ext="828" />
-			<SI Nm="sheetStackAlignmentBrushEnableCmd" Tp="BOOL" Ext="348" />
-			<SI Nm="sheetStackAlignmentBrushLiftedForDischarge" Tp="BOOL" Ext="2139" />
-			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="900" />
-			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="1109" />
-			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="2052" />
-			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="303" />
-			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="1071" />
-			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="1072" />
-			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="345" />
-			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="763" />
-			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="2156" />
-			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="788" />
-			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="1040" />
-			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="2216" />
-			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="2217" />
-			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="1112" />
-			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="1114" />
-			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="2138" />
-			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="1111" />
-			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="1116" />
-			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="1122" />
-			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="1120" />
-			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="1118" />
-			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="1108" />
-			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="1110" />
-			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="1074" />
-			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="1106" />
-			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="897" />
-			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="899" />
-			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="896" />
-			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="898" />
-			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="863" />
-			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="894" />
-			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1231" />
-			<SI Nm="stackBufferControlState" Tp="INT" Ext="2232" />
-			<SI Nm="stackBufferConveyor1DriveOk" Tp="BOOL" Ext="304" />
-			<SI Nm="stackBufferConveyor1Run" Tp="BOOL" Ext="764" />
-			<SI Nm="stackBufferConveyor1SpeedRefMPM" Tp="REAL" Ext="792" />
-			<SI Nm="stackBufferConveyor1StackPresentSensor" Tp="BOOL" Ext="307" />
-			<SI Nm="stackBufferConveyor2DriveOk" Tp="BOOL" Ext="305" />
-			<SI Nm="stackBufferConveyor2Run" Tp="BOOL" Ext="765" />
-			<SI Nm="stackBufferConveyor2SpeedRefMPM" Tp="REAL" Ext="796" />
-			<SI Nm="stackBufferConveyor2StackPresentSensor" Tp="BOOL" Ext="308" />
-			<SI Nm="stackBufferConveyor3DriveOk" Tp="BOOL" Ext="306" />
-			<SI Nm="stackBufferConveyor3Run" Tp="BOOL" Ext="766" />
-			<SI Nm="stackBufferConveyor3SpeedRefMPM" Tp="REAL" Ext="800" />
-			<SI Nm="stackBufferConveyor3StackPresentSensor" Tp="BOOL" Ext="309" />
-			<SI Nm="stackBufferConveyorsRunCmd" Tp="BOOL" Ext="347" />
-			<SI Nm="stackBufferFull" Tp="BOOL" Ext="804" />
-			<SI Nm="stackBufferTargetConveyor" Tp="INT" Ext="2234" />
-			<SI Nm="stackBufferTransferTimeoutPulse" Tp="BOOL" Ext="2324" />
-			<SI Nm="stackHeightMm" Tp="REAL" Ext="316" />
-			<SI Nm="stackerBuzzer1" Tp="BOOL" Ext="748" />
-			<SI Nm="stackerBuzzer2" Tp="BOOL" Ext="749" />
-			<SI Nm="stackerRunning" Tp="BOOL" Ext="744" />
-			<SI Nm="stackerUnloadAccepted" Tp="BOOL" Ext="750" />
-			<SI Nm="stackerUnloadCmd" Tp="BOOL" Ext="17" />
-			<SI Nm="stackerUnloadCmdOld" Tp="BOOL" Ext="1225" />
-			<SI Nm="startCmd" Tp="BOOL" Ext="4" />
-			<SI Nm="startCmdOld" Tp="BOOL" Ext="1222" />
-			<SI Nm="stopCmd" Tp="BOOL" Ext="5" />
-			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1223" />
-			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="1124" />
-			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="1125" />
-			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="746" />
-			<SI Nm="syncConveyorsState" Tp="INT" Ext="1216" />
-			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="862" />
-			<SI Nm="systemRunEnable" Tp="BOOL" Ext="2220" />
-			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1668" />
-			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1696" />
-			<SI Nm="tonElevatorBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1552" />
-			<SI Nm="tonElevatorBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1524" />
-			<SI Nm="tonElevatorHomeDischargeMinimumRun" Tp="Tc2_Standard.TON" Ext="1440" />
-			<SI Nm="tonElevatorHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1412" />
-			<SI Nm="tonElevatorHomingTimeout" Tp="Tc2_Standard.TON" Ext="1384" />
-			<SI Nm="tonElevatorLevelingSpeed2Delay" Tp="Tc2_Standard.TON" Ext="1468" />
-			<SI Nm="tonElevatorUpBlockedByBackstopAlarm" Tp="Tc2_Standard.TON" Ext="1496" />
-			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="2080" />
-			<SI Nm="tonSheetStackDischargePlatformClearTimeout" Tp="Tc2_Standard.TON" Ext="2108" />
-			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="2188" />
-			<SI Nm="tonStackBufferFullSpeedReduction" Tp="Tc2_Standard.TON" Ext="2296" />
-			<SI Nm="tonStackBufferStopDelay" Tp="Tc2_Standard.TON" Ext="2240" />
-			<SI Nm="tonStackBufferTransferTimeout" Tp="Tc2_Standard.TON" Ext="2268" />
-			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1192" />
-			<SI Nm="tpElevatorSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1332" />
-			<SI Nm="tpExternalCounterReset" Tp="Tc2_Standard.TP" Ext="2056" />
-			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="1128" />
+		<DT Nm="EL5152_HWTOPLC_PDOS" AT="2" Ext="8">
+			<SI Nm="CounterValue" Tp="UDINT" Ext="4" />
+			<SI Nm="status" Tp="EL5152_STATUS" Ext="0" />
+		</DT>
+		<DT Nm="EL5152_HWTOPLC" AT="2" Ext="16">
+			<SI Nm="channel1" Tp="EL5152_HWTOPLC_PDOS" Ext="0" />
+			<SI Nm="channel2" Tp="EL5152_HWTOPLC_PDOS" Ext="8" />
+		</DT>
+		<DT Nm="_006B51_HWTOPLC_PDOS" AT="2" Ext="11">
+			<SI Nm="deviceState" Tp="BYTE" Ext="2" />
+			<SI Nm="inputPin2" Tp="BYTE" Ext="1" />
+			<SI Nm="inputPin4" Tp="BYTE" Ext="0" />
+			<SI Nm="ioLinkDeviceState_Port0" Tp="USINT" Ext="3" />
+			<SI Nm="ioLinkDeviceState_Port1" Tp="USINT" Ext="4" />
+			<SI Nm="ioLinkDeviceState_Port2" Tp="USINT" Ext="5" />
+			<SI Nm="ioLinkDeviceState_Port3" Tp="USINT" Ext="6" />
+			<SI Nm="ioLinkDeviceState_Port4" Tp="USINT" Ext="7" />
+			<SI Nm="ioLinkDeviceState_Port5" Tp="USINT" Ext="8" />
+			<SI Nm="ioLinkDeviceState_Port6" Tp="USINT" Ext="9" />
+			<SI Nm="ioLinkDeviceState_Port7" Tp="USINT" Ext="10" />
+		</DT>
+		<DT Nm="_00BE31_HWTOPLC_PDOS" AT="2" Ext="2">
+			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
+			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
+		</DT>
+		<DT Nm="_00BH11_HWTOPLC_PDOS" AT="2" Ext="2">
+			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
+			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
+		</DT>
+		<DT Nm="_DT35B15251_HWTOPLC_PDOS" AT="2" Ext="2">
+			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
+			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
+		</DT>
+		<DT Nm="IS620P_CO_HWTOPLC_PDOS" AT="2" Ext="24">
+			<SI Nm="actualPosition" Tp="DINT" Ext="3" />
+			<SI Nm="actualVelocity" Tp="DINT" Ext="7" />
+			<SI Nm="diagFlag" Tp="BIT" Ext="17" />
+			<SI Nm="modeDisplay" Tp="SINT" Ext="2" />
+			<SI Nm="nodeState" Tp="USINT" Ext="11" />
+			<SI Nm="statusWord" Tp="UINT" Ext="0" />
 		</DT>
 		<DT Nm="EL5152_DEV_CONFIG" AT="2" Ext="40">
 			<SI Nm="desiredPosition" Tp="LREAL" Ext="32" />
@@ -5691,22 +5421,6 @@
 		<DT Nm="EL5152_PLCTOHW" AT="2" Ext="16">
 			<SI Nm="channel1" Tp="EL5152_PLCTOHW_PDOS" Ext="0" />
 			<SI Nm="channel2" Tp="EL5152_PLCTOHW_PDOS" Ext="8" />
-		</DT>
-		<DT Nm="EL5152_STATUS" AT="2" Ext="2">
-			<SI Nm="Extrapolation_stall" Tp="BIT" Ext="0" />
-			<SI Nm="Set_counter_done" Tp="BIT" Ext="0" />
-			<SI Nm="Status_of_input_A" Tp="BIT" Ext="1" />
-			<SI Nm="Status_of_input_B" Tp="BIT" Ext="1" />
-			<SI Nm="Sync_error" Tp="BIT" Ext="1" />
-			<SI Nm="TxPDO_Toggle" Tp="BIT" Ext="1" />
-		</DT>
-		<DT Nm="EL5152_HWTOPLC_PDOS" AT="2" Ext="8">
-			<SI Nm="CounterValue" Tp="UDINT" Ext="4" />
-			<SI Nm="status" Tp="EL5152_STATUS" Ext="0" />
-		</DT>
-		<DT Nm="EL5152_HWTOPLC" AT="2" Ext="16">
-			<SI Nm="channel1" Tp="EL5152_HWTOPLC_PDOS" Ext="0" />
-			<SI Nm="channel2" Tp="EL5152_HWTOPLC_PDOS" Ext="8" />
 		</DT>
 		<DT Nm="FB_EL5152" AT="2" Ext="456">
 			<SI Nm="HwToPlc" Tp="EL5152_HWTOPLC" Ext="136" />
@@ -5781,19 +5495,6 @@
 			<SI Nm="state_PortInNcDigitalInput" Tp="BOOL" Ext="4" />
 			<SI Nm="state_PortInNoDigitalInput" Tp="BOOL" Ext="3" />
 		</DT>
-		<DT Nm="_006B51_HWTOPLC_PDOS" AT="2" Ext="11">
-			<SI Nm="deviceState" Tp="BYTE" Ext="2" />
-			<SI Nm="inputPin2" Tp="BYTE" Ext="1" />
-			<SI Nm="inputPin4" Tp="BYTE" Ext="0" />
-			<SI Nm="ioLinkDeviceState_Port0" Tp="USINT" Ext="3" />
-			<SI Nm="ioLinkDeviceState_Port1" Tp="USINT" Ext="4" />
-			<SI Nm="ioLinkDeviceState_Port2" Tp="USINT" Ext="5" />
-			<SI Nm="ioLinkDeviceState_Port3" Tp="USINT" Ext="6" />
-			<SI Nm="ioLinkDeviceState_Port4" Tp="USINT" Ext="7" />
-			<SI Nm="ioLinkDeviceState_Port5" Tp="USINT" Ext="8" />
-			<SI Nm="ioLinkDeviceState_Port6" Tp="USINT" Ext="9" />
-			<SI Nm="ioLinkDeviceState_Port7" Tp="USINT" Ext="10" />
-		</DT>
 		<DT Nm="_FB_006B51" AT="2" Ext="144">
 			<SI Nm="HwToPlc" Tp="_006B51_HWTOPLC_PDOS" Ext="132" />
 			<SI Nm="channel_0" Tp="_006B51_Channel_State" Ext="4" />
@@ -5808,10 +5509,6 @@
 		<DT Nm="_00BE31_PLCTOHW_PDOS" AT="2" Ext="2">
 			<SI Nm="outputByte_0" Tp="BYTE" Ext="0" />
 			<SI Nm="outputByte_1" Tp="BYTE" Ext="1" />
-		</DT>
-		<DT Nm="_00BE31_HWTOPLC_PDOS" AT="2" Ext="2">
-			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
-			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
 		</DT>
 		<DT Nm="_FB_00BE31" AT="2" Ext="40">
 			<SI Nm="HwToPlc" Tp="_00BE31_HWTOPLC_PDOS" Ext="38" />
@@ -5852,10 +5549,6 @@
 		<DT Nm="_00BH11_PLCTOHW_PDOS" AT="2" Ext="2">
 			<SI Nm="outputByte_0" Tp="BYTE" Ext="0" />
 			<SI Nm="outputByte_1" Tp="BYTE" Ext="1" />
-		</DT>
-		<DT Nm="_00BH11_HWTOPLC_PDOS" AT="2" Ext="2">
-			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
-			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
 		</DT>
 		<DT Nm="_FB_00BH11" AT="2" Ext="40">
 			<SI Nm="HwToPlc" Tp="_00BH11_HWTOPLC_PDOS" Ext="38" />
@@ -5903,10 +5596,6 @@
 			<SI Nm="heightLowLimit" Tp="REAL" Ext="28" />
 			<SI Nm="heightReferenceDistance" Tp="REAL" Ext="24" />
 			<SI Nm="processDataResolutionFactor" Tp="REAL" Ext="0" />
-		</DT>
-		<DT Nm="_DT35B15251_HWTOPLC_PDOS" AT="2" Ext="2">
-			<SI Nm="inputByte_0" Tp="BYTE" Ext="0" />
-			<SI Nm="inputByte_1" Tp="BYTE" Ext="1" />
 		</DT>
 		<DT Nm="_FB_DT35_B15251" AT="2" Ext="60">
 			<SI Nm="HwToPlc" Tp="_DT35B15251_HWTOPLC_PDOS" Ext="40" />
@@ -5980,14 +5669,6 @@
 			<SI Nm="targetPosition" Tp="DINT" Ext="3" />
 			<SI Nm="targetVelocity" Tp="DINT" Ext="19" />
 		</DT>
-		<DT Nm="IS620P_CO_HWTOPLC_PDOS" AT="2" Ext="24">
-			<SI Nm="actualPosition" Tp="DINT" Ext="3" />
-			<SI Nm="actualVelocity" Tp="DINT" Ext="7" />
-			<SI Nm="diagFlag" Tp="BIT" Ext="17" />
-			<SI Nm="modeDisplay" Tp="SINT" Ext="2" />
-			<SI Nm="nodeState" Tp="USINT" Ext="11" />
-			<SI Nm="statusWord" Tp="UINT" Ext="0" />
-		</DT>
 		<DT Nm="IS620P_CO_STATUS" AT="2" Ext="18">
 			<SI Nm="activeMode" Tp="SINT" Ext="14" />
 			<SI Nm="calibrated" Tp="BOOL" Ext="4" />
@@ -6041,6 +5722,507 @@
 			<SI Nm="zeroPosition" Tp="BOOL" Ext="120" />
 			<SI Nm="zeroPositionOld" Tp="BOOL" Ext="247" />
 			<SI Nm="zeroPositionRisingEdge" Tp="BOOL" Ext="248" />
+		</DT>
+		<DT Nm="EL6910_ESTOP_STATUS" AT="2" Ext="7">
+			<SI Nm="estopState_DELAYOUT" Tp="BOOL" Ext="6" />
+			<SI Nm="estopState_ERROR" Tp="BOOL" Ext="3" />
+			<SI Nm="estopState_RESET" Tp="BOOL" Ext="4" />
+			<SI Nm="estopState_RUN" Tp="BOOL" Ext="0" />
+			<SI Nm="estopState_SAFE" Tp="BOOL" Ext="2" />
+			<SI Nm="estopState_START" Tp="BOOL" Ext="5" />
+			<SI Nm="estopState_STOP" Tp="BOOL" Ext="1" />
+		</DT>
+		<DT Nm="EL6910_ESTOP_DIGNOSTICS" AT="2" Ext="10">
+			<SI Nm="discrepancyErrGroup1" Tp="BOOL" Ext="0" />
+			<SI Nm="discrepancyErrGroup1_Safe" Tp="BOOL" Ext="6" />
+			<SI Nm="discrepancyErrGroup2" Tp="BOOL" Ext="1" />
+			<SI Nm="discrepancyErrGroup2_Safe" Tp="BOOL" Ext="7" />
+			<SI Nm="discrepancyErrGroup3" Tp="BOOL" Ext="2" />
+			<SI Nm="discrepancyErrGroup3_Safe" Tp="BOOL" Ext="8" />
+			<SI Nm="discrepancyErrGroup4" Tp="BOOL" Ext="3" />
+			<SI Nm="discrepancyErrGroup4_Safe" Tp="BOOL" Ext="9" />
+			<SI Nm="edmMonitoringErr1" Tp="BOOL" Ext="4" />
+			<SI Nm="edmMonitoringErr2" Tp="BOOL" Ext="5" />
+		</DT>
+		<DT Nm="EL6910_HWTOPLC_PDOS" AT="2" Ext="16">
+			<SI Nm="EStop1Diag" Tp="UINT" Ext="2" />
+			<SI Nm="EStop1State" Tp="USINT" Ext="0" />
+			<SI Nm="EStop2Diag" Tp="UINT" Ext="6" />
+			<SI Nm="EStop2State" Tp="USINT" Ext="4" />
+			<SI Nm="EStop3Diag" Tp="UINT" Ext="10" />
+			<SI Nm="EStop3State" Tp="USINT" Ext="8" />
+			<SI Nm="EStop4Diag" Tp="UINT" Ext="14" />
+			<SI Nm="EStop4State" Tp="USINT" Ext="12" />
+		</DT>
+		<DT Nm="EL6910_PLCTOHW_PDOS" AT="2" Ext="3">
+			<SI Nm="ErrorAcknowledgement" Tp="BOOL" Ext="0" />
+			<SI Nm="Run" Tp="BOOL" Ext="2" />
+			<SI Nm="safetyReset" Tp="BOOL" Ext="1" />
+		</DT>
+		<DT Nm="EL6910_PDOS" AT="2" Ext="20">
+			<SI Nm="HwToPLC" Tp="EL6910_HWTOPLC_PDOS" Ext="0" />
+			<SI Nm="PlcToHw" Tp="EL6910_PLCTOHW_PDOS" Ext="16" />
+		</DT>
+		<DT Nm="FB_EL6910" AT="2" Ext="104">
+			<SI Nm="EStop1DiagOld" Tp="INT" Ext="96" />
+			<SI Nm="EStop2DiagOld" Tp="INT" Ext="98" />
+			<SI Nm="EStop3DiagOld" Tp="INT" Ext="100" />
+			<SI Nm="EStop4DiagOld" Tp="INT" Ext="102" />
+			<SI Nm="PDOS" Tp="EL6910_PDOS" Ext="76" />
+			<SI Nm="eStop1Diagnostics" Tp="EL6910_ESTOP_DIGNOSTICS" Ext="14" />
+			<SI Nm="eStop1Status" Tp="EL6910_ESTOP_STATUS" Ext="7" />
+			<SI Nm="eStop2Diagnostics" Tp="EL6910_ESTOP_DIGNOSTICS" Ext="31" />
+			<SI Nm="eStop2Status" Tp="EL6910_ESTOP_STATUS" Ext="24" />
+			<SI Nm="eStop3Diagnostics" Tp="EL6910_ESTOP_DIGNOSTICS" Ext="48" />
+			<SI Nm="eStop3Status" Tp="EL6910_ESTOP_STATUS" Ext="41" />
+			<SI Nm="eStop4Diagnostics" Tp="EL6910_ESTOP_DIGNOSTICS" Ext="65" />
+			<SI Nm="eStop4Status" Tp="EL6910_ESTOP_STATUS" Ext="58" />
+			<SI Nm="errorAcknowledgement" Tp="BOOL" Ext="4" />
+			<SI Nm="run" Tp="BOOL" Ext="5" />
+			<SI Nm="safetyReset" Tp="BOOL" Ext="6" />
+		</DT>
+		<DT Nm="ComplexStackerConfig_TypeStruct" AT="2" Ext="292">
+			<SI Nm="backstopAutoMaxSpeedMmps" Tp="REAL" Ext="208" />
+			<SI Nm="backstopDischargeOpenOffsetMm" Tp="REAL" Ext="236" />
+			<SI Nm="backstopHomeDirection" Tp="INT" Ext="176" />
+			<SI Nm="backstopHomePositionMm" Tp="REAL" Ext="180" />
+			<SI Nm="backstopHomingSpeedMmps" Tp="REAL" Ext="184" />
+			<SI Nm="backstopHomingTimeout" Tp="UDINT" Ext="188" />
+			<SI Nm="backstopManualSpeedMmps" Tp="REAL" Ext="216" />
+			<SI Nm="backstopMaxPositionMm" Tp="REAL" Ext="172" />
+			<SI Nm="backstopMinMoveSpeedMmps" Tp="REAL" Ext="212" />
+			<SI Nm="backstopMinPositionMm" Tp="REAL" Ext="168" />
+			<SI Nm="backstopPositionKp" Tp="REAL" Ext="204" />
+			<SI Nm="backstopPositionToleranceMm" Tp="REAL" Ext="200" />
+			<SI Nm="backstopRunMinSpeedMmps" Tp="REAL" Ext="220" />
+			<SI Nm="backstopSetEncoderPulseTime" Tp="UDINT" Ext="192" />
+			<SI Nm="backstopSheetLengthOffsetMm" Tp="REAL" Ext="196" />
+			<SI Nm="elevatorAutomaticDownSpeedMmps" Tp="REAL" Ext="108" />
+			<SI Nm="elevatorAutomaticUpSpeedMmps" Tp="REAL" Ext="104" />
+			<SI Nm="elevatorBrakeHoldTime" Tp="UDINT" Ext="164" />
+			<SI Nm="elevatorBrakeReleaseDelay" Tp="UDINT" Ext="160" />
+			<SI Nm="elevatorDriveDisableDelay" Tp="UDINT" Ext="280" />
+			<SI Nm="elevatorHomePositionMm" Tp="REAL" Ext="156" />
+			<SI Nm="elevatorHomeSettleDelay" Tp="UDINT" Ext="152" />
+			<SI Nm="elevatorHomingReleaseSpeedMmps" Tp="REAL" Ext="140" />
+			<SI Nm="elevatorHomingSpeedMmps" Tp="REAL" Ext="136" />
+			<SI Nm="elevatorHomingTimeout" Tp="UDINT" Ext="144" />
+			<SI Nm="elevatorLevelingSpeed1Mmps" Tp="REAL" Ext="124" />
+			<SI Nm="elevatorLevelingSpeed2Delay" Tp="UDINT" Ext="132" />
+			<SI Nm="elevatorLevelingSpeed2Mmps" Tp="REAL" Ext="128" />
+			<SI Nm="elevatorManualLowSpeedFactor" Tp="REAL" Ext="120" />
+			<SI Nm="elevatorManualLowSpeedZoneMm" Tp="REAL" Ext="116" />
+			<SI Nm="elevatorManualSpeedMmps" Tp="REAL" Ext="112" />
+			<SI Nm="elevatorMaxPositionMm" Tp="REAL" Ext="88" />
+			<SI Nm="elevatorMinPositionMm" Tp="REAL" Ext="84" />
+			<SI Nm="elevatorPositionKp" Tp="REAL" Ext="100" />
+			<SI Nm="elevatorPositionToleranceMm" Tp="REAL" Ext="96" />
+			<SI Nm="elevatorSetEncoderPulseTime" Tp="UDINT" Ext="148" />
+			<SI Nm="elevatorSpeedTrim" Tp="REAL" Ext="80" />
+			<SI Nm="elevatorStackHeightOffsetMm" Tp="REAL" Ext="92" />
+			<SI Nm="maximumSpeedMPM" Tp="REAL" Ext="8" />
+			<SI Nm="minimumOpeningSpeedMPM" Tp="REAL" Ext="76" />
+			<SI Nm="minimumSpeedMPM" Tp="REAL" Ext="4" />
+			<SI Nm="packageDischargeLineSpeedThresholdMPM" Tp="REAL" Ext="72" />
+			<SI Nm="packageGapSpeedOffsetMPM" Tp="REAL" Ext="68" />
+			<SI Nm="packageGapSpeedRatio" Tp="REAL" Ext="64" />
+			<SI Nm="paperPressOffTime" Tp="UDINT" Ext="276" />
+			<SI Nm="paperPressOnTime" Tp="UDINT" Ext="272" />
+			<SI Nm="rampAccelerationDownMPMps2" Tp="REAL" Ext="24" />
+			<SI Nm="rampAccelerationUpMPMps2" Tp="REAL" Ext="20" />
+			<SI Nm="rampVelocityDownMaxMPMps" Tp="REAL" Ext="16" />
+			<SI Nm="rampVelocityUpMaxMPMps" Tp="REAL" Ext="12" />
+			<SI Nm="sheetConveyor1ExhaustFanLineSpeedThresholdMPM" Tp="REAL" Ext="284" />
+			<SI Nm="sheetConveyor1ExhaustFanStopDelay" Tp="UDINT" Ext="288" />
+			<SI Nm="sheetConveyor1LengthM" Tp="REAL" Ext="44" />
+			<SI Nm="sheetConveyor1SpeedTrim" Tp="REAL" Ext="28" />
+			<SI Nm="sheetConveyor2LengthM" Tp="REAL" Ext="48" />
+			<SI Nm="sheetConveyor2SpeedTrim" Tp="REAL" Ext="32" />
+			<SI Nm="sheetConveyor3LengthM" Tp="REAL" Ext="52" />
+			<SI Nm="sheetConveyor3SpeedTrim" Tp="REAL" Ext="36" />
+			<SI Nm="sheetConveyor4LengthM" Tp="REAL" Ext="56" />
+			<SI Nm="sheetConveyor4SpeedTrim" Tp="REAL" Ext="40" />
+			<SI Nm="sheetConveyorsSpeedUpMPM" Tp="REAL" Ext="60" />
+			<SI Nm="sheetStackDischargeConveyorSpeedMPM" Tp="REAL" Ext="224" />
+			<SI Nm="sheetStackDischargeConveyorStartTimeout" Tp="UDINT" Ext="248" />
+			<SI Nm="sheetStackDischargePlatformClearTimeout" Tp="UDINT" Ext="232" />
+			<SI Nm="sheetStackDischargePositioningTimeout" Tp="UDINT" Ext="244" />
+			<SI Nm="sheetStackDischargeReturnTimeout" Tp="UDINT" Ext="252" />
+			<SI Nm="sheetStackDischargeTime" Tp="UDINT" Ext="228" />
+			<SI Nm="sheetStackDischargeWaitSeparationTimeout" Tp="UDINT" Ext="240" />
+			<SI Nm="stackBufferConveyorsSpeedMPM" Tp="REAL" Ext="256" />
+			<SI Nm="stackBufferConveyorsStopDelay" Tp="UDINT" Ext="260" />
+			<SI Nm="stackBufferFullSpeedReductionDelay" Tp="UDINT" Ext="268" />
+			<SI Nm="stackBufferTransferTimeout" Tp="UDINT" Ext="264" />
+			<SI Nm="stackerSpeedRatio" Tp="REAL" Ext="0" />
+		</DT>
+		<DT Nm="machineConfig_TypeStruct" AT="2" Ext="2304">
+			<SI Nm="automaticOrderChange" Tp="aocConfig_TypeStruct" Ext="1728" />
+			<SI Nm="lowerKnife" Tp="rotaryKnifeConfig_TypeStruct" Ext="1616" />
+			<SI Nm="lowerStacker" Tp="SimpleStackerConfig_TypeStruct" Ext="1792" />
+			<SI Nm="slitter1" Tp="slitterConfig_TypeStruct" Ext="0" />
+			<SI Nm="upperKnife" Tp="rotaryKnifeConfig_TypeStruct" Ext="1504" />
+			<SI Nm="upperStacker" Tp="ComplexStackerConfig_TypeStruct" Ext="2008" />
+		</DT>
+		<DT Nm="PlcTaskSystemInfo" AT="2" Ext="128">
+			<SI Nm="AdsPort" Tp="UINT" Ext="10" />
+			<SI Nm="CycleCount" Tp="UDINT" Ext="12" />
+			<SI Nm="CycleTime" Tp="UDINT" Ext="4" />
+			<SI Nm="CycleTimeExceeded" Tp="BOOL" Ext="29" />
+			<SI Nm="DcTaskTime" Tp="LINT" Ext="16" />
+			<SI Nm="FirstCycle" Tp="BOOL" Ext="28" />
+			<SI Nm="InCallAfterOutputUpdate" Tp="BOOL" Ext="30" />
+			<SI Nm="LastExecTime" Tp="UDINT" Ext="24" />
+			<SI Nm="ObjId" Tp="OTCID" Ext="0" />
+			<SI Nm="Priority" Tp="UINT" Ext="8" />
+			<SI Nm="RTViolation" Tp="BOOL" Ext="31" />
+			<SI Nm="TaskName" Tp="STRING(63)" Ext="64" />
+		</DT>
+		<DT Nm="ARRAY [1..2] OF PlcTaskSystemInfo" AT="3" Tp="PlcTaskSystemInfo" Ext="128">
+			<ARI Id="0">
+				<LB>1</LB>
+				<EL>2</EL>
+			</ARI>
+		</DT>
+		<DT Nm="FB_ComplexSheetStackerControl" AT="2" Ext="2496">
+			<SI Nm="alarmActive" Tp="BOOL" Ext="785" />
+			<SI Nm="allSynchronizedDrivesOk" Tp="BOOL" Ext="1272" />
+			<SI Nm="anyFault" Tp="BOOL" Ext="1273" />
+			<SI Nm="backstopAbsPositionErrorMm" Tp="REAL" Ext="1736" />
+			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="354" />
+			<SI Nm="backstopAutoHomePending" Tp="BOOL" Ext="2305" />
+			<SI Nm="backstopAutoHomeRequest" Tp="BOOL" Ext="2303" />
+			<SI Nm="backstopAutoTargetPositionMm" Tp="REAL" Ext="1728" />
+			<SI Nm="backstopCloseAllowed" Tp="BOOL" Ext="1742" />
+			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="356" />
+			<SI Nm="backstopControlState" Tp="INT" Ext="1260" />
+			<SI Nm="backstopDischargeOpenBasePositionMm" Tp="REAL" Ext="1204" />
+			<SI Nm="backstopDischargeOpenTargetMm" Tp="REAL" Ext="1208" />
+			<SI Nm="backstopDriveEnable" Tp="BOOL" Ext="803" />
+			<SI Nm="backstopDriveOk" Tp="BOOL" Ext="318" />
+			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="353" />
+			<SI Nm="backstopExecutePositioningCmdOld" Tp="BOOL" Ext="1212" />
+			<SI Nm="backstopFault" Tp="BOOL" Ext="1069" />
+			<SI Nm="backstopFaultCode" Tp="INT" Ext="1070" />
+			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="352" />
+			<SI Nm="backstopHomeCmdOld" Tp="BOOL" Ext="1271" />
+			<SI Nm="backstopHomeLimitFallingEdge" Tp="BOOL" Ext="1745" />
+			<SI Nm="backstopHomeLimitOld" Tp="BOOL" Ext="1744" />
+			<SI Nm="backstopHomeLimitReached" Tp="BOOL" Ext="1740" />
+			<SI Nm="backstopHomeMoveAllowed" Tp="BOOL" Ext="1746" />
+			<SI Nm="backstopHomeRequestCombined" Tp="BOOL" Ext="2310" />
+			<SI Nm="backstopHomeRequestCombinedOld" Tp="BOOL" Ext="2311" />
+			<SI Nm="backstopHomeRunning" Tp="BOOL" Ext="2309" />
+			<SI Nm="backstopHomed" Tp="BOOL" Ext="1067" />
+			<SI Nm="backstopInPosition" Tp="BOOL" Ext="1068" />
+			<SI Nm="backstopLatchedTargetPositionMm" Tp="REAL" Ext="1220" />
+			<SI Nm="backstopManualInterventionActive" Tp="BOOL" Ext="1192" />
+			<SI Nm="backstopManualInterventionPositionMm" Tp="REAL" Ext="1196" />
+			<SI Nm="backstopMaterialInterlockSensor" Tp="BOOL" Ext="328" />
+			<SI Nm="backstopMaxLimit" Tp="BOOL" Ext="358" />
+			<SI Nm="backstopMinLimit" Tp="BOOL" Ext="359" />
+			<SI Nm="backstopOpenAllowed" Tp="BOOL" Ext="1741" />
+			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="355" />
+			<SI Nm="backstopPlateUpSolenoid" Tp="BOOL" Ext="852" />
+			<SI Nm="backstopPositionErrorMm" Tp="REAL" Ext="1076" />
+			<SI Nm="backstopPositionMm" Tp="REAL" Ext="336" />
+			<SI Nm="backstopPositioningRequestActive" Tp="BOOL" Ext="1216" />
+			<SI Nm="backstopProgrammedDischargeTargetMm" Tp="REAL" Ext="1200" />
+			<SI Nm="backstopProgrammedTargetPositionMm" Tp="REAL" Ext="1224" />
+			<SI Nm="backstopRawSpeedRefMmps" Tp="REAL" Ext="1732" />
+			<SI Nm="backstopRequiredForAutomaticOperation" Tp="BOOL" Ext="2228" />
+			<SI Nm="backstopRunFw" Tp="BOOL" Ext="801" />
+			<SI Nm="backstopRunRev" Tp="BOOL" Ext="802" />
+			<SI Nm="backstopSafeMaxLimit" Tp="BOOL" Ext="357" />
+			<SI Nm="backstopSafeMinLimit" Tp="BOOL" Ext="360" />
+			<SI Nm="backstopSetEncoderPosition" Tp="BOOL" Ext="853" />
+			<SI Nm="backstopSetEncoderPositionMm" Tp="REAL" Ext="856" />
+			<SI Nm="backstopSetEncoderPositionTrigger" Tp="BOOL" Ext="1228" />
+			<SI Nm="backstopSignedSpeedRefMmps" Tp="REAL" Ext="2128" />
+			<SI Nm="backstopSpeedRefMmps" Tp="REAL" Ext="848" />
+			<SI Nm="backstopStackLevelSensor" Tp="BOOL" Ext="329" />
+			<SI Nm="backstopState" Tp="STRING(30)" Ext="1036" />
+			<SI Nm="backstopTargetOverrideActive" Tp="BOOL" Ext="2220" />
+			<SI Nm="backstopTargetOverrideFallingEdge" Tp="BOOL" Ext="1215" />
+			<SI Nm="backstopTargetOverrideOld" Tp="BOOL" Ext="1214" />
+			<SI Nm="backstopTargetOverridePositionMm" Tp="REAL" Ext="2224" />
+			<SI Nm="backstopTargetPositionMm" Tp="REAL" Ext="1072" />
+			<SI Nm="backstopUpValve" Tp="BOOL" Ext="866" />
+			<SI Nm="blockConveyorCmd" Tp="BOOL" Ext="7" />
+			<SI Nm="brakeBrushValve" Tp="BOOL" Ext="865" />
+			<SI Nm="brakeValve" Tp="BOOL" Ext="860" />
+			<SI Nm="changeBatchCmd" Tp="BOOL" Ext="17" />
+			<SI Nm="changeBatchCmdOld" Tp="BOOL" Ext="1265" />
+			<SI Nm="changeBatchCycleActive" Tp="BOOL" Ext="1267" />
+			<SI Nm="changeBatchRequestPending" Tp="BOOL" Ext="1266" />
+			<SI Nm="deviceState" Tp="STRING(30)" Ext="870" />
+			<SI Nm="dischargeRequestAccepted" Tp="BOOL" Ext="1270" />
+			<SI Nm="effectiveLineSpeedMPM" Tp="REAL" Ext="1280" />
+			<SI Nm="elevatorAbsPositionErrorMm" Tp="REAL" Ext="1416" />
+			<SI Nm="elevatorAtMaxPosition" Tp="BOOL" Ext="1022" />
+			<SI Nm="elevatorAtMinPosition" Tp="BOOL" Ext="1021" />
+			<SI Nm="elevatorAutoCmd" Tp="BOOL" Ext="345" />
+			<SI Nm="elevatorAutoHomePending" Tp="BOOL" Ext="2306" />
+			<SI Nm="elevatorAutoHomeRequest" Tp="BOOL" Ext="2304" />
+			<SI Nm="elevatorAutoTargetPositionMm" Tp="REAL" Ext="1404" />
+			<SI Nm="elevatorBrakeRelease" Tp="BOOL" Ext="799" />
+			<SI Nm="elevatorBrakeReleaseRequest" Tp="BOOL" Ext="1424" />
+			<SI Nm="elevatorControlState" Tp="INT" Ext="1372" />
+			<SI Nm="elevatorDownAllowed" Tp="BOOL" Ext="1421" />
+			<SI Nm="elevatorDownCmd" Tp="BOOL" Ext="347" />
+			<SI Nm="elevatorDriveEnable" Tp="BOOL" Ext="800" />
+			<SI Nm="elevatorDriveEnableRequest" Tp="BOOL" Ext="1422" />
+			<SI Nm="elevatorDriveOk" Tp="BOOL" Ext="317" />
+			<SI Nm="elevatorFault" Tp="BOOL" Ext="1024" />
+			<SI Nm="elevatorFaultCode" Tp="INT" Ext="1026" />
+			<SI Nm="elevatorHomeCmd" Tp="BOOL" Ext="344" />
+			<SI Nm="elevatorHomeCmdOld" Tp="BOOL" Ext="1374" />
+			<SI Nm="elevatorHomeDischargeComplete" Tp="BOOL" Ext="1432" />
+			<SI Nm="elevatorHomeDischargeConveyorRunRequest" Tp="BOOL" Ext="1431" />
+			<SI Nm="elevatorHomeDownAllowed" Tp="BOOL" Ext="1426" />
+			<SI Nm="elevatorHomeLimitFallingEdge" Tp="BOOL" Ext="2299" />
+			<SI Nm="elevatorHomeLimitOld" Tp="BOOL" Ext="2298" />
+			<SI Nm="elevatorHomeLimitReached" Tp="BOOL" Ext="1425" />
+			<SI Nm="elevatorHomeReleaseAllowed" Tp="BOOL" Ext="1427" />
+			<SI Nm="elevatorHomeRequestCombined" Tp="BOOL" Ext="2307" />
+			<SI Nm="elevatorHomeRequestCombinedOld" Tp="BOOL" Ext="2308" />
+			<SI Nm="elevatorHomed" Tp="BOOL" Ext="1019" />
+			<SI Nm="elevatorInPosition" Tp="BOOL" Ext="1020" />
+			<SI Nm="elevatorLowerLimit" Tp="BOOL" Ext="351" />
+			<SI Nm="elevatorLowerSafetyLimit" Tp="BOOL" Ext="349" />
+			<SI Nm="elevatorManualCommandArmed" Tp="BOOL" Ext="1428" />
+			<SI Nm="elevatorManualCommandRequest" Tp="BOOL" Ext="1429" />
+			<SI Nm="elevatorManualLowSpeedZoneActive" Tp="BOOL" Ext="1023" />
+			<SI Nm="elevatorMoveRequest" Tp="BOOL" Ext="1423" />
+			<SI Nm="elevatorNormalSpeedMPM" Tp="REAL" Ext="1304" />
+			<SI Nm="elevatorPlatformClearDetected" Tp="BOOL" Ext="2216" />
+			<SI Nm="elevatorPositionErrorMm" Tp="REAL" Ext="1032" />
+			<SI Nm="elevatorPositionMm" Tp="REAL" Ext="340" />
+			<SI Nm="elevatorQuickStop" Tp="BOOL" Ext="1164" />
+			<SI Nm="elevatorRawSpeedRefMmps" Tp="REAL" Ext="1408" />
+			<SI Nm="elevatorReadyForAutomaticCycle" Tp="BOOL" Ext="1430" />
+			<SI Nm="elevatorRunDown" Tp="BOOL" Ext="798" />
+			<SI Nm="elevatorRunUp" Tp="BOOL" Ext="797" />
+			<SI Nm="elevatorSetEncoderPosition" Tp="BOOL" Ext="980" />
+			<SI Nm="elevatorSetEncoderPositionMm" Tp="REAL" Ext="984" />
+			<SI Nm="elevatorSetEncoderPositionTrigger" Tp="BOOL" Ext="1376" />
+			<SI Nm="elevatorSignedSpeedRefMmps" Tp="REAL" Ext="1412" />
+			<SI Nm="elevatorSpeedRefMmps" Tp="REAL" Ext="824" />
+			<SI Nm="elevatorStackExitClearSensor" Tp="BOOL" Ext="327" />
+			<SI Nm="elevatorStackExitClearSensorOld" Tp="BOOL" Ext="2316" />
+			<SI Nm="elevatorStackPresentAtDischargeStart" Tp="BOOL" Ext="2217" />
+			<SI Nm="elevatorStackPresentSensor" Tp="BOOL" Ext="326" />
+			<SI Nm="elevatorState" Tp="STRING(30)" Ext="988" />
+			<SI Nm="elevatorTargetOverrideActive" Tp="BOOL" Ext="2229" />
+			<SI Nm="elevatorTargetOverridePositionMm" Tp="REAL" Ext="2232" />
+			<SI Nm="elevatorTargetPositionMm" Tp="REAL" Ext="1028" />
+			<SI Nm="elevatorTargetSpeedMPM" Tp="REAL" Ext="1340" />
+			<SI Nm="elevatorUpAllowed" Tp="BOOL" Ext="1420" />
+			<SI Nm="elevatorUpCmd" Tp="BOOL" Ext="346" />
+			<SI Nm="elevatorUpperLimit" Tp="BOOL" Ext="350" />
+			<SI Nm="elevatorUpperSafetyLimit" Tp="BOOL" Ext="348" />
+			<SI Nm="externalCounterReset" Tp="BOOL" Ext="791" />
+			<SI Nm="faultActive" Tp="BOOL" Ext="901" />
+			<SI Nm="hmiAlarms" Tp="hmiAlarmsComplexStacker_TypeStruct" Ext="382" />
+			<SI Nm="hmiStatus" Tp="hmiStatusComplexStacker_TypeStruct" Ext="444" />
+			<SI Nm="instCycleTime" Tp="CPNTeck_OSCAT_BASIC.CYCLE_TIME" Ext="2076" />
+			<SI Nm="instRampElevator" Tp="FB_Gen_SRamp" Ext="1660" />
+			<SI Nm="instRampSheetConveyor1" Tp="FB_Gen_SRamp" Ext="1804" />
+			<SI Nm="instRampSheetConveyor2" Tp="FB_Gen_SRamp" Ext="1872" />
+			<SI Nm="instRampSheetConveyor3" Tp="FB_Gen_SRamp" Ext="1940" />
+			<SI Nm="instRampSheetConveyor4" Tp="FB_Gen_SRamp" Ext="2008" />
+			<SI Nm="instTONBackstopDownDelay" Tp="Tc2_Standard.TON" Ext="2240" />
+			<SI Nm="instTONPaperPressOff" Tp="Tc2_Standard.TON" Ext="2408" />
+			<SI Nm="instTONPaperPressOn" Tp="Tc2_Standard.TON" Ext="2436" />
+			<SI Nm="instTONSheetConveyor1ExhaustFanStopDelay" Tp="Tc2_Standard.TON" Ext="2468" />
+			<SI Nm="lineSpeedMPM" Tp="REAL" Ext="8" />
+			<SI Nm="lineSpeedReductionRequest" Tp="BOOL" Ext="845" />
+			<SI Nm="machineConfig" Tp="ComplexStackerConfig_TypeStruct" Ext="20" />
+			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="362" />
+			<SI Nm="noCrushRollersUpDownValve" Tp="BOOL" Ext="867" />
+			<SI Nm="normalStackerSpeedMPM" Tp="REAL" Ext="1284" />
+			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="16" />
+			<SI Nm="packageCompleteCmdAcceptedLatch" Tp="BOOL" Ext="1264" />
+			<SI Nm="packageGapDistanceTargetM" Tp="REAL" Ext="1344" />
+			<SI Nm="packageSeparationState" Tp="INT" Ext="1258" />
+			<SI Nm="paperPressAutoManCmd" Tp="BOOL" Ext="365" />
+			<SI Nm="paperPressOnPhase" Tp="BOOL" Ext="2464" />
+			<SI Nm="paperPressSolenoid" Tp="BOOL" Ext="869" />
+			<SI Nm="rBackstopExecutePositioning" Tp="BOOL" Ext="1213" />
+			<SI Nm="rBackstopHome" Tp="BOOL" Ext="1743" />
+			<SI Nm="rElevatorHome" Tp="BOOL" Ext="1375" />
+			<SI Nm="rElevatorStackExitClear" Tp="BOOL" Ext="2317" />
+			<SI Nm="rStackerUnloadCmd" Tp="BOOL" Ext="1269" />
+			<SI Nm="rStartCmd" Tp="BOOL" Ext="2301" />
+			<SI Nm="rStopCmd" Tp="BOOL" Ext="2302" />
+			<SI Nm="rStopMachineFaultCondition" Tp="BOOL" Ext="1167" />
+			<SI Nm="rampReset" Tp="BOOL" Ext="1275" />
+			<SI Nm="reset" Tp="BOOL" Ext="787" />
+			<SI Nm="resetCmd" Tp="BOOL" Ext="6" />
+			<SI Nm="safetyCircuitOk" Tp="BOOL" Ext="312" />
+			<SI Nm="safetyFeedBack1" Tp="BOOL" Ext="372" />
+			<SI Nm="safetyFeedBack10" Tp="BOOL" Ext="381" />
+			<SI Nm="safetyFeedBack2" Tp="BOOL" Ext="373" />
+			<SI Nm="safetyFeedBack3" Tp="BOOL" Ext="374" />
+			<SI Nm="safetyFeedBack4" Tp="BOOL" Ext="375" />
+			<SI Nm="safetyFeedBack5" Tp="BOOL" Ext="376" />
+			<SI Nm="safetyFeedBack6" Tp="BOOL" Ext="377" />
+			<SI Nm="safetyFeedBack7" Tp="BOOL" Ext="378" />
+			<SI Nm="safetyFeedBack8" Tp="BOOL" Ext="379" />
+			<SI Nm="safetyFeedBack9" Tp="BOOL" Ext="380" />
+			<SI Nm="scanTimeMs" Tp="REAL" Ext="2124" />
+			<SI Nm="scanTimeS" Tp="REAL" Ext="2120" />
+			<SI Nm="sheetBrush1Cmd" Tp="BOOL" Ext="367" />
+			<SI Nm="sheetBrush1Valve" Tp="BOOL" Ext="861" />
+			<SI Nm="sheetBrush2Cmd" Tp="BOOL" Ext="368" />
+			<SI Nm="sheetBrush2Valve" Tp="BOOL" Ext="862" />
+			<SI Nm="sheetBrush3Cmd" Tp="BOOL" Ext="369" />
+			<SI Nm="sheetBrush3Valve" Tp="BOOL" Ext="863" />
+			<SI Nm="sheetBrush4Cmd" Tp="BOOL" Ext="370" />
+			<SI Nm="sheetBrush4Valve" Tp="BOOL" Ext="864" />
+			<SI Nm="sheetBrushAutoManCmd" Tp="BOOL" Ext="371" />
+			<SI Nm="sheetConveyor1DriveOk" Tp="BOOL" Ext="313" />
+			<SI Nm="sheetConveyor1ExhaustFanCmd" Tp="BOOL" Ext="366" />
+			<SI Nm="sheetConveyor1ExhaustFanRun" Tp="BOOL" Ext="796" />
+			<SI Nm="sheetConveyor1GapSpeedMPM" Tp="REAL" Ext="1308" />
+			<SI Nm="sheetConveyor1NormalSpeedMPM" Tp="REAL" Ext="1288" />
+			<SI Nm="sheetConveyor1Run" Tp="BOOL" Ext="792" />
+			<SI Nm="sheetConveyor1SpeedRefMPM" Tp="REAL" Ext="808" />
+			<SI Nm="sheetConveyor1TargetSpeedMPM" Tp="REAL" Ext="1324" />
+			<SI Nm="sheetConveyor2DriveOk" Tp="BOOL" Ext="314" />
+			<SI Nm="sheetConveyor2GapSpeedMPM" Tp="REAL" Ext="1312" />
+			<SI Nm="sheetConveyor2HighSpeedActive" Tp="BOOL" Ext="944" />
+			<SI Nm="sheetConveyor2NormalSpeedMPM" Tp="REAL" Ext="1292" />
+			<SI Nm="sheetConveyor2OpeningDistanceM" Tp="REAL" Ext="1360" />
+			<SI Nm="sheetConveyor2OpeningSpeedMPM" Tp="REAL" Ext="1348" />
+			<SI Nm="sheetConveyor2Run" Tp="BOOL" Ext="793" />
+			<SI Nm="sheetConveyor2SeparationActive" Tp="BOOL" Ext="941" />
+			<SI Nm="sheetConveyor2SeparationFinished" Tp="BOOL" Ext="943" />
+			<SI Nm="sheetConveyor2SeparationStarted" Tp="BOOL" Ext="942" />
+			<SI Nm="sheetConveyor2SpeedRefMPM" Tp="REAL" Ext="812" />
+			<SI Nm="sheetConveyor2TargetDistanceM" Tp="REAL" Ext="952" />
+			<SI Nm="sheetConveyor2TargetSpeedMPM" Tp="REAL" Ext="1328" />
+			<SI Nm="sheetConveyor2TrackingDistanceM" Tp="REAL" Ext="948" />
+			<SI Nm="sheetConveyor3DriveOk" Tp="BOOL" Ext="315" />
+			<SI Nm="sheetConveyor3GapSpeedMPM" Tp="REAL" Ext="1316" />
+			<SI Nm="sheetConveyor3HighSpeedActive" Tp="BOOL" Ext="959" />
+			<SI Nm="sheetConveyor3NormalSpeedMPM" Tp="REAL" Ext="1296" />
+			<SI Nm="sheetConveyor3OpeningDistanceM" Tp="REAL" Ext="1364" />
+			<SI Nm="sheetConveyor3OpeningSpeedMPM" Tp="REAL" Ext="1352" />
+			<SI Nm="sheetConveyor3Run" Tp="BOOL" Ext="794" />
+			<SI Nm="sheetConveyor3SeparationActive" Tp="BOOL" Ext="956" />
+			<SI Nm="sheetConveyor3SeparationFinished" Tp="BOOL" Ext="958" />
+			<SI Nm="sheetConveyor3SeparationStarted" Tp="BOOL" Ext="957" />
+			<SI Nm="sheetConveyor3SpeedRefMPM" Tp="REAL" Ext="816" />
+			<SI Nm="sheetConveyor3TargetDistanceM" Tp="REAL" Ext="964" />
+			<SI Nm="sheetConveyor3TargetSpeedMPM" Tp="REAL" Ext="1332" />
+			<SI Nm="sheetConveyor3TrackingDistanceM" Tp="REAL" Ext="960" />
+			<SI Nm="sheetConveyor4DriveOk" Tp="BOOL" Ext="316" />
+			<SI Nm="sheetConveyor4GapSpeedMPM" Tp="REAL" Ext="1320" />
+			<SI Nm="sheetConveyor4HighSpeedActive" Tp="BOOL" Ext="971" />
+			<SI Nm="sheetConveyor4NormalSpeedMPM" Tp="REAL" Ext="1300" />
+			<SI Nm="sheetConveyor4OpeningDistanceM" Tp="REAL" Ext="1368" />
+			<SI Nm="sheetConveyor4OpeningSpeedMPM" Tp="REAL" Ext="1356" />
+			<SI Nm="sheetConveyor4Run" Tp="BOOL" Ext="795" />
+			<SI Nm="sheetConveyor4SeparationActive" Tp="BOOL" Ext="968" />
+			<SI Nm="sheetConveyor4SeparationFinished" Tp="BOOL" Ext="970" />
+			<SI Nm="sheetConveyor4SeparationStarted" Tp="BOOL" Ext="969" />
+			<SI Nm="sheetConveyor4SpeedRefMPM" Tp="REAL" Ext="820" />
+			<SI Nm="sheetConveyor4TargetDistanceM" Tp="REAL" Ext="976" />
+			<SI Nm="sheetConveyor4TargetSpeedMPM" Tp="REAL" Ext="1336" />
+			<SI Nm="sheetConveyor4TrackingDistanceM" Tp="REAL" Ext="972" />
+			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="19" />
+			<SI Nm="sheetLengthM" Tp="REAL" Ext="1276" />
+			<SI Nm="sheetLengthMm" Tp="REAL" Ext="12" />
+			<SI Nm="sheetStackAlignmentBrush" Tp="BOOL" Ext="868" />
+			<SI Nm="sheetStackAlignmentBrushEnableCmd" Tp="BOOL" Ext="364" />
+			<SI Nm="sheetStackAlignmentBrushLiftedForDischarge" Tp="BOOL" Ext="2219" />
+			<SI Nm="sheetStackBrakeActive" Tp="BOOL" Ext="940" />
+			<SI Nm="sheetStackDischargeActive" Tp="BOOL" Ext="1149" />
+			<SI Nm="sheetStackDischargeControlState" Tp="INT" Ext="2132" />
+			<SI Nm="sheetStackDischargeConveyorDriveOk" Tp="BOOL" Ext="319" />
+			<SI Nm="sheetStackDischargeConveyorFault" Tp="BOOL" Ext="1111" />
+			<SI Nm="sheetStackDischargeConveyorFaultCode" Tp="INT" Ext="1112" />
+			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="361" />
+			<SI Nm="sheetStackDischargeConveyorRun" Tp="BOOL" Ext="804" />
+			<SI Nm="sheetStackDischargeConveyorRunRequest" Tp="BOOL" Ext="2236" />
+			<SI Nm="sheetStackDischargeConveyorSpeedRefMPM" Tp="REAL" Ext="828" />
+			<SI Nm="sheetStackDischargeConveyorState" Tp="STRING(30)" Ext="1080" />
+			<SI Nm="sheetStackDischargeCycleHasManualSkip" Tp="BOOL" Ext="2296" />
+			<SI Nm="sheetStackDischargeCycleHasTimeout" Tp="BOOL" Ext="2297" />
+			<SI Nm="sheetStackDischargeFault" Tp="BOOL" Ext="1152" />
+			<SI Nm="sheetStackDischargeFaultCode" Tp="INT" Ext="1154" />
+			<SI Nm="sheetStackDischargeFaultCondition" Tp="BOOL" Ext="2218" />
+			<SI Nm="sheetStackDischargeFinished" Tp="BOOL" Ext="1151" />
+			<SI Nm="sheetStackDischargeLastCycleOk" Tp="BOOL" Ext="1156" />
+			<SI Nm="sheetStackDischargeLastFaultCode" Tp="INT" Ext="1162" />
+			<SI Nm="sheetStackDischargeLastFaultStepCode" Tp="INT" Ext="1160" />
+			<SI Nm="sheetStackDischargeLastResultCode" Tp="INT" Ext="1158" />
+			<SI Nm="sheetStackDischargePending" Tp="BOOL" Ext="1148" />
+			<SI Nm="sheetStackDischargeStarted" Tp="BOOL" Ext="1150" />
+			<SI Nm="sheetStackDischargeState" Tp="STRING(30)" Ext="1114" />
+			<SI Nm="sheetStackDischargeStateCode" Tp="INT" Ext="1146" />
+			<SI Nm="sheetStackSeparationActive" Tp="BOOL" Ext="937" />
+			<SI Nm="sheetStackSeparationFinished" Tp="BOOL" Ext="939" />
+			<SI Nm="sheetStackSeparationReady" Tp="BOOL" Ext="936" />
+			<SI Nm="sheetStackSeparationStarted" Tp="BOOL" Ext="938" />
+			<SI Nm="sheetStackSeparationState" Tp="STRING(30)" Ext="903" />
+			<SI Nm="sheetStackSeparationStateCode" Tp="INT" Ext="934" />
+			<SI Nm="speedControlEnabled" Tp="BOOL" Ext="1274" />
+			<SI Nm="stackBufferControlState" Tp="INT" Ext="2312" />
+			<SI Nm="stackBufferConveyor1DriveOk" Tp="BOOL" Ext="320" />
+			<SI Nm="stackBufferConveyor1Run" Tp="BOOL" Ext="805" />
+			<SI Nm="stackBufferConveyor1SpeedRefMPM" Tp="REAL" Ext="832" />
+			<SI Nm="stackBufferConveyor1StackPresentSensor" Tp="BOOL" Ext="323" />
+			<SI Nm="stackBufferConveyor2DriveOk" Tp="BOOL" Ext="321" />
+			<SI Nm="stackBufferConveyor2Run" Tp="BOOL" Ext="806" />
+			<SI Nm="stackBufferConveyor2SpeedRefMPM" Tp="REAL" Ext="836" />
+			<SI Nm="stackBufferConveyor2StackPresentSensor" Tp="BOOL" Ext="324" />
+			<SI Nm="stackBufferConveyor3DriveOk" Tp="BOOL" Ext="322" />
+			<SI Nm="stackBufferConveyor3Run" Tp="BOOL" Ext="807" />
+			<SI Nm="stackBufferConveyor3SpeedRefMPM" Tp="REAL" Ext="840" />
+			<SI Nm="stackBufferConveyor3StackPresentSensor" Tp="BOOL" Ext="325" />
+			<SI Nm="stackBufferConveyorsRunCmd" Tp="BOOL" Ext="363" />
+			<SI Nm="stackBufferFull" Tp="BOOL" Ext="844" />
+			<SI Nm="stackBufferTargetConveyor" Tp="INT" Ext="2314" />
+			<SI Nm="stackBufferTransferTimeoutPulse" Tp="BOOL" Ext="2404" />
+			<SI Nm="stackHeightMm" Tp="REAL" Ext="332" />
+			<SI Nm="stackerBuzzer1" Tp="BOOL" Ext="788" />
+			<SI Nm="stackerBuzzer2" Tp="BOOL" Ext="789" />
+			<SI Nm="stackerRunning" Tp="BOOL" Ext="784" />
+			<SI Nm="stackerUnloadAccepted" Tp="BOOL" Ext="790" />
+			<SI Nm="stackerUnloadCmd" Tp="BOOL" Ext="18" />
+			<SI Nm="stackerUnloadCmdOld" Tp="BOOL" Ext="1268" />
+			<SI Nm="startCmd" Tp="BOOL" Ext="4" />
+			<SI Nm="startCmdOld" Tp="BOOL" Ext="1262" />
+			<SI Nm="stopCmd" Tp="BOOL" Ext="5" />
+			<SI Nm="stopCmdOld" Tp="BOOL" Ext="1263" />
+			<SI Nm="stopMachineFaultCondition" Tp="BOOL" Ext="1165" />
+			<SI Nm="stopMachineFaultConditionOld" Tp="BOOL" Ext="1166" />
+			<SI Nm="stopMachinePulse" Tp="BOOL" Ext="786" />
+			<SI Nm="syncConveyorsState" Tp="INT" Ext="1256" />
+			<SI Nm="synchronizedConveyorsRunning" Tp="BOOL" Ext="902" />
+			<SI Nm="systemRunEnable" Tp="BOOL" Ext="2300" />
+			<SI Nm="tofElevatorDriveDisableDelay" Tp="Tc2_Standard.TOF" Ext="1632" />
+			<SI Nm="tonBackstopHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1748" />
+			<SI Nm="tonBackstopHomingTimeout" Tp="Tc2_Standard.TON" Ext="1776" />
+			<SI Nm="tonElevatorBrakeHoldDelay" Tp="Tc2_Standard.TON" Ext="1604" />
+			<SI Nm="tonElevatorBrakeReleaseDelay" Tp="Tc2_Standard.TON" Ext="1576" />
+			<SI Nm="tonElevatorHomeDischargeMinimumRun" Tp="Tc2_Standard.TON" Ext="1492" />
+			<SI Nm="tonElevatorHomeSettleDelay" Tp="Tc2_Standard.TON" Ext="1464" />
+			<SI Nm="tonElevatorHomingTimeout" Tp="Tc2_Standard.TON" Ext="1436" />
+			<SI Nm="tonElevatorLevelingSpeed2Delay" Tp="Tc2_Standard.TON" Ext="1520" />
+			<SI Nm="tonElevatorUpBlockedByBackstopAlarm" Tp="Tc2_Standard.TON" Ext="1548" />
+			<SI Nm="tonSheetStackDischarge" Tp="Tc2_Standard.TON" Ext="2160" />
+			<SI Nm="tonSheetStackDischargePlatformClearTimeout" Tp="Tc2_Standard.TON" Ext="2188" />
+			<SI Nm="tonSheetStackDischargeStepTimeout" Tp="Tc2_Standard.TON" Ext="2268" />
+			<SI Nm="tonStackBufferFullSpeedReduction" Tp="Tc2_Standard.TON" Ext="2376" />
+			<SI Nm="tonStackBufferStopDelay" Tp="Tc2_Standard.TON" Ext="2320" />
+			<SI Nm="tonStackBufferTransferTimeout" Tp="Tc2_Standard.TON" Ext="2348" />
+			<SI Nm="tpBackstopSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1232" />
+			<SI Nm="tpElevatorSetEncoderPosition" Tp="Tc2_Standard.TP" Ext="1380" />
+			<SI Nm="tpExternalCounterReset" Tp="Tc2_Standard.TP" Ext="2136" />
+			<SI Nm="tpStopMachinePulse" Tp="Tc2_Standard.TP" Ext="1168" />
 		</DT>
 		<DT Nm="orderHmiCommands_TypeStruct" AT="2" Ext="3">
 			<SI Nm="changeOrder" Tp="BOOL" Ext="0" />
@@ -6199,32 +6381,34 @@
 			<SI Nm="startCmd" Tp="BOOL" Ext="0" />
 			<SI Nm="stopCmd" Tp="BOOL" Ext="1" />
 		</DT>
-		<DT Nm="hmiCommandsComplexStacker_TypeStruct" AT="2" Ext="23">
-			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="10" />
-			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="14" />
-			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="12" />
-			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="11" />
-			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="13" />
-			<SI Nm="elevatorAutoCmd" Tp="BOOL" Ext="6" />
-			<SI Nm="elevatorDownCmd" Tp="BOOL" Ext="9" />
-			<SI Nm="elevatorHomeCmd" Tp="BOOL" Ext="7" />
-			<SI Nm="elevatorUpCmd" Tp="BOOL" Ext="8" />
-			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="5" />
-			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="4" />
-			<SI Nm="paperPressAutoManCmd" Tp="BOOL" Ext="17" />
+		<DT Nm="hmiCommandsComplexStacker_TypeStruct" AT="2" Ext="25">
+			<SI Nm="backstopAutoCmd" Tp="BOOL" Ext="11" />
+			<SI Nm="backstopCloseCmd" Tp="BOOL" Ext="15" />
+			<SI Nm="backstopExecutePositioningCmd" Tp="BOOL" Ext="13" />
+			<SI Nm="backstopHomeCmd" Tp="BOOL" Ext="12" />
+			<SI Nm="backstopOpenCmd" Tp="BOOL" Ext="14" />
+			<SI Nm="blockConveyorCmd" Tp="BOOL" Ext="3" />
+			<SI Nm="elevatorAutoCmd" Tp="BOOL" Ext="7" />
+			<SI Nm="elevatorDownCmd" Tp="BOOL" Ext="10" />
+			<SI Nm="elevatorHomeCmd" Tp="BOOL" Ext="8" />
+			<SI Nm="elevatorUpCmd" Tp="BOOL" Ext="9" />
+			<SI Nm="noCrushRollersDownCmd" Tp="BOOL" Ext="6" />
+			<SI Nm="packageCompleteCmd" Tp="BOOL" Ext="5" />
+			<SI Nm="paperPressAutoManCmd" Tp="BOOL" Ext="18" />
 			<SI Nm="resetCmd" Tp="BOOL" Ext="2" />
-			<SI Nm="sheetBrush1Cmd" Tp="BOOL" Ext="19" />
-			<SI Nm="sheetBrush2Cmd" Tp="BOOL" Ext="20" />
-			<SI Nm="sheetBrush3Cmd" Tp="BOOL" Ext="21" />
-			<SI Nm="sheetBrush4Cmd" Tp="BOOL" Ext="22" />
-			<SI Nm="sheetBrushAutoManCmd" Tp="BOOL" Ext="18" />
-			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="3" />
-			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="15" />
-			<SI Nm="stackBufferConveyorsRunCmd" Tp="BOOL" Ext="16" />
+			<SI Nm="sheetBrush1Cmd" Tp="BOOL" Ext="21" />
+			<SI Nm="sheetBrush2Cmd" Tp="BOOL" Ext="22" />
+			<SI Nm="sheetBrush3Cmd" Tp="BOOL" Ext="23" />
+			<SI Nm="sheetBrush4Cmd" Tp="BOOL" Ext="24" />
+			<SI Nm="sheetBrushAutoManCmd" Tp="BOOL" Ext="20" />
+			<SI Nm="sheetConveyor1ExhaustFanCmd" Tp="BOOL" Ext="19" />
+			<SI Nm="sheetConveyorsSpeedUpCmd" Tp="BOOL" Ext="4" />
+			<SI Nm="sheetStackDischargeConveyorManualRunCmd" Tp="BOOL" Ext="16" />
+			<SI Nm="stackBufferConveyorsRunCmd" Tp="BOOL" Ext="17" />
 			<SI Nm="startCmd" Tp="BOOL" Ext="0" />
 			<SI Nm="stopCmd" Tp="BOOL" Ext="1" />
 		</DT>
-		<DT Nm="hmiCommands_TypeStruct" AT="2" Ext="524">
+		<DT Nm="hmiCommands_TypeStruct" AT="2" Ext="528">
 			<SI Nm="lineControl" Tp="lineControlHmiCommands_TypeStruct" Ext="3" />
 			<SI Nm="lowerKnife" Tp="rotaryKnifeCommands_TypeStruct" Ext="478" />
 			<SI Nm="lowerStacker" Tp="hmiCommandsSimpleStacker_TypeStruct" Ext="484" />
@@ -6233,103 +6417,77 @@
 			<SI Nm="upperKnife" Tp="rotaryKnifeCommands_TypeStruct" Ext="472" />
 			<SI Nm="upperStacker" Tp="hmiCommandsComplexStacker_TypeStruct" Ext="501" />
 		</DT>
-		<DT Nm="machineConfig_TypeStruct" AT="2" Ext="2280">
-			<SI Nm="automaticOrderChange" Tp="aocConfig_TypeStruct" Ext="1728" />
-			<SI Nm="lowerKnife" Tp="rotaryKnifeConfig_TypeStruct" Ext="1616" />
-			<SI Nm="lowerStacker" Tp="SimpleStackerConfig_TypeStruct" Ext="1792" />
-			<SI Nm="slitter1" Tp="slitterConfig_TypeStruct" Ext="0" />
-			<SI Nm="upperKnife" Tp="rotaryKnifeConfig_TypeStruct" Ext="1504" />
-			<SI Nm="upperStacker" Tp="ComplexStackerConfig_TypeStruct" Ext="2004" />
-		</DT>
-		<DT Nm="PlcTaskSystemInfo" AT="2" Ext="128">
-			<SI Nm="AdsPort" Tp="UINT" Ext="10" />
-			<SI Nm="CycleCount" Tp="UDINT" Ext="12" />
-			<SI Nm="CycleTime" Tp="UDINT" Ext="4" />
-			<SI Nm="CycleTimeExceeded" Tp="BOOL" Ext="29" />
-			<SI Nm="DcTaskTime" Tp="LINT" Ext="16" />
-			<SI Nm="FirstCycle" Tp="BOOL" Ext="28" />
-			<SI Nm="InCallAfterOutputUpdate" Tp="BOOL" Ext="30" />
-			<SI Nm="LastExecTime" Tp="UDINT" Ext="24" />
-			<SI Nm="ObjId" Tp="OTCID" Ext="0" />
-			<SI Nm="Priority" Tp="UINT" Ext="8" />
-			<SI Nm="RTViolation" Tp="BOOL" Ext="31" />
-			<SI Nm="TaskName" Tp="STRING(63)" Ext="64" />
-		</DT>
-		<DT Nm="ARRAY [1..2] OF PlcTaskSystemInfo" AT="3" Tp="PlcTaskSystemInfo" Ext="128">
-			<ARI Id="0">
-				<LB>1</LB>
-				<EL>2</EL>
-			</ARI>
-		</DT>
 		<DT Nm="STRING" AT="1" Tp="STRING" />
 		<DT Nm="ITCOMOBJECTSERVER" AT="1" Tp="ITCOMOBJECTSERVER" />
 		<DT Nm="LINT" AT="1" Tp="LINT" />
 		<DT Nm="ULINT" AT="1" Tp="ULINT" />
 	</DataTypes>
 	<Symbols>
-		<Sy Tp="FB_EL3002" Cmt=" Digital outputs card" GroupDes="16448" alias="678792">.ARK_P1_050_AI01</Sy>
-		<Sy Tp="FB_EL4004" Cmt=" Digital outputs card&#09;&#09;" GroupDes="16448" alias="678856">.ARK_P1_050_AO01</Sy>
-		<Sy Tp="FB_EL4004" Cmt=" Digital outputs card&#09;&#09;" GroupDes="16448" alias="678948">.ARK_P1_050_AO02</Sy>
-		<Sy Tp="FB_EL1809" Cmt=" Digital inputs card" GroupDes="16448" alias="678624">.ARK_P1_050_DI01</Sy>
-		<Sy Tp="FB_EL2809" Cmt=" Digital outputs card&#09;" GroupDes="16448" alias="678680">.ARK_P1_050_DO01</Sy>
-		<Sy Tp="FB_EL2809" Cmt=" Digital outputs card&#09;&#09;&#09;" GroupDes="16448" alias="678736">.ARK_P1_050_DO02</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="677952">.SLT1_P1_050_DI01</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678008">.SLT1_P1_050_DI02</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678064">.SLT1_P1_050_DI03</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678120">.SLT1_P1_050_DI04</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678176">.SLT1_P1_050_DI05</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678232">.SLT1_P1_050_DI06</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678288">.SLT1_P1_050_DO01</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678344">.SLT1_P1_050_DO02</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678400">.SLT1_P1_050_DO03</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678456">.SLT1_P1_050_DO04</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678512">.SLT1_P1_050_DO05</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678568">.SLT1_P1_050_DO06</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 1 - axis variables" GroupDes="16448" alias="662048">.SLT1_P1_100_UG1</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 2 - axis variables" GroupDes="16448" alias="663184">.SLT1_P1_100_UG2</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 3 - axis variables" GroupDes="16448" alias="664320">.SLT1_P1_100_UG3</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 4 - axis variables" GroupDes="16448" alias="665456">.SLT1_P1_100_UG4</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 5 - axis variables" GroupDes="16448" alias="666592">.SLT1_P1_100_UG5</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 6 - axis variables" GroupDes="16448" alias="667728">.SLT1_P1_100_UG6</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 1 - axis variables" GroupDes="16448" alias="668864">.SLT1_P1_200_UG1</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 2 - axis variables" GroupDes="16448" alias="670000">.SLT1_P1_200_UG2</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 3 - axis variables" GroupDes="16448" alias="671136">.SLT1_P1_200_UG3</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 4 - axis variables" GroupDes="16448" alias="672272">.SLT1_P1_200_UG4</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 5 - axis variables" GroupDes="16448" alias="673408">.SLT1_P1_200_UG5</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 6 - axis variables" GroupDes="16448" alias="674544">.SLT1_P1_200_UG6</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 7 - axis variables" GroupDes="16448" alias="675680">.SLT1_P1_200_UG7</Sy>
-		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 8 - axis variables" GroupDes="16448" alias="676816">.SLT1_P1_200_UG8</Sy>
-		<Sy Tp="_FB_00BE31" Cmt="Ch 0 - IO-Link IP67 Input/Output module" GroupDes="16448" alias="680232">.STKL_050_DIO1</Sy>
-		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680272">.STKL_050_DIO2</Sy>
-		<Sy Tp="_FB_DT35_B15251" Cmt="Ch 2 - IO-Link Pile height sensor&#09;" GroupDes="16448" alias="680312">.STKL_100_B01</Sy>
-		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680372">.STKU_050_DIO1</Sy>
-		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680412">.STKU_050_DIO2</Sy>
-		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680452">.STKU_050_DIO3</Sy>
-		<Sy Tp="FB_IS620P_CO" Cmt="Backstop servo drive" GroupDes="16448" alias="680496">.STKU_P2_100_UG8</Sy>
-		<Sy Tp="FB_IS620P_CO" Cmt="Lift servo drive" GroupDes="16448" alias="680824">.STKU_P2_100_UG9</Sy>
-		<Sy Tp="_FB_006B51" Cmt="Io-Link master" GroupDes="16448" alias="680088">.STK_050_BC2</Sy>
-		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679040">.STK_P2_050_AO1</Sy>
-		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679356">.STK_P2_050_AO2</Sy>
-		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679448">.STK_P2_050_AO3</Sy>
-		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679540">.STK_P2_050_AO4</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="679132">.STK_P2_050_DI1</Sy>
-		<Sy Tp="FB_EL1809" GroupDes="16448" alias="679188">.STK_P2_050_DI2</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="679244">.STK_P2_050_DO1</Sy>
-		<Sy Tp="FB_EL2809" GroupDes="16448" alias="679300">.STK_P2_050_DO2</Sy>
-		<Sy Tp="FB_EL5152" GroupDes="16448" alias="679632">.STK_P2_050_ENC1</Sy>
-		<Sy Tp="order_TypeStruct" GroupDes="16448" alias="685560">.currentOrder</Sy>
-		<Sy Tp="hmiAlarms_TypeStruct" GroupDes="16448" alias="683112">.hmiAlarms</Sy>
-		<Sy Tp="hmiCommands_TypeStruct" GroupDes="16448" alias="681152">.hmiCommands</Sy>
-		<Sy Tp="orderConfig_TypeStruct" GroupDes="16448" alias="688324">.hmiOrderConfig</Sy>
-		<Sy Tp="orderHmiStatus_TypeStruct" GroupDes="16448" alias="688168">.hmiOrderStatus</Sy>
-		<Sy Tp="hmiStatus_TypeStruct" GroupDes="16448" alias="681680">.hmiStatus</Sy>
-		<Sy Tp="BOOL" GroupDes="16448" alias="680495">.lowerStackerExternalCounterReset</Sy>
-		<Sy Tp="BOOL" GroupDes="16448" alias="680493">.lowerStackerUnload</Sy>
-		<Sy Tp="machineConfig_TypeStruct" GroupDes="16448" alias="683280">.machineConfig</Sy>
-		<Sy Tp="order_TypeStruct" GroupDes="16448" alias="686864">.nextOrder</Sy>
-		<Sy Tp="UINT" GroupDes="61472" alias="661702">.statusWord</Sy>
-		<Sy Tp="BOOL" GroupDes="16448" alias="680494">.upperStackerExternalCounterReset</Sy>
-		<Sy Tp="BOOL" GroupDes="16448" alias="680492">.upperStackerUnload</Sy>
+		<Sy Tp="FB_EL3002" Cmt=" Digital outputs card" GroupDes="16448" alias="679040">.ARK_P1_050_AI01</Sy>
+		<Sy Tp="FB_EL4004" Cmt=" Digital outputs card&#09;&#09;" GroupDes="16448" alias="679104">.ARK_P1_050_AO01</Sy>
+		<Sy Tp="FB_EL4004" Cmt=" Digital outputs card&#09;&#09;" GroupDes="16448" alias="679196">.ARK_P1_050_AO02</Sy>
+		<Sy Tp="FB_EL1809" Cmt=" Digital inputs card" GroupDes="16448" alias="678872">.ARK_P1_050_DI01</Sy>
+		<Sy Tp="FB_EL1008" Cmt=" Digital inputs card&#09;" GroupDes="16448" alias="681504">.ARK_P1_050_DI02</Sy>
+		<Sy Tp="FB_EL2809" Cmt=" Digital outputs card&#09;" GroupDes="16448" alias="678928">.ARK_P1_050_DO01</Sy>
+		<Sy Tp="FB_EL2809" Cmt=" Digital outputs card&#09;&#09;&#09;" GroupDes="16448" alias="678984">.ARK_P1_050_DO02</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678200">.SLT1_P1_050_DI01</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678256">.SLT1_P1_050_DI02</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678312">.SLT1_P1_050_DI03</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678368">.SLT1_P1_050_DI04</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678424">.SLT1_P1_050_DI05</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="678480">.SLT1_P1_050_DI06</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678536">.SLT1_P1_050_DO01</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678592">.SLT1_P1_050_DO02</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678648">.SLT1_P1_050_DO03</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678704">.SLT1_P1_050_DO04</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678760">.SLT1_P1_050_DO05</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="678816">.SLT1_P1_050_DO06</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 1 - axis variables" GroupDes="16448" alias="662296">.SLT1_P1_100_UG1</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 2 - axis variables" GroupDes="16448" alias="663432">.SLT1_P1_100_UG2</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 3 - axis variables" GroupDes="16448" alias="664568">.SLT1_P1_100_UG3</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 4 - axis variables" GroupDes="16448" alias="665704">.SLT1_P1_100_UG4</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 5 - axis variables" GroupDes="16448" alias="666840">.SLT1_P1_100_UG5</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Knife 6 - axis variables" GroupDes="16448" alias="667976">.SLT1_P1_100_UG6</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 1 - axis variables" GroupDes="16448" alias="669112">.SLT1_P1_200_UG1</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 2 - axis variables" GroupDes="16448" alias="670248">.SLT1_P1_200_UG2</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 3 - axis variables" GroupDes="16448" alias="671384">.SLT1_P1_200_UG3</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 4 - axis variables" GroupDes="16448" alias="672520">.SLT1_P1_200_UG4</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 5 - axis variables" GroupDes="16448" alias="673656">.SLT1_P1_200_UG5</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 6 - axis variables" GroupDes="16448" alias="674792">.SLT1_P1_200_UG6</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 7 - axis variables" GroupDes="16448" alias="675928">.SLT1_P1_200_UG7</Sy>
+		<Sy Tp="Tc2_MC2.AXIS_REF" Cmt="Scorer 8 - axis variables" GroupDes="16448" alias="677064">.SLT1_P1_200_UG8</Sy>
+		<Sy Tp="_FB_00BE31" Cmt="Ch 0 - IO-Link IP67 Input/Output module" GroupDes="16448" alias="680480">.STKL_050_DIO1</Sy>
+		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680520">.STKL_050_DIO2</Sy>
+		<Sy Tp="_FB_DT35_B15251" Cmt="Ch 2 - IO-Link Pile height sensor&#09;" GroupDes="16448" alias="680560">.STKL_100_B01</Sy>
+		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680620">.STKU_050_DIO1</Sy>
+		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680660">.STKU_050_DIO2</Sy>
+		<Sy Tp="_FB_00BH11" Cmt="Ch 1 - IO-Link DIN Rail Input/Output module" GroupDes="16448" alias="680700">.STKU_050_DIO3</Sy>
+		<Sy Tp="FB_IS620P_CO" Cmt="Backstop servo drive" GroupDes="16448" alias="680744">.STKU_P2_100_UG8</Sy>
+		<Sy Tp="FB_IS620P_CO" Cmt="Lift servo drive" GroupDes="16448" alias="681072">.STKU_P2_100_UG9</Sy>
+		<Sy Tp="_FB_006B51" Cmt="Io-Link master" GroupDes="16448" alias="680336">.STK_050_BC2</Sy>
+		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679288">.STK_P2_050_AO1</Sy>
+		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679604">.STK_P2_050_AO2</Sy>
+		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679696">.STK_P2_050_AO3</Sy>
+		<Sy Tp="FB_EL4004" GroupDes="16448" alias="679788">.STK_P2_050_AO4</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="679380">.STK_P2_050_DI1</Sy>
+		<Sy Tp="FB_EL1809" GroupDes="16448" alias="679436">.STK_P2_050_DI2</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="679492">.STK_P2_050_DO1</Sy>
+		<Sy Tp="FB_EL2809" GroupDes="16448" alias="679548">.STK_P2_050_DO2</Sy>
+		<Sy Tp="FB_EL5152" GroupDes="16448" alias="679880">.STK_P2_050_ENC1</Sy>
+		<Sy Tp="FB_EL6910" Cmt=" Safety processor (TwinSAFE)&#09;" GroupDes="16448" alias="681400">.STK_P2_050_SP01</Sy>
+		<Sy Tp="order_TypeStruct" GroupDes="16448" alias="685992">.currentOrder</Sy>
+		<Sy Tp="hmiAlarms_TypeStruct" GroupDes="16448" alias="683504">.hmiAlarms</Sy>
+		<Sy Tp="hmiCommands_TypeStruct" GroupDes="16448" alias="1407712">.hmiCommands</Sy>
+		<Sy Tp="orderConfig_TypeStruct" GroupDes="16448" alias="688756">.hmiOrderConfig</Sy>
+		<Sy Tp="orderHmiStatus_TypeStruct" GroupDes="16448" alias="688600">.hmiOrderStatus</Sy>
+		<Sy Tp="hmiStatus_TypeStruct" GroupDes="16448" alias="682064">.hmiStatus</Sy>
+		<Sy Tp="BOOL" GroupDes="16448" alias="683681">.lowerStackerExternalCounterReset</Sy>
+		<Sy Tp="BOOL" GroupDes="16448" alias="680742">.lowerStackerUnload</Sy>
+		<Sy Tp="machineConfig_TypeStruct" GroupDes="16448" alias="683688">.machineConfig</Sy>
+		<Sy Tp="order_TypeStruct" GroupDes="16448" alias="687296">.nextOrder</Sy>
+		<Sy Tp="UINT" GroupDes="61472" alias="680740">.statusWord</Sy>
+		<Sy Tp="BOOL" GroupDes="16448" alias="680743">.upperStackerExternalCounterReset</Sy>
+		<Sy Tp="BOOL" GroupDes="16448" alias="661951">.upperStackerUnload</Sy>
 	</Symbols>
 	<LabelXmlVersion>1</LabelXmlVersion>
 </PlcProjectInfo>

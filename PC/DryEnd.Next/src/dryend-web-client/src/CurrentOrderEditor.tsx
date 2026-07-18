@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { isOrderChannelEnabled, OrderLevelMark } from './OrderLevel'
 import './CurrentOrderEditor.css'
 
 type EditableOrderChannel = {
@@ -101,7 +102,7 @@ export default function CurrentOrderEditor({ order, onCancel, onSaved }: Props) 
       const response = await fetch('/api/plc/current-order', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(draft),
+        body: JSON.stringify({ baseSnapshot: order, updatedOrder: draft }),
       })
       if (!response.ok) {
         const body = await response.json().catch(() => null) as { detail?: string; error?: string } | null
@@ -118,8 +119,9 @@ export default function CurrentOrderEditor({ order, onCancel, onSaved }: Props) 
 
   const channelEditor = (channel: 'order1' | 'order2', title: string) => {
     const value = draft[channel]
+    const channelNumber = channel === 'order1' ? 1 : 2
     return <fieldset className="plc-channel-editor">
-      <legend>{title}</legend>
+      <legend><span className="order-title-with-level">{title}<OrderLevelMark levelSelector={draft.levelSelector} channel={channelNumber}/></span></legend>
       <div className="plc-editor-grid">
         <NumberInput label="OF" value={value.id} onChange={(next) => setChannel(channel, 'id', next)} />
         <TextInput label="Produto" value={value.product} onChange={(next) => setChannel(channel, 'product', next)} />
@@ -144,7 +146,7 @@ export default function CurrentOrderEditor({ order, onCancel, onSaved }: Props) 
 
   return <div className="plc-editor-backdrop" role="dialog" aria-modal="true" aria-label="Editar pedido atual">
     <div className="plc-editor-modal">
-      <div className="plc-editor-heading"><div><p>Edição ADS</p><h2>Editar pedido atual</h2><span>Os valores serão escritos diretamente em <b>.currentOrder</b> no PLC.</span></div><button type="button" onClick={onCancel}>Fechar</button></div>
+      <div className="plc-editor-heading"><div><p>Edição ADS</p><h2>Editar pedido atual</h2><span>Somente os campos diferentes do snapshot atual serão escritos em <b>.currentOrder</b>.</span></div><button type="button" onClick={onCancel}>Fechar</button></div>
       {error && <div className="plc-editor-error" role="alert">{error}</div>}
       <section className="plc-editor-section">
         <h3>Identificação e papel</h3>
@@ -152,7 +154,7 @@ export default function CurrentOrderEditor({ order, onCancel, onSaved }: Props) 
           <TextInput label="Início" value={draft.startedAt} onChange={(value) => setRoot('startedAt', value)} />
           <NumberInput label="Table ID" value={draft.tableId} onChange={(value) => setRoot('tableId', value)} />
           <NumberInput label="Lista de produção" value={draft.productionListNumber} onChange={(value) => setRoot('productionListNumber', value)} />
-          <label>Seleção de pedidos (LevelSelector)<select value={draft.levelSelector} onChange={(event) => setRoot('levelSelector', Number(event.target.value))}><option value={1}>Somente pedido 1</option><option value={2}>Somente pedido 2</option><option value={3}>Pedidos 1 e 2</option></select></label>
+          <label>Seletor de nível<select value={draft.levelSelector} onChange={(event) => setRoot('levelSelector', Number(event.target.value))}><option value={1}>Apenas superior</option><option value={2}>Apenas inferior</option><option value={3}>Ambos</option></select></label>
           <TextInput label="Composição" value={draft.paperComposition} onChange={(value) => setRoot('paperComposition', value)} />
           <TextInput label="Onda" value={draft.fluteType} onChange={(value) => setRoot('fluteType', value)} />
           <NumberInput label="Largura do papel (mm)" value={draft.paperWidth} onChange={(value) => setRoot('paperWidth', value)} />
@@ -168,7 +170,10 @@ export default function CurrentOrderEditor({ order, onCancel, onSaved }: Props) 
           <label className="plc-checkbox"><input type="checkbox" checked={draft.invertOrderSide} onChange={(event) => setRoot('invertOrderSide', event.target.checked)} />Inverter lado</label>
         </div>
       </section>
-      <div className="plc-channel-grid">{channelEditor('order1', 'Pedido 1')}{channelEditor('order2', 'Pedido 2')}</div>
+      <div className={`plc-channel-grid ${draft.levelSelector === 3 ? '' : 'single'}`}>
+        {isOrderChannelEnabled(draft.levelSelector, 1) && channelEditor('order1', 'Pedido 1')}
+        {isOrderChannelEnabled(draft.levelSelector, 2) && channelEditor('order2', 'Pedido 2')}
+      </div>
       <div className="plc-editor-actions"><button type="button" onClick={onCancel} disabled={saving}>Cancelar</button><button type="button" className="write" onClick={() => void save()} disabled={saving}>{saving ? 'Escrevendo no PLC…' : 'Gravar no PLC'}</button></div>
     </div>
   </div>

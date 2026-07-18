@@ -37,10 +37,13 @@ public sealed class ProviderDatabaseConnectionFactory(DatabaseOptions options) :
 public sealed class ProviderProductionQueries : IProductionQueries
 {
     private const int QueueStateUpperBoundExclusive = 1;
+    private const int InProductionState = 1;
     private const int HistoryStateLowerBoundInclusive = 4;
 
     private const string Columns = """
-        Id, ProductionSequence, ProductionState, MachineNotRunningTime, StartedAt, FinishedAt,
+        Id, PlcSourceTableId, CreatedAt, UpdatedAt, ImportedAt, HistorySavedAt,
+        HistoryCreatedFromPlc, CreatedBy, LastModifiedBy,
+        ProductionSequence, ProductionState, MachineNotRunningTime, StartedAt, FinishedAt,
         PaperComposition, FluteType, PaperWidth, Paper1, Paper2, Paper3, Paper4, Paper5,
         ProductionListNumber, Order1Id, Order1Product, Order1Client, Order1SheetQuantity,
         Order1SheetType, Order1M1, Order1M2, Order1M3, Order1M4, Order1M5,
@@ -70,6 +73,10 @@ public sealed class ProviderProductionQueries : IProductionQueries
         SELECT Date_Time AS DateTime, Machine_Speed AS MachineSpeed FROM {_speedTable}
         WHERE Date_Time >= @StartDate AND Date_Time < @EndDate ORDER BY Date_Time;
         """;
+    public string AllMachineSpeed => $"""
+        SELECT Date_Time AS DateTime, Machine_Speed AS MachineSpeed FROM {_speedTable}
+        ORDER BY Date_Time;
+        """;
     public string InsertMachineSpeed => _provider == DatabaseProvider.SqlServer
         ? $"""
           INSERT INTO {_speedTable} (Date_Time, Machine_Speed)
@@ -86,6 +93,13 @@ public sealed class ProviderProductionQueries : IProductionQueries
           );
           """;
     public string InsertOrder => BuildInsert();
+    public string CountImportDuplicate => $"""
+        SELECT COUNT(*) FROM {_ordersTable}
+        WHERE ProductionListNumber = @ProductionListNumber AND Order1Id = @Order1Id;
+        """;
+    public string GetMaxPendingSequence => $"""
+        SELECT COALESCE(MAX(ProductionSequence), 0) FROM {_ordersTable} WHERE ProductionState < 1;
+        """;
     public string UpdateOrder => $"""
         UPDATE {_ordersTable} SET
           ProductionSequence=@ProductionSequence, PaperComposition=@PaperComposition,
@@ -101,11 +115,165 @@ public sealed class ProviderProductionQueries : IProductionQueries
           Order2SheetType=@Order2SheetType, Order2M1=@Order2M1, Order2M2=@Order2M2,
           Order2M3=@Order2M3, Order2M4=@Order2M4, Order2M5=@Order2M5,
           Order2SheetLength=@Order2SheetLength, Order2NumberOfCuts=@Order2NumberOfCuts,
-          Order2PileQuantity=@Order2PileQuantity
+          Order2PileQuantity=@Order2PileQuantity,
+          UpdatedAt=@UpdatedAt, LastModifiedBy=@LastModifiedBy
         WHERE Id=@Id AND ProductionState < {QueueStateUpperBoundExclusive};
+        """;
+    public string ClearPendingOrders => $"""
+        DELETE FROM {_ordersTable}
+        WHERE ProductionState < {QueueStateUpperBoundExclusive}
+          AND Id <> @CurrentTableId
+          AND Id <> @NextTableId;
+        """;
+    public string PendingOrderIdsForUpdate => _provider switch
+    {
+        DatabaseProvider.SqlServer => $"""
+            SELECT Id FROM {_ordersTable} WITH (UPDLOCK, HOLDLOCK)
+            WHERE ProductionState < {QueueStateUpperBoundExclusive}
+            ORDER BY CASE WHEN ProductionSequence > 0 THEN 0 ELSE 1 END, ProductionSequence, Id;
+            """,
+        DatabaseProvider.PostgreSql => $"""
+            SELECT Id FROM {_ordersTable}
+            WHERE ProductionState < {QueueStateUpperBoundExclusive}
+            ORDER BY CASE WHEN ProductionSequence > 0 THEN 0 ELSE 1 END, ProductionSequence, Id
+            FOR UPDATE;
+            """,
+        _ => $"""
+            SELECT Id FROM {_ordersTable}
+            WHERE ProductionState < {QueueStateUpperBoundExclusive}
+            ORDER BY CASE WHEN ProductionSequence > 0 THEN 0 ELSE 1 END, ProductionSequence, Id;
+            """
+    };
+    public string UpdateProductionSequence => $"""
+        UPDATE {_ordersTable}
+        SET ProductionSequence=@ProductionSequence, UpdatedAt=@UpdatedAt, LastModifiedBy=@LastModifiedBy
+        WHERE Id=@Id AND ProductionState < {QueueStateUpperBoundExclusive};
+        """;
+    public string SwapPendingOrderLevels => $"""
+        UPDATE {_ordersTable} SET
+          Order1Id=Order2Id, Order2Id=Order1Id,
+          Order1Product=Order2Product, Order2Product=Order1Product,
+          Order1Client=Order2Client, Order2Client=Order1Client,
+          Order1SheetQuantity=Order2SheetQuantity, Order2SheetQuantity=Order1SheetQuantity,
+          Order1SheetType=Order2SheetType, Order2SheetType=Order1SheetType,
+          Order1M1=Order2M1, Order2M1=Order1M1,
+          Order1M2=Order2M2, Order2M2=Order1M2,
+          Order1M3=Order2M3, Order2M3=Order1M3,
+          Order1M4=Order2M4, Order2M4=Order1M4,
+          Order1M5=Order2M5, Order2M5=Order1M5,
+          Order1SheetLength=Order2SheetLength, Order2SheetLength=Order1SheetLength,
+          Order1NumberOfCuts=Order2NumberOfCuts, Order2NumberOfCuts=Order1NumberOfCuts,
+          Order1NumberOfCutsProduced=Order2NumberOfCutsProduced,
+          Order2NumberOfCutsProduced=Order1NumberOfCutsProduced,
+          Order1PileQuantity=Order2PileQuantity, Order2PileQuantity=Order1PileQuantity,
+          UpdatedAt=@UpdatedAt, LastModifiedBy=@LastModifiedBy
+        WHERE Id=@Id
+          AND ProductionState < {QueueStateUpperBoundExclusive}
+          AND LevelSelector=3;
         """;
     public string DeleteOrder =>
         $"DELETE FROM {_ordersTable} WHERE Id=@Id AND ProductionState < {QueueStateUpperBoundExclusive};";
+    public string UpdateHistory => $"""
+        UPDATE {_ordersTable} SET
+          ProductionSequence=@ProductionSequence, MachineNotRunningTime=@MachineNotRunningTime,
+          StartedAt=@StartedAt, FinishedAt=@FinishedAt,
+          PaperComposition=@PaperComposition, FluteType=@FluteType, PaperWidth=@PaperWidth,
+          Paper1=@Paper1, Paper2=@Paper2, Paper3=@Paper3, Paper4=@Paper4, Paper5=@Paper5,
+          ProductionListNumber=@ProductionListNumber, LevelSelector=@LevelSelector,
+          Order1Id=@Order1Id, Order1Product=@Order1Product, Order1Client=@Order1Client,
+          Order1SheetQuantity=@Order1SheetQuantity, Order1SheetType=@Order1SheetType,
+          Order1M1=@Order1M1, Order1M2=@Order1M2, Order1M3=@Order1M3,
+          Order1M4=@Order1M4, Order1M5=@Order1M5,
+          Order1SheetLength=@Order1SheetLength, Order1NumberOfCuts=@Order1NumberOfCuts,
+          Order1NumberOfCutsProduced=@Order1NumberOfCutsProduced, Order1PileQuantity=@Order1PileQuantity,
+          Order2Id=@Order2Id, Order2Product=@Order2Product, Order2Client=@Order2Client,
+          Order2SheetQuantity=@Order2SheetQuantity, Order2SheetType=@Order2SheetType,
+          Order2M1=@Order2M1, Order2M2=@Order2M2, Order2M3=@Order2M3,
+          Order2M4=@Order2M4, Order2M5=@Order2M5,
+          Order2SheetLength=@Order2SheetLength, Order2NumberOfCuts=@Order2NumberOfCuts,
+          Order2NumberOfCutsProduced=@Order2NumberOfCutsProduced, Order2PileQuantity=@Order2PileQuantity,
+          UpdatedAt=@UpdatedAt, LastModifiedBy=@LastModifiedBy
+        WHERE Id=@Id AND ProductionState >= {HistoryStateLowerBoundInclusive};
+        """;
+    public string DeleteHistory =>
+        $"DELETE FROM {_ordersTable} WHERE Id=@Id AND ProductionState >= {HistoryStateLowerBoundInclusive};";
+    public string ClearHistory =>
+        $"DELETE FROM {_ordersTable} WHERE ProductionState >= {HistoryStateLowerBoundInclusive};";
+    public string RecoverHistory =>
+        $"UPDATE {_ordersTable} SET ProductionState=0 WHERE Id=@Id AND ProductionState >= {HistoryStateLowerBoundInclusive};";
+    public string CountInProduction => _provider == DatabaseProvider.SqlServer
+        ? $"""
+          SELECT COUNT(1)
+          FROM {_ordersTable} WITH (UPDLOCK, HOLDLOCK)
+          WHERE ProductionState = {InProductionState};
+          """
+        : $"""
+          SELECT COUNT(1)
+          FROM {_ordersTable}
+          WHERE ProductionState = {InProductionState};
+          """;
+    public string CleanupAllInProduction => $"""
+        UPDATE {_ordersTable}
+        SET
+          ProductionState = {HistoryStateLowerBoundInclusive},
+          FinishedAt = COALESCE(FinishedAt, @FinishedAt),
+          HistorySavedAt = COALESCE(HistorySavedAt, @FinishedAt),
+          UpdatedAt = @FinishedAt,
+          LastModifiedBy = 'SYSTEM-PLC-HANDSHAKE'
+        WHERE ProductionState = {InProductionState};
+        """;
+    public string GetCurrentInProductionId => _provider == DatabaseProvider.SqlServer
+        ? $"""
+          SELECT TOP 1 Id
+          FROM {_ordersTable} WITH (UPDLOCK, HOLDLOCK)
+          WHERE ProductionState = {InProductionState}
+          ORDER BY StartedAt DESC, Id DESC;
+          """
+        : $"""
+          SELECT Id
+          FROM {_ordersTable}
+          WHERE ProductionState = {InProductionState}
+          ORDER BY StartedAt DESC, Id DESC
+          LIMIT 1;
+          """;
+    public string CountOrderById => $"SELECT COUNT(1) FROM {_ordersTable} WHERE Id = @CurrentTableId;";
+    public string CountRecoveredHistory => $"""
+        SELECT COUNT(1) FROM {_ordersTable}
+        WHERE PlcSourceTableId = @CurrentTableId AND HistoryCreatedFromPlc = {BooleanTrue};
+        """;
+    public string FinishCurrentOrder => $"""
+        UPDATE {_ordersTable}
+        SET
+          StartedAt = COALESCE(@CurrentStartedAt, StartedAt),
+          Order1NumberOfCutsProduced = @Order1NumberOfCutsProduced,
+          Order2NumberOfCutsProduced = @Order2NumberOfCutsProduced,
+          FinishedAt = @FinishedAt,
+          ProductionState = {HistoryStateLowerBoundInclusive},
+          HistorySavedAt = @FinishedAt,
+          UpdatedAt = @FinishedAt,
+          LastModifiedBy = 'SYSTEM-PLC-HANDSHAKE'
+        WHERE Id = @CurrentTableId;
+        """;
+    public string StartNextOrder => $"""
+        UPDATE {_ordersTable}
+        SET
+          ProductionState = {InProductionState},
+          StartedAt = COALESCE(StartedAt, @NextStartedAt),
+          UpdatedAt = @NextStartedAt,
+          LastModifiedBy = 'SYSTEM-PLC-HANDSHAKE'
+        WHERE Id = @NextTableId;
+        """;
+    public string ForceSingleInProduction => $"""
+        UPDATE {_ordersTable}
+        SET
+          ProductionState = {HistoryStateLowerBoundInclusive},
+          FinishedAt = COALESCE(FinishedAt, @FinishedAt),
+          HistorySavedAt = COALESCE(HistorySavedAt, @FinishedAt),
+          UpdatedAt = @FinishedAt,
+          LastModifiedBy = 'SYSTEM-PLC-HANDSHAKE'
+        WHERE ProductionState = {InProductionState}
+          AND Id <> @NextTableId;
+        """;
 
     public ProductionQuery BuildHistory(OrderSearchMode mode, string? search, DateTime? date)
     {
@@ -149,6 +317,8 @@ public sealed class ProviderProductionQueries : IProductionQueries
     private string BuildInsert()
     {
         const string fields = """
+            PlcSourceTableId, CreatedAt, UpdatedAt, ImportedAt, HistorySavedAt,
+            HistoryCreatedFromPlc, CreatedBy, LastModifiedBy,
             ProductionSequence, ProductionState, MachineNotRunningTime, StartedAt, FinishedAt,
             PaperComposition, FluteType, PaperWidth, Paper1, Paper2, Paper3, Paper4, Paper5,
             ProductionListNumber, Order1Id, Order1Product, Order1Client, Order1SheetQuantity,
@@ -159,20 +329,24 @@ public sealed class ProviderProductionQueries : IProductionQueries
             Order2SheetLength, Order2NumberOfCuts, Order2NumberOfCutsProduced, Order2PileQuantity
             """;
         const string values = """
-            @ProductionSequence, 0, 0, NULL, NULL,
+            @PlcSourceTableId, @CreatedAt, @UpdatedAt, @ImportedAt, @HistorySavedAt,
+            @HistoryCreatedFromPlc, @CreatedBy, @LastModifiedBy,
+            @ProductionSequence, @ProductionState, @MachineNotRunningTime, @StartedAt, @FinishedAt,
             @PaperComposition, @FluteType, @PaperWidth, @Paper1, @Paper2, @Paper3, @Paper4, @Paper5,
             @ProductionListNumber, @Order1Id, @Order1Product, @Order1Client, @Order1SheetQuantity,
             @Order1SheetType, @Order1M1, @Order1M2, @Order1M3, @Order1M4, @Order1M5,
-            @Order1SheetLength, @Order1NumberOfCuts, 0, @Order1PileQuantity,
+            @Order1SheetLength, @Order1NumberOfCuts, @Order1NumberOfCutsProduced, @Order1PileQuantity,
             @LevelSelector, @Order2Id, @Order2Product, @Order2Client, @Order2SheetQuantity,
             @Order2SheetType, @Order2M1, @Order2M2, @Order2M3, @Order2M4, @Order2M5,
-            @Order2SheetLength, @Order2NumberOfCuts, 0, @Order2PileQuantity
+            @Order2SheetLength, @Order2NumberOfCuts, @Order2NumberOfCutsProduced, @Order2PileQuantity
             """;
 
         return _provider == DatabaseProvider.SqlServer
             ? $"INSERT INTO {_ordersTable} ({fields}) OUTPUT INSERTED.Id VALUES ({values});"
             : $"INSERT INTO {_ordersTable} ({fields}) VALUES ({values}) RETURNING Id;";
     }
+
+    private string BooleanTrue => _provider == DatabaseProvider.PostgreSql ? "TRUE" : "1";
 
     private string LimitedSelect(string body, int limit) => _provider == DatabaseProvider.SqlServer
         ? $"SELECT TOP {limit} {body};"

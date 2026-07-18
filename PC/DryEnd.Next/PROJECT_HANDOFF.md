@@ -1,5 +1,57 @@
 # Transferencia de contexto - DryEnd.Next
 
+## Recuperacao de historico e divergencia do nextOrder (2026-07-18)
+
+- Supervisor e Administrador podem recuperar um pedido finalizado pelo botao do
+  historico. A operacao altera somente `ProductionState` para `0`: preserva o
+  mesmo registro, ID, sequencia, horarios, quantidades e contadores.
+- Um pedido recuperado permanece com `HistorySavedAt` preenchido e recebe a
+  marca visual `Recuperado do historico` na fila.
+- O card do proximo pedido consulta a comparacao SQL/PLC a cada cinco segundos.
+  A comparacao inclui somente campos enviados por `NextOrderUpdate` e ignora
+  metricas, flags, contadores produzidos e `GeneratedOrder`.
+- Divergencias mostram os valores programado e atual. Somente Supervisor e
+  Administrador podem confirmar `Reescrever no CLP`; a operacao e bloqueada
+  durante troca/AOC, possui readback e registra usuario e campos no log.
+
+## Recuperacao do banco durante o boot (2026-07-18)
+
+- A migracao/verificacao do schema nao bloqueia mais a inicializacao do servidor.
+- `DatabaseInitializationWorker` repete a operacao a cada cinco segundos enquanto
+  o SQL estiver indisponivel e encerra depois da primeira inicializacao concluida.
+- O instalador habilita `failureflag` no Windows Service, aplicando as acoes de
+  recuperacao tambem quando o processo termina com erro.
+- O objetivo e permitir que o PC de producao reinicie antes do SQL remoto sem
+  exigir um `Restart-Service` manual para restaurar o login.
+
+## Registro de paradas e justificativas (2026-07-17)
+
+- `ProductionStopWorker` observa a velocidade do pedido atual a cada segundo e registra somente transicoes: abaixo de `10 m/min` abre uma parada; ao retornar a `10 m/min` ou mais, encerra a parada aberta.
+- Ao iniciar, o worker tambem percorre todo o historico de `MachineSpeedRecords`, reconstrói as sequencias abaixo de `10 m/min` e substitui apenas paradas ainda nao justificadas. Paradas justificadas sao preservadas e lacunas de amostragem acima de cinco minutos separam os eventos.
+- O SQL possui duas novas tabelas, criadas automaticamente pelo migrador: `ProductionStopReasons` (catalogo) e `ProductionStops` (eventos e justificativas).
+- O catalogo oficial esta incorporado em `src/DryEnd.Infrastructure.Database/StopReasons.txt` e e semeado de forma idempotente. Atualmente contem 119 codigos em 7 categorias.
+- Endpoints em `/api/production-data`: `stop-reasons`, `stops?date=AAAA-MM-DD`, `stops/pending-count` e `PUT stops/{id}/justification`.
+- A tela Metricas inclui `Tabela de paradas`, selecao de motivo por categoria, observacao e usuario digitado manualmente. A autenticacao do usuario sera integrada posteriormente.
+- O badge vermelho fica no botao `Tabela de paradas`, dentro da tela Metricas, e mostra somente as paradas encerradas ainda sem justificativa na data selecionada. A parada aberta nao entra no contador.
+- A duracao individual de uma parada nao tem limite de 60 minutos. O limite de 60 minutos permanece apenas no calculo agregado de tempo parado dentro de cada hora.
+
+## Graficos interativos de metricas (2026-07-17)
+
+- Os graficos manuais em SVG/CSS foram substituidos por Apache ECharts 6.1, usando importacoes modulares e renderizador Canvas.
+- Velocidade, medias horarias, parada por hora e duracao das paradas possuem tooltip, zoom pelo mouse/toque, barra inferior de navegacao e redimensionamento automatico.
+- O grafico de velocidade destaca abaixo de `10 m/min`, media, maxima e regioes de parada.
+- `MetricsScreen` e carregada sob demanda por `React.lazy`, mantendo o bundle inicial da HMI sem o peso do motor de graficos.
+
+## Login e controle de usuarios (2026-07-17)
+
+- Autenticacao simples por cookie `HttpOnly`, sessao de 12 horas e senhas processadas com `PasswordHasher` do ASP.NET Core.
+- A tabela multiplataforma `ApplicationUsers` e criada automaticamente para SQL Server, PostgreSQL ou SQLite.
+- Perfis: `Observer`, `Operator`, `Supervisor` e `Administrator`. O observador possui somente leitura; comandos PLC exigem operador; alteracao de pedidos exige supervisor; usuarios exigem administrador.
+- Quando nao ha usuarios, `/api/auth/status` informa `requiresSetup` e a interface apresenta a criacao do primeiro administrador. Nao existe senha padrao no codigo.
+- A tela `Usuarios` permite criar, editar, desativar e redefinir senha. Usuarios sao desativados, nao apagados fisicamente, para preservar historico.
+- Justificativas de parada usam automaticamente o usuario autenticado; o campo manual foi removido.
+- Chaves dos cookies ficam em `Authentication:KeyPath` ou, por padrao, em `data/keys` ao lado da aplicacao. Em Docker/Linux esse caminho deve ser um volume/diretorio persistente e gravavel.
+
 ## Objetivo deste documento
 
 Este documento registra as decisoes tomadas durante o planejamento da nova
@@ -423,3 +475,25 @@ Habilitar separadamente e com configuracao explicita:
 A escrita de `currentOrder` e `nextOrder` foi autorizada em 2026-07-17.
 Qualquer outro comando ou ampliacao de escrita continua exigindo autorizacao
 explicita.
+
+## Atualizacao operacional em 2026-07-17
+
+- `AdsPlcConnection` passou a ler cada DUT raiz inteira usando
+  `SymbolLoaderSettings.DefaultDynamic`: uma operacao para `.currentOrder` e uma
+  para `.nextOrder`, em vez de centenas de leituras campo a campo.
+- A leitura conectada foi validada neste PC com PLC `Online`, incluindo strings,
+  canais, medidas, facas, vincos e arrays com indices PLC iniciando em `1`.
+- A versao Release local `0.1.1` foi publicada com o frontend em `wwwroot` e
+  validada em `http://127.0.0.1:5099`.
+- Na validacao produtiva, PLC e SQL ficaram disponiveis e os workers de
+  sincronizacao, handshake e velocidade foram habilitados com autorizacao do
+  operador e maquina parada.
+- O procedimento completo para iniciar em modo somente leitura ou Release local,
+  validar os endpoints e encerrar esta documentado na secao
+  `Colocar o servidor local online` do `README.md`.
+- Uma execucao mantida por terminal/agente nao substitui o Windows Service. Para
+  operacao persistente use `DEPLOYMENT.md` e configuracao externa em
+  `C:\ProgramData\CPNTeck\DryEnd\appsettings.Production.json`.
+- Nesta copia sem `.git`, `Publish-DryEnd.ps1` concluiu testes, backend e frontend,
+  mas falhou depois na coleta do commit para o manifesto. O diretorio `app` ficou
+  executavel; o ZIP/manifesto nao deve ser considerado concluido nesse caso.

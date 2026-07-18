@@ -3,6 +3,14 @@ namespace DryEnd.Domain;
 public sealed class ProductionOrderRecord
 {
     public int Id { get; set; }
+    public int? PlcSourceTableId { get; set; }
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
+    public DateTime? ImportedAt { get; set; }
+    public DateTime? HistorySavedAt { get; set; }
+    public bool HistoryCreatedFromPlc { get; set; }
+    public string? CreatedBy { get; set; }
+    public string? LastModifiedBy { get; set; }
     public int? ProductionSequence { get; set; }
     public int? ProductionState { get; set; }
     public int? MachineNotRunningTime { get; set; }

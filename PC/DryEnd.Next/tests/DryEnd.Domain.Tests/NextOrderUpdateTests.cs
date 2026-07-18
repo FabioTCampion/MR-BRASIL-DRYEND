@@ -38,6 +38,21 @@ public sealed class NextOrderUpdateTests
     }
 
     [Fact]
+    public void FromDatabase_ConvertsNullInactiveMeasuresToZero()
+    {
+        var order = CreateValidOrder();
+        order.Order1M4 = null;
+        order.Order1M5 = null;
+        order.Order2M4 = null;
+        order.Order2M5 = null;
+
+        var update = NextOrderUpdate.FromDatabase(order);
+
+        Assert.Equal([164, 616, 164, 0, 0], update.Order1.SheetMeasures);
+        Assert.Equal([208, 331, 208, 0, 0], update.Order2.SheetMeasures);
+    }
+
+    [Fact]
     public void FromDatabase_AllowsNullFieldsForDisabledOrderAndWritesExplicitEmptyValues()
     {
         var order = CreateValidOrder();
@@ -49,6 +64,22 @@ public sealed class NextOrderUpdateTests
 
         var update = NextOrderUpdate.FromDatabase(order);
 
+        Assert.Equal(NextOrderChannelUpdate.Empty, update.Order2);
+    }
+
+    [Fact]
+    public void FromDatabase_LevelTwoUsesOrderOneAsTheLowerLevel()
+    {
+        var order = CreateValidOrder();
+        order.LevelSelector = 2;
+        order.Order2Id = null;
+        order.Order2Product = null;
+        order.Order2Client = null;
+        order.Order2M1 = null;
+
+        var update = NextOrderUpdate.FromDatabase(order);
+
+        Assert.Equal(3000, update.Order1.Id);
         Assert.Equal(NextOrderChannelUpdate.Empty, update.Order2);
     }
 

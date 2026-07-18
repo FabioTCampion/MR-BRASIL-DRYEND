@@ -47,6 +47,11 @@ public sealed class NextOrderSyncWorker(
 
         var currentOrder = snapshot.Data.CurrentOrder;
         var plcNextOrder = snapshot.Data.NextOrder;
+        if (currentOrder.ChangeOrderRequest)
+        {
+            LogBlockedOnce("change-order", "Next-order synchronization is paused while an automatic order change is in progress.");
+            return;
+        }
         var queue = await repository.GetQueueAsync(cancellationToken);
         var candidate = queue
             .Where(order => order.ProductionState is < 1)
@@ -74,14 +79,11 @@ public sealed class NextOrderSyncWorker(
             return;
         }
 
-        // EN: A different positive ID means the PLC already owns an accepted next order.
-        // PT: Um ID positivo diferente indica que o PLC ja possui um proximo pedido aceito.
-        if (plcNextOrder.TableId > 0 && plcNextOrder.TableId != currentOrder.TableId)
+        // EN: The same ID is already synchronized; preserve it unless its data diverged.
+        // PT: O mesmo ID ja esta sincronizado; preserva-o caso os dados estejam divergentes.
+        if (plcNextOrder.TableId == update.TableId)
         {
-            if (plcNextOrder.TableId != update.TableId)
-                LogBlockedOnce($"occupied:{plcNextOrder.TableId}:{update.TableId}",
-                    $"PLC next-order slot is occupied by table ID {plcNextOrder.TableId}; queued order {update.TableId} was not written.");
-            else if (!update.Matches(plcNextOrder))
+            if (!update.Matches(plcNextOrder))
                 LogBlockedOnce($"divergent:{update.TableId}",
                     $"PLC next order {update.TableId} differs from SQL. PLC data was preserved and not overwritten.");
             else
@@ -95,8 +97,9 @@ public sealed class NextOrderSyncWorker(
 
         _lastBlockedReason = null;
         logger.LogInformation(
-            "Queued order {TableId} was written to PLC nextOrder and confirmed by ADS readback.",
-            update.TableId);
+            "Queued order {TableId} replaced PLC nextOrder table ID {PreviousTableId} and was confirmed by ADS readback.",
+            update.TableId,
+            plcNextOrder.TableId);
     }
 
     private void LogBlockedOnce(string key, string message, Exception? exception = null)

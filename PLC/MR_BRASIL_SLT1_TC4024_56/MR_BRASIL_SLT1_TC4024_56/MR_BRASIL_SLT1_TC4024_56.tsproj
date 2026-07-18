@@ -2156,8 +2156,8 @@ External Setpoint Generation:
 					<ManualSelect>{BF78CFC7-2E63-42C3-8C07-BB6C346BFB8B}</ManualSelect>
 					<ManualSelect>{66689887-CCBD-452C-AC9A-039D997C6E66}</ManualSelect>
 					<ManualSelect>{6952449D-F68C-49A2-ADE4-8639D85B33A4}</ManualSelect>
-					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 					<ManualSelect>{520DE751-9DB6-47CB-8240-BD5C466E7E64}</ManualSelect>
+					<ManualSelect>{8C57D0A8-BD63-4554-BAE1-E9C797EF0D0E}</ManualSelect>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -4082,7 +4082,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{CBDB8CCC-0F43-46E7-8C82-C97A3A06A577}" Name="Plc_Program" PrjFilePath="Plc_Program\Plc_Program.plcproj" TmcFilePath="Plc_Program\Plc_Program.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" CopyTmcToTarget="true" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{06F4F7BF-265A-261B-3C07-B237BE046907}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="Plc_Program\Plc_Program.tmc" TmcHash="{4894674D-165F-3D92-5D22-D33355BB7683}">
 					<Name>Plc_Program Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="1">
@@ -11545,13 +11545,13 @@ Slave-Mode:
 		</Io>
 	</Project>
 	<Mappings>
-		<MappingInfo Identifier="{00000000-2001-0850-0120-500862000403}" Id="#x02030030"/>
+		<MappingInfo Identifier="{00000000-2001-0850-0120-500862000403}" Id="#x02030070"/>
 		<MappingInfo Identifier="{00000000-2001-0850-0120-500870000403}" Id="#x02030060"/>
 		<MappingInfo Identifier="{00000000-2002-0850-0020-500820000403}" Id="#x02030010"/>
 		<MappingInfo Identifier="{00000000-0030-0304-1000-040333000403}" Id="#x02030050"/>
 		<MappingInfo Identifier="{00000000-0040-0304-1000-040341000403}" Id="#x02030020"/>
 		<MappingInfo Identifier="{05000010-2001-0850-1000-040301205008}" Id="#x02030040" Watchdog="14000000040000000400000004000000"/>
-		<MappingInfo Identifier="{03040060-0060-0304-6000-040360000403}" Id="#x02030070" Watchdog="04000000040000000400000004000000"/>
+		<MappingInfo Identifier="{03040060-0060-0304-6000-040360000403}" Id="#x02030030" Watchdog="04000000040000000400000004000000"/>
 		<OwnerA Name="TIID^ETC">
 			<OwnerB Name="TIID^ETC^STK+P2=050-BC1^STK+P2=050-SI2">
 				<Link VarA="STK+P2=050-BC1^STK+P2=050-SP1^ConnectionOutputs^Message_4 RxPDO" VarB="Module 1 (FSOES)^TxPDO^FSOE"/>

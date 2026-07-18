@@ -20,6 +20,7 @@
 }
 
 .side-menu-heading{
+  position:relative;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -28,16 +29,55 @@
 }
 
 .side-menu .brand{
+  flex:1;
   min-width:0;
   padding:0;
+  gap:14px;
+  align-items:center;
+  flex-direction:column;
+}
+
+.side-menu .company-icon{
+  display:block;
+  width:38px;
+  height:38px;
+  object-fit:contain;
+  transition:transform .18s ease,filter .18s ease;
+}
+
+.side-menu .brand:hover .company-icon{
+  transform:scale(1.1) rotate(-4deg);
+  filter:drop-shadow(0 0 8px #4b92efaa);
 }
 
 .side-menu .brand-copy{
+  align-items:center;
+  text-align:center;
   white-space:nowrap;
   overflow:hidden;
 }
 
+.side-menu .company-footer-logo{
+  display:block;
+  width:168px;
+  height:auto;
+  margin:0 auto 8px;
+  filter:brightness(0) invert(1);
+}
+
+.side-menu .side-footer{
+  align-items:center;
+  text-align:center;
+}
+
+.side-menu .side-footer .status{
+  justify-content:center;
+}
+
 .side-menu-toggle{
+  position:absolute;
+  top:3px;
+  right:0;
   flex:0 0 32px;
   display:grid;
   place-items:center;
@@ -76,6 +116,18 @@
   display:none;
 }
 
+.side-menu.collapsed .brand{
+  align-items:center;
+}
+
+.side-menu.collapsed .company-footer-logo{
+  display:none;
+}
+
+.side-menu.collapsed .side-menu-toggle{
+  position:static;
+}
+
 .side-menu.collapsed .side-menu-toggle svg{
   transform:rotate(180deg);
 }
@@ -85,6 +137,8 @@
   min-height:44px;
   font-size:13px;
 }
+.menu-badge{margin-left:auto;min-width:20px;height:20px;padding:0 5px;border-radius:999px;display:grid;place-items:center;color:#fff;background:#dc4f4f;font-size:10px;font-weight:800}
+.side-menu.collapsed .menu-badge{position:absolute;top:2px;right:2px;min-width:17px;height:17px;padding:0 3px;font-size:8px}
 
 .side-menu nav button:focus-visible{
   outline:2px solid #4b92ef;
@@ -185,5 +239,7 @@
 }
 
 @media(prefers-reduced-motion:reduce){
-  .app-shell,.side-menu,.side-menu-toggle svg{transition:none}
+  .app-shell,.side-menu,.side-menu-toggle svg,.side-menu .company-icon{transition:none}
+
+  .side-menu .brand:hover .company-icon{transform:none}
 }

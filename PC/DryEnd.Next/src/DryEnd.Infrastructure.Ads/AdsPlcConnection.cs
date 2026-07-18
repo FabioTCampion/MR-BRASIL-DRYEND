@@ -3,14 +3,18 @@ using DryEnd.Domain;
 using TwinCAT;
 using TwinCAT.Ads;
 using TwinCAT.Ads.TypeSystem;
+using TwinCAT.TypeSystem;
 
 namespace DryEnd.Infrastructure.Ads;
 
-public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNextOrderWriter
+public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNextOrderWriter, IPlcChangeOrderAcknowledger, IPlcOrderCommandWriter
 {
     private readonly AdsClient _client = new();
+    private readonly AdsClient _commandClient = new();
     private readonly AdsOptions _options;
     private readonly SemaphoreSlim _operationLock = new(1, 1);
+    private ISymbol? _currentOrderSymbol;
+    private ISymbol? _nextOrderSymbol;
 
     public AdsPlcConnection(AdsOptions options)
     {
@@ -22,10 +26,13 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
 
     public async Task ConnectAsync(CancellationToken cancellationToken)
     {
-        if (IsConnected)
-            return;
+        var address = new AmsNetId(_options.AmsNetId);
+        if (!IsConnected)
+            await _client.ConnectAsync(address, _options.Port, cancellationToken);
+        if (!_commandClient.IsConnected)
+            await _commandClient.ConnectAsync(address, _options.Port, cancellationToken);
 
-        await _client.ConnectAsync(new AmsNetId(_options.AmsNetId), _options.Port, cancellationToken);
+        EnsureOrderSymbolsLoaded();
     }
 
     public async Task<PlcDataSnapshot> ReadSnapshotAsync(CancellationToken cancellationToken)
@@ -66,6 +73,30 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
         }
     }
 
+    public async Task<OrderSnapshot> PatchCurrentOrderAsync(
+        CurrentOrderPatch patch,
+        CancellationToken cancellationToken)
+    {
+        if (!IsConnected)
+            throw new InvalidOperationException("ADS client is not connected.");
+
+        patch.ValidateStructure();
+        await _operationLock.WaitAsync(cancellationToken);
+        try
+        {
+            await WriteOrderPatchAsync(
+                _options.CurrentOrderRoot,
+                patch.BaseSnapshot,
+                patch.UpdatedOrder,
+                cancellationToken);
+            return await ReadOrderAsync(_options.CurrentOrderRoot, cancellationToken);
+        }
+        finally
+        {
+            _operationLock.Release();
+        }
+    }
+
     public async Task<OrderSnapshot> WriteNextOrderAsync(
         NextOrderUpdate update,
         CancellationToken cancellationToken)
@@ -86,9 +117,61 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
         }
     }
 
+    public async Task AcknowledgeChangeOrderAsync(
+        DateTime nextOrderStartedAt,
+        CancellationToken cancellationToken)
+    {
+        if (!IsConnected)
+            throw new InvalidOperationException("ADS client is not connected.");
+
+        await _operationLock.WaitAsync(cancellationToken);
+        try
+        {
+            var startedAtText = nextOrderStartedAt.ToString("yyyy-MM-dd HH:mm:ss");
+            await WriteValueAsync($"{_options.NextOrderRoot}.startedAt", startedAtText, cancellationToken);
+            await WriteValueAsync($"{_options.CurrentOrderRoot}.saveSQLFinished", true, cancellationToken);
+        }
+        finally
+        {
+            _operationLock.Release();
+        }
+    }
+
+    public Task<bool> RequestChangeOrderAsync(CancellationToken cancellationToken) =>
+        RequestOrderCommandAsync("changeOrderRequest", cancellationToken);
+
+    public Task<bool> RequestAutomaticOrderChangeAsync(CancellationToken cancellationToken) =>
+        RequestOrderCommandAsync("aocRequest", cancellationToken);
+
+    private async Task<bool> RequestOrderCommandAsync(
+        string commandName,
+        CancellationToken cancellationToken)
+    {
+        if (!_commandClient.IsConnected)
+            await _commandClient.ConnectAsync(
+                new AmsNetId(_options.AmsNetId),
+                _options.Port,
+                cancellationToken);
+
+        var symbol = $"{_options.CurrentOrderRoot}.{commandName}";
+        var writeResult = await _commandClient.WriteValueAsync(symbol, true, cancellationToken);
+        if (writeResult.Failed)
+            throw new AdsErrorException($"Could not write ADS symbol '{symbol}'.", writeResult.ErrorCode);
+
+        var readResult = await _commandClient.ReadValueAsync<bool>(symbol, cancellationToken);
+        if (readResult.Failed)
+            throw new AdsErrorException($"Could not read ADS symbol '{symbol}'.", readResult.ErrorCode);
+        if (!readResult.Value)
+            throw new InvalidOperationException($"ADS readback did not confirm '{commandName}'.");
+        return true;
+    }
+
     public Task DisconnectAsync(CancellationToken cancellationToken)
     {
+        _currentOrderSymbol = null;
+        _nextOrderSymbol = null;
         _client.Disconnect();
+        _commandClient.Disconnect();
         return Task.CompletedTask;
     }
 
@@ -151,6 +234,70 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
         // EN: Write the database identity last so it acts as the final field of the update.
         // PT: Grava a identidade do banco por último para que ela seja o campo final da atualização.
         await WriteValueAsync($"{root}.tableID", update.TableId, cancellationToken);
+    }
+
+    private async Task WriteOrderPatchAsync(
+        string root,
+        CurrentOrderUpdate original,
+        CurrentOrderUpdate updated,
+        CancellationToken cancellationToken)
+    {
+        await WriteIfChangedAsync($"{root}.startedAt", original.StartedAt, updated.StartedAt, cancellationToken);
+        await WriteIfChangedAsync($"{root}.productionListNumber", original.ProductionListNumber, updated.ProductionListNumber, cancellationToken);
+        await WriteIfChangedAsync($"{root}.levelSelector", original.LevelSelector, updated.LevelSelector, cancellationToken);
+        await WriteIfChangedAsync($"{root}.paperComposition", original.PaperComposition, updated.PaperComposition, cancellationToken);
+        await WriteIfChangedAsync($"{root}.fluteType", original.FluteType, updated.FluteType, cancellationToken);
+        await WriteIfChangedAsync($"{root}.paperWidth", original.PaperWidth, updated.PaperWidth, cancellationToken);
+
+        for (var index = 1; index <= updated.PaperLayers.Count; index++)
+            await WriteIfChangedAsync(
+                $"{root}.paper{index}",
+                original.PaperLayers[index - 1],
+                updated.PaperLayers[index - 1],
+                cancellationToken);
+
+        await WriteIfChangedAsync($"{root}.linearMeters", original.LinearMeters, updated.LinearMeters, cancellationToken);
+        await WriteIfChangedAsync($"{root}.linearMetersProduced", original.LinearMetersProduced, updated.LinearMetersProduced, cancellationToken);
+        await WriteIfChangedAsync($"{root}.linearMetersRemaining", original.LinearMetersRemaining, updated.LinearMetersRemaining, cancellationToken);
+        await WriteIfChangedAsync($"{root}.scorerHeightMM", original.ScorerHeightMm, updated.ScorerHeightMm, cancellationToken);
+        await WriteIfChangedAsync($"{root}.invertOrderLevel", original.InvertOrderLevel, updated.InvertOrderLevel, cancellationToken);
+        await WriteIfChangedAsync($"{root}.invertOrderSide", original.InvertOrderSide, updated.InvertOrderSide, cancellationToken);
+        await WriteOrderChannelPatchAsync($"{root}.order1", original.Order1, updated.Order1, cancellationToken);
+        await WriteOrderChannelPatchAsync($"{root}.order2", original.Order2, updated.Order2, cancellationToken);
+
+        // EN: If changed, the database identity remains the commit marker and is written last.
+        // PT: Se alterada, a identidade do banco continua sendo o marcador final e e gravada por ultimo.
+        await WriteIfChangedAsync($"{root}.tableID", original.TableId, updated.TableId, cancellationToken);
+    }
+
+    private async Task WriteOrderChannelPatchAsync(
+        string root,
+        OrderChannelUpdate original,
+        OrderChannelUpdate updated,
+        CancellationToken cancellationToken)
+    {
+        await WriteIfChangedAsync($"{root}.id", original.Id, updated.Id, cancellationToken);
+        await WriteIfChangedAsync($"{root}.product", original.Product, updated.Product, cancellationToken);
+        await WriteIfChangedAsync($"{root}.client", original.Client, updated.Client, cancellationToken);
+        await WriteIfChangedAsync($"{root}.sheetType", original.SheetType, updated.SheetType, cancellationToken);
+        await WriteIfChangedAsync($"{root}.sheetQuantity", original.SheetQuantity, updated.SheetQuantity, cancellationToken);
+        await WriteIfChangedAsync($"{root}.sheetLength", original.SheetLength, updated.SheetLength, cancellationToken);
+
+        for (var index = 1; index <= updated.SheetMeasures.Count; index++)
+            await WriteIfChangedAsync(
+                $"{root}.sheetM{index}",
+                original.SheetMeasures[index - 1],
+                updated.SheetMeasures[index - 1],
+                cancellationToken);
+
+        await WriteIfChangedAsync($"{root}.numberOfCuts", original.NumberOfCuts, updated.NumberOfCuts, cancellationToken);
+        await WriteIfChangedAsync($"{root}.numberOfCutsProduced", original.NumberOfCutsProduced, updated.NumberOfCutsProduced, cancellationToken);
+        await WriteIfChangedAsync($"{root}.numberOfCutsRemaining", original.NumberOfCutsRemaining, updated.NumberOfCutsRemaining, cancellationToken);
+        await WriteIfChangedAsync($"{root}.pileQuantity", original.PileQuantity, updated.PileQuantity, cancellationToken);
+        await WriteIfChangedAsync($"{root}.pileQuantityProduced", original.PileQuantityProduced, updated.PileQuantityProduced, cancellationToken);
+        await WriteIfChangedAsync($"{root}.pileQuantityRemaining", original.PileQuantityRemaining, updated.PileQuantityRemaining, cancellationToken);
+        await WriteIfChangedAsync($"{root}.pileCounter", original.PileCounter, updated.PileCounter, cancellationToken);
+        await WriteIfChangedAsync($"{root}.scrapCounter", original.ScrapCounter, updated.ScrapCounter, cancellationToken);
     }
 
     private async Task WriteOrderChannelUpdateAsync(
@@ -232,118 +379,34 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
 
     private async Task<OrderSnapshot> ReadOrderAsync(string root, CancellationToken cancellationToken)
     {
-        return new OrderSnapshot(
-            await ReadValueAsync<string>($"{root}.startedAt", cancellationToken),
-            await ReadValueAsync<int>($"{root}.tableID", cancellationToken),
-            await ReadValueAsync<int>($"{root}.productionListNumber", cancellationToken),
-            await ReadValueAsync<short>($"{root}.levelSelector", cancellationToken),
-            await ReadValueAsync<string>($"{root}.paperComposition", cancellationToken),
-            await ReadValueAsync<string>($"{root}.fluteType", cancellationToken),
-            await ReadValueAsync<short>($"{root}.paperWidth", cancellationToken),
-            await ReadStringListAsync(root, "paper", 5, cancellationToken),
-            await ReadValueAsync<float>($"{root}.lineSpeed", cancellationToken),
-            await ReadValueAsync<float>($"{root}.linearMeters", cancellationToken),
-            await ReadValueAsync<float>($"{root}.linearMetersProduced", cancellationToken),
-            await ReadValueAsync<float>($"{root}.linearMetersRemaining", cancellationToken),
-            await ReadValueAsync<float>($"{root}.scorerHeightMM", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.plcWatchDog", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.aocRequest", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.changeOrderRequest", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.saveSQLFinished", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.saveSQLTimeOut", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.invertOrderLevel", cancellationToken),
-            await ReadValueAsync<bool>($"{root}.invertOrderSide", cancellationToken),
-            await ReadOrderChannelAsync($"{root}.order1", cancellationToken),
-            await ReadOrderChannelAsync($"{root}.order2", cancellationToken),
-            await ReadGeneratedOrderAsync($"{root}.generatedOrder", cancellationToken));
+        EnsureOrderSymbolsLoaded();
+        var symbol = string.Equals(root, _options.CurrentOrderRoot, StringComparison.OrdinalIgnoreCase)
+            ? _currentOrderSymbol!
+            : _nextOrderSymbol!;
+        if (symbol is not IValueSymbol valueSymbol)
+            throw new InvalidOperationException($"ADS structure symbol '{root}' is not readable.");
+        var result = await valueSymbol.ReadValueAsync(cancellationToken);
+        if (result.Failed)
+            throw new AdsErrorException($"Could not read ADS structure '{root}'.", (AdsErrorCode)result.ErrorCode);
+
+        return BulkOrderSnapshotMapper.Map(result.Value, root);
     }
 
-    private async Task<OrderChannelSnapshot> ReadOrderChannelAsync(string root, CancellationToken cancellationToken)
+    private void EnsureOrderSymbolsLoaded()
     {
-        var measures = new short[5];
-        for (var index = 1; index <= measures.Length; index++)
-            measures[index - 1] = await ReadValueAsync<short>($"{root}.sheetM{index}", cancellationToken);
+        if (_currentOrderSymbol is not null && _nextOrderSymbol is not null)
+            return;
 
-        return new OrderChannelSnapshot(
-            await ReadValueAsync<int>($"{root}.id", cancellationToken),
-            await ReadValueAsync<string>($"{root}.product", cancellationToken),
-            await ReadValueAsync<string>($"{root}.client", cancellationToken),
-            await ReadValueAsync<short>($"{root}.sheetType", cancellationToken),
-            await ReadValueAsync<short>($"{root}.sheetQuantity", cancellationToken),
-            await ReadValueAsync<short>($"{root}.sheetLength", cancellationToken),
-            measures,
-            await ReadValueAsync<int>($"{root}.numberOfCuts", cancellationToken),
-            await ReadValueAsync<int>($"{root}.numberOfCutsProduced", cancellationToken),
-            await ReadValueAsync<int>($"{root}.numberOfCutsRemaining", cancellationToken),
-            await ReadValueAsync<short>($"{root}.pileQuantity", cancellationToken),
-            await ReadValueAsync<short>($"{root}.pileQuantityProduced", cancellationToken),
-            await ReadValueAsync<short>($"{root}.pileQuantityRemaining", cancellationToken),
-            await ReadValueAsync<short>($"{root}.pileCounter", cancellationToken),
-            await ReadValueAsync<short>($"{root}.scrapCounter", cancellationToken));
+        var loader = SymbolLoaderFactory.Create(_client, SymbolLoaderSettings.DefaultDynamic);
+        var symbols = loader.Symbols.SelectMany(Flatten).ToArray();
+        _currentOrderSymbol = FindRootSymbol(symbols, _options.CurrentOrderRoot);
+        _nextOrderSymbol = FindRootSymbol(symbols, _options.NextOrderRoot);
     }
 
-    private async Task<GeneratedOrderSnapshot> ReadGeneratedOrderAsync(string root, CancellationToken cancellationToken)
-    {
-        var knives = await ReadToolReferencesAsync(root, "knife", 10, cancellationToken);
-        var scorers = await ReadToolReferencesAsync(root, "scorer", 20, cancellationToken);
-        var knivesOutOfRange = await ReadActiveIndexesAsync($"{root}.statusWord.knifeOutOfRangeArr", 5, cancellationToken);
-        var scorersOutOfRange = await ReadActiveIndexesAsync($"{root}.statusWord.scorerOutOfRangeArr", 8, cancellationToken);
-
-        return new GeneratedOrderSnapshot(
-            await ReadValueAsync<short>($"{root}.numberOfKnifes", cancellationToken),
-            await ReadValueAsync<short>($"{root}.numberOfScorers", cancellationToken),
-            await ReadValueAsync<short>($"{root}.numberOfSheets", cancellationToken),
-            await ReadValueAsync<float>($"{root}.order1Width", cancellationToken),
-            await ReadValueAsync<float>($"{root}.order2Width", cancellationToken),
-            await ReadValueAsync<float>($"{root}.orderTotalWidth", cancellationToken),
-            await ReadValueAsync<float>($"{root}.firstKnifePosition", cancellationToken),
-            await ReadValueAsync<float>($"{root}.lastKnifePosition", cancellationToken),
-            knives,
-            scorers,
-            await ReadValueAsync<bool>($"{root}.statusWord.orderNotOk", cancellationToken),
-            knivesOutOfRange,
-            scorersOutOfRange);
-    }
-
-    private async Task<IReadOnlyList<ToolReferenceSnapshot>> ReadToolReferencesAsync(
-        string root,
-        string toolName,
-        int count,
-        CancellationToken cancellationToken)
-    {
-        var result = new List<ToolReferenceSnapshot>(count);
-        for (var index = 1; index <= count; index++)
-        {
-            var enabled = await ReadValueAsync<bool>($"{root}.{toolName}EnabledArr[{index}]", cancellationToken);
-            var position = await ReadValueAsync<float>($"{root}.{toolName}PositionReferenceArr[{index}]", cancellationToken);
-            result.Add(new ToolReferenceSnapshot(index, enabled, position));
-        }
-        return result;
-    }
-
-    private async Task<IReadOnlyList<int>> ReadActiveIndexesAsync(
-        string root,
-        int count,
-        CancellationToken cancellationToken)
-    {
-        var result = new List<int>();
-        for (var index = 1; index <= count; index++)
-            if (await ReadValueAsync<bool>($"{root}[{index}]", cancellationToken))
-                result.Add(index);
-        return result;
-    }
-
-    private async Task<IReadOnlyList<string>> ReadStringListAsync(
-        string root,
-        string name,
-        int count,
-        CancellationToken cancellationToken)
-    {
-        var result = new string[count];
-        for (var index = 1; index <= count; index++)
-            result[index - 1] = await ReadValueAsync<string>($"{root}.{name}{index}", cancellationToken);
-        return result;
-    }
+    private static ISymbol FindRootSymbol(IEnumerable<ISymbol> symbols, string instancePath) =>
+        symbols.FirstOrDefault(symbol =>
+            string.Equals(symbol.InstancePath, instancePath, StringComparison.OrdinalIgnoreCase))
+        ?? throw new InvalidOperationException($"ADS structure symbol '{instancePath}' was not found.");
 
     private async Task<T> ReadValueAsync<T>(string symbol, CancellationToken cancellationToken)
     {
@@ -362,5 +425,18 @@ public sealed class AdsPlcConnection : IPlcConnection, IPlcOrderEditor, IPlcNext
         var result = await _client.WriteValueAsync(symbol, value, cancellationToken);
         if (result.Failed)
             throw new AdsErrorException($"Could not write ADS symbol '{symbol}'.", result.ErrorCode);
+    }
+
+    private async Task WriteIfChangedAsync<T>(
+        string symbol,
+        T original,
+        T updated,
+        CancellationToken cancellationToken)
+        where T : notnull
+    {
+        if (EqualityComparer<T>.Default.Equals(original, updated))
+            return;
+
+        await WriteValueAsync(symbol, updated, cancellationToken);
     }
 }

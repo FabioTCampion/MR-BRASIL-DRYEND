@@ -28,6 +28,17 @@ public sealed record CurrentOrderUpdate(
     }
 }
 
+public sealed record CurrentOrderPatch(
+    CurrentOrderUpdate BaseSnapshot,
+    CurrentOrderUpdate UpdatedOrder)
+{
+    public void ValidateStructure()
+    {
+        BaseSnapshot.ValidateStructure();
+        UpdatedOrder.ValidateStructure();
+    }
+}
+
 public sealed record OrderChannelUpdate(
     int Id,
     string Product,

@@ -1,4 +1,4 @@
-type NavigationIconName = 'production' | 'orders' | 'history' | 'graphs' | 'diagnostics'
+type NavigationIconName = 'production' | 'orders' | 'import' | 'history' | 'graphs' | 'diagnostics' | 'users'
 
 export type NavigationItem<T extends string> = {
   id: T
@@ -29,6 +29,10 @@ function NavigationIcon({ name }: { name: NavigationIconName }) {
     return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.3-5.7L4 8.6"/><path d="M4 4v4.6h4.6M12 8v5l3 2"/></svg>
   }
 
+  if (name === 'import') {
+    return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 15v5h14v-5"/></svg>
+  }
+
   if (name === 'graphs') {
     return <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M7 15l4-4 3 2 5-6"/></svg>
   }
@@ -50,7 +54,7 @@ export default function SideMenu<T extends string>({
   return <aside className={`side-menu ${collapsed ? 'collapsed' : ''}`} aria-label="Navegação principal">
     <div className="side-menu-heading">
       <div className="brand">
-        <i aria-hidden="true">MR</i>
+        <img className="company-icon" src="/brand/cpnteck-icon-white.png" alt="CPNTeck - Automação Industrial"/>
         <div className="brand-copy"><b>Dry End</b><span>Production HMI</span></div>
       </div>
       <button
@@ -82,6 +86,7 @@ export default function SideMenu<T extends string>({
     </nav>
 
     <div className="side-footer" title={`PLC: ${statusLabel}`}>
+      <img className="company-footer-logo" src="/brand/cpnteck-logo.svg" alt="CPNTeck - Automação Industrial"/>
       <span className={`status ${online ? 'online' : ''}`}><i/><span className="status-label">{statusLabel}</span></span>
       <span className="runtime-label">PLC Runtime 1 · 851</span>
     </div>

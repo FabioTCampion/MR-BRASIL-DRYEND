@@ -10,7 +10,7 @@ VAR_INPUT
     startCmd                            : BOOL;
     stopCmd                             : BOOL;
     resetCmd                            : BOOL;
-
+	blockConveyorCmd					: BOOL;
 
     //==============================================================
     // Speed reference inputs
@@ -2505,7 +2505,8 @@ speedControlEnabled :=
     sheetConveyor2Run AND
     sheetConveyor3Run AND
     sheetConveyor4Run AND
-    safetyCircuitOk;
+    safetyCircuitOk
+ 	AND NOT blockConveyorCmd;
 
 rampReset := NOT speedControlEnabled;
 
@@ -2560,7 +2561,7 @@ END_IF;
 //==============================================================
 // 6) Calculate normal stacker speed
 //==============================================================
-IF speedControlEnabled THEN
+IF speedControlEnabled AND NOT blockConveyorCmd THEN
 
     normalStackerSpeedMPM :=
         LIMIT(
@@ -6626,7 +6627,9 @@ END_IF;]]></ST>
       <LineId Id="992" Count="1" />
     </LineIds>
     <LineIds Name="FB_ComplexSheetStackerControl._ConveyorSpeedControl">
-      <LineId Id="3" Count="63" />
+      <LineId Id="3" Count="35" />
+      <LineId Id="664" Count="0" />
+      <LineId Id="39" Count="27" />
       <LineId Id="497" Count="13" />
       <LineId Id="77" Count="403" />
       <LineId Id="2" Count="0" />

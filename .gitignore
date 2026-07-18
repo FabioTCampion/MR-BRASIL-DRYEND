@@ -47,3 +47,7 @@ PC/DryEnd.Next/src/dryend-web-client/dist/
 PC/DryEnd.Next/src/dryend-web-client/coverage/
 PC/DryEnd.Next/src/dryend-web-client/playwright-report/
 PC/DryEnd.Next/src/dryend-web-client/test-results/
+
+# EN: Local backend runtime logs.
+# PT: Logs locais de execucao do backend.
+PC/DryEnd.Next/backend-*.log

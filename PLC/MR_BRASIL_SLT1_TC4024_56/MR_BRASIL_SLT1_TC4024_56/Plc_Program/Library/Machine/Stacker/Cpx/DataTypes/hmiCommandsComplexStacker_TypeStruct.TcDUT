@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1">
   <DUT Name="hmiCommandsComplexStacker_TypeStruct" Id="{036ac122-9181-487e-b678-860585119a3b}">
     <Declaration><![CDATA[TYPE hmiCommandsComplexStacker_TypeStruct :
@@ -20,6 +20,7 @@ STRUCT
     // PT: Comando momentâneo de reset das falhas.
     resetCmd                                : BOOL;
 
+	blockConveyorCmd					: BOOL;
 
     //==============================================================
     // EN: Sheet conveyor group commands
